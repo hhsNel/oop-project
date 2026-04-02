@@ -5,11 +5,11 @@
 
 **Klon klasycznej gry Doom**  
 
-## Opis zalozen
+## Opis załozeń
 Projekt ma na celu stworzenie w pełni funkcjonalnej, minimalistycznej gry typu retro FPS. Wszystkie kluczowe elementy mechaniki gry (potwory, bronie, pociski) są projektowane z wykorzystaniem polimorfizmu, dziedziczenia i kompozycji, tak aby kod był czytelny i rozszerzalny.
 
 - Gra jest w pełni obiektowa - każdy byt w świecie gry (potwór, broń, pocisk, gracz) jest instancją odpowiedniej klasy lub interfejsu.
-- Polimorfizm jest używany jako główny mechanizm różnicowania zachowania (różne typy potworów i pocisków).
+- Polimorfizm jest używany jako główny mechanizm rozróżniania zachowania (różne typy potworów i pocisków).
 - Gra działa w czasie rzeczywistym (pętla gry z update’ami i renderowaniem).
 - Celem gry jest zabicie bossa.
 - Prosta grafika imitujaca 3d, podobna do Castle Wolfenstein 3d, ale napisana od zera
@@ -25,22 +25,22 @@ Gracz wciela się w **INSERT LORE HERE**. Jego celem jest **INSERT LORE HERE**. 
 Wszystkie potwory dziedziczą po wspólnej klasie abstrakcyjnej. Dzięki polimorfizmowi każdy typ zachowuje się inaczej, ale jest traktowany przez silnik gry w identyczny sposób.
 
 #### Dostępne typy potworów
-- **Defaultowy słaby** - najprostszy przeciwnik, malo HP, atak melee
+- **Podstawowy słaby** - najprostszy przeciwnik, mała ilość HP, atak w zwarciu
 - **Assault shooter** - strzela seriami, średni zasięg
 - **Sniper** - strzela rzadko, ale bardzo celnie i z dużej odległości
-- **Duży gruby** - duzo HP, wolny, zadaje duże obrażenia w zwarciu
-- **Maly szybki** - maly, bardzo szybki, malo HP
-- **Magic** - utility ale dla przeciwnikow
+- **Duży gruby** - duża ilość HP, wolny, zadaje duże obrażenia w zwarciu
+- **Mały szybki** - mały, bardzo szybki, bardzo mała ilość HP
+- **Magic** - utility ale dla przeciwników
 - **Boss**
 
 ### System broni
 Gracz może nosić wiele broni, zaimplementowanych polimorfizmem.
 
 #### Dostępne bronie
-- **M1911** - pistolet podstawowy, szybki ogień pojedynczy
-- **Pistolet maszynowy** - szybkostrzelny, wysoka prędkość ognia
+- **M1911** - pistolet podstawowy, szybki słaby ogień pojedyńczy
+- **Pistolet maszynowy** - szybkostrzelny, niskie obrażenia od trafienia
 - **Karabin** - zrównoważona broń średniego dystansu
-- **Sniper rifle** - bardzo wysoki damage, wolne przeładowanie
+- **Sniper rifle** - bardzo wysokie obrażenia, wolne przeładowanie
 - **Plasma gun** - strzela dużymi, powolnymi pociskami energetycznymi
 - **Shotgun** - strzela wiązką śrutu (kilka pocisków naraz)
 - **Katana** - broń biała, nie zużywa amunicji
@@ -50,13 +50,13 @@ Gracz może nosić wiele broni, zaimplementowanych polimorfizmem.
 Wszystkie pociski dziedziczą po klasie abstrakcyjnej `Projectile`
 
 #### Typy pocisków
-- **Pocisk typowy** - klasyczny raycast
-- **Pocisk incendiary** - zadaje damage over time
-- **Pocisk spowalniający** - nakłada efekt slow na cel
-- **Pocisk specjalny** - charmuje przeciwnika
-- **Plasma** - nie raycast, porusza się wolno
+- **Pocisk zwyczajny** - klasyczny raycast
+- **Pocisk zapalający** - zadaje obrażenia rozłożone w czasie
+- **Pocisk spowalniający** - nakłada efekt spowolnienia na cel
+- **Pocisk specjalny** - oczarowuje przeciwnika by stanął po jego stronie i zaczął atakować innych przeciwników
+- **Plasma** - nie raycast,duże obrażenia, pocisk porusza się wolno
 - **Slug** - wiele małych pocisków jednocześnie, nie raycast
-- **Granat** - nir raycast, AOE damage
+- **Granat** - nie raycast, obrażenia obszarowe
 
 ### 5. Dodatkowe mechaniki
 - System zdrowia i pancerza
