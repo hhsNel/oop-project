@@ -1,39 +1,66 @@
-# Objectively Worse Doom
+**Opis założeń projektu**
+# Opis Projektu 1
 
-## Stwory potwory (zrobione polimorfizmem):
+## Objectively Worse Doom  
 
-- defaultowy taki slaby  
-- strzelajacy assault  
-- strzelajacy sniper  
-- duzy gruby  
-- baby zombie z mc  
-- magic  
-- jakis boss moze  
+**Klon klasycznej gry Doom**  
 
-## bronie dostepne
+## Opis zalozen
+Projekt ma na celu stworzenie w pełni funkcjonalnej, minimalistycznej gry typu retro FPS. Wszystkie kluczowe elementy mechaniki gry (potwory, bronie, pociski) są projektowane z wykorzystaniem polimorfizmu, dziedziczenia i kompozycji, tak aby kod był czytelny i rozszerzalny.
 
-- m1911 (pistolet)  
-- pistolet maszynowy  
-- karabin jakiegos rodzaju  
-- sniper rifle  
-- plasma gun (duze powolne pociski)  
-- shotgun (strzela wiecej niz jeden pocisk na raz)  
-- katana (bo tak; nie wymaga pociskow)  
-- granaty  
+- Gra jest w pełni obiektowa - każdy byt w świecie gry (potwór, broń, pocisk, gracz) jest instancją odpowiedniej klasy lub interfejsu.
+- Polimorfizm jest używany jako główny mechanizm różnicowania zachowania (różne typy potworów i pocisków).
+- Gra działa w czasie rzeczywistym (pętla gry z update’ami i renderowaniem).
+- Celem gry jest zabicie bossa.
+- Prosta grafika imitujaca 3d, podobna do Castle Wolfenstein 3d, ale napisana od zera
 
-## typy pociskow
+---
 
-- pocisk typowy (do m1911, pistoletu maszynowego, karabinu)  
-- pocisk incendiary ktory zadaje damage over time (karabin, sniper rifle)  
-- pocisk spowalniajacy ktory spowalnia, duh (karabin, sniper rifle)  
-- pocisk specjalny (sniper rifle)  
-- 5V battery, nie raycastuje tylko sie porusza (plasma gun)  
-- slug strzela duzo na raz; nie raycastuje (shotgun)  
-- granat nie raycastuje tylko sie porusza; zadaje AOE damage (granaty)  
+## Opis funkcjonalny
 
-oprocz tego:
+### Ogólna koncepcja rozgrywki
+Gracz wciela się w **INSERT LORE HERE**. Jego celem jest **INSERT LORE HERE**. Zadaniem jest przetrwanie i eliminacja wszystkich **INSERT LORE HERE**. Gracz może poruszać się, strzelać, zmieniać broń i rzucać granaty.
 
-- pocisk przeciwnika normalny (strzela 3 razy; nie raycastuje)
-- pocisk przeciwnika snipera (nie raycastuje)
-- jakas rakieta balistyczna uzywana przez bossa (nie raycastuje)
+### System potworów
+Wszystkie potwory dziedziczą po wspólnej klasie abstrakcyjnej. Dzięki polimorfizmowi każdy typ zachowuje się inaczej, ale jest traktowany przez silnik gry w identyczny sposób.
+
+#### Dostępne typy potworów
+- **Defaultowy słaby** - najprostszy przeciwnik, malo HP, atak melee
+- **Assault shooter** - strzela seriami, średni zasięg
+- **Sniper** - strzela rzadko, ale bardzo celnie i z dużej odległości
+- **Duży gruby** - duzo HP, wolny, zadaje duże obrażenia w zwarciu
+- **Maly szybki** - maly, bardzo szybki, malo HP
+- **Magic** - utility ale dla przeciwnikow
+- **Boss**
+
+### System broni
+Gracz może nosić wiele broni, zaimplementowanych polimorfizmem.
+
+#### Dostępne bronie
+- **M1911** - pistolet podstawowy, szybki ogień pojedynczy
+- **Pistolet maszynowy** - szybkostrzelny, wysoka prędkość ognia
+- **Karabin** - zrównoważona broń średniego dystansu
+- **Sniper rifle** - bardzo wysoki damage, wolne przeładowanie
+- **Plasma gun** - strzela dużymi, powolnymi pociskami energetycznymi
+- **Shotgun** - strzela wiązką śrutu (kilka pocisków naraz)
+- **Katana** - broń biała, nie zużywa amunicji
+- **Granaty** - rzucane, eksplodują po krótkim czasie
+
+### System pocisków
+Wszystkie pociski dziedziczą po klasie abstrakcyjnej `Projectile`
+
+#### Typy pocisków
+- **Pocisk typowy** - klasyczny raycast
+- **Pocisk incendiary** - zadaje damage over time
+- **Pocisk spowalniający** - nakłada efekt slow na cel
+- **Pocisk specjalny** - charmuje przeciwnika
+- **Plasma** - nie raycast, porusza się wolno
+- **Slug** - wiele małych pocisków jednocześnie, nie raycast
+- **Granat** - nir raycast, AOE damage
+
+### 5. Dodatkowe mechaniki
+- System zdrowia i pancerza
+- System amunicji
+- Proste pickupy
+- Status effecty
 
