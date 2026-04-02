@@ -1,0 +1,8 @@
+1. Gra
+nazwa: "Obiektywnie Gorszy Doom"
+pomysl: gracz biega po mapie, zbierajac bronie i amunicje. Atakuja go stwory potwory przed ktorymi musi sie bronic. Grafika jest taka Castle Wolfenstein-owa (to znaczy taka +- 3d ale nie do konca). Sa rozne typy potworow, takie jak na przyklad: potwor strzelajacy, ktory strzela; potwor duzy gruby, ktory jest trudny do zabicia; potwor maly szybki, ktory jest jak baby zombie w mc; potwor magik, ktory jest takim utility co nie atakuje ale jest denerwujacy. Sa rozne rodzaje broni ktore strzelaja roznymi typami pociskow. (tak dodaje tutaj mega duzo polimorfizmu i klas abstrakcyjnych zebysmy mieli stonks punkty). Gra chodzi w 100% na procesorze, ale jest graficzna; dodatkowo nie wymaga runtimeowych bibliotek.
+
+2. Symulacja stone agea
+nazwa: tbd
+pomysl: bylby najpierw jakis pseudolosowy teren generowany, a nastepnie byly by tworzone "organizmy" ktore by byly symulowane i by sie staraly przezyc. srutututu 
+
