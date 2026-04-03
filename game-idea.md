@@ -26,11 +26,17 @@ Wszystkie potwory dziedziczą po wspólnej klasie abstrakcyjnej. Dzięki polimor
 
 #### Dostępne typy potworów
 - **Podstawowy słaby** - najprostszy przeciwnik, mała ilość HP, atak w zwarciu
+- **Slaby ranged** - tutorialowy przeciwnik strzelajacy
 - **Assault shooter** - strzela seriami, średni zasięg
 - **Sniper** - strzela rzadko, ale bardzo celnie i z dużej odległości
+- **Trapper** - zastawia pulapki i utrudnia graczowi zycie
 - **Duży gruby** - duża ilość HP, wolny, zadaje duże obrażenia w zwarciu
 - **Mały szybki** - mały, bardzo szybki, bardzo mała ilość HP
+- **All-rounder** - przeciwnik dobry zarowno w CQC, jak i w dystansie
+- **Spawner** - spawnuje pomniejszych przeciwnikow zeby walczyli za niego
 - **Magic** - utility ale dla przeciwników
+- **Elite Tank** - bardzo trudny przeciwnik do zabicia
+- **Elite Szybki** - bardzo szybki przeciwnik ktory szarzuje
 - **Boss**
 
 ### System broni
