@@ -19,7 +19,7 @@ Projekt ma na celu stworzenie w pełni funkcjonalnej, minimalistycznej gry typu 
 ## Opis funkcjonalny
 
 ### Ogólna koncepcja rozgrywki
-Gracz wciela się w **INSERT LORE HERE**. Jego celem jest **INSERT LORE HERE**. Zadaniem jest przetrwanie i eliminacja wszystkich **INSERT LORE HERE**. Gracz może poruszać się, strzelać, zmieniać broń i rzucać granaty.
+Gracz wciela się w przeniesionego do innego swiata mieszkanca Japonii. Jego celem jest pokonanie armii krola demonow atakujacego krolestwo Aliud Regnum Mundi. Zadaniem jest przetrwanie i eliminacja wszystkich demonow oraz ich krola. Gracz może poruszać się, strzelać, zmieniać broń i rzucać granaty.
 
 ### System potworów
 Wszystkie potwory dziedziczą po wspólnej klasie abstrakcyjnej. Dzięki polimorfizmowi każdy typ zachowuje się inaczej, ale jest traktowany przez silnik gry w identyczny sposób.
