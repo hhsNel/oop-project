@@ -1,3 +1,12 @@
+# Opisy Projektów grupy nr 3
+
+Autorzy:
+**Michał Sikora Nr.Albumu 292845**
+**Filip Klich Nr.Albumu 293446**
+
+Lider grupy - Michał Sikora
+
+
 # Opis Projektu 1
 
 ## Objectively Worse Doom  
