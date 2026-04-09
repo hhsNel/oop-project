@@ -1,0 +1,32 @@
+# Objectively Worse Doom  
+
+## Opis załozeń
+Projekt ma na celu stworzenie w pełni funkcjonalnej, minimalistycznej gry typu retro FPS. Wszystkie kluczowe elementy mechaniki gry (potwory, bronie, pociski) są projektowane z wykorzystaniem polimorfizmu, dziedziczenia i kompozycji, tak aby kod był czytelny i rozszerzalny.
+
+- Gra działa w czasie rzeczywistym
+- Celem gry jest zabicie bossa
+- Prosta grafika imitujaca 3d, technicznie podobna do Castle Wolfenstein 3d, napisana od zera
+
+---
+
+## Opis funkcjonalny
+
+### Ogólna koncepcja rozgrywki
+Gracz wciela się w przeniesionego do innego swiata mieszkanca Japonii. Jego celem jest pokonanie armii krola demonow atakujacego krolestwo Aliud Regnum Mundi. Zadaniem jest przetrwanie i eliminacja wszystkich demonow oraz ich krola.
+
+### Typy potworów
+W grze bedzie duzo roznych rodzajow przeciwnikow: **Podstawowy słaby**, **Slaby ranged**, **Assault shooter**, **Sniper**, **Trapper**, **Duży gruby**, **Mały szybki**, **All-rounder**, **Spawner**, **Magic**, **Elite Tank**, **Elite Szybki** i **Boss**.
+
+### Dostępne bronie
+- **M1911** - pistolet podstawowy, szybki słaby ogień pojedyńczy
+- **Pistolet maszynowy** - szybkostrzelny, niskie obrażenia od trafienia
+- **Karabin** - zrównoważona broń średniego dystansu
+- **Sniper rifle** - bardzo wysokie obrażenia, wolne przeładowanie
+- **Plasma gun** - strzela dużymi, powolnymi pociskami energetycznymi
+- **Shotgun** - strzela wiązką śrutu (kilka pocisków naraz)
+- **Katana** - broń biała, nie zużywa amunicji
+- **Granaty** - rzucane, eksplodują po krótkim czasie
+
+### Typy pocisków
+Bronie beda mogly strzelac roznymi rodzajami pociskow, co dodatkowo urozmaici rozgrywke. W grze dostepne beda: **Pocisk zwyczajny**, **Pocisk zapalający**, **Pocisk spowalniający**, **Pocisk specjalny**, **Plasma**, **Slug** i **Granat** (klasyfikowany wewnetrznie jako pocisk mimo nie bycia pociskiem w konwencjonalnym tego slowa znaczeniu)
+

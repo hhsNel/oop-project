@@ -1,0 +1,30 @@
+# Symulacja Prymitywnej Cywilizacji
+
+## Opis założeń
+
+Projekt ma na celu symulację życia pierwotnych społeczeństw, w świecie o ograniczonej przestrzeni i zasobach. Kluczowe elementy symulacji są zaprojektowane z elementami polimorfizmu, dziedziczenia i kompozycji tak aby kod był czytelny i łatwy do rozszerzenia.
+
+- Symulacja ma być pisana obiektowo, wszystkie obiekty na mapie mają być swoją własną klasą.
+- Polimorfizm wykorzystany będzie do mechanik rozróżnienia między różnymi typami obiektow.
+- Symulacja wykorzystuje systemy Machine Learningu do kontrolowania wysłanników kolonii.
+
+---
+
+## Opis funkcjonalności
+
+### Podstawa symulacji
+Życie w symulacji toczy w uporządkowanym cyklu uczenia sie.
+
+- **Ekspedycje** - Jednostki opuszczają bezpieczną kolonię, by eksplorować nieznane tereny. To wtedy dochodzi do kluczowych interakcji: zbierania owoców, polowań na zwierzynę lub werbowania nowych czlonkow kolonii
+- **System głodu** - Każda kolonia będzie posiadała swój zakres głodu, na który składa się suma poziomu głodu każdego wysłannika, powodując, że wysłannicy muszą szukać jedzenia dla kolonii a nie samych wędrowców do zwerbowania, jeśli głód kolonii dobije zera kolonie spotka ostateczny los, kończący żywot kolonii. Sprowadzane jedzenie przez wysłanników wznosi ten poziom, i jeśli poziom głodu jest powyżej połowy to podniesie to również siłę kolonii
+
+### Interakcje i Dyplomacja Pierwotna
+Spotkania między ludźmi na szlaku są ważną częścią intrygi na planszy:
+
+- **Werbunek** - Wyslannicy z kolonii moga napotykac na mapie wedrowcow, ktorych mozna zwerbowac do swojej kolonii.
+- **Punkt Zapalny** - Jeśli werbunek się nie powiedzie, może dojść do walki między wędrowcem a wysłannikiem z kolonii, w której zginie jeden z nich.
+- **System poziomu Kolonii** - Z czasem, wysłannicy zbierając jedzenie i wędrowców podnoszą poziom siły kolonii, przynosząc ich kolonię bliżej dominacji nad planszą. Z coraz to wyższym poziomem siły kolonii, wysłannicy danej kolonii będą dostawali dodatkowe zdolności które będą ułatwiały im ich dalsze eskapady poza bazę główną
+
+### Zakończenie Symulacji
+Zwycięstwo odnosi kolonia, która jako pierwsza podniesie swoją siłę kolonii do pewnego poziomu, albo jeśli wszystkie kolonie na mapie wyginą z wygłodzenia. To powoduje, że symulacja będzie nie tylko wyścigiem o jak największą siłę, ale również o to by nie pozwolić swojej kolonii dokonać żywota z głodu.
+
