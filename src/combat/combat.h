@@ -20,8 +20,8 @@ namespace engine::combat
 	{
 		bullet,
 		shell,
-        	plasma,
-        	grenade
+		plasma,
+		grenade
 	};
 
 	class status_effect : public util::resource
@@ -29,8 +29,8 @@ namespace engine::combat
 	public:
 		status_type type;
 		math::fxpt duration;
-        	int intensity;
-        	math::fxpt tick_timer;
+		int intensity;
+		math::fxpt tick_timer;
 	};
 
 	class weapon
