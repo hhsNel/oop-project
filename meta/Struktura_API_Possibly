@@ -1,0 +1,99 @@
+namespace engine::combat
+	enum class status_type
+		none
+		bruning
+		slowed
+		charmed
+	enum class ammo_type
+		bullet
+		shell
+		plasma
+		granade
+	struct  status_effect
+		status_type type
+		float duration
+		int intensity
+		float tick_timer
+	class weapon
+		ammo_type type
+		int ammo_per_shot
+		float fire_rate
+		float last_shot_time
+		virtual void fire
+		virtual void reload
+	class hitscan_weapon : public weapon
+		int damage
+		float spread
+		void fire override
+	class projectile_weapon : public weapon
+		void fire override
+
+namespace engine::entities
+	class monster : public actor
+		float speed
+		float attack_range
+		float detection_radius
+		actor* target
+		void update override
+		
+	class monster_basic : public monster
+	class monster_ranged : public monster
+	class monster_assault : public monster
+	class monster_sniper : public monster
+	class monster_trapper : public monster
+	class monster_Duzy_Gruby : public monster
+	class monster_Maly_Szybki : public monster
+	class monster_spawner : public monster
+	class monster_spawner : public monster
+	class monster_magic : public monster
+	class monster_boss : public monster
+
+	class plasma projectile : public projectile
+		float speed
+		int damage
+	class granade projectile : public projectile
+		float fuse_time
+		float explosion radius
+	class slug_projectile : public projectile
+
+	class player : public actor
+		float movement_speed
+		float sensitivity //prędkość rozglądania się
+		
+		systems::ammo_inventory inventory
+		vector<combat::weapon*> weapons //lista posiadanych broni
+		combat::weapon* current_weapon //aktualnie trzymana broń
+		int current weapon index
+
+		void update override
+		void move
+		void rotate
+		void shoot
+		void switch_weapons
+		void use_grenade
+
+		void on-hit override
+
+
+namespace engine::systems
+	class health_system
+		int current_hp
+		int max_hp
+		int armor
+		vector<status_effect> active effects
+		void apply_damage
+		void apply_heal
+		void process_effects
+
+	class ammo_inventory
+		map<ammo_type, int> ammo_counts
+		int get_ammo
+		void add_ammo
+		bool consume_ammo
+
+namespace engine::world_objects
+	class pickup : public renderable_entity
+		vitrual void on_pickup
+	class health_pickups : public pickup
+	class ammo_pickup : public pickup
+	class weapon_pickup : public pickup
