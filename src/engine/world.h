@@ -13,7 +13,7 @@ namespace engine {
 	class world {
 		util::indexed_storage< std::shared_ptr<entity> > entities;
 		util::indexed_storage< std::shared_ptr<rendering::renderable> > renderables;
-		std::vector< util::indexed_storage< std::shared_ptr<entity> >::util > deleted_entities;
+		std::vector< util::indexed_storage< std::shared_ptr<entity> >::id_t > deleted_entities;
 	public:
 		world();
 
