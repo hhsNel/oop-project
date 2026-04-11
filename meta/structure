@@ -30,11 +30,18 @@ namespace math
 		operator/
 		sqr
 		sqrt
+		static sin
+		static cos
+		static atan2
 	class ray2 /* 2d ray */
 		static rotate
 		int intersects(segment const& seg, vec2 &hit_point, float &distance, float &seg_len) /* returns 0 if no collision, 1 otherwise. Also sets hit_point to the coordinates of the intersection, distance to the distance from the ray endpoint, seg_len to the distance from the first point defining a segment to the hit point */
 	class segment /* 2d line segment */
-		???
+		direction
+		midpoint
+		len
+		sqr_len
+		project_point
 
 namespace geometry
 	class wall : public rendering::renderable /* static wall */
@@ -62,14 +69,19 @@ namespace engine
 	class renderable_entity : virtual public entity, public rendering::renderable /* all things that can be rendered */
 		/* pretty sure this is just empty, since everthing important is inherited */
 	class actor : virtual public entity /* all things that can be damaged */
-		damage()
+		virtual void damage() /* implemented, overridable */
 	class player : public actor /* the player */
 		/* yeah, that's Michal's part */
 	class projectile : virtual public renderable_entity /* moving projectiles, not hitscan/raycast projectiles */
 		virtual void on_traverse( /* ??? */ ) = 0
 		virtual void on_hit( /* ??? */ ) = 0
 	class world /* responsible for holding the map, collection of entities, etc */
-		/* nah I don't wanna deal with this */
+		static load_from_bin
+		update
+		get_renderable
+		register_entity
+		delete_entity
+		raycast
 
 namespace rendering
 	class renderable /* anything that can be rendered */
