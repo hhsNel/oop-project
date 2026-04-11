@@ -2,6 +2,8 @@
 #define ENGINE_ENTITIES_H
 
 #include <vector>
+#include <memory>
+
 #include "math/fxpt.h"
 #include "engine/actor.h"
 #include "engine/projectile.h"
@@ -16,7 +18,7 @@ namespace engine {
 			math::fxpt speed;
 			math::fxpt attack_range;
 			math::fxpt detection radius;
-			util::indexed_storage<entity>::id_t target;
+			util::indexed_storage< std::shared_ptr<entity> >::id_t target;
 			void update(math::fxpt dt) override;
 			void take_damage();
 		};
