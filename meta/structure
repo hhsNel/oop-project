@@ -1,5 +1,7 @@
 namespace math
 	class vec2 /* 2d vector */
+		private fxpt a, b;
+		---
 		operator+
 		operator-
 		operator*
@@ -12,6 +14,8 @@ namespace math
 		static angle_between
 		static rotate
 	class vec3 /* 3d vector */
+		private fxpt a, b, c;
+		---
 		operator+
 		operator-
 		operator*
@@ -22,6 +26,8 @@ namespace math
 		normalized
 		static cross_product
 	class fxpt /* fixed-point arithmetic */
+		private uint32_t raw;
+		---
 		static from_float
 		to_float
 		operator+
@@ -34,9 +40,13 @@ namespace math
 		static cos
 		static atan2
 	class ray2 /* 2d ray */
+		private vec2 end, dir;
+		---
 		static rotate
 		int intersects(segment const& seg, vec2 &hit_point, float &distance, float &seg_len) /* returns 0 if no collision, 1 otherwise. Also sets hit_point to the coordinates of the intersection, distance to the distance from the ray endpoint, seg_len to the distance from the first point defining a segment to the hit point */
 	class segment /* 2d line segment */
+		private vec2 p0, p1;
+		---
 		direction
 		midpoint
 		len
@@ -45,18 +55,33 @@ namespace math
 
 namespace geometry
 	class wall : public rendering::renderable /* static wall */
+		---
 		static load_from_bin
 	class sector /* elevation, floor/ceil textures, walls */
+		private util::indexed_storage<wall> walls;
+		private math::fxpt elev;
+		private graphics::texture_mgr::texture_id floor, ceil;
+		---
 		static load_from_bin
 	class map /* whole map, contains a vector of all sectors & all currently loaded sectors */
+		private util::indexed_storage<sector> loaded_sectors;
+		private util::indexed_storage<std::string> sector_resource_names;
+		---
 		static load_from_bin
 		get_visible_walls
 
 namespace graphics
 	class texture /* 2d bitmap texture */
+		private std::vector<uint32_t> texture;
+		private unsigned int width, height;
+		---
 		static load_from_bin
 		line_at_offest
 	class texture_mgr /* texture manager responsible for mapping texture IDs to actual textures */
+		private std::vector<texture> wall_textures;
+		private std::vector<texture> sprite_textures;
+		private std::vector<texture> flat_textures;
+		---
 		static load_from_bin
 		wall_tx_by_id
 		sprite_tx_by_id
@@ -64,18 +89,25 @@ namespace graphics
 
 namespace engine
 	class entity /* all gameobjects */
+		---
 		virtual void update(float dt) = 0
 		virtual ~entity = default
 	class renderable_entity : virtual public entity, public rendering::renderable /* all things that can be rendered */
 		/* pretty sure this is just empty, since everthing important is inherited */
 	class actor : virtual public entity /* all things that can be damaged */
+		protected unsigned int hp, shield;
+		---
 		virtual void damage() /* implemented, overridable */
 	class player : public actor /* the player */
 		/* yeah, that's Michal's part */
 	class projectile : virtual public renderable_entity /* moving projectiles, not hitscan/raycast projectiles */
+		protected math::vec2 direction;
+		---
 		virtual void on_traverse( /* ??? */ ) = 0
 		virtual void on_hit( /* ??? */ ) = 0
 	class world /* responsible for holding the map, collection of entities, etc */
+		/* nah that's also Michal's part */
+		---
 		static load_from_bin
 		update
 		get_renderable
@@ -85,6 +117,9 @@ namespace engine
 
 namespace rendering
 	class renderable /* anything that can be rendered */
+		protected math::segment seg;
+		protected graphics::texture_mgr::texture_id texture;
+		---
 		virtual intersects_with = 0
 		virtual ~renderable = default
 	class rendering_backend /* abstract */
@@ -99,6 +134,8 @@ namespace rendering
 		virtual get_mmio = 0
 	namespace drm_kms
 		class drm_kms_backend : public rendering_backend /* DRM/KMS controller */
+			/* nah, I can write this later */
+			---
 			get_modes
 			set_mode
 			is_bad
@@ -109,11 +146,22 @@ namespace rendering
 			get_pitch
 			get_mmio
 	class software_renderer /* responsible for rendering all walls & renderable entities */
+		/* nah, I can write this later */
+		---
 		set_target
 		render
 		/* a lot of private shit probably */
 
 namespace util
+	template <typename T> class indexed_storage
+		public typedef uint32_t id_t;
+		private std::vector<T> objects;
+		private std::vector<id_t> lookup;
+		private std::vector<size_t> reverse_lookup;
+		---
+		add
+		remove
+		/* some kind of iteration API */
 	class resource /* pretty much a struct */
 		void *resource_begin;
 		size_t resource_size;
