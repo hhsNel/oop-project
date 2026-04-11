@@ -1,38 +1,38 @@
 namespace engine::combat
-	enum class status_type
+	class status_type
 		none
 		bruning
 		slowed
 		charmed
-	enum class ammo_type
+	class ammo_type
 		bullet
 		shell
 		plasma
 		granade
-	struct  status_effect
+	class status_effect : public util::resource
 		status_type type
-		float duration
+		math::fxpt duration
 		int intensity
-		float tick_timer
+		math::fxpt tick_timer
 	class weapon
 		ammo_type type
 		int ammo_per_shot
-		float fire_rate
-		float last_shot_time
+		math::fxpt fire_rate
+		math::fxpt last_shot_time
 		virtual void fire
 		virtual void reload
 	class hitscan_weapon : public weapon
 		int damage
-		float spread
+		math::fxpt spread
 		void fire override
 	class projectile_weapon : public weapon
 		void fire override
 
 namespace engine::entities
 	class monster : public actor
-		float speed
-		float attack_range
-		float detection_radius
+		math::fxpt speed
+		math::fxpt attack_range
+		math::fxpt detection_radius
 		actor* target
 		void update override
 		
@@ -49,16 +49,16 @@ namespace engine::entities
 	class monster_boss : public monster
 
 	class plasma projectile : public projectile
-		float speed
+		math::fxpt speed
 		int damage
 	class granade projectile : public projectile
-		float fuse_time
-		float explosion radius
+		math::fxpt fuse_time
+		math::fxpt explosion radius
 	class slug_projectile : public projectile
 
 	class player : public actor
-		float movement_speed
-		float sensitivity //prędkość rozglądania się
+		math::fxpt movement_speed
+		math::fxpt sensitivity //prędkość rozglądania się
 		
 		systems::ammo_inventory inventory
 		vector<combat::weapon*> weapons //lista posiadanych broni
@@ -72,7 +72,7 @@ namespace engine::entities
 		void switch_weapons
 		void use_grenade
 
-		void on-hit override
+		void damage override
 
 
 namespace engine::systems
@@ -90,6 +90,7 @@ namespace engine::systems
 		int get_ammo
 		void add_ammo
 		bool consume_ammo
+
 
 namespace engine::world_objects
 	class pickup : public renderable_entity
