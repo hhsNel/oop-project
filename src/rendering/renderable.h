@@ -7,6 +7,7 @@
 
 namespace rendering {
 	class renderable {
+	public:
 		math::segment seg;
 		graphics::texture_mgr::texture_id texture;
 		

@@ -1,6 +1,8 @@
 #pragma once
 #define SOFTWARE_RENDERER_H
 
+#include <memory>
+
 #include "rendering-backend.h"
 #include "util/indexed-storage.h"
 #include "renderable.h"
@@ -14,7 +16,7 @@ namespace rendering {
 		software_renderer();
 
 		void set_target(rendering_backend *const target);
-		void render(util::indexed_storage<renderable> const& targets, math::vec2 const camera_pos, math::fxpt const camera_angle);
+		void render(util::indexed_storage< std::shared_ptr<renderable> > const& targets, math::vec2 const camera_pos, math::fxpt const camera_angle);
 	};
 }
 

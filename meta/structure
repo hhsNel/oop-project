@@ -98,8 +98,6 @@ namespace engine
 		protected unsigned int hp, shield;
 		---
 		virtual void damage() /* implemented, overridable */
-	class player : public actor /* the player */
-		/* yeah, that's Michal's part */
 	class projectile : virtual public renderable_entity /* moving projectiles, not hitscan/raycast projectiles */
 		protected math::vec2 direction;
 		---
@@ -108,7 +106,7 @@ namespace engine
 	class world /* responsible for holding the map, collection of entities, etc */
 		/* nah that's also Michal's part */
 		---
-		static load_from_bin
+		static load_from_bin /* ??? */
 		update
 		get_renderable
 		register_entity
