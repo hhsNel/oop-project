@@ -1,5 +1,5 @@
 SRCDIR = src
-MODULES = util
+MODULES = math geometry graphics engine rendering util
 BUILDDIR = build
 RESDIR = res
 
