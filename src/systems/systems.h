@@ -30,7 +30,7 @@ namespace engine::systems
 	public:
 		std::map<combat::ammo_type, int> ammo_counts;
 
-		int get_ammo(combat::ammo_type type)
+		int get_ammo(combat::ammo_type type);
 		void add_ammo(combat::ammo_type type, int amount);
 
 		bool consume_ammo(combat::ammo_type type, int amount);
