@@ -3,12 +3,13 @@
 
 #include <vector>
 #include <cstddef>
+#include <cstdint>
 
 namespace util {
 	template<typename T>
 	class indexed_storage {
 	public:
-		typedef uint32_t id_t;
+		typedef std::uint32_t id_t;
 	protected:
 		id_t size;
 		std::vector<T> objects;
@@ -19,9 +20,9 @@ namespace util {
 		using const_iterator = std::vector<T>::const_iterator;
 
 		indexed_storage();
-		id_t size() const;
-		id_t add(T const& object);
-		void remove(id_t id);
+		id_t const size() const;
+		id_t const add(T const& object);
+		void remove(id_t const id);
 		T &operator[](id_t id) const;
 
 		iterator begin() const;

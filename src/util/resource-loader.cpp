@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <dlfcn.h>
 
-constexpr std::string
+static constexpr std::string
 util::resource_loader::make_symbol_name(std::string_view resource) const {
 	std::string sym = "_binary_res_";
 
@@ -20,7 +20,7 @@ util::resource_loader::make_symbol_name(std::string_view resource) const {
 	return sym;
 }
 
-consteval void *
+static consteval void *
 util::resource_loader::get_by_symbol_reflection(std::string_view symbol_name) const {
 	auto ctx = std::meta::access_context::current();
 
@@ -33,8 +33,8 @@ util::resource_loader::get_by_symbol_reflection(std::string_view symbol_name) co
 	return nullptr;
 }
 
-void *
-util::resource_loader::lookup_binary_resource(std::string_view resource_name) const {
+static void *
+util::resource_loader::lookup_binary(std::string_view resource_name) const {
     std::string symbol_name = util::resource_loader::make_symbol_name(resource_name);
 
     if (std::is_constant_evaluated()) {

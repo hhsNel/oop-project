@@ -15,7 +15,7 @@ namespace math {
 
 		static ray2 const rotate(ray2 const ray, fxpt const angle);
 
-		bool const intersects(segment const seg, vec2 &hit_point, fxpt &distance, fxpt &seg_len);
+		bool const intersects(segment const seg, vec2 &hit_point, fxpt &distance, fxpt &seg_len) const;
 	};
 }
 

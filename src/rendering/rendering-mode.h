@@ -8,6 +8,7 @@ namespace rendering {
 		unsigned int y_res;
 		unsigned int refresh_hz;
 		bool has_vsync;
+		virtual ~rendering_mode() = default;
 	};
 }
 

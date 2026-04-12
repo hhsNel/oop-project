@@ -3,7 +3,7 @@
 
 #include "graphics/texture-manager.h"
 #include "math/segment.h"
-#include "math/ray.h"
+#include "math/ray2.h"
 
 namespace rendering {
 	class renderable {
@@ -11,7 +11,7 @@ namespace rendering {
 		math::segment seg;
 		graphics::texture_mgr::texture_id texture;
 		
-		virtual bool const intersects_with(math::ray const r) const;
+		virtual bool const intersects_with(math::ray2 const r) const;
 		virtual ~renderable = default;
 	};
 }

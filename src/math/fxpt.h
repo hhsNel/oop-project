@@ -2,10 +2,11 @@
 #define FXPT_H
 
 #include <cstddef>
+#include <cstdint>
 
 namespace math {
 	class fxpt {
-		uint32_t raw;
+		std::uint32_t raw;
 	public:
 		fxpt(float const f);
 		__attribute__((always_inline)) inline float const to_float() const;

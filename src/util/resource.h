@@ -4,13 +4,16 @@
 #include <cstddef>
 
 namespace util {
+	class resource_loader;
 	class resource {
-	public:
-		std::byte *begin;
-		std::byte *end;
-		std::size_t size;
 		resource();
-		resource(std::byte *begin_ptr, std::byte *end_ptr);
+		resource(std::byte const *const begin_ptr, std::byte const *const end_ptr);
+	public:
+		std::byte const *const begin;
+		std::byte const *const end;
+		std::size_t const size;
+
+		friend resource_loader;
 	};
 }
 

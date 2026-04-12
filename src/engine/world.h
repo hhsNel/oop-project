@@ -1,13 +1,16 @@
 #pragma once
 #define WORLD_H
 
+#include <pair>
 #include <vector>
 #include <memory>
 
 #include "util/indexed-storage.h"
 #include "entity.h"
+#include "rendering/renderable.h"
 #include "math/fxpt.h"
-#include "math/ray.h"
+#include "math/ray2.h"
+#include "math/vec2.h"
 
 namespace engine {
 	class world {
@@ -17,12 +20,18 @@ namespace engine {
 	public:
 		world();
 
-		void update(math::fxpt dt);
+		void update(math::fxpt const dt);
+
 		util::indexed_storage< std::shared_ptr<rendering::renderable> > const& get_renderable() const;
-		util::indexed_storage< std::shared_ptr<entity> >::id_t register_entity(std::shared_ptr<entity> e);
-		void delete_entity(util::indexed_storage< std::shared_ptr<entity> >:id_t id);
-		util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t raycast(math::ray const r) const;
-		std::shared_ptr<rendering::renderable> renderable_from_id(util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const id) const;
+		std::pair< util::indexed_storage< std::shared_ptr<entity> >::id_t const, util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const > const register_entity(std::shared_ptr<entity> const e);
+		void delete_entity(util::indexed_storage< std::shared_ptr<entity> >:id_t const id);
+		util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const register_renderable(std::shared_ptr<rendering::renderable> const r);
+		void delete_renderable(util::indexed_storage< std::shared_ptr<rendering::renderable> >:id_t const id);
+		std::shared_ptr<entity> const entity_from_id(util::indexed_storage< std::shared_ptr<entity> >::id_t const id) const;
+		std::shared_ptr<rendering::renderable> const renderable_from_id(util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const id) const;
+
+		util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const raycast(math::ray2 const r, math::vec2 &hit_point, math::fxpt &distance, math::fxpt &renderable_len) const;
+
 	};
 }
 
