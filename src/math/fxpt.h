@@ -8,16 +8,16 @@ namespace math {
 		uint32_t raw;
 	public:
 		fxpt(float const f);
-		float const to_float() const;
+		__attribute__((always_inline)) inline float const to_float() const;
 
-		fxpt const operator+(fxpt const other) const;
-		fxpt const operator-(fxpt const other) const;
-		fxpt const operator*(fxpt const other) const;
-		fxpt const operator/(fxpt const other) const;
-		fxpt const operator+=(fxpt const other);
-		fxpt const operator-=(fxpt const other);
-		fxpt const operator*=(fxpt const other);
-		fxpt const operator/=(fxpt const other);
+		__attribute__((always_inline)) inline fxpt const operator+(fxpt const other) const;
+		__attribute__((always_inline)) inline fxpt const operator-(fxpt const other) const;
+		__attribute__((always_inline)) inline fxpt const operator*(fxpt const other) const;
+		__attribute__((always_inline)) inline fxpt const operator/(fxpt const other) const;
+		__attribute__((always_inline)) inline fxpt const operator+=(fxpt const other);
+		__attribute__((always_inline)) inline fxpt const operator-=(fxpt const other);
+		__attribute__((always_inline)) inline fxpt const operator*=(fxpt const other);
+		__attribute__((always_inline)) inline fxpt const operator/=(fxpt const other);
 
 		fxpt const sqr() const;
 		fxpt const sqrt() const;
