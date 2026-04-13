@@ -6,8 +6,9 @@ RESDIR = res
 TARGET = isekai-doom
 SRC = $(foreach MODULE, $(MODULES), $(wildcard $(SRCDIR)/$(MODULE)/*.cpp))
 RES = $(wildcard $(RESDIR)/*)
+RES_HEADER = $(SRCDIR)/res.h
 
-OBJ = $(SRC:$(SRCDIR)/%.c=$(BUILDDIR)/%.o)
+OBJ = $(SRC:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.o)
 RESOBJ = $(RES:$(RESDIR)/%=$(BUILDDIR)/res/%.o)
 
 CPP := g++
@@ -20,19 +21,25 @@ LDFLAGS += -pie $(RES_EXPORT_FLAGS)
 all: $(TARGET)
 
 $(TARGET): $(OBJ) $(RESOBJ)
+	@echo obj: $(OBJ)
+	@echo resobj: $(RESOBJ)
 	$(CPP) $(LDFLAGS) -o $(TARGET) $(OBJ) $(RESOBJ)
 
 $(BUILDDIR)/res/%.o: $(RESDIR)/% $(BUILDDIR)
 	objcopy $(OCFLAGS) $< $@
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR) $(RES_HEADER)
 	$(CPP) $(CXXFLAGS) -c $< -o $@
+
+$(RES_HEADER): $(RES)
+	./generate-resources.sh $@ $(RESDIR)
 
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)/res $(foreach MODULE, $(MODULES), $(BUILDDIR)/$(MODULE))
 
 clean:
 	rm -rf $(BUILDDIR)
+	rm -f $(RES_HEADER)
 
 .PHONY: all clean
 

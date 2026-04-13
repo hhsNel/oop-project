@@ -9,7 +9,7 @@ namespace rendering {
 	class renderable {
 	public:
 		math::segment seg;
-		graphics::texture_mgr::texture_id texture;
+		graphics::texture_manager::texture_id texture;
 		
 		virtual bool const intersects_with(math::ray2 const r) const;
 		virtual ~renderable = default;

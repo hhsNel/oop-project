@@ -4,11 +4,12 @@
 #include <memory>
 
 #include "renderable-entity.h"
+#include "rendering/renderable.h"
 #include "math/fxpt.h"
 #include "math/vec2.h"
 
 namespace engine {
-	class actor : virtual public renderable_entity {
+	class projectile : virtual public renderable_entity {
 		math::vec2 velocity;
 	public:
 		projectile(math::vec2 const v);

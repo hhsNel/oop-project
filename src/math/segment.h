@@ -9,12 +9,12 @@ namespace math {
 	public:
 		vec2 point0, point1;
 
-		segment(vec2 const p0, vec2 const p1);
+		constexpr segment(vec2 const p0, vec2 const p1);
 
-		fxpt const angle() const;
-		vec2 const midpoint() const;
-		fxpt const len() const;
-		fxpt const sqr_len() const;
+		constexpr fxpt const angle() const;
+		constexpr vec2 const midpoint() const;
+		constexpr fxpt const len() const;
+		constexpr fxpt const sqr_len() const;
 	};
 }
 

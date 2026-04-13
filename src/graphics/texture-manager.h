@@ -13,7 +13,6 @@ namespace graphics {
 		std::vector<texture> sprite_textures;
 		std::vector<texture> flat_textures;
 
-
 		texture_manager(std::vector<texture> const& sprites, std::vector<texture> const& flat);
 	public:
 		typedef std::uint32_t texture_id;
