@@ -4,6 +4,7 @@
 #include <pair>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 #include "util/indexed-storage.h"
 #include "entity.h"
@@ -16,7 +17,12 @@ namespace engine {
 	class world {
 		util::indexed_storage< std::shared_ptr<entity> > entities;
 		util::indexed_storage< std::shared_ptr<rendering::renderable> > renderables;
+
 		std::vector< util::indexed_storage< std::shared_ptr<entity> >::id_t > deleted_entities;
+		std::vector< util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t > deleted_renderables;
+
+		std::unordered_map< util::indexed_storage< std::shared_ptr<entity> >::id_t const, util::indexed_storage< std::shared_ptr<rendering::renderable> > >::id_t const> e_to_r;
+		std::unordered_map< util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const, util::indexed_storage< std::shared_ptr<entity> > >::id_t const> r_to_e;
 	public:
 		world();
 
