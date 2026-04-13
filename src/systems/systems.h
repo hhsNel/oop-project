@@ -17,8 +17,9 @@ namespace engine {
 
 			util::indexed_storage< std::unique_ptr<combat::status_effect> > active_effects;
 
-			void apply_damage(int amount, combat::status_type type);
-			void apply_heal(int amount);
+			void apply_damage(unsigned int amount, combat::status_type type);
+			void apply_heal(unsigned int amount);
+			void apply_shield(unsigned int amount);
 
 			void process_effects(math::fxpt dt)
 		};
