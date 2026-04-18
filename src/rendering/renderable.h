@@ -10,6 +10,8 @@ namespace rendering {
 	public:
 		math::segment seg;
 		graphics::texture_manager::texture_id texture;
+		math::fxpt z_begin;
+		math::fxpt z_height;
 		
 		virtual bool const intersects_with(math::ray2 const r) const;
 		virtual ~renderable = default;

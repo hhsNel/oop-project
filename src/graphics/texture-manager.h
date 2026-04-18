@@ -14,6 +14,8 @@ namespace graphics {
 		std::vector<texture> flat_textures;
 
 		texture_manager(std::vector<texture> const& sprites, std::vector<texture> const& flat);
+
+		static std::vector<texture> read_textures(std::uint32_t count, const std::uint32_t **ptr, const std::uint32_t *end);
 	public:
 		typedef std::uint32_t texture_id;
 
