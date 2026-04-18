@@ -11,10 +11,10 @@
 namespace graphics {
 	class texture {
 	public:
-		texture(std::vector<std::uint32_t> const &t, unsigned int const w, unsigned int const h);
+		texture(std::vector<std::uint32_t> const &t, std::uint32_t const w, std::uint32_t const h);
 
 		std::vector<std::uint32_t> pixels;
-		unsigned int width, height;
+		std::uint32_t width, height;
 
 		static texture const load_from_bin(util::resource const res);
 

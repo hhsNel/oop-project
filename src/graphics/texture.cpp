@@ -2,7 +2,7 @@
 
 namespace graphics {
 
-    texture::texture(std::vector<std::uint32_t> const &t, unsigned int const w, unsigned int const h)
+    texture::texture(std::vector<std::uint32_t> const &t, std::uint32_t const w, std::uint32_t const h)
         : pixels(t), width(w), height(h) {}
 
     texture const texture::load_from_bin(util::resource const res) {
@@ -11,8 +11,8 @@ namespace graphics {
         }
 
         const std::uint32_t* data = reinterpret_cast<const std::uint32_t*>(res.begin);
-        unsigned int w = data[0];
-        unsigned int h = data[1];
+		std::uint32_t w = data[0];
+		std::uint32_t h = data[1];
 
         std::vector<std::uint32_t> pixels(data + 2, data + 2 + (w * h));
 

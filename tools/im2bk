@@ -1,0 +1,47 @@
+#!/usr/bin/python3
+
+import argparse
+import struct
+from PIL import Image
+
+def image_to_blob(input_path, output_path):
+    # Load image and ensure it is in RGBA (4 bytes per pixel)
+    img = Image.open(input_path).convert('RGBA')
+    width, height = img.size
+    
+    with open(output_path, 'wb') as f:
+        # Write header: 32-bit unsigned width and height (Little Endian)
+        f.write(struct.pack('<II', width, height))
+        # Write pixel data
+        f.write(img.tobytes())
+    
+    print(f"Successfully baked {width}x{height} texture to {output_path}")
+
+def blob_to_image(input_path, output_path):
+    with open(input_path, 'rb') as f:
+        # Read header
+        header = f.read(8)
+        if len(header) < 8:
+            print("Error: File too small to contain header.")
+            return
+            
+        width, height = struct.unpack('<II', header)
+        pixel_data = f.read()
+        
+    # Reconstruct image from bytes
+    img = Image.frombytes('RGBA', (width, height), pixel_data)
+    img.save(output_path)
+    print(f"Successfully extracted {width}x{height} image to {output_path}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Game Engine Texture Baker")
+    parser.add_argument("input", help="Input file path")
+    parser.add_argument("output", help="Output file path")
+    parser.add_argument("-r", "--reverse", action="store_true", help="Convert blob back to image")
+    
+    args = parser.parse_args()
+    
+    if args.reverse:
+        blob_to_image(args.input, args.output)
+    else:
+        image_to_blob(args.input, args.output)
