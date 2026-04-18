@@ -1,0 +1,111 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 2
+spawn ./tests/fxpt.out
+
+expect "READY"
+
+set tolerance 0.001
+
+expr {srand([clock clicks])}
+set ops {"add" "sub" "mul" "div"}
+
+proc run_test {cmd expected {quiet 0}} {
+    global expect_out
+
+    send "$cmd\r"
+    expect -re {RESULT ([-0-9.]+)}
+    set result $expect_out(1,string)
+
+    set abs_expected [expr {abs($expected)}]
+
+    if {$abs_expected < 0.01} {
+        set tolerance 0.1
+    } else {
+		if {$abs_expected < 0.1} {
+			set tolerance 0.01
+		} else {
+			set tolerance 0.001
+		}
+	}
+
+    if {$expected == 0.0} {
+        set error [expr {abs($result)}]
+    } else {
+        set error [expr {abs($result - $expected) / $abs_expected}]
+    }
+
+    if {$error <= $tolerance} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd: Got $result, Expected $expected, Err: [format "%.4f" $error] > $tolerance)"
+        exit 1
+    }
+}
+
+run_test "add 1.5 2.5"     4.0
+run_test "add -1.5 1.5"    0.0
+run_test "add 100.125 0.5" 100.625
+
+run_test "sub 5.0 2.0"     3.0
+run_test "sub 2.0 5.0"    -3.0
+run_test "sub -5.0 -2.0"  -3.0
+
+run_test "mul 2.0 3.0"     6.0
+run_test "mul -2.5 4.0"   -10.0
+run_test "mul 0.5 0.5"     0.25
+run_test "mul 123.45 0.0"  0.0
+
+run_test "div 10.0 2.0"    5.0
+run_test "div 1.0 4.0"     0.25
+run_test "div -10.0 2.0"  -5.0
+run_test "div 5.0 0.0"     0.0
+
+run_test "sqr 3.0"         9.0
+run_test "sqr -4.0"        16.0
+run_test "sqrt 16.0"       4.0
+run_test "sqrt 2.0"        1.414
+run_test "sqrt -1.0"       0.0
+
+run_test "add 32000.0 700.0" 32700.0
+run_test "sub -32000.0 700.0" -32700.0
+
+run_test "sin 0.0"         0.0
+run_test "cos 0.0"         1.0
+run_test "sin 1.571"       1.0
+run_test "cos 1.571"       0.0
+run_test "acos 1.0"        0.0
+run_test "atan2 0.0 1.0"   0.0
+run_test "atan2 1.0 0.0"   1.571
+
+for {set i 0} {$i < 1000} {incr i} {
+    set op_idx [expr {int(rand() * 4)}]
+    set op [lindex $ops $op_idx]
+
+    set a [expr {(rand() * 200.0) - 100.0}]
+    set b [expr {(rand() * 200.0) - 100.0}]
+
+    set a [format "%.4f" $a]
+    set b [format "%.4f" $b]
+
+    if {$op == "div" && abs($b) < 0.1} {
+        set b [expr {$b > 0.0 ? 0.1 : -0.1}]
+    }
+
+    if {$op == "add"} { set expected [expr {$a + $b}] }
+    if {$op == "sub"} { set expected [expr {$a - $b}] }
+    if {$op == "mul"} { set expected [expr {$a * $b}] }
+    if {$op == "div"} { set expected [expr {$a / $b}] }
+
+    run_test "$op $a $b" [format "%.4f" $expected]
+}
+
+send "exit\r"
+expect eof
+
+puts "PASS fxpt"
+

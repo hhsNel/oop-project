@@ -2,16 +2,20 @@ SRCDIR = src
 MODULES = math geometry graphics engine rendering util
 BUILDDIR = build
 RESDIR = res
+TESTDIR = tests
 
 TARGET = isekai-doom
 SRC = $(foreach MODULE, $(MODULES), $(wildcard $(SRCDIR)/$(MODULE)/*.cpp))
 RES = $(wildcard $(RESDIR)/*)
 RES_HEADER = $(SRCDIR)/res.h
+TEST_SRCS = $(wildcard $(TESTDIR)/*.cpp)
+TEST_EXPS = $(wildcard $(TESTDIR)/*.exp)
 
 OBJ = $(SRC:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.o)
 RESOBJ = $(RES:$(RESDIR)/%=$(BUILDDIR)/res/%.o)
+TEST_BINS = $(TEST_SRCS:.cpp=.out)
 
-CPP = g++
+CXX = g++
 CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR)
 CXXFLAGS = $(CFLAGS)
 #CXXFLAGS += -std=c++26 -freflection $(CFLAGS)
@@ -24,13 +28,13 @@ all: $(TARGET)
 $(TARGET): $(OBJ) $(RESOBJ)
 	@echo obj: $(OBJ)
 	@echo resobj: $(RESOBJ)
-	$(CPP) $(LDFLAGS) -o $(TARGET) $(OBJ) $(RESOBJ)
+	$(CXX) $(LDFLAGS) -o $(TARGET) $(OBJ) $(RESOBJ)
 
 $(BUILDDIR)/res/%.o: $(RESDIR)/% $(BUILDDIR)
 	objcopy $(OCFLAGS) $< $@
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR) $(RES_HEADER)
-	$(CPP) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(RES_HEADER): $(RES)
 	./generate-resources.sh $@ $(RESDIR)
@@ -41,6 +45,15 @@ $(BUILDDIR):
 clean:
 	rm -rf $(BUILDDIR)
 	rm -f $(RES_HEADER)
+	rm -f $(TEST_BINS)
 
-.PHONY: all clean
+tests/%.out: tests/%.cpp $(filter-out src/main.o, $(OBJ))
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+check: $(TEST_BINS)
+	for script in $(TEST_EXPS); do \
+		expect $$script || exit 1; \
+	done
+
+.PHONY: all clean check
 
