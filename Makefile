@@ -11,9 +11,10 @@ RES_HEADER = $(SRCDIR)/res.h
 OBJ = $(SRC:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.o)
 RESOBJ = $(RES:$(RESDIR)/%=$(BUILDDIR)/res/%.o)
 
-CPP := g++
-CFLAGS += -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR)
-CXXFLAGS += -std=c++26 -freflection $(CFLAGS)
+CPP = g++
+CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR)
+CXXFLAGS = $(CFLAGS)
+#CXXFLAGS += -std=c++26 -freflection $(CFLAGS)
 OCFLAGS += -I binary -O elf64-x86-64
 RES_EXPORT_FLAGS = $(foreach RESFILE, $(RES), -Wl,--export-dynamic-symbol=_binary_$(shell echo '$(RESFILE)' | sed 's/[^a-zA-Z0-9]/_/g')_start -Wl,--export-dynamic-symbol=_binary_$(shell echo '$(RESFILE)' | sed 's/[^a-zA-Z0-9]/_/g')_end)
 LDFLAGS += -pie $(RES_EXPORT_FLAGS)

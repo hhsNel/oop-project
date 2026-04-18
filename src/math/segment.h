@@ -11,10 +11,22 @@ namespace math {
 
 		constexpr segment(vec2 const p0, vec2 const p1);
 
-		constexpr fxpt const angle() const;
+		__attribute__((always_inline)) constexpr inline bool operator==(segment const other) const;
+		__attribute__((always_inline)) constexpr inline bool operator!=(segment const other) const;
+
+		fxpt const angle() const;
 		constexpr vec2 const midpoint() const;
-		constexpr fxpt const len() const;
-		constexpr fxpt const sqr_len() const;
+		fxpt const len() const;
+		fxpt const sqr_len() const;
 	};
 }
 
+__attribute__((always_inline)) constexpr inline bool
+math::segment::operator==(segment const other) const {
+	return point0 == other.point0 && point1 == other.point1;
+}
+
+__attribute__((always_inline)) constexpr inline bool
+math::segment::operator!=(segment const other) const {
+	return !(*this == other);
+}

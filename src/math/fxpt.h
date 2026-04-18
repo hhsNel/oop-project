@@ -9,14 +9,20 @@ namespace math {
 	class fxpt {
 		std::uint32_t raw;
 	public:
-		consteval std::uint32_t raw_bias = 65536;
-		consteval float         bias     = static_cast<float>(raw_bias);
+		static constexpr std::uint32_t raw_bias = 65536;
+		static constexpr float         bias     = static_cast<float>(raw_bias);
 
 		__attribute__((always_inline)) constexpr inline fxpt(float const f = 0);
 		__attribute__((always_inline)) constexpr inline float to_float() const;
 
+		__attribute__((always_inline)) explicit constexpr inline operator bool() const;
+		__attribute__((always_inline)) explicit constexpr inline operator float() const;
+		__attribute__((always_inline)) explicit constexpr inline operator double() const;
+		__attribute__((always_inline)) explicit constexpr inline operator int() const;
+
 		__attribute__((always_inline)) constexpr inline fxpt operator+(fxpt const other) const;
 		__attribute__((always_inline)) constexpr inline fxpt operator-(fxpt const other) const;
+		__attribute__((always_inline)) constexpr inline fxpt operator-() const;
 		__attribute__((always_inline)) constexpr inline fxpt operator*(fxpt const other) const;
 		__attribute__((always_inline)) constexpr inline fxpt operator/(fxpt const other) const;
 		__attribute__((always_inline)) constexpr inline fxpt &operator+=(fxpt const other);
@@ -24,23 +30,52 @@ namespace math {
 		__attribute__((always_inline)) constexpr inline fxpt &operator*=(fxpt const other);
 		__attribute__((always_inline)) constexpr inline fxpt &operator/=(fxpt const other);
 
+		__attribute__((always_inline)) constexpr inline bool operator==(fxpt const other) const;
+		__attribute__((always_inline)) constexpr inline bool operator!=(fxpt const other) const;
+		__attribute__((always_inline)) constexpr inline bool operator<(fxpt const other) const;
+		__attribute__((always_inline)) constexpr inline bool operator>(fxpt const other) const;
+		__attribute__((always_inline)) constexpr inline bool operator<=(fxpt const other) const;
+		__attribute__((always_inline)) constexpr inline bool operator>=(fxpt const other) const;
+
 		constexpr fxpt sqr() const;
 		constexpr fxpt sqrt() const;
+		constexpr bool is_zero() const;
 
-		static constexpr fxpt sin(fxpt const angle);
-		static constexpr fxpt cos(fxpt const angle);
-		static constexpr fxpt atan2(fxpt const x, fxpt const y);
+		static fxpt const sin(fxpt const angle);
+		static fxpt const cos(fxpt const angle);
+		static fxpt const acos(fxpt const val);
+		static fxpt const atan2(fxpt const y, fxpt const x);
 	};
 }
 
 __attribute__((always_inline)) constexpr inline
-math::fxpt::fxpt(float const f = 0) :
-	raw(static_cast<std::uint32_t>(static_cast<std::int32_t>(std::round(f * math::fxpt::bias)))
+math::fxpt::fxpt(float const f) :
+	raw(static_cast<std::uint32_t>(static_cast<std::int32_t>(std::round(f * math::fxpt::bias))))
 { }
 
 __attribute__((always_inline)) constexpr inline float
 math::fxpt::to_float() const {
 	return static_cast<float>(static_cast<std::int32_t>(raw)) / math::fxpt::bias;
+}
+
+__attribute__((always_inline)) constexpr inline
+math::fxpt::operator bool() const {
+	return raw != 0;
+}
+
+__attribute__((always_inline)) constexpr inline
+math::fxpt::operator float() const {
+	return to_float();
+}
+
+__attribute__((always_inline)) constexpr inline
+math::fxpt::operator double() const {
+	return static_cast<double>(static_cast<std::int32_t>(raw)) / math::fxpt::bias;
+}
+
+__attribute__((always_inline)) constexpr inline
+math::fxpt::operator int() const {
+	return static_cast<int>(static_cast<std::int32_t>(raw) / static_cast<std::int32_t>(math::fxpt::raw_bias));
 }
 
 __attribute__((always_inline)) constexpr inline math::fxpt
@@ -49,6 +84,7 @@ math::fxpt::operator+(math::fxpt const other) const {
 	result.raw = raw + other.raw;
 	return result;
 }
+
 __attribute__((always_inline)) constexpr inline math::fxpt
 math::fxpt::operator-(math::fxpt const other) const {
 	math::fxpt result{};
@@ -57,9 +93,16 @@ math::fxpt::operator-(math::fxpt const other) const {
 }
 
 __attribute__((always_inline)) constexpr inline math::fxpt
+math::fxpt::operator-() const {
+	math::fxpt result{};
+	result.raw = static_cast<std::uint32_t>(-static_cast<std::int32_t>(raw));
+	return result;
+}
+
+__attribute__((always_inline)) constexpr inline math::fxpt
 math::fxpt::operator*(math::fxpt const other) const {
-	std::int64_t a = static_cast<std::int64_t>(raw);
-	std::int64_t b = static_cast<std::int64_t>(other.raw);
+	std::int64_t a = static_cast<std::int64_t>(static_cast<std::int32_t>(raw));
+	std::int64_t b = static_cast<std::int64_t>(static_cast<std::int32_t>(other.raw));
 	std::int64_t product = a * b;
 	math::fxpt result{};
 	result.raw = static_cast<std::uint32_t>((product + (math::fxpt::raw_bias/2)) / math::fxpt::raw_bias);
@@ -67,12 +110,12 @@ math::fxpt::operator*(math::fxpt const other) const {
 }
 
 __attribute__((always_inline)) constexpr inline math::fxpt
-math::fxpt::operator*(math::fxpt const other) const {
+math::fxpt::operator/(math::fxpt const other) const {
 	if(other.raw == 0) {
 		return math::fxpt(0.0f);
 	}
-	std::int64_t a = static_cast<std::int64_t>(raw);
-	std::int64_t b = static_cast<std::int64_t>(other.raw);
+	std::int64_t a = static_cast<std::int64_t>(static_cast<std::int32_t>(raw));
+	std::int64_t b = static_cast<std::int64_t>(static_cast<std::int32_t>(other.raw));
 	std::int64_t divident = a * math::fxpt::raw_bias;
 	std::int64_t quotient = divident / b;
 	math::fxpt result{};
@@ -104,6 +147,36 @@ math::fxpt::operator/=(math::fxpt const other) {
 	return *this;
 }
 
+__attribute__((always_inline)) constexpr inline bool
+math::fxpt::operator==(math::fxpt const other) const {
+	return raw == other.raw;
+}
+
+__attribute__((always_inline)) constexpr inline bool
+math::fxpt::operator!=(math::fxpt const other) const {
+	return raw != other.raw;
+}
+
+__attribute__((always_inline)) constexpr inline bool
+math::fxpt::operator<(math::fxpt const other) const {
+	return static_cast<std::int32_t>(raw) < static_cast<std::int32_t>(other.raw);
+}
+
+__attribute__((always_inline)) constexpr inline bool
+math::fxpt::operator>(math::fxpt const other) const {
+	return static_cast<std::int32_t>(raw) > static_cast<std::int32_t>(other.raw);
+}
+
+__attribute__((always_inline)) constexpr inline bool
+math::fxpt::operator<=(math::fxpt const other) const {
+	return static_cast<std::int32_t>(raw) <= static_cast<std::int32_t>(other.raw);
+}
+
+__attribute__((always_inline)) constexpr inline bool
+math::fxpt::operator>=(math::fxpt const other) const {
+	return static_cast<std::int32_t>(raw) >= static_cast<std::int32_t>(other.raw);
+}
+
 constexpr math::fxpt
 math::fxpt::sqr() const {
 	return *this * *this;
@@ -112,23 +185,11 @@ math::fxpt::sqr() const {
 constexpr math::fxpt
 math::fxpt::sqrt() const {
 	float fval = to_float();
-
 	if(fval < 0) return math::fxpt(0.0f);
-
 	return math::fxpt(std::sqrt(fval));
 }
 
-static constexpr math::fxpt
-math::fxpt::sin(math::fxpt const angle) {
-	return math::fxpt(std::sin(angle.to_flat()));
-}
-
-static constexpr math::fxpt
-math::fxpt::cos(math::fxpt const angle) {
-	return math::fxpt(std::cos(angle.to_flat()));
-}
-
-static constexpr math::fxpt
-math::fxpt::atan2(math::fxpt const x, math::fxpt const y) {
-	return math::fxpt(std::atan2(y.to_float(), x.to_float()));
+constexpr bool
+math::fxpt::is_zero() const {
+	return raw == 0;
 }

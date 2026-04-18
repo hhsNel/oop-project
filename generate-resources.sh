@@ -18,8 +18,8 @@ for file in "$resdir"/*; do
 	if [ -f "$file" ]; then
 		name=$(basename "$file" | sed 's/[^a-zA-Z0-9]/_/g')
 		cat >> "$output" << EOF
-extern unsigned char const ${name}_start[];
-extern unsigned char const ${name}_end[];
+extern unsigned char const _binary_res_${name}_start[];
+extern unsigned char const _binary_res_${name}_end[];
 EOF
 	fi
 done
