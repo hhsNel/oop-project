@@ -13,7 +13,7 @@ namespace rendering {
 		math::fxpt z_begin;
 		math::fxpt z_height;
 		
-		virtual bool const intersects_with(math::ray2 const r) const;
+		virtual bool intersects_with(math::ray2 const r) const;
 		virtual ~renderable = default;
 	};
 }

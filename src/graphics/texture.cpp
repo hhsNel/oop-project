@@ -3,7 +3,7 @@
 namespace graphics {
 
     texture::texture(std::vector<std::uint32_t> const &t, std::uint32_t const w, std::uint32_t const h)
-        : pixels(t), width(w), height(h) {}
+        : pixels(std::move(t)), width(w), height(h) {}
 
     texture const texture::load_from_bin(util::resource const res) {
         if (res.size < 8) {

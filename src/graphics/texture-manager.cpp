@@ -46,8 +46,8 @@ namespace graphics {
     }
 
     texture_manager const texture_manager::load() {
-        std::vector<texture> sprites = tx_from_meta("meta/sprite");
-        std::vector<texture> flats   = tx_from_meta("meta/flat");
+        std::vector<texture> sprites = tx_from_meta("meta-sprite");
+        std::vector<texture> flats   = tx_from_meta("meta-flat");
 
         return texture_manager(sprites, flats);
     }
