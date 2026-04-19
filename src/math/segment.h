@@ -21,6 +21,12 @@ namespace math {
 	};
 }
 
+constexpr math::segment::segment(vec2 const p0, vec2 const p1) : point0(p0), point1(p1) {}
+
+constexpr math::vec2 const math::segment::midpoint() const {
+	return (point0 + point1) / fxpt(2.0f);
+}
+
 __attribute__((always_inline)) constexpr inline bool
 math::segment::operator==(segment const other) const {
 	return point0 == other.point0 && point1 == other.point1;

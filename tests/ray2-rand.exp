@@ -1,0 +1,23 @@
+#!/usr/bin/expect -f
+log_user 0
+set timeout 2
+spawn ./tests/ray2.out
+expect "READY"
+
+expr {srand([clock clicks])}
+
+for {set i 0} {$i < 25000} {incr i} {
+    set dx [expr {rand() * 2 - 1}]
+    set dy [expr {rand() * 2 - 1}]
+    set angle [expr {rand() * 6.28}] ;# 0 to 2PI
+    
+    send "rot 0.0 0.0 $dx $dy $angle\r"
+    expect -re {RESULT ([-0-9.]+) ([-0-9.]+)}
+    
+    # Just checking for valid output formatting on random trig
+    if {$expect_out(1,string) == ""} {
+        puts "FAIL Random Ray Rot"
+        exit 1
+    }
+}
+puts "PASS ray2 rand"

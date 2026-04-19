@@ -1,0 +1,45 @@
+#!/usr/bin/expect -f
+log_user 0
+set timeout 2
+spawn ./tests/vec3.out
+expect "READY"
+
+proc run_v3_test {cmd expected_values} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([-0-9. ]+)}
+    set results [split [string trim $expect_out(1,string)] " "]
+    set atol 0.02
+    for {set i 0} {$i < [llength $expected_values]} {incr i} {
+        if {[expr {abs([lindex $results $i] - [lindex $expected_values $i]) > $atol}]} {
+            puts "FAIL ($cmd): Got $results, Expected $expected_values"
+            exit 1
+        }
+    }
+}
+
+# Add / Sub (Identity, Negatives, Fractions)
+run_v3_test "add 0.0 0.0 0.0 0.0 0.0 0.0" {0.0 0.0 0.0}
+run_v3_test "add 1.5 2.5 3.5 1.0 1.0 1.0" {2.5 3.5 4.5}
+run_v3_test "add -1.0 -2.0 -3.0 1.0 2.0 3.0" {0.0 0.0 0.0}
+run_v3_test "add 100.0 50.0 25.0 -50.0 -25.0 -12.5" {50.0 25.0 12.5}
+run_v3_test "sub 5.0 5.0 5.0 2.0 2.0 2.0" {3.0 3.0 3.0}
+run_v3_test "sub 0.0 0.0 0.0 1.0 2.0 3.0" {-1.0 -2.0 -3.0}
+run_v3_test "sub -5.0 -5.0 -5.0 -2.0 -2.0 -2.0" {-3.0 -3.0 -3.0}
+
+# Mul / Div
+run_v3_test "mul 1.0 2.0 3.0 2.0" {2.0 4.0 6.0}
+run_v3_test "mul -2.0 4.0 -6.0 0.5" {-1.0 2.0 -3.0}
+run_v3_test "mul 10.0 20.0 30.0 0.0" {0.0 0.0 0.0}
+run_v3_test "mul 0.0 0.0 0.0 100.0" {0.0 0.0 0.0}
+run_v3_test "div 10.0 20.0 30.0 2.0" {5.0 10.0 15.0}
+run_v3_test "div -5.0 15.0 -25.0 5.0" {-1.0 3.0 -5.0}
+run_v3_test "div 1.0 2.0 3.0 0.1" {10.0 20.0 30.0}
+
+# Dot / Cross Product
+run_v3_test "dot 1.0 0.0 0.0 0.0 1.0 0.0" {0.0}
+run_v3_test "dot 1.0 2.0 3.0 4.0 5.0 6.0" {32.0}
+run_v3_test "cross 1.0 0.0 0.0 0.0 1.0 0.0" {0.0 0.0 1.0}
+run_v3_test "cross 0.0 1.0 0.0 1.0 0.0 0.0" {0.0 0.0 -1.0}
+
+puts "PASS vec3 edge"

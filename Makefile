@@ -37,7 +37,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR) $(RES_HEADER)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(RES_HEADER): $(RES)
-	./generate-resources.sh $@ $(RESDIR)
+	./tools/generate-resources.sh $@ $(RESDIR)
 
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)/res $(foreach MODULE, $(MODULES), $(BUILDDIR)/$(MODULE))

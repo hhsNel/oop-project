@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include "math/fxpt.h"
 
@@ -48,7 +49,7 @@ int main() {
             res = fxpt::atan2(fy, fx);
         }
 
-		std::cout << "RESULT " << static_cast<float>(res) << std::endl;
+		std::cout << "RESULT " << std::fixed << static_cast<float>(res) << std::endl;
     }
     return 0;
 }

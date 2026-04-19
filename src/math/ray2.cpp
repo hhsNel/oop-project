@@ -1,7 +1,5 @@
 #include "ray2.h"
 
-constexpr math::ray2::ray2(vec2 const e, vec2 const d) : end(e), direction(d) {}
-
 math::ray2 const math::ray2::rotate(ray2 const ray, fxpt const angle) {
 	return ray2(ray.end, vec2::rotate(ray.direction, angle));
 }

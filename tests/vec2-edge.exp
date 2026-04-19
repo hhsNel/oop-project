@@ -1,0 +1,29 @@
+#!/usr/bin/expect -f
+log_user 0
+set timeout 2
+spawn ./tests/vec2.out
+expect "READY"
+
+proc run_vec_test {cmd expected_a expected_b} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([-0-9.]+) ([-0-9.]+)}
+    set res_a $expect_out(1,string)
+    set res_b $expect_out(2,string)
+
+    set atol 0.02
+    if {[expr {abs($res_a - $expected_a) > $atol || abs($res_b - $expected_b) > $atol}]} {
+        puts "FAIL ($cmd): Got ($res_a, $res_b), Expected ($expected_a, $expected_b)"
+        exit 1
+    }
+}
+
+run_vec_test "add 1.0 2.0 3.0 4.0" 4.0 6.0
+run_vec_test "sub 10.0 5.0 2.0 3.0" 8.0 2.0
+run_vec_test "mul 1.5 2.5 2.0" 3.0 5.0
+run_vec_test "div 10.0 20.0 5.0" 2.0 4.0
+
+run_vec_test "add -5.0 -2.0 5.0 2.0" 0.0 0.0
+run_vec_test "mul 123.0 456.0 0.0" 0.0 0.0
+
+puts "PASS vec2 edge"

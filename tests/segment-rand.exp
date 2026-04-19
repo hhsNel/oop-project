@@ -1,0 +1,25 @@
+#!/usr/bin/expect -f
+log_user 0
+set timeout 2
+spawn ./tests/segment.out
+expect "READY"
+
+expr {srand([clock clicks])}
+
+for {set i 0} {$i < 50000} {incr i} {
+    set x1 [expr {rand() * 100 - 50}]
+    set y1 [expr {rand() * 100 - 50}]
+    set x2 [expr {rand() * 100 - 50}]
+    set y2 [expr {rand() * 100 - 50}]
+
+    set exp_mx [expr {($x1 + $x2) / 2.0}]
+    
+    send "mid $x1 $y1 $x2 $y2\r"
+    expect -re {RESULT ([-0-9.]+) ([-0-9.]+)}
+    
+    if {[expr {abs($expect_out(1,string) - $exp_mx) > 0.05}]} {
+        puts "FAIL Random Seg Mid"
+        exit 1
+    }
+}
+puts "PASS segment rand"

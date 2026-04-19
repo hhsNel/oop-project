@@ -99,3 +99,16 @@ __attribute__((always_inline)) constexpr inline bool
 math::vec3::operator!=(vec3 const other) const {
 	return !(*this == other);
 }
+
+constexpr math::fxpt const math::vec3::dot_product(vec3 const first, vec3 const second) {
+	return first.a * second.a + first.b * second.b + first.c * second.c;
+}
+
+constexpr math::vec3 const math::vec3::cross_product(vec3 const first, vec3 const second) {
+	return vec3(
+		first.b * second.c - first.c * second.b,
+		first.c * second.a - first.a * second.c,
+		first.a * second.b - first.b * second.a
+	);
+}
+

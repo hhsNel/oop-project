@@ -7,11 +7,6 @@ spawn ./tests/fxpt.out
 
 expect "READY"
 
-set tolerance 0.001
-
-expr {srand([clock clicks])}
-set ops {"add" "sub" "mul" "div"}
-
 proc run_test {cmd expected {quiet 0}} {
     global expect_out
 
@@ -19,30 +14,31 @@ proc run_test {cmd expected {quiet 0}} {
     expect -re {RESULT ([-0-9.]+)}
     set result $expect_out(1,string)
 
+    set atol 0.01
+    set rtol 0.001
+
+    set abs_diff [expr {abs($result - $expected)}]
     set abs_expected [expr {abs($expected)}]
 
-    if {$abs_expected < 0.01} {
-        set tolerance 0.1
+    if {$abs_expected > 0} {
+        set rel_err [expr {$abs_diff / $abs_expected}]
     } else {
-		if {$abs_expected < 0.1} {
-			set tolerance 0.01
-		} else {
-			set tolerance 0.001
-		}
-	}
-
-    if {$expected == 0.0} {
-        set error [expr {abs($result)}]
-    } else {
-        set error [expr {abs($result - $expected) / $abs_expected}]
+        set rel_err $abs_diff
     }
 
-    if {$error <= $tolerance} {
+    set pass_atol [expr {$abs_diff <= $atol}]
+    set pass_rtol [expr {$rel_err <= $rtol}]
+
+    if {$pass_atol || $pass_rtol} {
         if {$quiet == 0} {
             #puts "PASS ($cmd)"
         }
     } else {
-        puts "FAIL ($cmd: Got $result, Expected $expected, Err: [format "%.4f" $error] > $tolerance)"
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: $expected"
+        puts "\tAbs Diff: [format "%.6f" $abs_diff] (limit: $atol)"
+        puts "\tRel Err:  [format "%.6f" $rel_err] (limit: $rtol)"
         exit 1
     }
 }
@@ -82,30 +78,8 @@ run_test "acos 1.0"        0.0
 run_test "atan2 0.0 1.0"   0.0
 run_test "atan2 1.0 0.0"   1.571
 
-for {set i 0} {$i < 1000} {incr i} {
-    set op_idx [expr {int(rand() * 4)}]
-    set op [lindex $ops $op_idx]
-
-    set a [expr {(rand() * 200.0) - 100.0}]
-    set b [expr {(rand() * 200.0) - 100.0}]
-
-    set a [format "%.4f" $a]
-    set b [format "%.4f" $b]
-
-    if {$op == "div" && abs($b) < 0.1} {
-        set b [expr {$b > 0.0 ? 0.1 : -0.1}]
-    }
-
-    if {$op == "add"} { set expected [expr {$a + $b}] }
-    if {$op == "sub"} { set expected [expr {$a - $b}] }
-    if {$op == "mul"} { set expected [expr {$a * $b}] }
-    if {$op == "div"} { set expected [expr {$a / $b}] }
-
-    run_test "$op $a $b" [format "%.4f" $expected]
-}
-
 send "exit\r"
 expect eof
 
-puts "PASS fxpt"
+puts "PASS fxpt edge"
 

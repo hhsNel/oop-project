@@ -22,6 +22,8 @@ namespace math {
 	};
 }
 
+constexpr math::ray2::ray2(vec2 const e, vec2 const d) : end(e), direction(d) {}
+
 __attribute__((always_inline)) constexpr inline bool
 math::ray2::operator==(ray2 const other) const {
 	return end == other.end && direction == other.direction;

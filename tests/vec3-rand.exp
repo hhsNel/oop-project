@@ -1,0 +1,29 @@
+#!/usr/bin/expect -f
+log_user 0
+set timeout 2
+spawn ./tests/vec3.out
+expect "READY"
+
+expr {srand([clock clicks])}
+
+for {set i 0} {$i < 50000} {incr i} {
+    set x1 [expr {rand() * 100 - 50}]
+    set y1 [expr {rand() * 100 - 50}]
+    set z1 [expr {rand() * 100 - 50}]
+    set x2 [expr {rand() * 100 - 50}]
+    set y2 [expr {rand() * 100 - 50}]
+    set z2 [expr {rand() * 100 - 50}]
+
+    set exp_x [expr {$x1 + $x2}]
+    set exp_y [expr {$y1 + $y2}]
+    set exp_z [expr {$z1 + $z2}]
+    
+    send "add $x1 $y1 $z1 $x2 $y2 $z2\r"
+    expect -re {RESULT ([-0-9.]+) ([-0-9.]+) ([-0-9.]+)}
+    
+    if {[expr {abs($expect_out(1,string) - $exp_x) > 0.05}]} {
+        puts "FAIL Random V3 Add"
+        exit 1
+    }
+}
+puts "PASS vec3 rand"

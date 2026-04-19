@@ -1,0 +1,32 @@
+#!/usr/bin/expect -f
+log_user 0
+set timeout 2
+spawn ./tests/ray2.out
+expect "READY"
+
+proc run_ray_test {cmd expected_values} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([-0-9. ]+)}
+    set results [split [string trim $expect_out(1,string)] " "]
+    set atol 0.05 ;# Rotation uses trig, giving slightly more tolerance
+    for {set i 0} {$i < [llength $expected_values]} {incr i} {
+        if {[expr {abs([lindex $results $i] - [lindex $expected_values $i]) > $atol}]} {
+            puts "FAIL ($cmd): Got $results, Expected $expected_values"
+            exit 1
+        }
+    }
+}
+
+# Rotations (approximate radian values for 90, 180, 270)
+# 90 deg = 1.571, 180 deg = 3.141, 270 deg = 4.712
+run_ray_test "rot 0.0 0.0 1.0 0.0 0.0" {1.0 0.0}
+run_ray_test "rot 0.0 0.0 1.0 0.0 1.571" {0.0 1.0}
+run_ray_test "rot 0.0 0.0 1.0 0.0 3.141" {-1.0 0.0}
+run_ray_test "rot 0.0 0.0 1.0 0.0 4.712" {0.0 -1.0}
+
+run_ray_test "rot 5.0 5.0 0.0 1.0 1.571" {-1.0 0.0}
+run_ray_test "rot 5.0 5.0 0.0 1.0 3.141" {0.0 -1.0}
+run_ray_test "rot -5.0 -5.0 -1.0 0.0 1.571" {0.0 -1.0}
+
+puts "PASS ray2 edge"
