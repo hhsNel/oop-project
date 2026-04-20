@@ -5,10 +5,10 @@
 namespace util {
     class resource {
     public:
-        resource(const std::byte* begin_ptr, const std::byte* end_ptr);
+        resource(void const* begin_ptr, void const* end_ptr);
 
-        const std::byte* begin;
-        const std::byte* end;
+        void const* begin;
+        void const* end;
         std::size_t size;
     };
 }

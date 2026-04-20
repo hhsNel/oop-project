@@ -27,9 +27,36 @@ proc run_test {cmd expected {quiet 0}} {
     }
 }
 
+# New procedure specifically for testing string dumps
+proc run_dump_test {cmd expected {quiet 0}} {
+    global expect_out
+
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]*)}
+    set result $expect_out(1,string)
+
+    if {$result == $expected} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      '$result'"
+        puts "\tExpected: '$expected'"
+        exit 1
+    }
+}
+
+# Size checks
 run_test "lookup hello-world.txt" 14
 run_test "lookup meta-flat"       41
 run_test "lookup meta-sprite"     289
+
+run_dump_test "dump hello-world.txt" "Hello, World!"
+run_dump_test "dump hello-world.txt" "Hello, World!"
+run_dump_test "dump hello-world.txt" "Hello, World!"
+
+run_test "lookup hello-world.txt" 14
 
 send "exit\r"
 expect eof

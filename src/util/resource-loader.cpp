@@ -56,7 +56,6 @@ namespace util {
         void* begin_ptr = lookup_binary(begin_name);
         void* end_ptr = lookup_binary(end_name);
 
-        return resource(static_cast<const std::byte*>(begin_ptr), 
-                        static_cast<const std::byte*>(end_ptr));
+        return resource(begin_ptr, end_ptr);
     }
 }

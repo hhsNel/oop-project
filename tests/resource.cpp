@@ -3,18 +3,7 @@
 #include "util/resource-loader.h"
 #include "util/resource.h"
 
-#include "res.h"
-
 using namespace util;
-
-extern "C" {
-extern unsigned char const _binary_res_hello_world_txt_start[];
-extern unsigned char const _binary_res_hello_world_txt_end[];
-extern unsigned char const _binary_res_meta_flat_start[];
-extern unsigned char const _binary_res_meta_flat_end[];
-extern unsigned char const _binary_res_meta_sprite_start[];
-extern unsigned char const _binary_res_meta_sprite_end[];
-}
 
 int main() {
     std::cout << "READY" << std::endl;
@@ -32,7 +21,16 @@ int main() {
             
             // We use the resource size as our testable result
             std::cout << "RESULT " << res.size << std::endl;
-        } else {
+        } else if (cmd == "dump") {
+            std::string resource_name;
+            std::cin >> resource_name;
+            
+            resource res = resource_loader::lookup_resource(resource_name);
+            
+            std::cout << "RESULT ";
+			std::cout.write((char *)res.begin, res.size);
+			std::cout << std::endl;
+		} else {
             std::cout << "UNKNOWN_CMD" << std::endl;
         }
     }
