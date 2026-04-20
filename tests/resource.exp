@@ -1,0 +1,37 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 2
+
+spawn ./tests/resource.out
+
+expect "READY"
+
+proc run_test {cmd expected {quiet 0}} {
+    global expect_out
+
+    send "$cmd\r"
+    expect -re {RESULT ([0-9]+)}
+    set result $expect_out(1,string)
+
+    if {$result == $expected} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+run_test "lookup hello-world.txt" 14
+run_test "lookup meta-flat"       41
+run_test "lookup meta-sprite"     289
+
+send "exit\r"
+expect eof
+
+puts "PASS resource tests"

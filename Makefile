@@ -16,7 +16,8 @@ RESOBJ = $(RES:$(RESDIR)/%=$(BUILDDIR)/res/%.o)
 TEST_BINS = $(TEST_SRCS:.cpp=.out)
 
 CXX = g++
-CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR)
+#CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR)
+CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR) -g
 CXXFLAGS = $(CFLAGS)
 #CXXFLAGS += -std=c++26 -freflection $(CFLAGS)
 OCFLAGS += -I binary -O elf64-x86-64
@@ -39,8 +40,8 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR) $(RES_HEADER)
 $(RES_HEADER): $(RES)
 	./tools/generate-resources.sh $@ $(RESDIR)
 
-tests/%.out: tests/%.cpp $(filter-out src/main.o, $(OBJ))
-	$(CXX) $(CXXFLAGS) $^ -o $@
+tests/%.out: tests/%.cpp $(filter-out src/main.o, $(OBJ)) $(RESOBJ)
+	$(CXX) $(LDFLAGS) $(CXXFLAGS) $^ -o $@
 
 check: $(TEST_BINS)
 	@for script in $(TEST_EXPS); do \

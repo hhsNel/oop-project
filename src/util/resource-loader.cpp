@@ -1,5 +1,8 @@
 #include "resource-loader.h"
 
+/* auto-generated file with all declarations */
+#include "res.h"
+
 #include <cctype>
 #include <dlfcn.h>
 #include <unordered_map>
