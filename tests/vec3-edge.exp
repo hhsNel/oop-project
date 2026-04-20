@@ -1,45 +1,105 @@
 #!/usr/bin/expect -f
+
 log_user 0
+
 set timeout 2
 spawn ./tests/vec3.out
+
 expect "READY"
 
-proc run_v3_test {cmd expected_values} {
+proc check_error {result expected} {
+    set atol 0.01
+    set rtol 0.001
+
+    set abs_diff [expr {abs($result - $expected)}]
+    set abs_expected [expr {abs($expected)}]
+
+    if {$abs_expected > 0} {
+        set rel_err [expr {$abs_diff / $abs_expected}]
+    } else {
+        set rel_err $abs_diff
+    }
+
+    set pass_atol [expr {$abs_diff <= $atol}]
+    set pass_rtol [expr {$rel_err <= $rtol}]
+
+    return [expr {$pass_atol || $pass_rtol}]
+}
+
+proc run_test_vec3 {cmd expected_x expected_y expected_z {quiet 0}} {
     global expect_out
+
     send "$cmd\r"
-    expect -re {RESULT ([-0-9. ]+)}
-    set results [split [string trim $expect_out(1,string)] " "]
-    set atol 0.02
-    for {set i 0} {$i < [llength $expected_values]} {incr i} {
-        if {[expr {abs([lindex $results $i] - [lindex $expected_values $i]) > $atol}]} {
-            puts "FAIL ($cmd): Got $results, Expected $expected_values"
-            exit 1
+    # Expecting RESULT <x> <y> <z>
+    expect -re {RESULT ([-0-9.]+) ([-0-9.]+) ([-0-9.]+)}
+    set rx $expect_out(1,string)
+    set ry $expect_out(2,string)
+    set rz $expect_out(3,string)
+
+    set pass_x [check_error $rx $expected_x]
+    set pass_y [check_error $ry $expected_y]
+    set pass_z [check_error $rz $expected_z]
+
+    if {$pass_x && $pass_y && $pass_z} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
         }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $rx $ry $rz"
+        puts "\tExpected: $expected_x $expected_y $expected_z"
+        exit 1
     }
 }
 
-# Add / Sub (Identity, Negatives, Fractions)
-run_v3_test "add 0.0 0.0 0.0 0.0 0.0 0.0" {0.0 0.0 0.0}
-run_v3_test "add 1.5 2.5 3.5 1.0 1.0 1.0" {2.5 3.5 4.5}
-run_v3_test "add -1.0 -2.0 -3.0 1.0 2.0 3.0" {0.0 0.0 0.0}
-run_v3_test "add 100.0 50.0 25.0 -50.0 -25.0 -12.5" {50.0 25.0 12.5}
-run_v3_test "sub 5.0 5.0 5.0 2.0 2.0 2.0" {3.0 3.0 3.0}
-run_v3_test "sub 0.0 0.0 0.0 1.0 2.0 3.0" {-1.0 -2.0 -3.0}
-run_v3_test "sub -5.0 -5.0 -5.0 -2.0 -2.0 -2.0" {-3.0 -3.0 -3.0}
+proc run_test_scalar {cmd expected {quiet 0}} {
+    global expect_out
 
-# Mul / Div
-run_v3_test "mul 1.0 2.0 3.0 2.0" {2.0 4.0 6.0}
-run_v3_test "mul -2.0 4.0 -6.0 0.5" {-1.0 2.0 -3.0}
-run_v3_test "mul 10.0 20.0 30.0 0.0" {0.0 0.0 0.0}
-run_v3_test "mul 0.0 0.0 0.0 100.0" {0.0 0.0 0.0}
-run_v3_test "div 10.0 20.0 30.0 2.0" {5.0 10.0 15.0}
-run_v3_test "div -5.0 15.0 -25.0 5.0" {-1.0 3.0 -5.0}
-run_v3_test "div 1.0 2.0 3.0 0.1" {10.0 20.0 30.0}
+    send "$cmd\r"
+    # Expecting RESULT <s>
+    expect -re {RESULT ([-0-9.]+)}
+    set rx $expect_out(1,string)
 
-# Dot / Cross Product
-run_v3_test "dot 1.0 0.0 0.0 0.0 1.0 0.0" {0.0}
-run_v3_test "dot 1.0 2.0 3.0 4.0 5.0 6.0" {32.0}
-run_v3_test "cross 1.0 0.0 0.0 0.0 1.0 0.0" {0.0 0.0 1.0}
-run_v3_test "cross 0.0 1.0 0.0 1.0 0.0 0.0" {0.0 0.0 -1.0}
+    if {[check_error $rx $expected]} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $rx"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+# Vector Addition
+run_test_vec3 "add 1.5 2.5 3.5   2.0 3.0 1.0"    3.5 5.5 4.5
+run_test_vec3 "add -1.0 1.0 -1.0   1.0 -1.0 1.0"  0.0 0.0 0.0
+
+# Vector Subtraction
+run_test_vec3 "sub 5.0 4.0 3.0   2.0 1.0 1.0"    3.0 3.0 2.0
+run_test_vec3 "sub 0.0 0.0 0.0   5.0 4.0 3.0"   -5.0 -4.0 -3.0
+
+# Cross Product
+run_test_vec3 "cross 1.0 0.0 0.0   0.0 1.0 0.0"  0.0 0.0 1.0
+run_test_vec3 "cross 0.0 1.0 0.0   0.0 0.0 1.0"  1.0 0.0 0.0
+run_test_vec3 "cross 0.0 0.0 1.0   1.0 0.0 0.0"  0.0 1.0 0.0
+run_test_vec3 "cross 1.0 2.0 3.0   4.0 5.0 6.0" -3.0 6.0 -3.0
+
+# Scalar Multiplication
+run_test_vec3 "mul 2.0 3.0 4.0   2.0"      4.0 6.0 8.0
+run_test_vec3 "mul -2.5 4.0 -1.5   -2.0"   5.0 -8.0 3.0
+
+# Scalar Division
+run_test_vec3 "div 10.0 8.0 6.0   2.0"     5.0 4.0 3.0
+run_test_vec3 "div -10.0 5.0 2.5   2.0"   -5.0 2.5 1.25
+
+# Dot Product
+run_test_scalar "dot 1.0 0.0 0.0   0.0 1.0 0.0"  0.0
+run_test_scalar "dot 1.0 2.0 3.0   4.0 5.0 6.0"  32.0
+run_test_scalar "dot -1.0 -2.0 3.0  2.0 1.0 -1.0" -7.0
+
+send "exit\r"
+expect eof
 
 puts "PASS vec3 edge"

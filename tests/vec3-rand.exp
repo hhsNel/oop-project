@@ -1,29 +1,128 @@
 #!/usr/bin/expect -f
+
 log_user 0
+
 set timeout 2
 spawn ./tests/vec3.out
+
 expect "READY"
 
 expr {srand([clock clicks])}
+set ops {"add" "sub" "mul" "div" "cross" "dot"}
 
-for {set i 0} {$i < 50000} {incr i} {
-    set x1 [expr {rand() * 100 - 50}]
-    set y1 [expr {rand() * 100 - 50}]
-    set z1 [expr {rand() * 100 - 50}]
-    set x2 [expr {rand() * 100 - 50}]
-    set y2 [expr {rand() * 100 - 50}]
-    set z2 [expr {rand() * 100 - 50}]
+proc check_error {result expected} {
+    set atol 0.01
+    set rtol 0.001
 
-    set exp_x [expr {$x1 + $x2}]
-    set exp_y [expr {$y1 + $y2}]
-    set exp_z [expr {$z1 + $z2}]
-    
-    send "add $x1 $y1 $z1 $x2 $y2 $z2\r"
+    set abs_diff [expr {abs($result - $expected)}]
+    set abs_expected [expr {abs($expected)}]
+
+    if {$abs_expected > 0} {
+        set rel_err [expr {$abs_diff / $abs_expected}]
+    } else {
+        set rel_err $abs_diff
+    }
+
+    set pass_atol [expr {$abs_diff <= $atol}]
+    set pass_rtol [expr {$rel_err <= $rtol}]
+
+    return [expr {$pass_atol || $pass_rtol}]
+}
+
+proc run_test_vec3 {cmd expected_x expected_y expected_z {quiet 0}} {
+    global expect_out
+
+    send "$cmd\r"
     expect -re {RESULT ([-0-9.]+) ([-0-9.]+) ([-0-9.]+)}
-    
-    if {[expr {abs($expect_out(1,string) - $exp_x) > 0.05}]} {
-        puts "FAIL Random V3 Add"
+    set rx $expect_out(1,string)
+    set ry $expect_out(2,string)
+    set rz $expect_out(3,string)
+
+    set pass_x [check_error $rx $expected_x]
+    set pass_y [check_error $ry $expected_y]
+    set pass_z [check_error $rz $expected_z]
+
+    if {$pass_x && $pass_y && $pass_z} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $rx $ry $rz"
+        puts "\tExpected: $expected_x $expected_y $expected_z"
         exit 1
     }
 }
+
+proc run_test_scalar {cmd expected {quiet 0}} {
+    global expect_out
+
+    send "$cmd\r"
+    expect -re {RESULT ([-0-9.]+)}
+    set rx $expect_out(1,string)
+
+    if {[check_error $rx $expected]} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $rx"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+for {set i 0} {$i < 100000} {incr i} {
+    set op_idx [expr {int(rand() * 6)}]
+    set op [lindex $ops $op_idx]
+
+    set ax [format "%.4f" [expr {(rand() * 100.0) - 50.0}]]
+    set ay [format "%.4f" [expr {(rand() * 100.0) - 50.0}]]
+    set az [format "%.4f" [expr {(rand() * 100.0) - 50.0}]]
+    
+    set bx [format "%.4f" [expr {(rand() * 100.0) - 50.0}]]
+    set by [format "%.4f" [expr {(rand() * 100.0) - 50.0}]]
+    set bz [format "%.4f" [expr {(rand() * 100.0) - 50.0}]]
+    
+    set scalar [format "%.4f" [expr {(rand() * 20.0) - 10.0}]]
+
+    if {$op == "div" && abs($scalar) < 0.1} {
+        set scalar [expr {$scalar > 0.0 ? 0.1 : -0.1}]
+    }
+
+    if {$op == "add"} {
+        set ex [expr {$ax + $bx}]
+        set ey [expr {$ay + $by}]
+        set ez [expr {$az + $bz}]
+        run_test_vec3 "$op $ax $ay $az $bx $by $bz" [format "%.4f" $ex] [format "%.4f" $ey] [format "%.4f" $ez] 1
+    } elseif {$op == "sub"} {
+        set ex [expr {$ax - $bx}]
+        set ey [expr {$ay - $by}]
+        set ez [expr {$az - $bz}]
+        run_test_vec3 "$op $ax $ay $az $bx $by $bz" [format "%.4f" $ex] [format "%.4f" $ey] [format "%.4f" $ez] 1
+    } elseif {$op == "mul"} {
+        set ex [expr {$ax * $scalar}]
+        set ey [expr {$ay * $scalar}]
+        set ez [expr {$az * $scalar}]
+        run_test_vec3 "$op $ax $ay $az $scalar" [format "%.4f" $ex] [format "%.4f" $ey] [format "%.4f" $ez] 1
+    } elseif {$op == "div"} {
+        set ex [expr {$ax / $scalar}]
+        set ey [expr {$ay / $scalar}]
+        set ez [expr {$az / $scalar}]
+        run_test_vec3 "$op $ax $ay $az $scalar" [format "%.4f" $ex] [format "%.4f" $ey] [format "%.4f" $ez] 1
+    } elseif {$op == "cross"} {
+        set ex [expr {($ay * $bz) - ($az * $by)}]
+        set ey [expr {($az * $bx) - ($ax * $bz)}]
+        set ez [expr {($ax * $by) - ($ay * $bx)}]
+        run_test_vec3 "$op $ax $ay $az $bx $by $bz" [format "%.4f" $ex] [format "%.4f" $ey] [format "%.4f" $ez] 1
+    } elseif {$op == "dot"} {
+        set ex [expr {($ax * $bx) + ($ay * $by) + ($az * $bz)}]
+        run_test_scalar "$op $ax $ay $az $bx $by $bz" [format "%.4f" $ex] 1
+    }
+}
+
+send "exit\r"
+expect eof
+
 puts "PASS vec3 rand"

@@ -39,6 +39,15 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR) $(RES_HEADER)
 $(RES_HEADER): $(RES)
 	./tools/generate-resources.sh $@ $(RESDIR)
 
+tests/%.out: tests/%.cpp $(filter-out src/main.o, $(OBJ))
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+check: $(TEST_BINS)
+	@for script in $(TEST_EXPS); do \
+		expect $$script || exit 1; \
+	done
+	@echo ALL TESTS PASS
+
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)/res $(foreach MODULE, $(MODULES), $(BUILDDIR)/$(MODULE))
 
@@ -46,14 +55,6 @@ clean:
 	rm -rf $(BUILDDIR)
 	rm -f $(RES_HEADER)
 	rm -f $(TEST_BINS)
-
-tests/%.out: tests/%.cpp $(filter-out src/main.o, $(OBJ))
-	$(CXX) $(CXXFLAGS) $^ -o $@
-
-check: $(TEST_BINS)
-	for script in $(TEST_EXPS); do \
-		expect $$script || exit 1; \
-	done
 
 .PHONY: all clean check
 

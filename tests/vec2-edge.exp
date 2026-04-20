@@ -1,29 +1,75 @@
 #!/usr/bin/expect -f
+
 log_user 0
+
 set timeout 2
 spawn ./tests/vec2.out
+
 expect "READY"
 
-proc run_vec_test {cmd expected_a expected_b} {
-    global expect_out
-    send "$cmd\r"
-    expect -re {RESULT ([-0-9.]+) ([-0-9.]+)}
-    set res_a $expect_out(1,string)
-    set res_b $expect_out(2,string)
+proc check_error {result expected} {
+    set atol 0.01
+    set rtol 0.001
 
-    set atol 0.02
-    if {[expr {abs($res_a - $expected_a) > $atol || abs($res_b - $expected_b) > $atol}]} {
-        puts "FAIL ($cmd): Got ($res_a, $res_b), Expected ($expected_a, $expected_b)"
+    set abs_diff [expr {abs($result - $expected)}]
+    set abs_expected [expr {abs($expected)}]
+
+    if {$abs_expected > 0} {
+        set rel_err [expr {$abs_diff / $abs_expected}]
+    } else {
+        set rel_err $abs_diff
+    }
+
+    set pass_atol [expr {$abs_diff <= $atol}]
+    set pass_rtol [expr {$rel_err <= $rtol}]
+
+    return [expr {$pass_atol || $pass_rtol}]
+}
+
+proc run_test {cmd expected_x expected_y {quiet 0}} {
+    global expect_out
+
+    send "$cmd\r"
+    # Expecting RESULT <x> <y>
+    expect -re {RESULT ([-0-9.]+) ([-0-9.]+)}
+    set rx $expect_out(1,string)
+    set ry $expect_out(2,string)
+
+    set pass_x [check_error $rx $expected_x]
+    set pass_y [check_error $ry $expected_y]
+
+    if {$pass_x && $pass_y} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $rx $ry"
+        puts "\tExpected: $expected_x $expected_y"
         exit 1
     }
 }
 
-run_vec_test "add 1.0 2.0 3.0 4.0" 4.0 6.0
-run_vec_test "sub 10.0 5.0 2.0 3.0" 8.0 2.0
-run_vec_test "mul 1.5 2.5 2.0" 3.0 5.0
-run_vec_test "div 10.0 20.0 5.0" 2.0 4.0
+# Vector Addition
+run_test "add 1.5 2.5 2.0 3.0"    3.5 5.5
+run_test "add -1.5 1.5 1.5 -1.5"  0.0 0.0
+run_test "add 100.0 0.0 0.5 0.5"  100.5 0.5
 
-run_vec_test "add -5.0 -2.0 5.0 2.0" 0.0 0.0
-run_vec_test "mul 123.0 456.0 0.0" 0.0 0.0
+# Vector Subtraction
+run_test "sub 5.0 4.0 2.0 1.0"    3.0 3.0
+run_test "sub 2.0 1.0 5.0 4.0"   -3.0 -3.0
+run_test "sub -5.0 -2.0 -2.0 1.0" -3.0 -3.0
+
+# Vector Scaling (Multiply by scalar)
+run_test "mul 2.0 3.0 2.0"      4.0 6.0
+run_test "mul -2.5 4.0 -2.0"    5.0 -8.0
+run_test "mul 123.45 67.8 0.0"  0.0 0.0
+
+# Vector Division by scalar
+run_test "div 10.0 8.0 2.0"       5.0 4.0
+run_test "div -10.0 5.0 2.0"     -5.0 2.5
+
+send "exit\r"
+expect eof
 
 puts "PASS vec2 edge"

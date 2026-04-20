@@ -1,32 +1,71 @@
 #!/usr/bin/expect -f
+
 log_user 0
+
 set timeout 2
 spawn ./tests/ray2.out
+
 expect "READY"
 
-proc run_ray_test {cmd expected_values} {
+proc check_error {result expected} {
+    set atol 0.01
+    set rtol 0.001
+
+    set abs_diff [expr {abs($result - $expected)}]
+    set abs_expected [expr {abs($expected)}]
+
+    if {$abs_expected > 0} {
+        set rel_err [expr {$abs_diff / $abs_expected}]
+    } else {
+        set rel_err $abs_diff
+    }
+
+    set pass_atol [expr {$abs_diff <= $atol}]
+    set pass_rtol [expr {$rel_err <= $rtol}]
+
+    return [expr {$pass_atol || $pass_rtol}]
+}
+
+proc run_test_vec2 {cmd expected_x expected_y {quiet 0}} {
     global expect_out
+
     send "$cmd\r"
-    expect -re {RESULT ([-0-9. ]+)}
-    set results [split [string trim $expect_out(1,string)] " "]
-    set atol 0.05 ;# Rotation uses trig, giving slightly more tolerance
-    for {set i 0} {$i < [llength $expected_values]} {incr i} {
-        if {[expr {abs([lindex $results $i] - [lindex $expected_values $i]) > $atol}]} {
-            puts "FAIL ($cmd): Got $results, Expected $expected_values"
-            exit 1
+    expect -re {RESULT ([-0-9.]+) ([-0-9.]+)}
+    set rx $expect_out(1,string)
+    set ry $expect_out(2,string)
+
+    set pass_x [check_error $rx $expected_x]
+    set pass_y [check_error $ry $expected_y]
+
+    if {$pass_x && $pass_y} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
         }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $rx $ry"
+        puts "\tExpected: $expected_x $expected_y"
+        exit 1
     }
 }
 
-# Rotations (approximate radian values for 90, 180, 270)
-# 90 deg = 1.571, 180 deg = 3.141, 270 deg = 4.712
-run_ray_test "rot 0.0 0.0 1.0 0.0 0.0" {1.0 0.0}
-run_ray_test "rot 0.0 0.0 1.0 0.0 1.571" {0.0 1.0}
-run_ray_test "rot 0.0 0.0 1.0 0.0 3.141" {-1.0 0.0}
-run_ray_test "rot 0.0 0.0 1.0 0.0 4.712" {0.0 -1.0}
+# Format: rot <origin_x> <origin_y> <dir_x> <dir_y> <angle>
+# Note: origin does not affect rotation of the direction vector
 
-run_ray_test "rot 5.0 5.0 0.0 1.0 1.571" {-1.0 0.0}
-run_ray_test "rot 5.0 5.0 0.0 1.0 3.141" {0.0 -1.0}
-run_ray_test "rot -5.0 -5.0 -1.0 0.0 1.571" {0.0 -1.0}
+# 90 degrees (1.5708 rads)
+run_test_vec2 "rot 0.0 0.0 1.0 0.0 1.5708"  0.0 1.0
+run_test_vec2 "rot 5.0 5.0 0.0 1.0 1.5708" -1.0 0.0
+
+# 180 degrees (3.1416 rads)
+run_test_vec2 "rot 0.0 0.0 1.0 0.0 3.1416" -1.0 0.0
+
+# -90 degrees (-1.5708 rads)
+run_test_vec2 "rot 0.0 0.0 0.0 1.0 -1.5708" 1.0 0.0
+
+# 0 degrees
+run_test_vec2 "rot -2.0 4.0 0.707 0.707 0.0" 0.707 0.707
+
+send "exit\r"
+expect eof
 
 puts "PASS ray2 edge"

@@ -1,23 +1,74 @@
 #!/usr/bin/expect -f
+
 log_user 0
+
 set timeout 2
 spawn ./tests/ray2.out
+
 expect "READY"
 
 expr {srand([clock clicks])}
 
-for {set i 0} {$i < 25000} {incr i} {
-    set dx [expr {rand() * 2 - 1}]
-    set dy [expr {rand() * 2 - 1}]
-    set angle [expr {rand() * 6.28}] ;# 0 to 2PI
-    
-    send "rot 0.0 0.0 $dx $dy $angle\r"
+proc check_error {result expected} {
+    set atol 0.01
+    set rtol 0.001
+
+    set abs_diff [expr {abs($result - $expected)}]
+    set abs_expected [expr {abs($expected)}]
+
+    if {$abs_expected > 0} {
+        set rel_err [expr {$abs_diff / $abs_expected}]
+    } else {
+        set rel_err $abs_diff
+    }
+
+    set pass_atol [expr {$abs_diff <= $atol}]
+    set pass_rtol [expr {$rel_err <= $rtol}]
+
+    return [expr {$pass_atol || $pass_rtol}]
+}
+
+proc run_test_vec2 {cmd expected_x expected_y {quiet 0}} {
+    global expect_out
+
+    send "$cmd\r"
     expect -re {RESULT ([-0-9.]+) ([-0-9.]+)}
-    
-    # Just checking for valid output formatting on random trig
-    if {$expect_out(1,string) == ""} {
-        puts "FAIL Random Ray Rot"
+    set rx $expect_out(1,string)
+    set ry $expect_out(2,string)
+
+    set pass_x [check_error $rx $expected_x]
+    set pass_y [check_error $ry $expected_y]
+
+    if {$pass_x && $pass_y} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $rx $ry"
+        puts "\tExpected: $expected_x $expected_y"
         exit 1
     }
 }
+
+for {set i 0} {$i < 100000} {incr i} {
+    # Generate random ray parameters
+    set ex [format "%.4f" [expr {(rand() * 200.0) - 100.0}]]
+    set ey [format "%.4f" [expr {(rand() * 200.0) - 100.0}]]
+    set dx [format "%.4f" [expr {(rand() * 2.0) - 1.0}]]
+    set dy [format "%.4f" [expr {(rand() * 2.0) - 1.0}]]
+    
+    # Random angle between -Pi and Pi
+    set angle [format "%.4f" [expr {(rand() * 6.28318) - 3.14159}]]
+
+    # 2D Rotation Formula
+    set expected_dx [expr {($dx * cos($angle)) - ($dy * sin($angle))}]
+    set expected_dy [expr {($dx * sin($angle)) + ($dy * cos($angle))}]
+
+    run_test_vec2 "rot $ex $ey $dx $dy $angle" [format "%.4f" $expected_dx] [format "%.4f" $expected_dy] 1
+}
+
+send "exit\r"
+expect eof
+
 puts "PASS ray2 rand"

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include "math/vec2.h"
 
@@ -27,18 +28,18 @@ int main() {
         else if (cmd == "dot") {
             std::cin >> a1 >> b1 >> a2 >> b2;
             fxpt dot = vec2::dot_product(vec2(a1, b1), vec2(a2, b2));
-            std::cout << "RESULT " << static_cast<float>(dot) << std::endl;
+            std::cout << "RESULT " << std::fixed << static_cast<float>(dot) << std::endl;
             continue;
         }
         else if (cmd == "len" || cmd == "sqlen") {
             std::cin >> a1 >> b1;
             vec2 v(a1, b1);
             float val = (cmd == "len") ? static_cast<float>(v.len()) : static_cast<float>(v.sqr_len());
-            std::cout << "RESULT " << val << std::endl;
+            std::cout << "RESULT " << std::fixed << val << std::endl;
             continue;
         }
 
-        std::cout << "RESULT " << static_cast<float>(res.a) << " " << static_cast<float>(res.b) << std::endl;
+        std::cout << "RESULT " << std::fixed << static_cast<float>(res.a) << " " << static_cast<float>(res.b) << std::endl;
     }
     return 0;
 }

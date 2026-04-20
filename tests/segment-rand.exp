@@ -1,25 +1,103 @@
 #!/usr/bin/expect -f
+
 log_user 0
+
 set timeout 2
 spawn ./tests/segment.out
+
 expect "READY"
 
 expr {srand([clock clicks])}
+set ops {"mid" "len" "sqlen"}
 
-for {set i 0} {$i < 50000} {incr i} {
-    set x1 [expr {rand() * 100 - 50}]
-    set y1 [expr {rand() * 100 - 50}]
-    set x2 [expr {rand() * 100 - 50}]
-    set y2 [expr {rand() * 100 - 50}]
+proc check_error {result expected} {
+    set atol 0.01
+    set rtol 0.001
 
-    set exp_mx [expr {($x1 + $x2) / 2.0}]
-    
-    send "mid $x1 $y1 $x2 $y2\r"
+    set abs_diff [expr {abs($result - $expected)}]
+    set abs_expected [expr {abs($expected)}]
+
+    if {$abs_expected > 0} {
+        set rel_err [expr {$abs_diff / $abs_expected}]
+    } else {
+        set rel_err $abs_diff
+    }
+
+    set pass_atol [expr {$abs_diff <= $atol}]
+    set pass_rtol [expr {$rel_err <= $rtol}]
+
+    return [expr {$pass_atol || $pass_rtol}]
+}
+
+proc run_test_vec2 {cmd expected_x expected_y {quiet 0}} {
+    global expect_out
+
+    send "$cmd\r"
     expect -re {RESULT ([-0-9.]+) ([-0-9.]+)}
-    
-    if {[expr {abs($expect_out(1,string) - $exp_mx) > 0.05}]} {
-        puts "FAIL Random Seg Mid"
+    set rx $expect_out(1,string)
+    set ry $expect_out(2,string)
+
+    set pass_x [check_error $rx $expected_x]
+    set pass_y [check_error $ry $expected_y]
+
+    if {$pass_x && $pass_y} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $rx $ry"
+        puts "\tExpected: $expected_x $expected_y"
         exit 1
     }
 }
+
+proc run_test_scalar {cmd expected {quiet 0}} {
+    global expect_out
+
+    send "$cmd\r"
+    expect -re {RESULT ([-0-9.]+)}
+    set rx $expect_out(1,string)
+
+    if {[check_error $rx $expected]} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $rx"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+for {set i 0} {$i < 100000} {incr i} {
+    set op_idx [expr {int(rand() * 3)}]
+    set op [lindex $ops $op_idx]
+
+    set x1 [format "%.4f" [expr {(rand() * 200.0) - 100.0}]]
+    set y1 [format "%.4f" [expr {(rand() * 200.0) - 100.0}]]
+    set x2 [format "%.4f" [expr {(rand() * 200.0) - 100.0}]]
+    set y2 [format "%.4f" [expr {(rand() * 200.0) - 100.0}]]
+
+    if {$op == "mid"} {
+        set ex [expr {($x1 + $x2) / 2.0}]
+        set ey [expr {($y1 + $y2) / 2.0}]
+        run_test_vec2 "$op $x1 $y1 $x2 $y2" [format "%.4f" $ex] [format "%.4f" $ey] 1
+    } elseif {$op == "sqlen"} {
+        set dx [expr {$x2 - $x1}]
+        set dy [expr {$y2 - $y1}]
+        set expected [expr {($dx * $dx) + ($dy * $dy)}]
+        run_test_scalar "$op $x1 $y1 $x2 $y2" [format "%.4f" $expected] 1
+    } elseif {$op == "len"} {
+        set dx [expr {$x2 - $x1}]
+        set dy [expr {$y2 - $y1}]
+        set expected [expr {sqrt(($dx * $dx) + ($dy * $dy))}]
+        run_test_scalar "$op $x1 $y1 $x2 $y2" [format "%.4f" $expected] 1
+    }
+}
+
+send "exit\r"
+expect eof
+
 puts "PASS segment rand"

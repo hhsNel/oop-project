@@ -9,7 +9,8 @@ namespace math {
 	class fxpt {
 		std::int32_t raw;
 	public:
-		static constexpr std::int32_t raw_bias = 65536;
+		//static constexpr std::int32_t raw_bias = 65536;
+		static constexpr std::int32_t raw_bias = 16384;
 		static constexpr float         bias     = static_cast<float>(raw_bias);
 
 		__attribute__((always_inline)) constexpr inline fxpt(float const f = 0);
