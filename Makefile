@@ -3,6 +3,7 @@ MODULES = math geometry graphics engine rendering util
 BUILDDIR = build
 RESDIR = res
 TESTDIR = tests
+MANUALTESTDIR = manual-tests
 
 TARGET = isekai-doom
 SRC = $(foreach MODULE, $(MODULES), $(wildcard $(SRCDIR)/$(MODULE)/*.cpp))
@@ -10,10 +11,12 @@ RES = $(wildcard $(RESDIR)/*)
 RES_HEADER = $(SRCDIR)/res.h
 TEST_SRCS = $(wildcard $(TESTDIR)/*.cpp)
 TEST_EXPS = $(wildcard $(TESTDIR)/*.exp)
+MANUAL_TESTS = $(wildcard $(MANUALTESTDIR)/*.cpp)
 
 OBJ = $(SRC:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.o)
 RESOBJ = $(RES:$(RESDIR)/%=$(BUILDDIR)/res/%.o)
 TEST_BINS = $(TEST_SRCS:.cpp=.out)
+MANUAL_TEST_BINS = $(MANUAL_TESTS:.cpp=.out)
 
 CXX = g++
 #CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR)
@@ -49,6 +52,11 @@ check: $(TEST_BINS)
 	done
 	@echo ALL TESTS PASS
 
+manual-tests/%.out: manual-tests/%.cpp $(filter-out src/main.o, $(OBJ)) $(RESOBJ)
+	$(CXX) $(LDFLAGS) $(CXXFLAGS) $^ -o $@
+
+manual-check: $(MANUAL_TEST_BINS)
+
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)/res $(foreach MODULE, $(MODULES), $(BUILDDIR)/$(MODULE))
 
@@ -56,6 +64,7 @@ clean:
 	rm -rf $(BUILDDIR)
 	rm -f $(RES_HEADER)
 	rm -f $(TEST_BINS)
+	rm -f $(MANUAL_TEST_BINS)
 
-.PHONY: all clean check
+.PHONY: all clean check manual-check
 

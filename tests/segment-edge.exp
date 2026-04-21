@@ -68,17 +68,14 @@ proc run_test_scalar {cmd expected {quiet 0}} {
     }
 }
 
-# Midpoints
 run_test_vec2 "mid 0.0 0.0 2.0 2.0"     1.0 1.0
 run_test_vec2 "mid -4.0 -4.0 4.0 4.0"   0.0 0.0
 run_test_vec2 "mid 10.0 5.0 20.0 15.0"  15.0 10.0
 
-# Lengths (3-4-5 triangle logic)
 run_test_scalar "len 0.0 0.0 3.0 4.0"   5.0
 run_test_scalar "len 1.0 1.0 4.0 5.0"   5.0
 run_test_scalar "len 0.0 0.0 0.0 0.0"   0.0
 
-# Squared Lengths
 run_test_scalar "sqlen 0.0 0.0 3.0 4.0" 25.0
 run_test_scalar "sqlen 1.0 1.0 4.0 5.0" 25.0
 run_test_scalar "sqlen 0.0 0.0 0.0 0.0" 0.0

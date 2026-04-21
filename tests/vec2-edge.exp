@@ -30,7 +30,6 @@ proc run_test {cmd expected_x expected_y {quiet 0}} {
     global expect_out
 
     send "$cmd\r"
-    # Expecting RESULT <x> <y>
     expect -re {RESULT ([-0-9.]+) ([-0-9.]+)}
     set rx $expect_out(1,string)
     set ry $expect_out(2,string)
@@ -50,22 +49,18 @@ proc run_test {cmd expected_x expected_y {quiet 0}} {
     }
 }
 
-# Vector Addition
 run_test "add 1.5 2.5 2.0 3.0"    3.5 5.5
 run_test "add -1.5 1.5 1.5 -1.5"  0.0 0.0
 run_test "add 100.0 0.0 0.5 0.5"  100.5 0.5
 
-# Vector Subtraction
 run_test "sub 5.0 4.0 2.0 1.0"    3.0 3.0
 run_test "sub 2.0 1.0 5.0 4.0"   -3.0 -3.0
 run_test "sub -5.0 -2.0 -2.0 1.0" -3.0 -3.0
 
-# Vector Scaling (Multiply by scalar)
 run_test "mul 2.0 3.0 2.0"      4.0 6.0
 run_test "mul -2.5 4.0 -2.0"    5.0 -8.0
 run_test "mul 123.45 67.8 0.0"  0.0 0.0
 
-# Vector Division by scalar
 run_test "div 10.0 8.0 2.0"       5.0 4.0
 run_test "div -10.0 5.0 2.0"     -5.0 2.5
 

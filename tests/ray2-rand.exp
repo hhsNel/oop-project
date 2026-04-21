@@ -52,16 +52,13 @@ proc run_test_vec2 {cmd expected_x expected_y {quiet 0}} {
 }
 
 for {set i 0} {$i < 100000} {incr i} {
-    # Generate random ray parameters
     set ex [format "%.4f" [expr {(rand() * 200.0) - 100.0}]]
     set ey [format "%.4f" [expr {(rand() * 200.0) - 100.0}]]
     set dx [format "%.4f" [expr {(rand() * 2.0) - 1.0}]]
     set dy [format "%.4f" [expr {(rand() * 2.0) - 1.0}]]
     
-    # Random angle between -Pi and Pi
     set angle [format "%.4f" [expr {(rand() * 6.28318) - 3.14159}]]
 
-    # 2D Rotation Formula
     set expected_dx [expr {($dx * cos($angle)) - ($dy * sin($angle))}]
     set expected_dy [expr {($dx * sin($angle)) + ($dy * cos($angle))}]
 

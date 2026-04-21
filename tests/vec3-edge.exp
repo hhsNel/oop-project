@@ -30,7 +30,6 @@ proc run_test_vec3 {cmd expected_x expected_y expected_z {quiet 0}} {
     global expect_out
 
     send "$cmd\r"
-    # Expecting RESULT <x> <y> <z>
     expect -re {RESULT ([-0-9.]+) ([-0-9.]+) ([-0-9.]+)}
     set rx $expect_out(1,string)
     set ry $expect_out(2,string)
@@ -56,7 +55,6 @@ proc run_test_scalar {cmd expected {quiet 0}} {
     global expect_out
 
     send "$cmd\r"
-    # Expecting RESULT <s>
     expect -re {RESULT ([-0-9.]+)}
     set rx $expect_out(1,string)
 
@@ -72,29 +70,23 @@ proc run_test_scalar {cmd expected {quiet 0}} {
     }
 }
 
-# Vector Addition
 run_test_vec3 "add 1.5 2.5 3.5   2.0 3.0 1.0"    3.5 5.5 4.5
 run_test_vec3 "add -1.0 1.0 -1.0   1.0 -1.0 1.0"  0.0 0.0 0.0
 
-# Vector Subtraction
 run_test_vec3 "sub 5.0 4.0 3.0   2.0 1.0 1.0"    3.0 3.0 2.0
 run_test_vec3 "sub 0.0 0.0 0.0   5.0 4.0 3.0"   -5.0 -4.0 -3.0
 
-# Cross Product
 run_test_vec3 "cross 1.0 0.0 0.0   0.0 1.0 0.0"  0.0 0.0 1.0
 run_test_vec3 "cross 0.0 1.0 0.0   0.0 0.0 1.0"  1.0 0.0 0.0
 run_test_vec3 "cross 0.0 0.0 1.0   1.0 0.0 0.0"  0.0 1.0 0.0
 run_test_vec3 "cross 1.0 2.0 3.0   4.0 5.0 6.0" -3.0 6.0 -3.0
 
-# Scalar Multiplication
 run_test_vec3 "mul 2.0 3.0 4.0   2.0"      4.0 6.0 8.0
 run_test_vec3 "mul -2.5 4.0 -1.5   -2.0"   5.0 -8.0 3.0
 
-# Scalar Division
 run_test_vec3 "div 10.0 8.0 6.0   2.0"     5.0 4.0 3.0
 run_test_vec3 "div -10.0 5.0 2.5   2.0"   -5.0 2.5 1.25
 
-# Dot Product
 run_test_scalar "dot 1.0 0.0 0.0   0.0 1.0 0.0"  0.0
 run_test_scalar "dot 1.0 2.0 3.0   4.0 5.0 6.0"  32.0
 run_test_scalar "dot -1.0 -2.0 3.0  2.0 1.0 -1.0" -7.0

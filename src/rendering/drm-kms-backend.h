@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <drm/drm.h>
 
 #include "rendering-backend.h"
 #include "drm-kms-device-context.h"
@@ -22,6 +23,11 @@ namespace rendering {
 			int front_buffer_index;
 			
 			std::unique_ptr<drm_rendering_mode const> current_mode;
+
+			uint32_t original_fb_id = 0;
+			uint32_t original_connector_id = 0;
+			struct drm_mode_modeinfo original_mode = {};
+			bool has_original_state = false;
 
 		public:
 			backend();

@@ -16,10 +16,8 @@ int main() {
             std::string resource_name;
             std::cin >> resource_name;
             
-            // Fetch the resource
             resource res = resource_loader::lookup_resource(resource_name);
             
-            // We use the resource size as our testable result
             std::cout << "RESULT " << res.size << std::endl;
         } else if (cmd == "dump") {
             std::string resource_name;

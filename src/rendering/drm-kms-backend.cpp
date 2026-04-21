@@ -4,7 +4,7 @@
 
 namespace rendering {
 	namespace drm_kms {
-		backend::backend() : front_buffer_index(0) {
+		backend::backend() : front_buffer_index(0), has_original_state(false) {
 			bool pipeline_found = false;
 
 			for (int i = 0; i < 64; ++i) {
@@ -46,6 +46,17 @@ namespace rendering {
 
 						if (enc_req.crtc_id != 0) {
 							active_crtc = std::make_unique<crtc>(*dev, enc_req.crtc_id);
+
+							struct drm_mode_crtc old_crtc_req = {};
+							old_crtc_req.crtc_id = enc_req.crtc_id;
+
+							if (dev->ioctl(DRM_IOCTL_MODE_GETCRTC, &old_crtc_req) == 0) {
+								original_fb_id = old_crtc_req.fb_id;
+								original_connector_id = conn_id;
+								original_mode = old_crtc_req.mode;
+								has_original_state = true;
+							}
+
 							pipeline_found = true;
 							break;
 						}
@@ -62,11 +73,16 @@ namespace rendering {
 			}
 		}
 
-		backend::~backend() = default;
+		backend::~backend() {
+			if (has_original_state && active_crtc && dev && dev->is_valid()) {
+				drm_rendering_mode restore_mode(original_mode);
+				active_crtc->set_config(original_fb_id, original_connector_id, restore_mode);
+			}
+		}
 
 		std::vector<std::unique_ptr<rendering_mode const>> backend::get_modes() {
 			if (is_bad()) return {};
-			
+
 			auto drm_modes = active_connector->probe_modes();
 			std::vector<std::unique_ptr<rendering_mode const>> modes;
 			for (auto& m : drm_modes) {
@@ -124,7 +140,7 @@ namespace rendering {
 
 		void backend::wait_for_vsync() {
 			if (is_bad() || !active_crtc) return;
-			
+
 			union drm_wait_vblank vbl = {};
 			vbl.request.type = (drm_vblank_seq_type)(_DRM_VBLANK_RELATIVE);
 			vbl.request.sequence = 1;
@@ -140,7 +156,7 @@ namespace rendering {
 			struct drm_mode_crtc_page_flip flip_req = {};
 			flip_req.crtc_id = active_crtc->crtc_id;
 			flip_req.fb_id = buffers[back_index]->fb_id;
-			
+
 			if (dev->ioctl(DRM_IOCTL_MODE_PAGE_FLIP, &flip_req) == 0) {
 				front_buffer_index = back_index;
 			}

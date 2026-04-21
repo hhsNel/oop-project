@@ -1,5 +1,6 @@
 #include "drm-kms-connector.h"
 #include <drm/drm.h>
+#include <vector>
 
 namespace rendering {
 	namespace drm_kms {
@@ -36,11 +37,20 @@ namespace rendering {
 			if (conn_req.count_modes == 0) return modes;
 
 			std::vector<struct drm_mode_modeinfo> raw_modes(conn_req.count_modes);
+			std::vector<uint32_t> raw_encoders(conn_req.count_encoders);
+			std::vector<uint32_t> raw_props(conn_req.count_props);
+			std::vector<uint64_t> raw_prop_values(conn_req.count_props);
+
 			conn_req.modes_ptr = reinterpret_cast<uint64_t>(raw_modes.data());
+			conn_req.encoders_ptr = reinterpret_cast<uint64_t>(raw_encoders.data());
+			conn_req.props_ptr = reinterpret_cast<uint64_t>(raw_props.data());
+			conn_req.prop_values_ptr = reinterpret_cast<uint64_t>(raw_prop_values.data());
 
 			if (dev.ioctl(DRM_IOCTL_MODE_GETCONNECTOR, &conn_req) == 0) {
 				for (const auto& raw_mode : raw_modes) {
-					modes.push_back(std::make_unique<drm_rendering_mode>(raw_mode));
+					if(raw_mode.hdisplay && raw_mode.vdisplay) {
+						modes.push_back(std::make_unique<drm_rendering_mode>(raw_mode));
+					}
 				}
 			}
 
