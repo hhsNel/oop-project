@@ -1,5 +1,5 @@
 SRCDIR = src
-MODULES = math geometry graphics engine rendering util
+MODULES = math geometry graphics engine rendering util input
 BUILDDIR = build
 RESDIR = res
 TESTDIR = tests

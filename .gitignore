@@ -2,4 +2,5 @@ src/res.h
 build/**
 isekai-doom
 tests/*.out
+manual-tests/*.out
 
