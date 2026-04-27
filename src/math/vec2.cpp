@@ -1,67 +1,78 @@
 #include "vec2.h"
 #include "vec3.h"
 
-math::vec2::vec2(vec3 const& vec) : a(vec.a), b(vec.b) {}
+#include <cmath>
 
-math::fxpt const
+math::vec2::vec2(vec3 const& vec) : x(vec.x), y(vec.y) {}
+
+float
 math::vec2::dot_product(vec2 const first, vec2 const second) {
-	return first.a * second.a + first.b * second.b;
+	return first.x * second.x + first.y * second.y;
 }
 
-math::fxpt const
+float
 math::vec2::sqr_len() const {
 	return dot_product(*this, *this);
 }
 
-math::fxpt const
+float
 math::vec2::len() const {
-	return sqr_len().sqrt();
+	return std::sqrt(x*x+y*y);
 }
 
 math::vec2 const
 math::vec2::normalized() const {
-	fxpt length = len();
+	float length = len();
 	if (!length) {
-		return vec2(fxpt(0.0f), fxpt(0.0f));
+		return vec2(float(0.0f), float(0.0f));
 	}
 	return *this / length;
 }
 
 math::vec2 const
 math::vec2::perpendicular() const {
-	return vec2(-b, a);
+	return vec2(-y, x);
 }
 
-math::fxpt const
+float
 math::vec2::angle() const {
-	return math::fxpt::atan2(b, a);
+	return std::atan2(y, x);
 }
 
-math::fxpt const
+float
 math::vec2::angle_between(vec2 const first, vec2 const second) {
-	fxpt dot = dot_product(first, second);
-	fxpt len1 = first.len();
-	fxpt len2 = second.len();
+	float dot = dot_product(first, second);
+	float len1 = first.len();
+	float len2 = second.len();
 
 	if (!len1 || !len2) {
-		return fxpt(0.0f);
+		return float(0.0f);
 	}
 
-	fxpt cos_theta = dot / (len1 * len2);
+	float cos_theta = dot / (len1 * len2);
 
-	if (cos_theta > fxpt(1.0f))  cos_theta = fxpt(1.0f);
-	if (cos_theta < fxpt(-1.0f)) cos_theta = fxpt(-1.0f);
+	if (cos_theta > float(1.0f))  cos_theta = float(1.0f);
+	if (cos_theta < float(-1.0f)) cos_theta = float(-1.0f);
 
-	return fxpt::acos(cos_theta);
+	return std::acos(cos_theta);
 }
 
 math::vec2 const
-math::vec2::rotate(vec2 const vec, fxpt const angle) {
-	fxpt c = math::fxpt::cos(angle);
-	fxpt s = math::fxpt::sin(angle);
+math::vec2::rotate(vec2 const vec, float const angle) {
+	float c = std::cos(angle);
+	float s = std::sin(angle);
 
 	return vec2(
-		vec.a * c - vec.b * s,
-		vec.a * s + vec.b * c
+		vec.x * c - vec.y * s,
+		vec.x * s + vec.y * c
 	);
 }
+
+math::vec2 const
+math::vec2::rotate_with_known_trig(vec2 const vec, float const cos, float const sin) {
+	return vec2(
+		vec.x * cos - vec.y * sin,
+		vec.x * sin + vec.y * cos
+	);
+}
+

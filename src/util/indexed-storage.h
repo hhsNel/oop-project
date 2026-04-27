@@ -109,7 +109,7 @@ namespace util {
         }
 
         void remove(id_t id) {
-            if (id == nullid || id >= reverse.size() || reverse[id] == 0 && (objects.empty() || lookup[0] != id)) {
+            if (id == nullid || id >= reverse.size() || (reverse[id] == 0 && (objects.empty() || lookup[0] != id))) {
                 return;
             }
 

@@ -28,3 +28,4 @@ namespace rendering {
 		virtual ~rendering_backend() = default;
 	};
 }
+

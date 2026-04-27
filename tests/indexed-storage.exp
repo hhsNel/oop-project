@@ -1,0 +1,61 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 2
+spawn ./tests/indexed-storage.out
+
+expect "READY"
+
+proc run_test {cmd expected {quiet 0}} {
+    global expect_out
+
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set result $expect_out(1,string)
+
+    if {$result == $expected} {
+        if {$quiet == 0} {
+            #puts "PASS ($cmd)"
+        }
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+run_test "add apple" "1"
+run_test "add banana" "2"
+run_test "add cherry" "3"
+run_test "size" "3"
+
+run_test "iterate" "1:apple,2:banana,3:cherry"
+
+run_test "get 2" "banana"
+run_test "remove 2" "OK"
+run_test "get 2" "NONE"
+run_test "size" "2"
+
+run_test "iterate" "1:apple,3:cherry"
+
+run_test "add date" "4"
+run_test "add elderberry" "5"
+run_test "iterate" "1:apple,3:cherry,4:date,5:elderberry"
+
+run_test "erase_val cherry" "OK"
+run_test "iterate" "1:apple,5:elderberry,4:date"
+run_test "size" "3"
+
+run_test "remove 1" "OK"
+run_test "remove 4" "OK"
+run_test "remove 5" "OK"
+run_test "iterate" "EMPTY"
+run_test "size" "0"
+
+send "exit\r"
+expect eof
+
+puts "PASS indexed-storage edge"
+

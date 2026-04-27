@@ -11,16 +11,18 @@
 
 namespace graphics {
 	class texture_manager {
+		std::vector<texture> wall_textures;
 		std::vector<texture> sprite_textures;
 		std::vector<texture> flat_textures;
 
-		texture_manager(std::vector<texture> const& sprites, std::vector<texture> const& flat);
+		texture_manager(std::vector<texture> const& walls, std::vector<texture> const& sprites, std::vector<texture> const& flat);
 		static std::vector<texture> tx_from_meta(std::string_view meta_path);
 	public:
 		typedef std::uint32_t texture_id;
 
 		static texture_manager const load();
 
+		texture const& wall_tx_by_id(texture_id const id) const;
 		texture const& sprite_tx_by_id(texture_id const id) const;
 		texture const& flat_tx_by_id(texture_id const id) const;
 	};

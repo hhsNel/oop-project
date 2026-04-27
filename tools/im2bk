@@ -5,33 +5,56 @@ import struct
 from PIL import Image
 
 def image_to_blob(input_path, output_path):
-    # Load image and ensure it is in RGBA (4 bytes per pixel)
     img = Image.open(input_path).convert('RGBA')
     width, height = img.size
     
+    has_transparency = 0
+    new_data = []
+    
+    for x in range(width):
+        for y in range(height):
+            r, g, b, a = img.getpixel((x, y))
+            if a < 128:
+                has_transparency = 1
+                new_data.append((255, 0, 255, 255))
+            else:
+                if r == 255 and g == 0 and b == 255:
+                    r = 254
+                new_data.append((r, g, b, 255))
+            
+    img.putdata(new_data)
+    
     with open(output_path, 'wb') as f:
-        # Write header: 32-bit unsigned width and height (Little Endian)
-        f.write(struct.pack('<II', width, height))
-        # Write pixel data
+        f.write(struct.pack('<III', width, height, has_transparency))
         f.write(img.tobytes())
     
-    print(f"Successfully baked {width}x{height} texture to {output_path}")
+    print(f"Successfully baked {width}x{height} texture to {output_path} (Transparent: {bool(has_transparency)})")
 
 def blob_to_image(input_path, output_path):
     with open(input_path, 'rb') as f:
-        # Read header
-        header = f.read(8)
-        if len(header) < 8:
+        header = f.read(12)
+        if len(header) < 12:
             print("Error: File too small to contain header.")
             return
             
-        width, height = struct.unpack('<II', header)
+        width, height, has_transparency = struct.unpack('<III', header)
         pixel_data = f.read()
         
-    # Reconstruct image from bytes
     img = Image.frombytes('RGBA', (width, height), pixel_data)
+    
+    if has_transparency:
+        restored_data = []
+        for x in range(width):
+            for y in range(height):
+                r, g, b, a = img.getpixel((x, y))
+                if r == 255 and g == 0 and b == 255:
+                    restored_data.append((0, 0, 0, 0))
+                else:
+                    restored_data.append((r, g, b, a))
+        img.putdata(restored_data)
+        
     img.save(output_path)
-    print(f"Successfully extracted {width}x{height} image to {output_path}")
+    print(f"Successfully extracted {width}x{height} image to {output_path} (Transparent: {bool(has_transparency)})")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Game Engine Texture Baker")
@@ -40,7 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--reverse", action="store_true", help="Convert blob back to image")
     
     args = parser.parse_args()
-    
+   
     if args.reverse:
         blob_to_image(args.input, args.output)
     else:

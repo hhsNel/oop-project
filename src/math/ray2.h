@@ -1,7 +1,6 @@
 #pragma once
 #define RAY2_H
 
-#include "fxpt.h"
 #include "vec2.h"
 #include "segment.h"
 
@@ -16,9 +15,9 @@ namespace math {
 		__attribute__((always_inline)) constexpr inline bool operator==(ray2 const other) const;
 		__attribute__((always_inline)) constexpr inline bool operator!=(ray2 const other) const;
 
-		static ray2 const rotate(ray2 const ray, fxpt const angle);
+		static ray2 const rotate(ray2 const ray, float const angle);
 
-		bool intersects(segment const seg, vec2 &hit_point, fxpt &distance, fxpt &seg_len) const;
+		bool intersects(segment const seg, vec2 &hit_point, float &distance, float &seg_len) const;
 	};
 }
 

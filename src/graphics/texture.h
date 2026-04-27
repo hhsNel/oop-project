@@ -6,19 +6,17 @@
 #include <cstdint>
 
 #include "util/resource.h"
-#include "math/fxpt.h"
 
 namespace graphics {
 	class texture {
-	public:
-		texture(std::vector<std::uint32_t> const &t, std::uint32_t const w, std::uint32_t const h);
+		texture(std::vector<std::uint32_t> const &t, std::uint32_t const w, std::uint32_t const h, bool const transparent = false);
 
+	public:
 		std::vector<std::uint32_t> pixels;
 		std::uint32_t width, height;
+		
+		bool has_transparency; 
 
 		static texture const load_from_bin(util::resource const res);
-
-		unsigned int get_offset(math::fxpt const stretched_len, math::fxpt const stretched_distance) const;
 	};
 }
-

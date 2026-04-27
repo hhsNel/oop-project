@@ -1,98 +1,97 @@
 #pragma once
 #define VEC3_H
 
-#include "fxpt.h"
 #include "vec2.h"
 
 namespace math {
 	class vec3 {
 	public:
-		fxpt a, b, c;
+		float x, y, z;
 
-		constexpr inline vec3(fxpt const A = 0, fxpt const B = 0, fxpt const C = 0);
-		constexpr inline vec3(vec2 const flat, fxpt const z = 0);
+		constexpr inline vec3(float const X = 0, float const Y = 0, float const Z = 0);
+		constexpr inline vec3(vec2 const flat, float const Z = 0);
 
 		__attribute__((always_inline)) constexpr inline vec3 const operator+(vec3 const other) const;
 		__attribute__((always_inline)) constexpr inline vec3 const operator-(vec3 const other) const;
 		__attribute__((always_inline)) constexpr inline vec3 const operator-() const;
-		__attribute__((always_inline)) constexpr inline vec3 const operator*(fxpt const scalar) const;
-		__attribute__((always_inline)) constexpr inline vec3 const operator/(fxpt const scalar) const;
+		__attribute__((always_inline)) constexpr inline vec3 const operator*(float const scalar) const;
+		__attribute__((always_inline)) constexpr inline vec3 const operator/(float const scalar) const;
 		
 		__attribute__((always_inline)) constexpr inline vec3 &operator+=(vec3 const other);
 		__attribute__((always_inline)) constexpr inline vec3 &operator-=(vec3 const other);
-		__attribute__((always_inline)) constexpr inline vec3 &operator*=(fxpt const scalar);
-		__attribute__((always_inline)) constexpr inline vec3 &operator/=(fxpt const scalar);
+		__attribute__((always_inline)) constexpr inline vec3 &operator*=(float const scalar);
+		__attribute__((always_inline)) constexpr inline vec3 &operator/=(float const scalar);
 
 		__attribute__((always_inline)) constexpr inline bool operator==(vec3 const other) const;
 		__attribute__((always_inline)) constexpr inline bool operator!=(vec3 const other) const;
 
-		static constexpr fxpt const dot_product(vec3 const first, vec3 const second);
+		static constexpr float dot_product(vec3 const first, vec3 const second);
 		static constexpr vec3 const cross_product(vec3 const first, vec3 const second);
 
-		constexpr fxpt const len() const;
-		constexpr fxpt const sqr_len() const;
+		constexpr float len() const;
+		constexpr float sqr_len() const;
 		constexpr vec3 const normalized() const;
 	};
 }
 
 constexpr inline
-math::vec3::vec3(fxpt const A, fxpt const B, fxpt const C) : a(A), b(B), c(C) {}
+math::vec3::vec3(float const X, float const Y, float const Z) : x(X), y(Y), z(Z) {}
 
 constexpr inline
-math::vec3::vec3(vec2 const flat, fxpt const z) : a(flat.a), b(flat.b), c(z) {}
+math::vec3::vec3(vec2 const flat, float const Z) : x(flat.x), y(flat.y), z(Z) {}
 
 __attribute__((always_inline)) constexpr inline math::vec3 const
 math::vec3::operator+(vec3 const other) const {
-	return vec3(a + other.a, b + other.b, c + other.c);
+	return vec3(x + other.x, y + other.y, z + other.z);
 }
 
 __attribute__((always_inline)) constexpr inline math::vec3 const
 math::vec3::operator-(vec3 const other) const {
-	return vec3(a - other.a, b - other.b, c - other.c);
+	return vec3(x - other.x, y - other.y, z - other.z);
 }
 
 __attribute__((always_inline)) constexpr inline math::vec3 const
 math::vec3::operator-() const {
-	return vec3(-a, -b, -c);
+	return vec3(-x, -y, -z);
 }
 
 __attribute__((always_inline)) constexpr inline math::vec3 const
-math::vec3::operator*(fxpt const scalar) const {
-	return vec3(a * scalar, b * scalar, c * scalar);
+math::vec3::operator*(float const scalar) const {
+	return vec3(x * scalar, y * scalar, z * scalar);
 }
 
 __attribute__((always_inline)) constexpr inline math::vec3 const
-math::vec3::operator/(fxpt const scalar) const {
-	return vec3(a / scalar, b / scalar, c / scalar);
+math::vec3::operator/(float const scalar) const {
+	return vec3(x / scalar, y / scalar, z / scalar);
 }
 
 __attribute__((always_inline)) constexpr inline math::vec3 &
 math::vec3::operator+=(vec3 const other) {
-	a += other.a; b += other.b; c += other.c;
+	x += other.x; y += other.y; z += other.z;
 	return *this;
 }
 
 __attribute__((always_inline)) constexpr inline math::vec3 &
 math::vec3::operator-=(vec3 const other) {
-	a -= other.a; b -= other.b; c -= other.c;
+	x -= other.x; y -= other.y; z -= other.z;
 	return *this;
 }
 
 __attribute__((always_inline)) constexpr inline math::vec3 &
-math::vec3::operator*=(fxpt const scalar) {
-	a *= scalar; b *= scalar; c *= scalar;
+math::vec3::operator*=(float const scalar) {
+	x *= scalar; y *= scalar; z *= scalar;
 	return *this;
 }
 
 __attribute__((always_inline)) constexpr inline math::vec3 &
-math::vec3::operator/=(fxpt const scalar) {
-	a /= scalar; b /= scalar; c /= scalar;
+math::vec3::operator/=(float const scalar) {
+	x /= scalar; y /= scalar; z /= scalar;
 	return *this;
 }
 
 __attribute__((always_inline)) constexpr inline bool
 math::vec3::operator==(vec3 const other) const {
-	return a == other.a && b == other.b && c == other.c;
+	return x == other.x && y == other.y && z == other.z;
 }
 
 __attribute__((always_inline)) constexpr inline bool
@@ -100,15 +99,15 @@ math::vec3::operator!=(vec3 const other) const {
 	return !(*this == other);
 }
 
-constexpr math::fxpt const math::vec3::dot_product(vec3 const first, vec3 const second) {
-	return first.a * second.a + first.b * second.b + first.c * second.c;
+constexpr float math::vec3::dot_product(vec3 const first, vec3 const second) {
+	return first.x * second.x + first.y * second.y + first.z * second.z;
 }
 
 constexpr math::vec3 const math::vec3::cross_product(vec3 const first, vec3 const second) {
 	return vec3(
-		first.b * second.c - first.c * second.b,
-		first.c * second.a - first.a * second.c,
-		first.a * second.b - first.b * second.a
+		first.y * second.z - first.z * second.y,
+		first.z * second.x - first.x * second.z,
+		first.x * second.y - first.y * second.x
 	);
 }
 

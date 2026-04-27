@@ -46,9 +46,14 @@ proc run_dump_test {cmd expected {quiet 0}} {
     }
 }
 
-run_test "lookup hello-world.txt" 14
-run_test "lookup meta-flat"       41
-run_test "lookup meta-sprite"     289
+run_test "lookup hello-world.txt"     14
+run_test "lookup meta-flat"           20
+run_test "lookup meta-sprite"         289
+run_test "lookup meta-walls"          44
+run_test "lookup flat-font-atlas.btx" 196620
+run_test "lookup wall-test.btx"       5000012
+run_test "lookup wall-test2.btx"      7704412
+run_test "lookup wall-test3.btx"      12800012
 
 run_dump_test "dump hello-world.txt" "Hello, World!"
 run_dump_test "dump hello-world.txt" "Hello, World!"

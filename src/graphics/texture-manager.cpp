@@ -5,8 +5,12 @@
 #include <string>
 
 namespace graphics {
-    texture_manager::texture_manager(std::vector<texture> const& sprites, std::vector<texture> const& flat)
-        : sprite_textures(sprites), flat_textures(flat) {}
+    texture_manager::texture_manager(std::vector<texture> const& walls, std::vector<texture> const& sprites, std::vector<texture> const& flat)
+        : wall_textures(walls), sprite_textures(sprites), flat_textures(flat) {}
+
+    texture const& texture_manager::wall_tx_by_id(texture_id const id) const {
+        return wall_textures.at(id);
+    }
 
     texture const& texture_manager::sprite_tx_by_id(texture_id const id) const {
         return sprite_textures.at(id);
@@ -46,9 +50,10 @@ namespace graphics {
     }
 
     texture_manager const texture_manager::load() {
+        std::vector<texture> walls   = tx_from_meta("meta-walls");
         std::vector<texture> sprites = tx_from_meta("meta-sprite");
         std::vector<texture> flats   = tx_from_meta("meta-flat");
 
-        return texture_manager(sprites, flats);
+        return texture_manager(walls, sprites, flats);
     }
 }

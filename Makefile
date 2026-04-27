@@ -1,5 +1,5 @@
 SRCDIR = src
-MODULES = math geometry graphics engine rendering util input
+MODULES = math geometry graphics engine rendering util input rendering/drm-kms
 BUILDDIR = build
 RESDIR = res
 TESTDIR = tests
@@ -19,19 +19,18 @@ TEST_BINS = $(TEST_SRCS:.cpp=.out)
 MANUAL_TEST_BINS = $(MANUAL_TESTS:.cpp=.out)
 
 CXX = g++
-#CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR)
-CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR) -g
+#CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR) -D_USE_MATH_DEFINES -march=native -ffast-math -O3 -g -pg
+CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR) -D_USE_MATH_DEFINES -O2 -g -pg
 CXXFLAGS = $(CFLAGS)
 #CXXFLAGS += -std=c++26 -freflection $(CFLAGS)
 OCFLAGS += -I binary -O elf64-x86-64
 RES_EXPORT_FLAGS = $(foreach RESFILE, $(RES), -Wl,--export-dynamic-symbol=_binary_$(shell echo '$(RESFILE)' | sed 's/[^a-zA-Z0-9]/_/g')_start -Wl,--export-dynamic-symbol=_binary_$(shell echo '$(RESFILE)' | sed 's/[^a-zA-Z0-9]/_/g')_end)
-LDFLAGS += -pie $(RES_EXPORT_FLAGS)
+#LDFLAGS += -pie $(RES_EXPORT_FLAGS)
+LDFLAGS += -pie $(RES_EXPORT_FLAGS) -pg
 
 all: $(TARGET)
 
 $(TARGET): $(OBJ) $(RESOBJ)
-	@echo obj: $(OBJ)
-	@echo resobj: $(RESOBJ)
 	$(CXX) $(LDFLAGS) -o $(TARGET) $(OBJ) $(RESOBJ)
 
 $(BUILDDIR)/res/%.o: $(RESDIR)/% $(BUILDDIR)

@@ -23,11 +23,11 @@ int main() {
         else if (cmd == "mul" || cmd == "div") {
             std::cin >> a1 >> b1 >> s;
             vec2 v1(a1, b1);
-            res = (cmd == "mul") ? v1 * fxpt(s) : v1 / fxpt(s);
+            res = (cmd == "mul") ? v1 * float(s) : v1 / float(s);
         }
         else if (cmd == "dot") {
             std::cin >> a1 >> b1 >> a2 >> b2;
-            fxpt dot = vec2::dot_product(vec2(a1, b1), vec2(a2, b2));
+            float dot = vec2::dot_product(vec2(a1, b1), vec2(a2, b2));
             std::cout << "RESULT " << std::fixed << static_cast<float>(dot) << std::endl;
             continue;
         }
@@ -39,7 +39,7 @@ int main() {
             continue;
         }
 
-        std::cout << "RESULT " << std::fixed << static_cast<float>(res.a) << " " << static_cast<float>(res.b) << std::endl;
+        std::cout << "RESULT " << std::fixed << static_cast<float>(res.x) << " " << static_cast<float>(res.y) << std::endl;
     }
     return 0;
 }

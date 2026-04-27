@@ -5,7 +5,7 @@
 #include <memory>
 #include <cstdint>
 
-#include "rendering/drm-kms-backend.h"
+#include "rendering/drm-kms/backend.h"
 
 bool check_backend_state(const std::unique_ptr<rendering::rendering_backend>& backend, const std::string& action) {
     if (backend->is_bad()) {
