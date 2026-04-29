@@ -55,6 +55,6 @@ namespace rendering {
         void set_texture_manager(graphics::texture_manager const *const tm);
         void set_map(geometry::map_data const *const map);
 
-        void render_bsp(geometry::bsp_node const* root, math::vec2 const cam_pos, float const cam_height, float cam_angle, float fov); 
+        void render_bsp(math::vec2 const cam_pos, float const cam_height, float cam_angle, float fov); 
     };
 }

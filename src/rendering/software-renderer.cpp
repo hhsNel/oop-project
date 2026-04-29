@@ -488,7 +488,7 @@ __attribute__((always_inline)) inline std::uint32_t software_renderer::apply_lig
 	return swar_rb | swar_g;
 }
 
-void software_renderer::render_bsp(geometry::bsp_node const* /*root*/, math::vec2 const cam_pos, float const cam_height, float cam_angle, float fov) {
+void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_height, float cam_angle, float fov) {
 
     if (current_map && current_map->root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
 		/* pre-calculate a bunch of things because calculating them per-pixel or even per-row is too slow */

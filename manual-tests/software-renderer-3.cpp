@@ -26,7 +26,7 @@ void render_frame(math::vec2 cam_pos, float cam_height, float &cam_angle, float 
 
 	auto raw_start = std::chrono::high_resolution_clock::now();
 
-	renderer.render_bsp(nullptr, cam_pos, cam_height, cam_angle, fov);
+	renderer.render_bsp(cam_pos, cam_height, cam_angle, fov);
 
 	auto raw_end = std::chrono::high_resolution_clock::now();
 	float raw_render_ms = std::chrono::duration<float, std::milli>(raw_end - raw_start).count();
