@@ -3,4 +3,4 @@ build/**
 isekai-doom
 tests/*.out
 manual-tests/*.out
-
+gmon.out
