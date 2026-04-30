@@ -23,7 +23,7 @@ CXX = g++
 CFLAGS = -Wall -Wextra -Werror -Wshadow -fstack-protector-strong -fPIE -I$(SRCDIR) -D_USE_MATH_DEFINES -O2 -g -pg
 CXXFLAGS = $(CFLAGS)
 #CXXFLAGS += -std=c++26 -freflection $(CFLAGS)
-OCFLAGS += -I binary -O elf64-x86-64
+OCFLAGS += -I binary -O elf64-x86-64 --add-section .note.GNU-stack=/dev/null --set-section-flags .note.GNU-stack=noload,readonly
 RES_EXPORT_FLAGS = $(foreach RESFILE, $(RES), -Wl,--export-dynamic-symbol=_binary_$(shell echo '$(RESFILE)' | sed 's/[^a-zA-Z0-9]/_/g')_start -Wl,--export-dynamic-symbol=_binary_$(shell echo '$(RESFILE)' | sed 's/[^a-zA-Z0-9]/_/g')_end)
 #LDFLAGS += -pie $(RES_EXPORT_FLAGS)
 LDFLAGS += -pie $(RES_EXPORT_FLAGS) -pg
