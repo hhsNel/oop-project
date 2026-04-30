@@ -157,7 +157,7 @@ int main() {
 
     geometry::subsector room_subsector;
     room_subsector.lines = line_ids;
-    auto subsector_id = room_map.subsectors.add(room_subsector);
+    auto subsector_id = room_map.subsectors.add(std::move(room_subsector));
 
     room_map.root_node_id = geometry::bsp_node::leaf_flag | subsector_id;
 

@@ -108,6 +108,20 @@ namespace util {
             return new_id;
         }
 
+        id_t add(T&& object) {
+            id_t new_id = m_next_id++;
+
+            if (new_id >= reverse.size()) {
+                reverse.resize(new_id + 1, 0);
+            }
+
+            reverse[new_id] = objects.size();
+            objects.push_back(std::move(object));
+            lookup.push_back(new_id);
+
+            return new_id;
+        }
+
         void remove(id_t id) {
             if (id == nullid || id >= reverse.size() || (reverse[id] == 0 && (objects.empty() || lookup[0] != id))) {
                 return;

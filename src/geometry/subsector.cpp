@@ -1,5 +1,7 @@
 #include "geometry/subsector.h"
 
+#include <utility>
+
 namespace geometry {
     struct bin_subsector {
         std::uint32_t line_count;
@@ -16,7 +18,7 @@ namespace geometry {
             for (std::uint32_t j = 0; j < data[i].line_count; ++j) {
                 sub.lines.push_back(data[i].first_line_id + j); 
             }
-            result.push_back(sub);
+            result.push_back(std::move(sub));
         }
         return result;
     }

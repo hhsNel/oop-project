@@ -215,27 +215,27 @@ int main() {
 
     geometry::subsector ss_south;
     ss_south.lines = {ld_w_s, ld_s_s, ld_e_s, ld_p_s};
-    auto ss_south_id = map.subsectors.add(ss_south);
+    auto ss_south_id = map.subsectors.add(std::move(ss_south));
 
     geometry::subsector ss_north;
     ss_north.lines = {ld_w_n, ld_n_n, ld_e_n, ld_p_n};
-    auto ss_north_id = map.subsectors.add(ss_north);
+    auto ss_north_id = map.subsectors.add(std::move(ss_north));
 
     geometry::subsector ss_west;
     ss_west.lines = {ld_w_w, ld_p_w};
-    auto ss_west_id = map.subsectors.add(ss_west);
+    auto ss_west_id = map.subsectors.add(std::move(ss_west));
 
     geometry::subsector ss_east;
     ss_east.lines = {ld_e_e, ld_p_e};
-    auto ss_east_id = map.subsectors.add(ss_east);
+    auto ss_east_id = map.subsectors.add(std::move(ss_east));
 
     geometry::subsector ss_pillar;
     ss_pillar.lines = {};
-    auto ss_pillar_id = map.subsectors.add(ss_pillar);
+    auto ss_pillar_id = map.subsectors.add(std::move(ss_pillar));
 
     geometry::subsector ss2;
     ss2.lines = {ld1_r2, ld4, ld5, ld6};
-    auto ss2_id = map.subsectors.add(ss2);
+    auto ss2_id = map.subsectors.add(std::move(ss2));
 
     geometry::bsp_node n_east_west;
     n_east_west.pl_coord = {576.0f, 0.0f};

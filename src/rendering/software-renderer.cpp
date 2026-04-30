@@ -34,7 +34,12 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
 
         geometry::subsector const& sub = current_map->subsectors[subsector_id];
 
-        for (auto line_id : sub.lines) {
+		/* TODO: not sure if sprites should be queued first ? */
+		for(auto const& sprite : sub.sprites) {
+			add_vissprite(sprite.get(), /* TODO: add lighting */255, frd);
+		}
+
+        for (auto const line_id : sub.lines) {
             project_and_draw_linedef(current_map->linedefs[line_id], frd);
         }
         return;
@@ -388,6 +393,91 @@ void software_renderer::render_visplanes(frame_rendering_data const frd) {
     visplanes.clear();
 }
 
+void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame_rendering_data const frd) {
+	math::vec2 tr_pos = s->pos - frd.cam_pos;
+	tr_pos = math::vec2::rotate_with_known_trig(tr_pos, frd.cos_cam_angle, -frd.sin_cam_angle);
+
+	if(tr_pos.y <= near_z) return;
+
+	float proj_x = (tr_pos.x / tr_pos.y) * frd.fov_scale + frd.half_sw;
+	float scale = frd.fov_scale / tr_pos.y * s->inherent_scale;
+
+	graphics::texture const& tex = tex_manager->sprite_tx_by_id(s->tex_id);
+
+	/* screen bounds */
+	float half_width = (tex.width * scale) / 2.0f;
+	int x1 = static_cast<int>(proj_x - half_width);
+	int x2 = static_cast<int>(proj_x + half_width);
+
+	/* frustum culling */
+	if(x1 >= static_cast<int>(frd.sw) || x2 < 0) return;
+
+	int cx1 = std::max(0, x1);
+	int cx2 = std::min(x2, static_cast<int>(frd.sw) - 1);
+
+	/* occlusion culling */
+	bool visible = false;
+	for(int x = cx1; x <= cx2; ++x) {
+		if(lower_clip[x] > upper_clip[x]) {
+			visible = true;
+			break;
+		}
+	}
+	if(!visible) return;
+
+	std::vector<int> slice_uc(upper_clip.begin() + cx1, upper_clip.begin() + cx2 + 1);
+	std::vector<int> slice_lc(lower_clip.begin() + cx1, lower_clip.begin() + cx2 + 1);
+	vissprites.emplace_back(*s, tr_pos.y, cx1, cx2, proj_x, scale, light, std::move(slice_uc), std::move(slice_lc));
+}
+
+void software_renderer::render_vissprites(frame_rendering_data const frd) {
+	std::sort(vissprites.begin(), vissprites.end(), [](vissprite const& a, vissprite const& b) {
+			return a.depth > b.depth;
+		});
+
+	for(auto const& vs : vissprites) {
+		graphics::texture const& tex = tex_manager->sprite_tx_by_id(vs.tex_id);
+		float eu_dist_f = euclidian_dist_factor[std::clamp(static_cast<int>(vs.proj_x), 0, static_cast<int>(frd.sw) - 1)];
+		int sprite_light = calculate_light(vs.light_level, vs.depth * eu_dist_f);
+
+		float scr_y_bot = frd.sh/2.0f - (vs.z_pos - frd.cam_height) * vs.scale;
+		float scr_y_top = scr_y_bot - tex.height * vs.scale;
+
+		float inv_scale = 1.0f / vs.scale;
+		
+		for(int x = vs.cx1; x <= vs.cx2; ++x) {
+			int clip_top = vs.upper_clip[x - vs.cx1];
+			int clip_bot = vs.lower_clip[x - vs.cx1];
+
+			/* occlusion culling */
+			if(clip_bot <= clip_top) continue;
+
+			float draw_top = std::max(static_cast<float>(clip_top), scr_y_top);
+			float draw_bot = std::min(static_cast<float>(clip_bot), scr_y_bot);
+
+			if(draw_bot <= draw_top) continue;
+
+			/* should be correct ??? */
+			int u = static_cast<int>((x - vs.proj_x + (tex.width*vs.scale)/2) * inv_scale);
+			u = std::clamp(u, 0, static_cast<int>(tex.width) - 1);
+
+			float current_v = (draw_top - scr_y_top) * inv_scale;
+
+			for(int y = static_cast<int>(draw_top); y < static_cast<int>(draw_bot); ++y) {
+				int v = static_cast<int>(current_v);
+				current_v += inv_scale;
+
+				std::uint32_t color = tex.pixels[u * tex.height + v];
+				if(color != 0xffff00ff) {
+					frd.mmio[x + y * frd.pitch] = apply_light(color, sprite_light);
+				}
+			}
+		}
+	}
+
+	vissprites.clear();
+}
+
 bool software_renderer::is_box_visible(geometry::bsp_node::bounding_box const& box, frame_rendering_data const frd) {
 	/* if the camera is inside, we def need to render the box */
     if (frd.cam_pos.x >= box.left   && frd.cam_pos.x <= box.right &&
@@ -524,6 +614,7 @@ void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_hei
         render_bsp_node(current_map->root_node_id, frd);
 
 		render_visplanes(frd);
+		render_vissprites(frd);
     }
 }
 

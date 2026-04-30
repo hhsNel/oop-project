@@ -209,11 +209,11 @@ int main() {
 	/* SUBSECTORS */
     geometry::subsector ss1;
     ss1.lines = {ld0, ld1, ld2, ld3};
-    auto ss1_id = map.subsectors.add(ss1);
+    auto ss1_id = map.subsectors.add(std::move(ss1));
 
     geometry::subsector ss2;
     ss2.lines = {ld1_r2, ld4, ld5, ld6};
-    auto ss2_id = map.subsectors.add(ss2);
+    auto ss2_id = map.subsectors.add(std::move(ss2));
 
 	/* BSP TREE */
     geometry::bsp_node root_node;
