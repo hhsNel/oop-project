@@ -5,7 +5,6 @@
 
 #include "renderable-entity.h"
 #include "rendering/renderable.h"
-#include "math/fxpt.h"
 #include "math/vec2.h"
 
 namespace engine {
@@ -14,10 +13,10 @@ namespace engine {
 	public:
 		projectile(math::vec2 const v);
 
-		virtual void update(math::fxpt const dt);
+		virtual void update(float const dt);
 
-		virtual void on_traverse(math::fxpt const dt) = 0;
-		virtual void on_hit(math::fxpt const dt, std::shared_ptr<rendering::renderable> const tgt, math::vec2 const collision_pt) = 0;
+		virtual void on_traverse(float const dt) = 0;
+		virtual void on_hit(float const dt, std::shared_ptr<rendering::renderable> const tgt, math::vec2 const collision_pt) = 0;
 	};
 }
 

@@ -3,20 +3,40 @@
 
 #include <memory>
 
-#include "math/fxpt.h"
-#include "engine/actor.h"
-#include "util/indexed-storage.h"
+#include "math/vec2.h"
+
+namespace engine {class actor;}
 
 namespace engine::combat
 {
 	class status_effect {
-		math::fxpt duration;
+	protected:
+		float duration;
 		unsigned int intensity;
-		math::fxpt tick_timer;
+		float tick_interval;
+		float tick_timer;
 	public:
-		status_effect(math::fxpt const d, unsigned int intensity);
+		status_effect(float const dur,float tick_inter, unsigned int intens)
+			: duration(dur),intensity(intens), tick_interval(tick_inter), tick_timer(0.0f){}
 
-		virtual void affect(util::indexed_storage< std::shared_ptr<entity> >::id_t const actor) = 0;
+		virtual void on_apply(engine::actor&) {}
+		virtual void on_expire(engine::actor&) {}
+		virtual void affect(engine::actor&) {}
+		virtual ~status_effect() = default;
+
+		bool update(float dt) {
+			duration -= dt;
+			if(tick_interval > 0.0f) {
+				tick_timer += dt;
+				if(tick_timer >= tick_interval) {
+					tick_timer -= tick_interval;
+					return false; // tick fires — caller calls affect()
+				}
+				return true; // between ticks — skip affect()
+			}
+			return true; // non-ticking effect — affect() never fires
+		}
+		bool is_expired() const {return duration <= 0.0f;}
 	};
 }
 

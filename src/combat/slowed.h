@@ -7,9 +7,11 @@ namespace engine::combat
 {
 	class slowed : public status_effect {
 	public:
-		slowed(math::fxpt const d, unsigned int intensity);
+		slowed(float const dur, unsigned int intens)
+			: status_effect(dur, 0.0f, intens){}
 
-		void affect(util::indexed_storage< std::shared_ptr<entity> >::id_t const actor) override;
+		void on_apply(engine::actor& target) override;
+		void on_expire(engine::actor& target) override;
 	};
 }
 

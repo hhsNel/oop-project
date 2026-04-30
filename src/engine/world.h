@@ -1,7 +1,7 @@
 #pragma once
 #define WORLD_H
 
-#include <pair>
+#include <utility> //zmienione z <pair>
 #include <vector>
 #include <memory>
 #include <unordered_map>
@@ -9,7 +9,6 @@
 #include "util/indexed-storage.h"
 #include "entity.h"
 #include "rendering/renderable.h"
-#include "math/fxpt.h"
 #include "math/ray2.h"
 #include "math/vec2.h"
 
@@ -26,7 +25,7 @@ namespace engine {
 	public:
 		world();
 
-		void update(math::fxpt const dt);
+		void update(float const dt);
 
 		util::indexed_storage< std::shared_ptr<rendering::renderable> > const& get_renderable() const;
 		std::pair< util::indexed_storage< std::shared_ptr<entity> >::id_t const, util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const > const register_entity(std::shared_ptr<entity> const e);
@@ -36,7 +35,7 @@ namespace engine {
 		std::shared_ptr<entity> const entity_from_id(util::indexed_storage< std::shared_ptr<entity> >::id_t const id) const;
 		std::shared_ptr<rendering::renderable> const renderable_from_id(util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const id) const;
 
-		util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const raycast(math::ray2 const r, math::vec2 &hit_point, math::fxpt &distance, math::fxpt &renderable_len) const;
+		util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const raycast(math::ray2 const r, math::vec2 &hit_point, float &distance, float &renderable_len) const;
 
 	};
 }

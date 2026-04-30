@@ -7,9 +7,10 @@ namespace engine::combat
 {
 	class burning : public status_effect {
 	public:
-		burning(math::fxpt const d, unsigned int intensity);
+		burning(float const dur, unsigned int intens)
+			: status_effect(dur, 0.5f, intens){}
 
-		void affect(util::indexed_storage< std::shared_ptr<entity> >::id_t const actor) override;
+		void affect(engine::actor& target) override;
 	};
 }
 

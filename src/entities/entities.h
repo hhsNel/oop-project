@@ -4,7 +4,6 @@
 #include <vector>
 #include <memory>
 
-#include "math/fxpt.h"
 #include "engine/actor.h"
 #include "engine/projectile.h"
 #include "combat/combat.h"
@@ -15,59 +14,56 @@ namespace engine {
 	namespace entities {
 		class monster : public actor {
 		public:
-			math::fxpt speed;
-			math::fxpt attack_range;
-			math::fxpt detection radius;
+			float attack_range;
+			float detection_radius;
 			util::indexed_storage< std::shared_ptr<entity> >::id_t target;
-			void update(math::fxpt dt) override;
-			void take_damage();
-		};
 
-		class monster_basic : public monster {};
-		class monster_ranged : public monster {};
-		class monster_assault : public monster {};
-		class monster_sniper : public monster {};
-		class monster_trapper : public monster {};
-		class monster_Duzy_Gruby : public monster {};
-		class monster_Maly_Szybki : public monster {};
-		class monster_spawner : public monster {};
-		class monster_magic : public monster {};
-		class monster_boss : public monster {};	
+			monster(float hp, float shield, float movement_speed, float attack_range, float detection_radius)
+				: actor(hp, shield, movement_speed, faction::enemy),
+				  attack_range(attack_range),
+				  detection_radius(detection_radius) {}
+
+			void update(float dt) override;
+			void take_damage(float dmg) override;
+		};
 
 		class plasma_projectile : public projectile {
 		public:
-			math::fxpt speed
+			float speed;
 			int damage;
-			
+
 		};
-		
+
 		class grenade_projectile : public projectile {
 		public:
-			math::fxpt fuse time;
-			mth::fxpt explosion_radius;
+			float fuse_time;
+			float explosion_radius;
 		};
 
 		class slug_projectile : public projectile {};
 
 		class player : public actor {
 		public:
-			math::fxpt movement speed;
-			mth::fxpt sensitivity
+			float sensitivity;
 
-			systems::ammo_inventory inventory;
 			std::vector<combat::weapon*> weapons;
-			combat::weapon* current weapon;
-			int current_weapon_index
+			combat::weapon* current_weapon;
+			int current_weapon_index;
 
-			void update(math::fxpt dt) override;
+			player(float hp, float shield, float movement_speed, float sensitivity)
+				: actor(hp,shield,movement_speed, faction::player),
+				  sensitivity(sensitivity),
+				  current_weapon(nullptr),
+				  current_weapon_index(0) {}
+
+			void update(float dt) override;
 			void move(math::vec3 direction);
-			void rotate(math::fxpt yaw, math::fxpt pitch);
+			void rotate(float yaw, float pitch);
 			void shoot();
 			void switch_weapons(int index);
 			void use_grenade();
 
-			void take_damage() override;	
+			void take_damage(float dmg) override;
 		};
 	}
 }
-
