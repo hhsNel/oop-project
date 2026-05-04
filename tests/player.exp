@@ -1,0 +1,93 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 2
+spawn ./tests/player.out
+
+expect "READY"
+
+proc run_test {cmd expected} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set result $expect_out(1,string)
+    if {$result != $expected} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+proc run_test2 {cmd exp1 exp2} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set r1 $expect_out(1,string)
+    expect -re {RESULT ([^\r\n]+)}
+    set r2 $expect_out(1,string)
+    if {$r1 != $exp1 || $r2 != $exp2} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $r1 / $r2"
+        puts "\tExpected: $exp1 / $exp2"
+        exit 1
+    }
+}
+
+# =====================================================================
+# WEAPON SWITCHING
+# =====================================================================
+
+# add pistol+smg, switch to index 1
+run_test "switch_index" "1"
+
+# switch to 1 then back to 0
+run_test "switch_back"  "0"
+
+# switch to index 5 with only 1 weapon — stays at 0
+run_test "switch_oob"   "0"
+
+# switch to -1 — stays at 0
+run_test "switch_neg"   "0"
+
+# =====================================================================
+# SHOOTING
+# =====================================================================
+
+# shoot once: ammo 8->7
+run_test "shoot_ammo"       "7"
+
+# shoot with no weapon selected: no crash
+run_test "shoot_no_weapon"  "OK"
+
+# shoot twice with cooldown (rate=2.0), no update between: only 1 shot fires
+run_test "shoot_blocked"    "7"
+
+# shoot, update 0.6s, shoot: both fire -> ammo=6
+run_test "shoot_after_update" "6"
+
+# =====================================================================
+# RELOAD
+# =====================================================================
+
+# fire full magazine, reload -> ammo restored to 8
+run_test "reload_current"       "8"
+
+# fire full magazine, extra shoot -> ammo stays at 0
+run_test "can_fire_after_empty" "0"
+
+# =====================================================================
+# HEALTH SYSTEM
+# =====================================================================
+
+run_test  "player_take_damage"    "80"
+run_test2 "player_armor_absorb"   "20"  "100"
+run_test2 "player_armor_overflow" "0"   "90"
+run_test  "player_heal"           "90"
+run_test  "player_death"          "YES"
+
+send "exit\r"
+expect eof
+
+puts "PASS player"

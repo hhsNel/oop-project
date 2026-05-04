@@ -45,6 +45,7 @@ namespace engine {
 			void move(math::vec3 direction);
 			void rotate(float yaw, float pitch);
 			void shoot();
+			void reload();
 			void switch_weapons(int index);
 			void use_grenade();
 
