@@ -3,7 +3,7 @@
 log_user 0
 
 set timeout 2
-spawn ./tests/Status-effects.out
+spawn ./tests/status-effects.out
 
 expect "READY"
 
@@ -196,4 +196,4 @@ run_test "expire_check 100.0 0.016" "NO"
 send "exit\r"
 expect eof
 
-puts "PASS Status-effects edge"
+puts "PASS status-effects edge"

@@ -3,7 +3,7 @@
 log_user 0
 
 set timeout 2
-spawn ./tests/Status-effects.out
+spawn ./tests/status-effects.out
 
 expect "READY"
 
@@ -102,4 +102,4 @@ run_test "charmed_no_damage" "100"
 send "exit\r"
 expect eof
 
-puts "PASS Status-effects"
+puts "PASS status-effects"

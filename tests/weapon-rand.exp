@@ -1,0 +1,136 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 5
+spawn ./tests/weapon.out
+
+expect "READY"
+
+expr {srand([clock clicks])}
+
+# =====================================================================
+# fire_count: losowa liczba strzałów, magazynek=8
+# Expected: ammo=max(0, 8-shots), spawned=min(8, shots)
+# =====================================================================
+
+for {set i 0} {$i < 2000} {incr i} {
+    set shots [expr {int(rand() * 20)}]
+
+    set exp_ammo    [expr {max(0, 8 - $shots)}]
+    set exp_spawned [expr {min(8, $shots)}]
+
+    send "fire_count $shots\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set got_ammo $expect_out(1,string)
+    expect -re {RESULT ([^\r\n]+)}
+    set got_spawned $expect_out(1,string)
+
+    if {$got_ammo != $exp_ammo || $got_spawned != $exp_spawned} {
+        puts "FAIL (fire_count $shots)"
+        puts "\tGot:      ammo=$got_ammo  spawned=$got_spawned"
+        puts "\tExpected: ammo=$exp_ammo  spawned=$exp_spawned"
+        exit 1
+    }
+}
+
+# =====================================================================
+# cooldown_check: losowy rate i dt
+# Expected: YES jeśli dt >= 1/rate, inaczej NO
+# Pomijamy wartości w odległości 0.005 od granicy (precyzja float).
+# =====================================================================
+
+for {set i 0} {$i < 1000} {incr i} {
+    set rate [expr {(rand() * 9.9) + 0.1}]
+    set dt   [expr {(rand() * 2.9) + 0.0}]
+
+    set cooldown [expr {1.0 / $rate}]
+    if {abs($dt - $cooldown) < 0.005} { continue }
+
+    if {$dt >= $cooldown} {
+        set expected "YES"
+    } else {
+        set expected "NO"
+    }
+
+    set rate_fmt [format "%.4f" $rate]
+    set dt_fmt   [format "%.4f" $dt]
+
+    send "cooldown_check $rate_fmt $dt_fmt\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set got $expect_out(1,string)
+
+    if {$got != $expected} {
+        puts "FAIL (cooldown_check $rate_fmt $dt_fmt)"
+        puts "\tGot:      $got"
+        puts "\tExpected: $expected  (cooldown=[format "%.4f" $cooldown])"
+        exit 1
+    }
+}
+
+# =====================================================================
+# reload_check: losowy rozmiar magazynka, opróżnij i przeładuj
+# Expected: ammo_count == mag
+# =====================================================================
+
+for {set i 0} {$i < 500} {incr i} {
+    set mag [expr {int(rand() * 30) + 1}]
+
+    send "reload_check $mag\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set got $expect_out(1,string)
+
+    if {$got != $mag} {
+        puts "FAIL (reload_check $mag)"
+        puts "\tGot:      $got"
+        puts "\tExpected: $mag"
+        exit 1
+    }
+}
+
+# =====================================================================
+# shotgun_pellet_count: losowa liczba strzałów shotgunem, mag=8
+# Expected: min(8, shots) * 8 pelletów
+# =====================================================================
+
+for {set i 0} {$i < 1000} {incr i} {
+    set shots [expr {int(rand() * 20)}]
+
+    set exp_pellets [expr {min(8, $shots) * 8}]
+
+    send "shotgun_pellet_count $shots\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set got $expect_out(1,string)
+
+    if {$got != $exp_pellets} {
+        puts "FAIL (shotgun_pellet_count $shots)"
+        puts "\tGot:      $got"
+        puts "\tExpected: $exp_pellets"
+        exit 1
+    }
+}
+
+# =====================================================================
+# katana_swings: losowa liczba uderzeń
+# Expected: swing_count == n
+# =====================================================================
+
+for {set i 0} {$i < 500} {incr i} {
+    set n [expr {int(rand() * 30)}]
+
+    send "katana_swings $n\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set got $expect_out(1,string)
+
+    if {$got != $n} {
+        puts "FAIL (katana_swings $n)"
+        puts "\tGot:      $got"
+        puts "\tExpected: $n"
+        exit 1
+    }
+}
+
+send "exit\r"
+expect eof
+
+puts "PASS weapon rand"

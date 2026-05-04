@@ -1,5 +1,5 @@
 SRCDIR = src
-MODULES = math geometry graphics engine combat rendering util input rendering/drm-kms
+MODULES = math geometry graphics engine combat combat/weapons rendering util input rendering/drm-kms
 BUILDDIR = build
 RESDIR = res
 TESTDIR = tests

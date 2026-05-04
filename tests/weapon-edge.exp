@@ -1,0 +1,115 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 2
+spawn ./tests/weapon.out
+
+expect "READY"
+
+proc run_test {cmd expected} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set result $expect_out(1,string)
+    if {$result != $expected} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+proc run_test2 {cmd exp1 exp2} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set r1 $expect_out(1,string)
+    expect -re {RESULT ([^\r\n]+)}
+    set r2 $expect_out(1,string)
+    if {$r1 != $exp1 || $r2 != $exp2} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $r1 / $r2"
+        puts "\tExpected: $exp1 / $exp2"
+        exit 1
+    }
+}
+
+# =====================================================================
+# fire_count — granice magazynka (mag=8)
+# =====================================================================
+
+run_test2 "fire_count 0"    "8" "0"
+run_test2 "fire_count 1"    "7" "1"
+run_test2 "fire_count 8"    "0" "8"
+run_test2 "fire_count 9"    "0" "8"
+run_test2 "fire_count 100"  "0" "8"
+
+# =====================================================================
+# cooldown_check — granice czasu cooldownu
+# =====================================================================
+
+# dt dokładnie równy cooldownowi (rate=2.0 → 0.5s): last_shot_time=0 → można strzelać
+run_test "cooldown_check 2.0 0.5"    "YES"
+
+# dt tuż poniżej cooldownu — zablokowany
+run_test "cooldown_check 2.0 0.4999" "NO"
+
+# dt=0 zaraz po strzale — zablokowany
+run_test "cooldown_check 2.0 0.0"    "NO"
+
+# szybka broń: 1/10=0.1s, dt=0.11 → gotowy
+run_test "cooldown_check 10.0 0.11"  "YES"
+
+# szybka broń, dt za krótki
+run_test "cooldown_check 10.0 0.09"  "NO"
+
+# wolna broń: 1/0.5=2.0s, dt=1.9 → zablokowany
+run_test "cooldown_check 0.5 1.9"    "NO"
+
+# wolna broń: dt=2.1 → gotowy
+run_test "cooldown_check 0.5 2.1"    "YES"
+
+# granica katany: 1/1.5≈0.6667s, dt=0.6667 → gotowy
+send "cooldown_check 1.5 0.6667\r"
+expect -re {RESULT ([^\r\n]+)}
+set got $expect_out(1,string)
+if {$got != "YES"} {
+    puts "FAIL (cooldown_check 1.5 0.6667)"
+    puts "\tGot:      $got"
+    puts "\tExpected: YES"
+    exit 1
+}
+
+# =====================================================================
+# reload_check — różne rozmiary magazynka
+# =====================================================================
+
+run_test "reload_check 1"   "1"
+run_test "reload_check 8"   "8"
+run_test "reload_check 30"  "30"
+
+# =====================================================================
+# shotgun_pellet_count — granice liczby strzałów
+# =====================================================================
+
+run_test "shotgun_pellet_count 0"   "0"
+run_test "shotgun_pellet_count 1"   "8"
+run_test "shotgun_pellet_count 8"   "64"
+run_test "shotgun_pellet_count 12"  "64"
+
+# =====================================================================
+# katana — brak amunicji, tylko cooldown
+# =====================================================================
+
+run_test "katana_swings 0"   "0"
+run_test "katana_swings 1"   "1"
+run_test "katana_swings 10"  "10"
+
+# zaraz po uderzeniu — zablokowana
+run_test2 "katana_swing" "1" "NO"
+
+send "exit\r"
+expect eof
+
+puts "PASS weapon edge"

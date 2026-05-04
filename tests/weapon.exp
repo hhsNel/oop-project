@@ -1,0 +1,161 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 2
+spawn ./tests/weapon.out
+
+expect "READY"
+
+proc run_test {cmd expected} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set result $expect_out(1,string)
+    if {$result != $expected} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+proc run_test2 {cmd exp1 exp2} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set r1 $expect_out(1,string)
+    expect -re {RESULT ([^\r\n]+)}
+    set r2 $expect_out(1,string)
+    if {$r1 != $exp1 || $r2 != $exp2} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $r1 / $r2"
+        puts "\tExpected: $exp1 / $exp2"
+        exit 1
+    }
+}
+
+proc near {a b} {
+    return [expr {abs($a - $b) <= 0.02}]
+}
+
+# =====================================================================
+# PISTOL
+# =====================================================================
+
+# fire once: ammo 8→7, 1 bullet spawned
+run_test2 "pistol_fire"           "7" "1"
+
+# fire full magazine: can_fire() = false
+run_test  "pistol_empty"          "0"
+
+# fire more than magazine: only 8 bullets spawned
+run_test  "pistol_overshoot"      "8"
+
+# fire empty then reload: can fire (1), ammo restored to 8
+run_test2 "pistol_reload"         "1" "8"
+
+# cooldown ready after 0.6s (rate=2.0 → interval=0.5s)
+run_test  "pistol_cooldown_ready" "YES"
+
+# cooldown blocks after 0.3s
+run_test  "pistol_cooldown_block" "NO"
+
+# second fire during cooldown spawns no extra bullet
+run_test  "pistol_no_fire_blocked" "1"
+
+# bullet spawned at the correct position and angle
+send "pistol_bullet_pos 5.0 10.0 1.5707\r"
+expect -re {RESULT ([^\r\n]+)}
+set rx $expect_out(1,string)
+expect -re {RESULT ([^\r\n]+)}
+set ry $expect_out(1,string)
+expect -re {RESULT ([^\r\n]+)}
+set ra $expect_out(1,string)
+if {![near $rx 5.0] || ![near $ry 10.0] || ![near $ra 1.5707]} {
+    puts "FAIL (pistol_bullet_pos 5.0 10.0 1.5707)"
+    puts "\tGot:      $rx $ry $ra"
+    puts "\tExpected: ~5.0 ~10.0 ~1.5707"
+    exit 1
+}
+
+# =====================================================================
+# SMG
+# =====================================================================
+
+# fire once: ammo 30→29, 1 bullet spawned
+run_test2 "smg_fire"    "29" "1"
+
+# =====================================================================
+# RIFLE
+# =====================================================================
+
+# fire once: ammo 20→19, 1 bullet spawned
+run_test2 "rifle_fire"  "19" "1"
+
+# =====================================================================
+# SNIPER RIFLE
+# =====================================================================
+
+# fire once: ammo 5→4, 1 bullet spawned
+run_test2 "sniper_fire" "4"  "1"
+
+# =====================================================================
+# PLASMA GUN
+# =====================================================================
+
+# fire once: ammo 10→9, 1 plasma spawned
+run_test2 "plasma_fire" "9"  "1"
+
+# =====================================================================
+# SHOTGUN
+# =====================================================================
+
+# fire once: ammo 8→7, 8 pellets spawned
+run_test2 "shotgun_fire" "7" "8"
+
+# spread: aimed at 0 rad, pellets span [-spread/2 .. +spread/2] = [-0.1309 .. 0.1309]
+send "shotgun_spread\r"
+expect -re {RESULT ([^\r\n]+)}
+set mn $expect_out(1,string)
+expect -re {RESULT ([^\r\n]+)}
+set mx $expect_out(1,string)
+if {![near $mn -0.1309] || ![near $mx 0.1309]} {
+    puts "FAIL (shotgun_spread)"
+    puts "\tGot min/max: $mn / $mx"
+    puts "\tExpected:    ~-0.1309 / ~0.1309"
+    exit 1
+}
+
+# =====================================================================
+# KATANA
+# =====================================================================
+
+# swing once: swing_count=1, immediately blocked
+run_test2 "katana_swing"          "1" "NO"
+
+# cooldown still active at 0.5s (1/1.5 ≈ 0.667s)
+run_test  "katana_cooldown"       "NO"
+
+# cooldown expired at 0.7s
+run_test  "katana_cooldown_ready" "YES"
+
+# =====================================================================
+# DAMAGE
+# =====================================================================
+
+run_test "damage_check pistol"  "25"
+run_test "damage_check smg"     "10"
+run_test "damage_check rifle"   "35"
+run_test "damage_check sniper"  "100"
+run_test "damage_check plasma"  "75"
+run_test "damage_check shotgun" "15"
+run_test "damage_check katana"  "50"
+
+# shotgun: 8 pellets × 15 = 120 total damage
+run_test "shotgun_total_damage" "120"
+
+send "exit\r"
+expect eof
+
+puts "PASS weapon"

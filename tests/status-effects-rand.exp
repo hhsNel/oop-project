@@ -3,7 +3,7 @@
 log_user 0
 
 set timeout 5
-spawn ./tests/Status-effects.out
+spawn ./tests/status-effects.out
 
 expect "READY"
 
@@ -157,4 +157,4 @@ for {set i 0} {$i < 500} {incr i} {
 send "exit\r"
 expect eof
 
-puts "PASS Status-effects rand"
+puts "PASS status-effects rand"
