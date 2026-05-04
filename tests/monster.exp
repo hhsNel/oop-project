@@ -1,0 +1,88 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 2
+spawn ./tests/monster.out
+
+expect "READY"
+
+proc run_test {cmd expected} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set result $expect_out(1,string)
+    if {$result != $expected} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+proc run_test2 {cmd exp1 exp2} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set r1 $expect_out(1,string)
+    expect -re {RESULT ([^\r\n]+)}
+    set r2 $expect_out(1,string)
+    if {$r1 != $exp1 || $r2 != $exp2} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $r1 / $r2"
+        puts "\tExpected: $exp1 / $exp2"
+        exit 1
+    }
+}
+
+# =====================================================================
+# DEFAULT STATS (hp / armor)
+# =====================================================================
+
+run_test2 "basic_stats"       "30"   "0"
+run_test2 "ranged_stats"      "25"   "0"
+run_test2 "assault_stats"     "60"   "10"
+run_test2 "sniper_stats"      "40"   "0"
+run_test2 "trapper_stats"     "45"   "15"
+run_test2 "duzy_gruby_stats"  "200"  "50"
+run_test2 "maly_szybki_stats" "15"   "0"
+run_test2 "all_rounder_stats" "80"   "20"
+run_test2 "spawner_stats"     "100"  "20"
+run_test2 "magic_stats"       "50"   "30"
+run_test2 "elite_tank_stats"  "400"  "150"
+run_test2 "elite_swift_stats" "60"   "0"
+run_test2 "boss_stats"        "1000" "300"
+
+# =====================================================================
+# SPEED / DETECTION
+# =====================================================================
+
+run_test "duzy_gruby_speed"  "0.8"
+run_test "maly_szybki_speed" "4.5"
+run_test "sniper_detection"  "30"
+
+# =====================================================================
+# TYPE-SPECIFIC FIELDS
+# =====================================================================
+
+run_test2 "assault_burst"    "3"  "0.2"
+run_test  "sniper_interval"  "3"
+run_test  "trapper_traps"    "3"
+run_test2 "spawner_fields"   "5"  "5"
+run_test  "elite_swift_charge" "15"
+run_test  "boss_phases"      "3"
+
+# =====================================================================
+# HEALTH SYSTEM
+# =====================================================================
+
+run_test  "take_damage"    "20"
+run_test2 "armor_absorb"   "5"  "45"
+run_test2 "armor_overflow" "0"  "40"
+run_test  "heal"           "25"
+run_test  "death"          "YES"
+
+send "exit\r"
+expect eof
+
+puts "PASS monster"

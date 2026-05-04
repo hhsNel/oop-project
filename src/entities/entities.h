@@ -5,10 +5,10 @@
 #include <memory>
 
 #include "engine/actor.h"
-#include "engine/projectile.h"
 #include "combat/combat.h"
 #include "util/indexed-storage.h"
 #include "engine/entity.h"
+#include "math/vec3.h"
 
 namespace engine {
 	namespace entities {
@@ -18,29 +18,14 @@ namespace engine {
 			float detection_radius;
 			util::indexed_storage< std::shared_ptr<entity> >::id_t target;
 
-			monster(float hp, float shield, float movement_speed, float attack_range, float detection_radius)
-				: actor(hp, shield, movement_speed, faction::enemy),
-				  attack_range(attack_range),
-				  detection_radius(detection_radius) {}
+			monster(float hp, float shield, float move_speed, float atk_range, float det_radius)
+				: actor(hp, shield, move_speed, faction::enemy),
+				  attack_range(atk_range),
+				  detection_radius(det_radius) {}
 
 			void update(float dt) override;
 			void take_damage(float dmg) override;
 		};
-
-		class plasma_projectile : public projectile {
-		public:
-			float speed;
-			int damage;
-
-		};
-
-		class grenade_projectile : public projectile {
-		public:
-			float fuse_time;
-			float explosion_radius;
-		};
-
-		class slug_projectile : public projectile {};
 
 		class player : public actor {
 		public:
@@ -50,9 +35,9 @@ namespace engine {
 			combat::weapon* current_weapon;
 			int current_weapon_index;
 
-			player(float hp, float shield, float movement_speed, float sensitivity)
-				: actor(hp,shield,movement_speed, faction::player),
-				  sensitivity(sensitivity),
+			player(float hp, float shield, float move_speed, float sens)
+				: actor(hp, shield, move_speed, faction::player),
+				  sensitivity(sens),
 				  current_weapon(nullptr),
 				  current_weapon_index(0) {}
 
