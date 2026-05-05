@@ -3,6 +3,7 @@
 
 #include "entity.h"
 #include "systems/systems.h"
+#include "math/vec2.h"
 
 
 namespace engine {
@@ -17,11 +18,13 @@ namespace engine {
 	protected:
 		systems::health_system health;
 	public:
+		math::vec2 position;
+		float      angle;
 		float movement_speed;
 		faction team;
 
 		actor(float hp, float shield, float move_speed, faction this_team)
-			:movement_speed(move_speed), team(this_team)
+			: position(0.0f, 0.0f), angle(0.0f), movement_speed(move_speed), team(this_team)
 		{
 			health.max_hp = hp;
 			health.current_hp = hp;
@@ -50,6 +53,8 @@ namespace engine {
 		{
 			health.add_effect(std::move(effect), *this);
 		}
+
+		bool is_dead() const { return health.is_dead(); }
 
 		virtual void update(float dt)
 		{

@@ -82,6 +82,36 @@ run_test2 "armor_overflow" "0"  "40"
 run_test  "heal"           "25"
 run_test  "death"          "YES"
 
+# =====================================================================
+# AI — ruch i detekcja
+# =====================================================================
+
+run_test "basic_moves"       "YES"
+run_test "basic_no_detect"   "YES"
+run_test "basic_dead_target" "YES"
+run_test "ranged_retreats"   "YES"
+run_test "ranged_advances"   "YES"
+run_test "maly_szybki_dashes"   "YES"
+run_test "elite_swift_circles"  "YES"
+
+# =====================================================================
+# AI — ataki
+# =====================================================================
+
+run_test "basic_attacks"        "90"
+run_test "basic_attack_cooldown" "90"
+run_test "sniper_no_early"      "100"
+run_test "sniper_fires"         "70"
+run_test "magic_fires"          "60"
+
+# =====================================================================
+# AI — zachowania specyficzne
+# =====================================================================
+
+run_test "all_rounder_melee"    "YES"
+run_test "spawner_spawns"       "1"
+run_test "trapper_places_trap"  "1"
+
 send "exit\r"
 expect eof
 
