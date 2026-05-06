@@ -63,7 +63,7 @@ void render_frame(math::vec2 cam_pos, float cam_height, float &cam_angle, float 
 	r2d.draw_text(ss.str().c_str(), 10, 150, 12, 16);
 
 	backend->flush();
-	//backend->wait_for_vsync();
+	backend->wait_for_vsync();
 }
 
 void move_camera(math::vec2 &cam_pos, float &cam_height, float &cam_angle, float &fov, int frame_count, int max_frame) {

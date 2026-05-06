@@ -20,7 +20,10 @@ namespace engine::combat
 		float damage;
 
 		virtual bool can_fire() const { return ammo_count > 0 && last_shot_time <= 0.0f; }
-		void update(float dt) { last_shot_time = std::max(0.0f, last_shot_time - dt); }
+		void update(float dt) {
+			last_shot_time = std::max(0.0f, last_shot_time - dt);
+			if (ammo) ammo->update(dt);
+		}
 
 		virtual void fire(math::vec2 const pos, float const angle) = 0;
 		virtual void reload() = 0;

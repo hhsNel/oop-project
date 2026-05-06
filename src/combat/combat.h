@@ -15,3 +15,6 @@
 #include "weapons/plasma-gun.h"
 #include "weapons/shotgun.h"
 #include "weapons/katana.h"
+#include "weapons/hitscan-ammo.h"
+#include "weapons/grenade-ammo.h"
+#include "weapons/grenade.h"
