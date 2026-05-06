@@ -48,7 +48,7 @@ namespace rendering {
         }
     }
 
-    void renderer_2d_temp::draw_text(std::string_view text, int x, int y, int char_w, int char_h) {
+    void renderer_2d_temp::draw_text(std::string_view text, int x, int y, int char_w, int char_h, std::uint32_t const color) {
         if (!font_texture) return;
 
         int const cols = 16;
@@ -89,7 +89,7 @@ namespace rendering {
                         continue;
                     }
 
-                    mmio[dy * pitch + dx] = pixel;
+                    mmio[dy * pitch + dx] = pixel * color;
                 }
             }
 

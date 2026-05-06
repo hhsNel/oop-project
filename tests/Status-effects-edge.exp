@@ -1,0 +1,199 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 2
+spawn ./tests/Status-effects.out
+
+expect "READY"
+
+# Porównanie float z tolerancją 0.02
+proc near {a b} {
+    return [expr {abs($a - $b) <= 0.02}]
+}
+
+proc run_test {cmd expected} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set result $expect_out(1,string)
+    if {$result != $expected} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+proc run_test2 {cmd exp1 exp2} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set r1 $expect_out(1,string)
+    expect -re {RESULT ([^\r\n]+)}
+    set r2 $expect_out(1,string)
+    if {$r1 != $exp1 || $r2 != $exp2} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $r1 / $r2"
+        puts "\tExpected: $exp1 / $exp2"
+        exit 1
+    }
+}
+
+proc run_near2 {cmd exp1 exp2} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set r1 $expect_out(1,string)
+    expect -re {RESULT ([^\r\n]+)}
+    set r2 $expect_out(1,string)
+    if {![near $r1 $exp1] || ![near $r2 $exp2]} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $r1 / $r2"
+        puts "\tExpected: ~$exp1 / ~$exp2"
+        exit 1
+    }
+}
+
+proc run_near {cmd expected} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set result $expect_out(1,string)
+    if {![near $result $expected]} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: ~$expected"
+        exit 1
+    }
+}
+
+# =====================================================================
+# BURNING — burning_dmg <hp> <armor> <intensity>
+# burning omija pancerz: armor niezmieniony, hp = max(0, hp - intensity)
+# =====================================================================
+
+# zerowy intensity — brak obrażeń
+run_test2 "burning_dmg 100 50 0"    "50" "100"
+
+# dokładnie hp=intensity — hp spada do 0
+run_test2 "burning_dmg 100 0 100"   "0" "0"
+
+# intensity > hp — hp podłoga na 0
+run_test2 "burning_dmg 50 0 200"    "0" "0"
+
+# normalny przypadek, armor ignorowany
+run_test2 "burning_dmg 100 50 20"   "50" "80"
+
+# armor pełny, burning mimo to redukuje HP
+run_test2 "burning_dmg 200 500 75"  "500" "125"
+
+# HP=1, intensity=1 — hp dokładnie do 0
+run_test2 "burning_dmg 1 0 1"       "0" "0"
+
+# duże HP, mały dmg
+run_test2 "burning_dmg 1000 0 1"    "0" "999"
+
+# =====================================================================
+# BURNING — burning_ticks <hp> <intensity> <n>
+# hp = max(0, hp - intensity * n)
+# =====================================================================
+
+# 0 ticków — hp niezmienione
+run_test "burning_ticks 100 5 0"   "100"
+
+# 1 tick
+run_test "burning_ticks 100 5 1"   "95"
+
+# wiele ticków
+run_test "burning_ticks 100 5 4"   "80"
+
+# obrażenia przekraczają hp — podłoga 0
+run_test "burning_ticks 10 5 3"    "0"
+
+# intensity=0 — brak obrażeń przez wiele ticków
+run_test "burning_ticks 100 0 10"  "100"
+
+# intensity=1 przez 100 ticków — hp=0
+run_test "burning_ticks 100 1 100" "0"
+
+# =====================================================================
+# SLOWED — slowed_calc <speed> <intensity>
+# new_speed = speed * max(0.1, 1.0 - intensity/100)
+# =====================================================================
+
+# intensity=0 — brak spowolnienia
+run_near "slowed_calc 100 0"    "100"
+
+# intensity=50 — połowa prędkości
+run_near "slowed_calc 100 50"   "50"
+
+# intensity=90 — dokładnie granica klampa (0.1)
+run_near "slowed_calc 100 90"   "10"
+
+# intensity=100 — 0.0 po klampa do 0.1
+run_near "slowed_calc 100 100"  "10"
+
+# intensity=200 — ujemne slow_factor, klampa do 0.1
+run_near "slowed_calc 100 200"  "10"
+
+# duża prędkość
+run_near "slowed_calc 200 50"   "100"
+
+# intensity=1 — minimalne spowolnienie
+run_near "slowed_calc 100 1"    "99"
+
+# =====================================================================
+# SLOWED — slowed_restore <speed> <intensity>
+# on_apply + on_expire → powrót do oryginału
+# =====================================================================
+
+# intensity=0 — nic się nie zmienia
+run_near "slowed_restore 100 0"    "100"
+
+# normalny przypadek
+run_near "slowed_restore 100 50"   "100"
+
+# blisko granicy klampa
+run_near "slowed_restore 100 89"   "100"
+
+# dokładnie granica klampa
+run_near "slowed_restore 100 90"   "100"
+
+# intensity=99 — klampa aktywna, mimo to musi wrócić
+run_near "slowed_restore 100 99"   "100"
+
+# intensity=100
+run_near "slowed_restore 100 100"  "100"
+
+# duże prędkości
+run_near "slowed_restore 200 75"   "200"
+
+# =====================================================================
+# EXPIRE CHECK — expire_check <duration> <dt>
+# is_expired() po jednym update(dt)
+# =====================================================================
+
+# dt < duration — nie wygasł
+run_test "expire_check 1.0 0.5"    "NO"
+
+# dt = duration — wygasł (duration - duration = 0 <= 0)
+run_test "expire_check 1.0 1.0"    "YES"
+
+# dt > duration — wygasł
+run_test "expire_check 1.0 2.0"    "YES"
+
+# duration=0, dt=0 — natychmiast wygasł
+run_test "expire_check 0.0 0.0"    "YES"
+
+# bardzo mała duration
+run_test "expire_check 0.001 0.001" "YES"
+run_test "expire_check 0.001 0.0005" "NO"
+
+# duża duration — na pewno nie wygasł po jednym kroku
+run_test "expire_check 100.0 0.016" "NO"
+
+send "exit\r"
+expect eof
+
+puts "PASS Status-effects edge"

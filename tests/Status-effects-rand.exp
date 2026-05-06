@@ -1,0 +1,160 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 5
+spawn ./tests/Status-effects.out
+
+expect "READY"
+
+expr {srand([clock clicks])}
+
+# Tolerancja: błędy zaokrąglenia result() ± 0.005 + ewentualny błąd float
+proc near {a b} {
+    set diff [expr {abs($a - $b)}]
+    if {$b != 0} {
+        set rel [expr {$diff / abs($b)}]
+        return [expr {$diff <= 0.02 || $rel <= 0.001}]
+    }
+    return [expr {$diff <= 0.02}]
+}
+
+# Zaokrąglenie identyczne jak result() w C++: int(v*100+0.5)/100.0
+proc round2 {v} {
+    return [expr {int($v * 100.0 + 0.5) / 100.0}]
+}
+
+# =====================================================================
+# BURNING — burning_dmg: hp, armor, intensity losowe
+# Weryfikacja: armor niezmieniony, hp = max(0, hp - intensity)
+# =====================================================================
+
+for {set i 0} {$i < 2000} {incr i} {
+    set hp        [expr {int(rand() * 999) + 1}]   ;# 1..999
+    set armor     [expr {int(rand() * 500)}]        ;# 0..499
+    set intensity [expr {int(rand() * 300)}]        ;# 0..299
+
+    set exp_armor $armor
+    set exp_hp    [expr {max(0, $hp - $intensity)}]
+
+    send "burning_dmg $hp $armor $intensity\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set got_armor $expect_out(1,string)
+    expect -re {RESULT ([^\r\n]+)}
+    set got_hp $expect_out(1,string)
+
+    if {![near $got_armor $exp_armor] || ![near $got_hp $exp_hp]} {
+        puts "FAIL (burning_dmg $hp $armor $intensity)"
+        puts "\tGot armor/hp: $got_armor / $got_hp"
+        puts "\tExpected:     $exp_armor / $exp_hp"
+        exit 1
+    }
+}
+
+# =====================================================================
+# BURNING — burning_ticks: hp, intensity, n losowe
+# Weryfikacja: hp = max(0, hp - intensity * n)
+# =====================================================================
+
+for {set i 0} {$i < 500} {incr i} {
+    set hp        [expr {int(rand() * 999) + 1}]   ;# 1..999
+    set intensity [expr {int(rand() * 30)}]         ;# 0..29 (małe by nie powodować overflow czasu)
+    set n         [expr {int(rand() * 10) + 1}]     ;# 1..10
+
+    set total_dmg [expr {$intensity * $n}]
+    set exp_hp    [expr {max(0, $hp - $total_dmg)}]
+
+    send "burning_ticks $hp $intensity $n\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set got_hp $expect_out(1,string)
+
+    if {![near $got_hp $exp_hp]} {
+        puts "FAIL (burning_ticks $hp $intensity $n)"
+        puts "\tGot:      $got_hp"
+        puts "\tExpected: $exp_hp"
+        exit 1
+    }
+}
+
+# =====================================================================
+# SLOWED — slowed_calc: speed, intensity losowe
+# Weryfikacja: new_speed = speed * max(0.1, 1.0 - intensity/100.0)
+# =====================================================================
+
+for {set i 0} {$i < 1000} {incr i} {
+    set speed     [expr {int(rand() * 199) + 1}]   ;# 1..199 (int unika problemów FP)
+    set intensity [expr {int(rand() * 201)}]        ;# 0..200
+
+    set sf [expr {1.0 - $intensity / 100.0}]
+    if {$sf < 0.1} { set sf 0.1 }
+    set exp_speed [expr {$speed * $sf}]
+
+    send "slowed_calc $speed $intensity\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set got_speed $expect_out(1,string)
+
+    if {![near $got_speed $exp_speed]} {
+        puts "FAIL (slowed_calc $speed $intensity)"
+        puts "\tGot:      $got_speed"
+        puts "\tExpected: ~$exp_speed  (sf=$sf)"
+        exit 1
+    }
+}
+
+# =====================================================================
+# SLOWED — slowed_restore: on_apply + on_expire → powrót do oryginału
+# =====================================================================
+
+for {set i 0} {$i < 1000} {incr i} {
+    set speed     [expr {int(rand() * 199) + 1}]   ;# 1..199
+    set intensity [expr {int(rand() * 201)}]        ;# 0..200
+
+    # Oczekiwana: prędkość identyczna jak przed nałożeniem
+    set exp_speed $speed
+
+    send "slowed_restore $speed $intensity\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set got_speed $expect_out(1,string)
+
+    if {![near $got_speed $exp_speed]} {
+        puts "FAIL (slowed_restore $speed $intensity)"
+        puts "\tGot:      $got_speed"
+        puts "\tExpected: ~$exp_speed"
+        exit 1
+    }
+}
+
+# =====================================================================
+# EXPIRE CHECK — expire_check: duration i dt losowe
+# Weryfikacja: is_expired ⟺ dt >= duration
+# =====================================================================
+
+for {set i 0} {$i < 500} {incr i} {
+    set duration [expr {(rand() * 9.9) + 0.1}]   ;# 0.1..10.0
+    set dt       [expr {(rand() * 14.9) + 0.1}]  ;# 0.1..15.0
+
+    if {$dt >= $duration} {
+        set expected "YES"
+    } else {
+        set expected "NO"
+    }
+
+    set dur_fmt [format "%.4f" $duration]
+    set dt_fmt  [format "%.4f" $dt]
+
+    send "expire_check $dur_fmt $dt_fmt\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set got $expect_out(1,string)
+
+    if {$got != $expected} {
+        puts "FAIL (expire_check $dur_fmt $dt_fmt)"
+        puts "\tGot:      $got"
+        puts "\tExpected: $expected  (dt >= duration: [expr {$dt >= $duration}])"
+        exit 1
+    }
+}
+
+send "exit\r"
+expect eof
+
+puts "PASS Status-effects rand"

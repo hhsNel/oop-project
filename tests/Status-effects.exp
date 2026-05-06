@@ -1,0 +1,105 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 2
+spawn ./tests/Status-effects.out
+
+expect "READY"
+
+proc run_test {cmd expected} {
+    global expect_out
+
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set result $expect_out(1,string)
+
+    if {$result == $expected} {
+        # pass
+    } else {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+proc run_test2 {cmd expected1 expected2} {
+    global expect_out
+
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set result1 $expect_out(1,string)
+    expect -re {RESULT ([^\r\n]+)}
+    set result2 $expect_out(1,string)
+
+    set ok 1
+    if {$result1 != $expected1} { set ok 0 }
+    if {$result2 != $expected2} { set ok 0 }
+
+    if {$ok == 0} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result1 / $result2"
+        puts "\tExpected: $expected1 / $expected2"
+        exit 1
+    }
+}
+
+# =====================================================================
+# BURNING
+# =====================================================================
+
+# burning::affect() zadaje intensity dmg bezpośrednio do HP (omija pancerz)
+run_test "burning_tick" "95"
+
+# ogień omija pancerz — armor bez zmian, HP spada
+run_test2 "burning_ignores_armor" "50" "80"
+
+# po przekroczeniu duration efekt jest wygasły
+run_test "burning_expires" "YES"
+
+# efekt nałożony przez add_effect tickuje po 0.5s
+run_test "burning_via_actor" "97"
+
+# trzy ticki po 0.5s: 100 - 3*4 = 88
+run_test "burning_multi_tick" "88"
+
+# =====================================================================
+# SLOWED
+# =====================================================================
+
+# on_apply redukuje prędkość o intensity%: 100 * 0.5 = 50
+run_test "slowed_apply" "50"
+
+# on_expire przywraca prędkość do 100
+run_test "slowed_expire" "100"
+
+# intensity 99% jest klampowane do 90% (min. 10% prędkości): 100 * 0.1 = 10
+run_test "slowed_minimum" "10"
+
+# po wygaśnięciu z intensity=99 prędkość wraca do 100
+run_test "slowed_minimum_restore" "100"
+
+# efekt przez add_effect: prędkość po nałożeniu i po wygaśnięciu
+run_test2 "slowed_via_actor" "50" "100"
+
+# =====================================================================
+# CHARMED
+# =====================================================================
+
+# on_apply zmienia frakcję na player
+run_test "charmed_apply" "player"
+
+# on_expire przywraca frakcję enemy
+run_test "charmed_expire" "enemy"
+
+# efekt przez add_effect: frakcja po nałożeniu i po wygaśnięciu
+run_test2 "charmed_via_actor" "player" "enemy"
+
+# charmed nie zadaje obrażeń
+run_test "charmed_no_damage" "100"
+
+send "exit\r"
+expect eof
+
+puts "PASS Status-effects"

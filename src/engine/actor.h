@@ -25,6 +25,8 @@ namespace engine {
 
 		actor(float hp, float shield, float move_speed, faction this_team)
 			: position(0.0f, 0.0f), angle(0.0f), movement_speed(move_speed), team(this_team)
+
+
 		{
 			health.max_hp = hp;
 			health.current_hp = hp;
