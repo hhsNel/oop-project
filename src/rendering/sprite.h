@@ -9,10 +9,10 @@ namespace rendering {
 	public:
 		math::vec2 pos;
 		float z_pos;
-		graphics::texture_manager::texture_id tex_id;
+		graphics::texture_set::texture_id tex_id;
 		float inherent_scale;
 
-		sprite(math::vec2 const p, float const z, graphics::texture_manager::texture_id const tex, float const is);
+		sprite(math::vec2 const p, float const z, graphics::texture_set::texture_id const tex, float const is);
 		sprite();
 		virtual ~sprite() = default;
 	};

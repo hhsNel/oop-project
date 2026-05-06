@@ -44,7 +44,7 @@ namespace rendering {
         void project_and_draw_linedef(geometry::linedef const& line, frame_rendering_data const frd);
 		void draw_solid_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const frd);
         void draw_portal_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const frd);
-		void add_visplane(int x, int y_start, int y_end, float flat_height, graphics::texture_manager::texture_id tex_id, std::uint8_t const sector_light_level, frame_rendering_data const frd);
+		void add_visplane(int x, int y_start, int y_end, float flat_height, graphics::texture_set::texture_id tex_id, std::uint8_t const sector_light_level, frame_rendering_data const frd);
 		void render_visplanes(frame_rendering_data const frd);
 		void add_vissprite(sprite *const s, std::uint8_t light, frame_rendering_data const frd);
 		void render_vissprites(frame_rendering_data const frd);

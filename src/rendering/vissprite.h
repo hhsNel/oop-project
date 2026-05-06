@@ -13,7 +13,7 @@ namespace rendering {
 		int cx1, cx2;
 		float proj_x, scale;
 		float z_pos;
-		graphics::texture_manager::texture_id tex_id;
+		graphics::texture_set::texture_id tex_id;
 		std::uint8_t light_level;
 
 		std::vector<int> upper_clip;

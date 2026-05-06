@@ -1,37 +1,23 @@
 #include "texture-manager.h"
-#include "util/resource-loader.h"
-
 #include <sstream>
-#include <string>
 
 namespace graphics {
-    texture_manager::texture_manager(util::resource_loader &resld, std::vector<texture> const& walls, std::vector<texture> const& sprites, std::vector<texture> const& flat)
-        : rl(resld), wall_textures(walls), sprite_textures(sprites), flat_textures(flat) {}
+    texture_manager::texture_manager(util::resource_loader &resld, std::vector<texture_set> packs)
+        : rl(resld), texture_sets(std::move(packs)), cur_set(0) {}
 
-    texture const& texture_manager::wall_tx_by_id(texture_id const id) const {
-        return wall_textures.at(id);
-    }
-
-    texture const& texture_manager::sprite_tx_by_id(texture_id const id) const {
-        return sprite_textures.at(id);
-    }
-
-    texture const& texture_manager::flat_tx_by_id(texture_id const id) const {
-        return flat_textures.at(id);
-    }
-
-	std::vector<texture> texture_manager::tx_from_meta(util::resource_loader &resld, std::string_view meta_path) {
-        util::resource meta_res = *resld.lookup_resource(meta_path);
+    texture_manager texture_manager::load(util::resource_loader &resld) {
+        util::resource meta_res = *resld.lookup_resource("meta-texture-sets");
+        
+        std::vector<texture_set> packs;
 
         if (!meta_res.begin || meta_res.size == 0) {
-            return {};
+            return texture_manager(resld, packs);
         }
 
         std::string content(reinterpret_cast<const char*>(meta_res.begin), meta_res.size);
         std::istringstream stream(content);
         std::string line;
-        std::vector<texture> textures;
-
+        
         while (std::getline(stream, line)) {
             if (!line.empty() && line.back() == '\r') {
                 line.pop_back();
@@ -40,20 +26,28 @@ namespace graphics {
             if (line.empty()) {
                 continue;
             }
-
-            util::resource tex_res = *resld.lookup_resource(line);
-
-            textures.push_back(texture::load_from_bin(tex_res));
+                
+			packs.push_back(texture_set::load(resld, line));
         }
 
-        return textures;
+        return texture_manager(resld, std::move(packs));
     }
 
-	texture_manager const texture_manager::load(util::resource_loader &resld) {
-        std::vector<texture> walls   = tx_from_meta(resld, "meta-walls");
-        std::vector<texture> sprites = tx_from_meta(resld, "meta-sprite");
-        std::vector<texture> flats   = tx_from_meta(resld, "meta-flat");
+	void texture_manager::cycle_set() {
+		++cur_set;
+		cur_set %= texture_sets.size();
+	}
 
-        return texture_manager(resld, walls, sprites, flats);
-    }
+	texture const& texture_manager::wall_tx_by_id(texture_set::texture_id const id) const {
+		return texture_sets[cur_set].wall_tx_by_id(id);
+	}
+
+	texture const& texture_manager::sprite_tx_by_id(texture_set::texture_id const id) const {
+		return texture_sets[cur_set].sprite_tx_by_id(id);
+	}
+
+	texture const& texture_manager::flat_tx_by_id(texture_set::texture_id const id) const {
+		return texture_sets[cur_set].flat_tx_by_id(id);
+	}
 }
+

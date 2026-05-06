@@ -1,33 +1,31 @@
 #pragma once
+#ifndef TEXTURE_MANAGER_H
 #define TEXTURE_MANAGER_H
 
-#include <vector>
-#include <cstddef>
-#include <cstdint>
+#include <unordered_map>
+#include <string>
 #include <string_view>
 
 #include "util/resource.h"
 #include "util/resource-loader.h"
-#include "texture.h"
+#include "texture-set.h"
 
 namespace graphics {
 	class texture_manager {
 		util::resource_loader &rl;
+		std::vector<texture_set> texture_sets;
+		unsigned int cur_set;
 
-		std::vector<texture> wall_textures;
-		std::vector<texture> sprite_textures;
-		std::vector<texture> flat_textures;
-
-		texture_manager(util::resource_loader &resld, std::vector<texture> const& walls, std::vector<texture> const& sprites, std::vector<texture> const& flat);
-		static std::vector<texture> tx_from_meta(util::resource_loader &resld, std::string_view meta_path);
+		texture_manager(util::resource_loader &resld, std::vector<texture_set> packs);
 	public:
-		typedef std::uint32_t texture_id;
+		static texture_manager load(util::resource_loader &resld);
 
-		static texture_manager const load(util::resource_loader &resld);
+		void cycle_set();
 
-		texture const& wall_tx_by_id(texture_id const id) const;
-		texture const& sprite_tx_by_id(texture_id const id) const;
-		texture const& flat_tx_by_id(texture_id const id) const;
+		texture const& wall_tx_by_id(texture_set::texture_id const id) const;
+		texture const& sprite_tx_by_id(texture_set::texture_id const id) const;
+		texture const& flat_tx_by_id(texture_set::texture_id const id) const;
 	};
 }
 
+#endif

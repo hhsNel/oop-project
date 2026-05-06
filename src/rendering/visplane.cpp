@@ -1,6 +1,6 @@
 #include "visplane.h"
 
-rendering::visplane::visplane(int const x, unsigned int const sw, float const h, graphics::texture_manager::texture_id const tid, std::uint8_t const light) :
+rendering::visplane::visplane(int const x, unsigned int const sw, float const h, graphics::texture_set::texture_id const tid, std::uint8_t const light) :
 	height(h),
 	tex_id(tid),
 	light_level(light),
