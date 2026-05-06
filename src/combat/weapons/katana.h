@@ -1,16 +1,18 @@
 #pragma once
 #include "weapon.h"
 
-namespace combat::weapons {
-	class katana : public weapon {
-	public:
-		int swing_count;
+namespace combat {
+	namespace weapons {
+		class katana : public weapon {
+		public:
+			int swing_count;
 
-		explicit katana(float rate = 1.5f, float dmg = 50.0f);
-		// ammo_type should be a hitscan_ammunition with short range (~32 units) for melee
-		katana(std::unique_ptr<ammunition> ammo_type, float rate = 1.5f, float dmg = 50.0f);
-		bool can_fire() const override;
-		void fire(math::vec2 pos, float angle) override;
-		void reload() override;
-	};
+			explicit katana(float rate = 1.5f, float dmg = 50.0f);
+			// ammo_type should be a hitscan_ammunition with short range (~32 units) for melee
+			katana(std::unique_ptr<ammunition> ammo_type, float rate = 1.5f, float dmg = 50.0f);
+			bool can_fire() const override;
+			void fire(math::vec2 pos, float angle) override;
+			void reload() override;
+		};
+	}
 }
