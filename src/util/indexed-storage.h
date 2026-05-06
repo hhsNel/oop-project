@@ -26,9 +26,9 @@ namespace util {
 
         class iterator {
         private:
-            indexed_storage* m_storage;
-            size_t m_index;
-            iterator(indexed_storage* st, size_t idx) : m_storage(st), m_index(idx) {}
+            indexed_storage* storage;
+            size_t index;
+            iterator(indexed_storage* st, size_t idx) : storage(st), index(idx) {}
             friend class indexed_storage<T>;
         public:
             using iterator_category = std::forward_iterator_tag;
@@ -37,26 +37,26 @@ namespace util {
             using pointer           = entry*;
             using reference         = entry;
 
-            iterator() : m_storage(nullptr), m_index(0) {}
+            iterator() : storage(nullptr), index(0) {}
 
             entry operator*() const {
-                return {m_storage->lookup[m_index], m_storage->objects[m_index]};
+                return {storage->lookup[index], storage->objects[index]};
             }
 
-            iterator& operator++() { ++m_index; return *this; }
+            iterator& operator++() { ++index; return *this; }
             iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
-            iterator& operator--() { --m_index; return *this; }
+            iterator& operator--() { --index; return *this; }
             iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
 
-            bool operator==(const iterator& other) const { return m_index == other.m_index; }
-            bool operator!=(const iterator& other) const { return m_index != other.m_index; }
+            bool operator==(const iterator& other) const { return index == other.index; }
+            bool operator!=(const iterator& other) const { return index != other.index; }
         };
 
         class const_iterator {
         private:
-            const indexed_storage* m_storage;
-            size_t m_index;
-            const_iterator(const indexed_storage* st, size_t idx) : m_storage(st), m_index(idx) {}
+            const indexed_storage* storage;
+            size_t index;
+            const_iterator(const indexed_storage* st, size_t idx) : storage(st), index(idx) {}
             friend class indexed_storage<T>;
         public:
             using iterator_category = std::forward_iterator_tag;
@@ -65,19 +65,19 @@ namespace util {
             using pointer           = const_entry*;
             using reference         = const_entry;
 
-            const_iterator() : m_storage(nullptr), m_index(0) {}
+            const_iterator() : storage(nullptr), index(0) {}
 
             const_entry operator*() const {
-                return {m_storage->lookup[m_index], m_storage->objects[m_index]};
+                return {storage->lookup[index], storage->objects[index]};
             }
 
-            const_iterator& operator++() { ++m_index; return *this; }
+            const_iterator& operator++() { ++index; return *this; }
             const_iterator operator++(int) { const_iterator tmp = *this; ++(*this); return tmp; }
-            const_iterator& operator--() { --m_index; return *this; }
+            const_iterator& operator--() { --index; return *this; }
             const_iterator operator--(int) { const_iterator tmp = *this; --(*this); return tmp; }
 
-            bool operator==(const const_iterator& other) const { return m_index == other.m_index; }
-            bool operator!=(const const_iterator& other) const { return m_index != other.m_index; }
+            bool operator==(const const_iterator& other) const { return index == other.index; }
+            bool operator!=(const const_iterator& other) const { return index != other.index; }
         };
 
     protected:
@@ -85,10 +85,10 @@ namespace util {
         std::vector<id_t> lookup;
         std::vector<size_t> reverse;
 
-        id_t m_next_id = 1;
+        id_t next_id = 1;
 
     private:
-        void init_from_objects() {
+        void init_froobjects() {
             size_t n = objects.size();
             lookup.reserve(n);
             reverse.reserve(n + 1);
@@ -96,7 +96,7 @@ namespace util {
             reverse.push_back(0);
 
             for (size_t i = 0; i < n; ++i) {
-                id_t new_id = m_next_id++;
+                id_t new_id = next_id++;
                 lookup.push_back(new_id);
                 reverse.push_back(i);
             }
@@ -109,18 +109,18 @@ namespace util {
 
         explicit indexed_storage(const std::vector<T>& initial_objects)
             : objects(initial_objects) {
-            init_from_objects();
+            init_froobjects();
         }
 
         explicit indexed_storage(std::vector<T>&& initial_objects) noexcept
             : objects(std::move(initial_objects)) {
-            init_from_objects();
+            init_froobjects();
         }
 
         id_t size() const { return static_cast<id_t>(objects.size()); }
 
         id_t add(const T& object) {
-            id_t new_id = m_next_id++;
+            id_t new_id = next_id++;
 
             if (new_id >= reverse.size()) {
                 reverse.resize(new_id + 1, 0);
@@ -134,7 +134,7 @@ namespace util {
         }
 
         id_t add(T&& object) {
-            id_t new_id = m_next_id++;
+            id_t new_id = next_id++;
 
             if (new_id >= reverse.size()) {
                 reverse.resize(new_id + 1, 0);
