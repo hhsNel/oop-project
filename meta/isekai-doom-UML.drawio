@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Page-1" id="_D-lTinh_eljtFNUwfbV">
-    <mxGraphModel dx="4687" dy="3258" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel grid="1" page="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -11,199 +11,66 @@
           <mxGeometry height="820" width="1440" x="-1670" y="820" as="geometry" />
         </mxCell>
         <mxCell id="eJHNw_gLvaXjHgHkJN_1-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
-          <mxGeometry height="600" width="1130" x="240" y="650" as="geometry" />
+          <mxGeometry height="1530" width="2690" x="200" y="1920" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-55" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="" vertex="1">
-          <mxGeometry height="550" width="940" x="1420" y="480" as="geometry" />
+          <mxGeometry height="670" width="940" x="1685" y="460" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-48" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="" vertex="1">
-          <mxGeometry height="450" width="1150" x="1420" y="-230" as="geometry" />
+          <mxGeometry height="850" width="1690" x="1420" y="-540" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-33" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="" vertex="1">
-          <mxGeometry height="820" width="1680" x="-540" y="-310" as="geometry" />
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-24" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="pglVPU2pqYwMofdVkvEH-18">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="265" y="10" />
-              <mxPoint x="530" y="10" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-26" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="pglVPU2pqYwMofdVkvEH-23">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="265" y="10" />
-              <mxPoint x="25" y="10" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="DaYYLbVMI9BKP663tknu-23" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;curved=0;dashed=1;" target="DaYYLbVMI9BKP663tknu-19">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="265" y="30" />
-              <mxPoint x="350" y="30" />
-              <mxPoint x="350" y="-410" />
-              <mxPoint x="10" y="-410" />
-            </Array>
-            <mxPoint x="389.99999999999955" y="-370" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="DaYYLbVMI9BKP663tknu-27" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;" target="DaYYLbVMI9BKP663tknu-4">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="265" y="30" />
-              <mxPoint x="350" y="30" />
-              <mxPoint x="350" y="-410" />
-              <mxPoint x="220" y="-410" />
-              <mxPoint x="220" y="-850" />
-              <mxPoint x="10" y="-850" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="math::fxpt" vertex="1">
-          <mxGeometry height="20" width="470" x="30" y="50" as="geometry" />
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="#std::uint32_t raw" vertex="1">
-          <mxGeometry height="20" width="470" x="30" y="70" as="geometry" />
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-11" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="pglVPU2pqYwMofdVkvEH-10">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-15" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="pglVPU2pqYwMofdVkvEH-14">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-56" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" target="pglVPU2pqYwMofdVkvEH-51">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="265" y="630" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-18" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;dashed=1;" target="eJHNw_gLvaXjHgHkJN_1-15">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="265" y="570" />
-              <mxPoint x="-1020" y="570" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="fyoLcXgvcHsO88U90HXh-2" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;dashed=1;" target="eJHNw_gLvaXjHgHkJN_1-32">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="265" y="570" />
-              <mxPoint x="-170" y="570" />
-              <mxPoint x="-170" y="1220" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="fyoLcXgvcHsO88U90HXh-6" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" target="eJHNw_gLvaXjHgHkJN_1-34">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="265" y="570" />
-              <mxPoint x="-60" y="570" />
-              <mxPoint x="-60" y="1385" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+fxpt(float const)&lt;/div&gt;&lt;div&gt;+float const to_float() const&lt;div&gt;+__attribute__((always_inline)) inline fxpt const operator+(fxpt const) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+__attribute__((always_inline)) inline fxpt const operator-(fxpt const) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+__attribute__((always_inline)) inline fxpt const operator*(fxpt const) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+__attribute__((always_inline)) inline fxpt const operator/(fxpt const) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+__attribute__((always_inline)) inline fxpt const operator+=(fxpt const)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+__attribute__((always_inline)) inline fxpt const operator-=(fxpt const)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+__attribute__((always_inline)) inline fxpt const operator*=(fxpt const)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+__attribute__((always_inline)) inline fxpt const operator/=(fxpt const)&lt;/div&gt;&lt;div&gt;+fxpt const sqr() const&lt;/div&gt;&lt;div&gt;+fxpt const sqrt() const&lt;/div&gt;&lt;div&gt;+static fxpt const sin(fxpt const angle)&lt;/div&gt;&lt;div&gt;+static fxpt const cos(fxpt const angle)&lt;/div&gt;&lt;div&gt;+static fxpt const atan2(fxpt const angle)&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="220" width="470" x="30" y="90" as="geometry" />
+          <mxGeometry height="720" width="1209" x="-480" y="-310" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-25" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="pglVPU2pqYwMofdVkvEH-18">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="805" y="-150" />
+              <mxPoint x="620" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-29" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="pglVPU2pqYwMofdVkvEH-23">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="805" y="-20" />
-              <mxPoint x="25" y="-20" />
+              <mxPoint x="25" />
             </Array>
             <mxPoint x="790" y="-160" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="DaYYLbVMI9BKP663tknu-28" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;dashed=1;" target="DaYYLbVMI9BKP663tknu-19">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="805" y="-670" />
-              <mxPoint x="320" y="-670" />
-              <mxPoint x="320" y="-777" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="DaYYLbVMI9BKP663tknu-30" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" target="DaYYLbVMI9BKP663tknu-2">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="805" y="-670" />
-              <mxPoint x="320" y="-670" />
-              <mxPoint x="320" y="-780" />
-              <mxPoint x="140" y="-780" />
-              <mxPoint x="140" y="-965" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="math::vec2" vertex="1">
-          <mxGeometry height="20" width="430" x="590" y="50" as="geometry" />
+          <mxGeometry height="20" width="430" x="100" y="-10" as="geometry" />
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+fxpt a&lt;/div&gt;&lt;div&gt;+fxpt b&lt;/div&gt;" vertex="1">
-          <mxGeometry height="30" width="430" x="590" y="70" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ x : float&lt;br&gt;+ y : float" vertex="1">
+          <mxGeometry height="30" width="430" x="100" y="10" as="geometry" />
         </mxCell>
-        <mxCell id="fyoLcXgvcHsO88U90HXh-1" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;dashed=1;" target="eJHNw_gLvaXjHgHkJN_1-32">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="805" y="590" />
-              <mxPoint x="110" y="590" />
-              <mxPoint x="110" y="1220" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="fyoLcXgvcHsO88U90HXh-7" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;dashed=1;" target="eJHNw_gLvaXjHgHkJN_1-35">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="805" y="590" />
-              <mxPoint x="110" y="590" />
-              <mxPoint x="110" y="1447" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+vec2(fxpt const A = 0, fxpt const B = 0)&lt;/div&gt;&lt;div&gt;+vec2(vec3 const vec)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec2 const operator+(vec2 const other) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec2 const operator-(vec2 const other) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec2 const operator*(fxpt const scalar) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec2 const operator/(fxpt const scalar) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec2 const operator+=(vec2 const other)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec2 const operator-=(vec2 const other)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec2 const operator*=(fxpt const scalar)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec2 const operator/=(fxpt const scalar)&lt;/div&gt;&lt;div&gt;+static fxpt const dot_product(vec2 const first, vec2 const second)&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;+fxpt const len() const&lt;/div&gt;&lt;div&gt;+fxpt const sqr_len() const&lt;/div&gt;&lt;div&gt;+vec2 const normalized() const&lt;/div&gt;&lt;div&gt;+vec2 const perpendicular() const&lt;/div&gt;&lt;div&gt;+fxpt const angle() const&lt;/div&gt;&lt;div&gt;+static fxpt const anlge_between(vec2 const first, vec2 const second)&lt;/div&gt;&lt;div&gt;+static vec2 const rotate(vec2 const vec, fxpt const anlge)&lt;/div&gt;" vertex="1">
-          <mxGeometry height="280" width="430" x="590" y="100" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ vec2(X : float = 0, Y : float = 0)&lt;br&gt;+ vec2(vec : vec3 const&amp;amp;)&lt;br&gt;+ operator+(other : vec2 const) : vec2&lt;br&gt;+ operator-(other : vec2 const) : vec2&lt;br&gt;+ operator-() : vec2&lt;br&gt;+ operator*(scalar : float const) : vec2&lt;br&gt;+ operator/(scalar : float const) : vec2&lt;br&gt;+ operator+=(other : vec2 const) : vec2&amp;amp;&lt;br&gt;+ operator-=(other : vec2 const) : vec2&amp;amp;&lt;br&gt;+ operator*=(scalar : float const) : vec2&amp;amp;&lt;br&gt;+ operator/=(scalar : float const) : vec2&amp;amp;&lt;br&gt;+ operator==(other : vec2 const) : bool&lt;br&gt;+ operator!=(other : vec2 const) : bool&lt;br&gt;+ dot_product(first : vec2 const, second : vec2 const) : float {static}&lt;br&gt;+ len() : float&lt;br&gt;+ sqr_len() : float&lt;br&gt;+ normalized() : vec2 const&lt;br&gt;+ perpendicular() : vec2 const&lt;br&gt;+ angle() : float&lt;br&gt;+ angle_between(first : vec2 const, second : vec2 const) : float {static}&lt;br&gt;+ rotate(vec : vec2 const, angle : float const) : vec2 const {static}&lt;br&gt;+ rotate_with_known_trig(vec : vec2 const, cos : float const, sin : float const) : vec2 const {static}" vertex="1">
+          <mxGeometry height="360" width="430" x="100" y="40" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="math::vec3" vertex="1">
-          <mxGeometry height="20" width="430" x="-480" y="50" as="geometry" />
+          <mxGeometry height="20" width="430" x="-440" y="-20" as="geometry" />
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+fxpt a&lt;/div&gt;&lt;div&gt;+fxpt b&lt;/div&gt;&lt;div&gt;+fxpt c&lt;/div&gt;" vertex="1">
-          <mxGeometry height="40" width="430" x="-480" y="70" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ x : float&lt;br&gt;+ y : float&lt;br&gt;+ z : float" vertex="1">
+          <mxGeometry height="50" width="430" x="-440" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-30" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;startArrow=classic;startFill=1;" target="pglVPU2pqYwMofdVkvEH-10">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="-265" y="440" />
-              <mxPoint x="650" y="440" />
+              <mxPoint x="80" y="200" />
+              <mxPoint x="80" y="200" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+vec3(fxpt const A = 0, fxpt const B = 0, fxpt const C = 0)&lt;/div&gt;&lt;div&gt;+vec3(vec2 const flat, fxpt const z = 0)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec3 const operator+(vec3 const other) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec3 const operator-(vec3 const other) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec3 const operator*(fxpt const scalar) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec3 const operator/(fxpt const scalar) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec3 const operator+=(vec3 const other)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec3 const operator-=(vec3 const other)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec3 const operator*=(fxpt const scalar)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+vec3 const operator/=(fxpt const scalar)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+static fxpt const dot_product(vec3 const first, vec3 const second)&lt;div&gt;&lt;/div&gt;&lt;div&gt;+static vec3 const cross_product(vec3 const first, vec3 const second)&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;+fxpt const len() const&lt;/div&gt;&lt;div&gt;+fxpt const sqr_len() const&lt;/div&gt;&lt;div&gt;+vec3 const normalized() const&lt;/div&gt;" vertex="1">
-          <mxGeometry height="220" width="430" x="-480" y="110" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ vec3(X : float = 0, Y : float = 0, Z : float = 0)&lt;br&gt;+ vec3(flat : vec2, Z : float = 0)&lt;br&gt;+ operator+(other : vec3) : vec3&lt;br&gt;+ operator-(other : vec3) : vec3&lt;br&gt;+ operator-() : vec3&lt;br&gt;+ operator*(scalar : float) : vec3&lt;br&gt;+ operator/(scalar : float) : vec3&lt;br&gt;+ operator+=(other : vec3) : vec3&amp;amp;&lt;br&gt;+ operator-=(other : vec3) : vec3&amp;amp;&lt;br&gt;+ operator*=(scalar : float) : vec3&amp;amp;&lt;br&gt;+ operator/=(scalar : float) : vec3&amp;amp;&lt;br&gt;+ operator==(other : vec3) : bool&lt;br&gt;+ operator!=(other : vec3) : bool&lt;br&gt;+ «static» dot_product(first : vec3, second : vec3) : float&lt;br&gt;+ «static» cross_product(first : vec3, second : vec3) : vec3&lt;br&gt;+ len() : float&lt;br&gt;+ sqr_len() : float&lt;br&gt;+ normalized() : vec3" vertex="1">
+          <mxGeometry height="270" width="430" x="-440" y="50" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-16" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="math::segment" vertex="1">
           <mxGeometry height="20" width="250" x="425" y="-230" as="geometry" />
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-17" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+vec2 point0&lt;/div&gt;&lt;div&gt;+vec2 point1&lt;/div&gt;" vertex="1">
+        <mxCell id="pglVPU2pqYwMofdVkvEH-17" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ point0 : vec2&lt;br&gt;+ point1 : vec2" vertex="1">
           <mxGeometry height="30" width="250" x="425" y="-210" as="geometry" />
         </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-4" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" target="eJHNw_gLvaXjHgHkJN_1-1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="570" y="790" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+segment(vec2 const p0, vec2 const p1)&lt;/div&gt;&lt;div&gt;+fxpt const angle() const&lt;/div&gt;&lt;div&gt;+vec2 const midpoint() const&lt;/div&gt;&lt;div&gt;+fxpt const len() const&lt;/div&gt;&lt;div&gt;+fxpt const sqr_len() const&lt;/div&gt;" vertex="1">
-          <mxGeometry height="80" width="250" x="425" y="-180" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ segment(p0: vec2, p1: vec2)&lt;br&gt;+ operator==(other: segment) : bool&lt;br&gt;+ operator!=(other: segment) : bool&lt;br&gt;+ angle() : float&lt;br&gt;+ midpoint() : vec2&lt;br&gt;+ len() : float&lt;br&gt;&lt;div&gt;+ sqr_len()&amp;nbsp;: float&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="250" x="425" y="-180" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="math::ray2" vertex="1">
           <mxGeometry height="20" width="590" x="-270" y="-230" as="geometry" />
@@ -211,60 +78,40 @@
         <mxCell id="pglVPU2pqYwMofdVkvEH-31" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;startArrow=classic;startFill=1;endArrow=none;endFill=0;" target="pglVPU2pqYwMofdVkvEH-17">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+vec2 end&lt;/div&gt;&lt;div&gt;+vec2 direction&lt;/div&gt;" vertex="1">
+        <mxCell id="pglVPU2pqYwMofdVkvEH-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ end : vec2&lt;br&gt;+ direction : vec2" vertex="1">
           <mxGeometry height="30" width="590" x="-270" y="-210" as="geometry" />
         </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-3" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=1;entryDx=0;entryDy=0;dashed=1;" target="pglVPU2pqYwMofdVkvEH-62">
+        <mxCell id="pglVPU2pqYwMofdVkvEH-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ ray2(e: vec2, d: vec2)&lt;br&gt;+ operator==(other: ray2) : bool&lt;br&gt;+ operator!=(other: ray2) : bool&lt;br&gt;+ static rotate(ray: ray2, angle: float) : ray2&lt;br&gt;+ intersects(seg: segment, hit_point: vec2&amp;amp;, distance: float&amp;amp;, seg_len: float&amp;amp;) : bool" vertex="1">
+          <mxGeometry height="80" width="590" x="-270" y="-180" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-14" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="uxC9v4wLEXnjpFs8sq-t-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-15" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="uxC9v4wLEXnjpFs8sq-t-11">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="10" y="770" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-23" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+segment(vec2 const e, vec2 const d)&lt;/div&gt;&lt;div&gt;+static ray2 const rotate(ray2 const ray,&amp;nbsp;fxpt const anlge)&lt;/div&gt;&lt;div&gt;+bool const intersects(segment const seg, vec2 &amp;amp;hit_point, fxpt &amp;amp;distance, fxpt &amp;amp;seg_len)&amp;nbsp;const&lt;/div&gt;" vertex="1">
-          <mxGeometry height="50" width="590" x="-270" y="-180" as="geometry" />
-        </mxCell>
-        <mxCell id="DaYYLbVMI9BKP663tknu-36" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;dashed=1;" target="DaYYLbVMI9BKP663tknu-5">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1630" y="-1160" />
-              <mxPoint x="255" y="-1160" />
+              <mxPoint x="1660" y="-190" />
+              <mxPoint x="2155" y="-190" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-35" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;template&amp;lt;typename T&amp;gt;&lt;/div&gt;&lt;div&gt;util::indexed_storage&lt;/div&gt;" vertex="1">
-          <mxGeometry height="30" width="340" x="1470" y="-170" as="geometry" />
+          <mxGeometry height="30" width="380" x="1470" y="-170" as="geometry" />
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-36" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+typedef std::uint32_t id_t&lt;/div&gt;&lt;div&gt;#id_t size&lt;/div&gt;&lt;div&gt;#std::vector&amp;lt;T&amp;gt; objects&lt;/div&gt;&lt;div&gt;#std::vector&amp;lt;id_t&amp;gt; lookup&lt;/div&gt;&lt;div&gt;#std::vector&amp;lt;std::size_t&amp;gt; reverse_lookup&lt;/div&gt;&lt;div&gt;+using iterator = std::vector&amp;lt;T&amp;gt;::iterator&lt;/div&gt;&lt;div&gt;+using const_iterator = std::vector&amp;lt;T&amp;gt;::const_iterator&lt;/div&gt;" vertex="1">
-          <mxGeometry height="110" width="340" x="1470" y="-140" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-36" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ nullid : id_t readOnly&lt;br&gt;# objects : std::vector&amp;lt;T&amp;gt;&lt;br&gt;# lookup : std::vector&amp;lt;id_t&amp;gt;&lt;br&gt;# reverse : std::vector&amp;lt;size_t&amp;gt;&lt;br&gt;# m_next_id : id_t" vertex="1">
+          <mxGeometry height="80" width="380" x="1470" y="-140" as="geometry" />
         </mxCell>
-        <mxCell id="fyoLcXgvcHsO88U90HXh-5" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-38" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;dashed=1;" target="eJHNw_gLvaXjHgHkJN_1-35">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1400" y="50" />
-              <mxPoint x="1400" y="1522" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-38" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+indexed_storage()&lt;/div&gt;&lt;div&gt;+id_t const size() const&lt;/div&gt;&lt;div&gt;+id_t const add(T const&amp;amp; object)&lt;/div&gt;&lt;div&gt;+void remove(id_t const id)&lt;/div&gt;&lt;div&gt;+T &amp;amp;operator[](id_t id) const&lt;/div&gt;&lt;div&gt;+iterator begin() const&lt;/div&gt;&lt;div&gt;+iterator end() const&lt;/div&gt;&lt;div&gt;+const_iterator begin() const&lt;/div&gt;&lt;div&gt;+const_iterator end() const&lt;/div&gt;&lt;div&gt;+const_iterator cbegin() const&lt;/div&gt;&lt;div&gt;+const_iterator cend() const&lt;/div&gt;" vertex="1">
-          <mxGeometry height="160" width="340" x="1470" y="-30" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-38" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- init_from_objects() : void&lt;br&gt;+ indexed_storage() :&amp;nbsp;&lt;br&gt;+ indexed_storage(initial_objects : const std::vector&amp;lt;T&amp;gt;&amp;amp;) :&amp;nbsp;&lt;br&gt;+ indexed_storage(initial_objects : std::vector&amp;lt;T&amp;gt;&amp;amp;&amp;amp;) :&amp;nbsp;&lt;br&gt;+ size() : id_t&lt;br&gt;+ add(object : const T&amp;amp;) : id_t&lt;br&gt;+ add(object : T&amp;amp;&amp;amp;) : id_t&lt;br&gt;+ remove(id : id_t) : void&lt;br&gt;+ operator[](id : id_t) : T&amp;amp;&lt;br&gt;+ operator[](id : id_t) : const T&amp;amp;&lt;br&gt;+ begin() : iterator&lt;br&gt;+ end() : iterator&lt;br&gt;+ begin() : const_iterator&lt;br&gt;+ end() : const_iterator&lt;br&gt;+ cbegin() : const_iterator&lt;br&gt;+ cend() : const_iterator&lt;br&gt;+ erase(it : iterator) : iterator&lt;br&gt;+ erase(it : const_iterator) : const_iterator&lt;br&gt;+ contains(id : id_t) : bool" vertex="1">
+          <mxGeometry height="290" width="380" x="1470" y="-60" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-39" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="util::resource" vertex="1">
           <mxGeometry height="20" width="460" x="1940" y="-170" as="geometry" />
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-60" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="pglVPU2pqYwMofdVkvEH-53">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="2530" y="-115" />
-              <mxPoint x="2530" y="825" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="pglVPU2pqYwMofdVkvEH-40" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ begin : void const*&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ end : void const*&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ size : std::size_t&lt;/div&gt;" vertex="1">
+          <mxGeometry height="50" width="460" x="1940" y="-150" as="geometry" />
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-40" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+std::byte const *const begin&lt;/div&gt;&lt;div&gt;+std::byte const *const end&lt;/div&gt;&lt;div&gt;+std::size_t size&lt;/div&gt;&lt;div&gt;friend resource_loader&lt;/div&gt;" vertex="1">
-          <mxGeometry height="70" width="460" x="1940" y="-150" as="geometry" />
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-41" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;#resource()&lt;/div&gt;&lt;div&gt;#resource(std::byte const *const begin_ptr, std::byte const *const end_ptr)&lt;/div&gt;" vertex="1">
-          <mxGeometry height="40" width="460" x="1940" y="-80" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-41" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ resource(begin_ptr : void const*, end_ptr : void const*)&lt;br&gt;+ ~resource()" vertex="1">
+          <mxGeometry height="40" width="460" x="1940" y="-100" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-43" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="util::resource_loader" vertex="1">
           <mxGeometry height="20" width="560" x="1940" y="10" as="geometry" />
@@ -279,71 +126,56 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="pglVPU2pqYwMofdVkvEH-49" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="graphics::texture" vertex="1">
-          <mxGeometry height="20" width="650" x="1480" y="530" as="geometry" />
+          <mxGeometry height="20" width="735" x="1745" y="510" as="geometry" />
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-50" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+std::vector&amp;lt;std::uint32_t&amp;gt; texture&lt;/div&gt;&lt;div&gt;+unsigned int height&lt;/div&gt;&lt;div&gt;+unsigned int width&lt;/div&gt;" vertex="1">
-          <mxGeometry height="50" width="650" x="1480" y="550" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-50" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ pixels : std::vector&amp;lt;std::uint32_t&amp;gt;&lt;br&gt;+ width : std::uint32_t&lt;br&gt;+ height : std::uint32_t&lt;br&gt;+ has_transparency : bool" vertex="1">
+          <mxGeometry height="60" width="735" x="1745" y="530" as="geometry" />
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-58" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="pglVPU2pqYwMofdVkvEH-52">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-51" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- texture(t : const std::vector&amp;lt;std::uint32_t&amp;gt;&amp;amp;, w : const std::uint32_t, h : const std::uint32_t, transparent : const bool)&lt;br&gt;+ load_from_bin(res : const util::resource) : const texture" vertex="1">
+          <mxGeometry height="40" width="735" x="1745" y="590" as="geometry" />
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-51" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;#texture(std::vector&amp;lt;std::uint32_t&amp;gt; const &amp;amp;t, unsigned int const w, unsigned int const h)&lt;/div&gt;&lt;div&gt;+static texture const load_from_bin(util::resource const res)&lt;/div&gt;&lt;div&gt;+unsigned int const get_offset(math::fxpt const stretched_len, math::fxpt const stretched_distance) const&lt;/div&gt;" vertex="1">
-          <mxGeometry height="60" width="650" x="1480" y="600" as="geometry" />
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-52" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="graphics::texture_manager" vertex="1">
-          <mxGeometry height="30" width="780" x="1480" y="760" as="geometry" />
-        </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-2" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-53" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;dashed=1;" target="pglVPU2pqYwMofdVkvEH-62">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-53" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;#std::vector&amp;lt;texture&amp;gt; sprite_textures&lt;/div&gt;&lt;div&gt;#std::vector&amp;lt;texture&amp;gt; flat_textures&lt;/div&gt;&lt;div&gt;+typedef std::uint32_t texture_id&lt;/div&gt;" vertex="1">
-          <mxGeometry height="50" width="780" x="1480" y="790" as="geometry" />
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-54" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;#texture_manager(std::vector&amp;lt;texture&amp;gt; const&amp;amp; walls, std::vector&amp;lt;texture&amp;gt; const&amp;amp; sprites, std::vector&amp;lt;texture&amp;gt; const&amp;amp; flat)&lt;/div&gt;&lt;div&gt;+static texture_manager const load_from_bin(util::resource const res)&lt;div&gt;&lt;div&gt;+texture const&amp;amp; sprite_tx_by_id(texture_id const id) const&lt;div&gt;&lt;/div&gt;&lt;div&gt;+texture const&amp;amp; flat_tx_by_id(texture_id const id) const&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="90" width="780" x="1480" y="840" as="geometry" />
-        </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-57" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-40" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.609;entryY=0.2;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;" target="pglVPU2pqYwMofdVkvEH-49">
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-34" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="uxC9v4wLEXnjpFs8sq-t-33" value="">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1876" y="-115" />
+              <mxPoint x="2205" y="890" />
+              <mxPoint x="2205" y="890" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-61" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="rendering::renderable" vertex="1">
-          <mxGeometry height="20" width="380" x="680" y="710" as="geometry" />
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-35" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-52" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="pglVPU2pqYwMofdVkvEH-51">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1790" y="690" />
+              <mxPoint x="1790" y="690" />
+            </Array>
+          </mxGeometry>
         </mxCell>
-        <mxCell id="pglVPU2pqYwMofdVkvEH-62" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+math::segment seg&lt;/div&gt;&lt;div&gt;+graphics::texture_manager::texture_id texture&lt;/div&gt;" vertex="1">
-          <mxGeometry height="40" width="380" x="680" y="730" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-52" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="graphics::texture_manager" vertex="1">
+          <mxGeometry height="30" width="780" x="1770" y="890" as="geometry" />
         </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+virtual bool const intersects_with(math::ray2 const r) const&lt;/div&gt;+virtual ~renderable = default" vertex="1">
-          <mxGeometry height="40" width="380" x="680" y="770" as="geometry" />
+        <mxCell id="pglVPU2pqYwMofdVkvEH-53" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- rl : util::resource_loader&amp;amp;&lt;br&gt;- texture_sets : std::vector&amp;lt;texture_set&amp;gt;&lt;br&gt;- cur_set : unsigned int" vertex="1">
+          <mxGeometry height="50" width="780" x="1770" y="920" as="geometry" />
+        </mxCell>
+        <mxCell id="pglVPU2pqYwMofdVkvEH-54" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- texture_manager(resld : util::resource_loader&amp;amp;, packs : std::vector&amp;lt;texture_set&amp;gt;)&lt;br&gt;+ load(resld : util::resource_loader&amp;amp;) : texture_manager&lt;br&gt;+ cycle_set() : void&lt;br&gt;+ wall_tx_by_id(id : const texture_set::texture_id) : const texture&amp;amp;&lt;br&gt;+ sprite_tx_by_id(id : const texture_set::texture_id) : const texture&amp;amp;&lt;br&gt;+ flat_tx_by_id(id : const texture_set::texture_id) : const texture&amp;amp;" vertex="1">
+          <mxGeometry height="100" width="780" x="1770" y="970" as="geometry" />
         </mxCell>
         <mxCell id="eJHNw_gLvaXjHgHkJN_1-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="rendering::rendering_mode" vertex="1">
-          <mxGeometry height="25" width="240" x="410" y="870" as="geometry" />
+          <mxGeometry height="25" width="240" x="325" y="2020" as="geometry" />
         </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+unsigned int x_res&lt;/div&gt;&lt;div&gt;+unsigned int y_res&lt;/div&gt;&lt;div&gt;+unsigned int refresh_hz&lt;/div&gt;&lt;div&gt;+bool has_vsync&lt;/div&gt;" vertex="1">
-          <mxGeometry height="60" width="240" x="410" y="895" as="geometry" />
+        <mxCell id="eJHNw_gLvaXjHgHkJN_1-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ x_res : unsigned int&lt;br&gt;+ y_res : unsigned int&lt;br&gt;+ refresh_hz : unsigned int&lt;br&gt;+ has_vsync : bool" vertex="1">
+          <mxGeometry height="60" width="240" x="325" y="2045" as="geometry" />
         </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+virtual ~rendering_mode() = default" vertex="1">
-          <mxGeometry height="25" width="240" x="410" y="955" as="geometry" />
+        <mxCell id="eJHNw_gLvaXjHgHkJN_1-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ ~rendering_mode()" vertex="1">
+          <mxGeometry height="25" width="240" x="325" y="2105" as="geometry" />
         </mxCell>
         <mxCell id="eJHNw_gLvaXjHgHkJN_1-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="rendering:rendering_backend" vertex="1">
-          <mxGeometry height="20" width="580" x="730" y="870" as="geometry" />
+          <mxGeometry height="20" width="580" x="690" y="1970" as="geometry" />
         </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="#bool is_bad" vertex="1">
-          <mxGeometry height="20" width="580" x="730" y="890" as="geometry" />
+        <mxCell id="eJHNw_gLvaXjHgHkJN_1-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="# bad : bool" vertex="1">
+          <mxGeometry height="20" width="580" x="690" y="1990" as="geometry" />
         </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+rendering_backend()&lt;/div&gt;&lt;div&gt;+virtual std::vector&amp;lt; std::shared_ptr&amp;lt;rendering_mode const&amp;gt; const &amp;gt; const get_modes() = 0&lt;/div&gt;&lt;div&gt;+virtual void set_mode(std::shared_ptr&amp;lt;rendering_mode const&amp;gt; const mode) = 0&lt;/div&gt;&lt;div&gt;+bool is_bad() const&lt;/div&gt;&lt;div&gt;+virtual unsigned int const get_width() = 0&lt;/div&gt;&lt;div&gt;+virtual unsigned int const get_height() = 0&lt;/div&gt;&lt;div&gt;+virtual void wait_for_vsync() = 0&lt;/div&gt;&lt;div&gt;+virtual void flush() = 0&lt;/div&gt;&lt;div&gt;+virtual unsigned int const get_pitch() = 0&lt;/div&gt;&lt;div&gt;+virtual std::byte *const get_mmio() = 0&lt;/div&gt;" vertex="1">
-          <mxGeometry height="150" width="580" x="730" y="910" as="geometry" />
-        </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="rendering::software_renderer" vertex="1">
-          <mxGeometry height="20" width="230" x="320" y="1110" as="geometry" />
-        </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-13" edge="1" parent="1" source="eJHNw_gLvaXjHgHkJN_1-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="eJHNw_gLvaXjHgHkJN_1-10">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="rendering::drm_kms::drm_kms_backend" vertex="1">
-          <mxGeometry height="20" width="260" x="770" y="1110" as="geometry" />
+        <mxCell id="eJHNw_gLvaXjHgHkJN_1-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ rendering_backend()&lt;br&gt;+ get_modes() : std::vector&amp;lt;std::unique_ptr&amp;lt;rendering_mode const&amp;gt;&amp;gt;&lt;br&gt;+ set_mode(mode : std::unique_ptr&amp;lt;rendering_mode const&amp;gt;) : void&lt;br&gt;+ is_bad() : bool&lt;br&gt;+ get_width() : unsigned int&lt;br&gt;+ get_height() : unsigned int&lt;br&gt;+ wait_for_vsync() : void&lt;br&gt;+ flush() : void&lt;br&gt;+ get_pitch() : unsigned int&lt;br&gt;+ get_mmio() : std::uint32_t*&lt;br&gt;+ ~rendering_backend()" vertex="1">
+          <mxGeometry height="160" width="580" x="690" y="2010" as="geometry" />
         </mxCell>
         <mxCell id="eJHNw_gLvaXjHgHkJN_1-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="engine::entity" vertex="1">
           <mxGeometry height="20" width="280" x="-1160" y="870" as="geometry" />
@@ -356,14 +188,6 @@
         </mxCell>
         <mxCell id="eJHNw_gLvaXjHgHkJN_1-23" edge="1" parent="1" source="eJHNw_gLvaXjHgHkJN_1-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="eJHNw_gLvaXjHgHkJN_1-15">
           <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="DaYYLbVMI9BKP663tknu-35" edge="1" parent="1" source="eJHNw_gLvaXjHgHkJN_1-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;dashed=1;" target="DaYYLbVMI9BKP663tknu-5">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="-600" y="-1160" />
-              <mxPoint x="185" y="-1160" />
-            </Array>
-          </mxGeometry>
         </mxCell>
         <mxCell id="eJHNw_gLvaXjHgHkJN_1-19" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="engine::actor" vertex="1">
           <mxGeometry height="20" width="400" x="-800" y="870" as="geometry" />
@@ -379,14 +203,6 @@
         </mxCell>
         <mxCell id="eJHNw_gLvaXjHgHkJN_1-24" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;engine::renderable_entity&lt;/div&gt;" vertex="1">
           <mxGeometry height="20" width="210" x="-990" y="1010" as="geometry" />
-        </mxCell>
-        <mxCell id="eJHNw_gLvaXjHgHkJN_1-28" edge="1" parent="1" source="eJHNw_gLvaXjHgHkJN_1-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="pglVPU2pqYwMofdVkvEH-62">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="-120" y="1040" />
-              <mxPoint x="-120" y="750" />
-            </Array>
-          </mxGeometry>
         </mxCell>
         <mxCell id="eJHNw_gLvaXjHgHkJN_1-25" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
           <mxGeometry height="20" width="210" x="-990" y="1030" as="geometry" />
@@ -419,21 +235,6 @@
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="-1326" y="900" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="fyoLcXgvcHsO88U90HXh-4" edge="1" parent="1" source="eJHNw_gLvaXjHgHkJN_1-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.969;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;" target="eJHNw_gLvaXjHgHkJN_1-33">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="870" y="850" />
-              <mxPoint x="-310" y="850" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="fyoLcXgvcHsO88U90HXh-8" edge="1" parent="1" source="pglVPU2pqYwMofdVkvEH-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.091;entryY=-0.167;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;" target="eJHNw_gLvaXjHgHkJN_1-33">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="-1433" y="-155" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -526,18 +327,6 @@
         </mxCell>
         <mxCell id="DaYYLbVMI9BKP663tknu-19" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+spawn_bullet():virtual void&lt;div&gt;+ ~ammunition()=deafault : void&lt;/div&gt;" vertex="1">
           <mxGeometry height="50" width="180" x="-80" y="-790" as="geometry" />
-        </mxCell>
-        <mxCell id="DaYYLbVMI9BKP663tknu-26" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.542;entryY=0.37;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="265" y="30" />
-              <mxPoint x="350" y="30" />
-              <mxPoint x="350" y="-410" />
-              <mxPoint x="220" y="-410" />
-            </Array>
-            <mxPoint x="265" y="49.79999999999977" as="sourcePoint" />
-            <mxPoint x="219.86000000000013" y="-910" as="targetPoint" />
-          </mxGeometry>
         </mxCell>
         <mxCell id="DaYYLbVMI9BKP663tknu-37" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#FFFFFF,#660066);" value="" vertex="1">
           <mxGeometry height="580" width="810" x="-1450" y="-1110" as="geometry" />
@@ -646,6 +435,290 @@
         </mxCell>
         <mxCell id="DaYYLbVMI9BKP663tknu-75" edge="1" parent="1" source="DaYYLbVMI9BKP663tknu-51" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="DaYYLbVMI9BKP663tknu-51">
           <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;template&amp;lt;typename T&amp;gt;&lt;/div&gt;&lt;div&gt;util::indexed_storage&amp;lt;T&amp;gt;::entry&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="210" x="1640" y="-510" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ id : id_t&lt;br/&gt;+ value : T&amp;amp;" vertex="1">
+          <mxGeometry height="30" width="210" x="1640" y="-480" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="20" width="210" x="1640" y="-450" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;template&amp;lt;typename T&amp;gt;&lt;/div&gt;&lt;div&gt;util::indexed_storage&amp;lt;T&amp;gt;::const_entry&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="250" x="1970" y="-510" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ id : id_t&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ value : const T&amp;amp;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="250" x="1970" y="-480" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="20" width="250" x="1970" y="-450" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-18" edge="1" parent="1" source="uxC9v4wLEXnjpFs8sq-t-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;dashed=1;" target="uxC9v4wLEXnjpFs8sq-t-3">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1790" y="-420" />
+              <mxPoint x="1745" y="-420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;template&amp;lt;typename T&amp;gt;&lt;/div&gt;&lt;div&gt;util::indexed_storage&amp;lt;T&amp;gt;::iterator&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="280" x="1650" y="-410" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-8" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;- storage : indexed_storage*&amp;nbsp;&lt;/div&gt;&lt;div&gt;- index : size_t&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="280" x="1650" y="-380" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- iterator(st : indexed_storage*, idx : size_t)&lt;br/&gt;+ iterator()&lt;br/&gt;+ operator*() : entry&lt;br/&gt;+ operator++() : iterator&amp;amp;&lt;br/&gt;+ operator++(int) : iterator&lt;br/&gt;+ operator--() : iterator&amp;amp;&lt;br/&gt;+ operator--(int) : iterator&lt;br/&gt;+ operator==(other : const iterator&amp;amp;) : bool&lt;br/&gt;+ operator!=(other : const iterator&amp;amp;) : bool" vertex="1">
+          <mxGeometry height="140" width="280" x="1650" y="-350" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- const_iterator(st : const indexed_storage*, idx : size_t)&lt;br/&gt;+ const_iterator()&lt;br/&gt;+ operator*() : const_entry&lt;br/&gt;+ operator++() : const_iterator&amp;amp;&lt;br/&gt;+ operator++(int) : const_iterator&lt;br/&gt;+ operator--() : const_iterator&amp;amp;&lt;br/&gt;+ operator--(int) : const_iterator&lt;br/&gt;+ operator==(other : const const_iterator&amp;amp;) : bool&lt;br/&gt;+ operator!=(other : const const_iterator&amp;amp;) : bool" vertex="1">
+          <mxGeometry height="140" width="350" x="1980" y="-350" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;- storage : indexed_storage*&amp;nbsp;&lt;/div&gt;&lt;div&gt;- index : size_t&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="350" x="1980" y="-380" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-19" edge="1" parent="1" source="uxC9v4wLEXnjpFs8sq-t-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="uxC9v4wLEXnjpFs8sq-t-6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2155" y="-420" />
+              <mxPoint x="2095" y="-420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;template&amp;lt;typename T&amp;gt;&lt;/div&gt;&lt;div&gt;util::indexed_storage&amp;lt;T&amp;gt;::const_iterator&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="350" x="1980" y="-410" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-20" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="util::file_resource" vertex="1">
+          <mxGeometry height="20" width="240" x="2490" y="-330" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-23" edge="1" parent="1" source="uxC9v4wLEXnjpFs8sq-t-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="pglVPU2pqYwMofdVkvEH-39">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2380" y="-300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- file_data : std::vector&amp;lt;std::byte&amp;gt;" vertex="1">
+          <mxGeometry height="20" width="240" x="2490" y="-310" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ file_resource(data : std::vector&amp;lt;std::byte&amp;gt;)&lt;br&gt;+ ~file_resource()" vertex="1">
+          <mxGeometry height="50" width="240" x="2490" y="-290" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-27" edge="1" parent="1" source="uxC9v4wLEXnjpFs8sq-t-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;" target="uxC9v4wLEXnjpFs8sq-t-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-28" edge="1" parent="1" source="uxC9v4wLEXnjpFs8sq-t-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.25;entryDx=0;entryDy=0;dashed=1;" target="pglVPU2pqYwMofdVkvEH-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-24" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="util::resource_manager" vertex="1">
+          <mxGeometry height="20" width="450" x="2580" y="-170" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-25" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- symbol_cache : std::unordered_map&amp;lt;std::string, void*&amp;gt;&lt;br&gt;- resource_cache : std::unordered_map&amp;lt;std::string, std::unique_ptr&amp;lt;resource&amp;gt;&amp;gt;&lt;br&gt;- cache_mutex : std::mutex" vertex="1">
+          <mxGeometry height="60" width="450" x="2580" y="-150" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-26" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- lookup_binary(resource_name : std::string_view) : void*&lt;br&gt;- load_file(resource_name : std::string_view) : std::unique_ptr&amp;lt;resource&amp;gt;&lt;br&gt;- lookup_resource_runtime(resource_name : std::string_view) : resource*&lt;br&gt;- make_symbol_name(resource : std::string_view) : std::string&lt;br&gt;- count_res_members() : std::size_t&lt;br&gt;- get_res_members_array() : info_array&amp;lt;N&amp;gt;&lt;br&gt;- get_by_symbol_reflection(symbol_name : std::string_view) : void*&lt;br&gt;+ resource_loader() :&amp;nbsp;&lt;br&gt;+ ~resource_loader() :&amp;nbsp;&lt;br&gt;+ resource_loader(arg0 : const resource_loader&amp;amp;) :&amp;nbsp;&lt;br&gt;+ operator=(arg0 : const resource_loader&amp;amp;) : resource_loader&amp;amp;&lt;br&gt;+ lookup_resource(resource_name : std::string_view) : resource*" vertex="1">
+          <mxGeometry height="180" width="450" x="2580" y="-90" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-31" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="graphics::texture_set" vertex="1">
+          <mxGeometry height="30" width="770" x="1820" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-32" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- wall_textures : std::vector&amp;lt;texture&amp;gt;&lt;br&gt;- sprite_textures : std::vector&amp;lt;texture&amp;gt;&lt;br&gt;- flat_textures : std::vector&amp;lt;texture&amp;gt;" vertex="1">
+          <mxGeometry height="50" width="770" x="1820" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-33" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- texture_set(walls : const std::vector&amp;lt;texture&amp;gt;&amp;amp;, sprites : const std::vector&amp;lt;texture&amp;gt;&amp;amp;, flat : const std::vector&amp;lt;texture&amp;gt;&amp;amp;)&lt;br&gt;- tx_from_meta(resld : util::resource_loader&amp;amp;, meta_path : std::string_view) : std::vector&amp;lt;texture&amp;gt;&lt;br&gt;+ load(resld : util::resource_loader&amp;amp;, pack_meta_path : std::string_view) : texture_set&lt;br&gt;+ wall_tx_by_id(id : const texture_id) : const texture&amp;amp;&lt;br&gt;+ sprite_tx_by_id(id : const texture_id) : const texture&amp;amp;&lt;br&gt;+ flat_tx_by_id(id : const texture_id) : const texture&amp;amp;" vertex="1">
+          <mxGeometry height="100" width="770" x="1820" y="750" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-36" edge="1" parent="1" source="uxC9v4wLEXnjpFs8sq-t-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.625;entryY=0.932;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;" target="pglVPU2pqYwMofdVkvEH-51">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-37" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#a20025;strokeColor=#6F0000;fontColor=#ffffff;" value="" vertex="1">
+          <mxGeometry height="760" width="1575" x="-80" y="705" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-38" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="geometry::linedef" vertex="1">
+          <mxGeometry height="30" width="420" x="-30" y="785" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-39" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ v1 : math::vec2&lt;br&gt;+ v2 : math::vec2&lt;br&gt;+ front : util::indexed_storage&amp;lt;sidedef&amp;gt;::id_t&lt;br&gt;+ back : util::indexed_storage&amp;lt;sidedef&amp;gt;::id_t" vertex="1">
+          <mxGeometry height="70" width="420" x="-30" y="815" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-40" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ load_from_bin(res : const util::resource&amp;amp;) : std::vector&amp;lt;linedef&amp;gt;" vertex="1">
+          <mxGeometry height="30" width="420" x="-30" y="885" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-41" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="geometry::sidedef" vertex="1">
+          <mxGeometry height="30" width="420" x="480" y="785" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-42" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ facing_sector : util::indexed_storage&amp;lt;sector&amp;gt;::id_t&lt;br&gt;+ upper_tex : graphics::texture_set::texture_id&lt;br&gt;+ middle_tex : graphics::texture_set::texture_id&lt;br&gt;+ lower_tex : graphics::texture_set::texture_id" vertex="1">
+          <mxGeometry height="70" width="420" x="480" y="815" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-43" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ load_from_bin(res : const util::resource&amp;amp;) : std::vector&amp;lt;sidedef&amp;gt;" vertex="1">
+          <mxGeometry height="30" width="420" x="480" y="885" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-44" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ load_from_bin(res : const util::resource&amp;amp;) : std::vector&amp;lt;subsector&amp;gt;" vertex="1">
+          <mxGeometry height="30" width="430" x="30" y="1070" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-45" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ lines : std::vector&amp;lt;util::indexed_storage&amp;lt;linedef&amp;gt;::id_t&amp;gt;&lt;br&gt;+ sprites : std::vector&amp;lt;std::unique_ptr&amp;lt;rendering::sprite&amp;gt;&amp;gt;" vertex="1">
+          <mxGeometry height="40" width="430" x="30" y="1030" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-46" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="geometry::subsector" vertex="1">
+          <mxGeometry height="30" width="430" x="30" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-47" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="geometry::sector" vertex="1">
+          <mxGeometry height="30" width="430" x="505" y="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-48" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ floor_height : float&lt;br&gt;+ ceiling_height : float&lt;br&gt;+ floor_tex : graphics::texture_set::texture_id&lt;br&gt;+ ceiling_tex : graphics::texture_set::texture_id&lt;br&gt;+ light_level : std::uint8_t" vertex="1">
+          <mxGeometry height="80" width="430" x="505" y="1030" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-49" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ load_from_bin(res : const util::resource&amp;amp;) : std::vector&amp;lt;sector&amp;gt;" vertex="1">
+          <mxGeometry height="30" width="430" x="505" y="1110" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-50" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ is_front_leaf() : bool&lt;br&gt;+ is_back_leaf() : bool&lt;br&gt;+ get_front_index() : util::indexed_storage&amp;lt;bsp_node&amp;gt;::id_t&lt;br&gt;+ get_back_index() : util::indexed_storage&amp;lt;bsp_node&amp;gt;::id_t&lt;br&gt;+ is_pt_front_side(point : const math::vec2&amp;amp;) : bool&lt;br&gt;+ load_from_bin(res : const util::resource&amp;amp;) : const std::vector&amp;lt;bsp_node&amp;gt;" vertex="1">
+          <mxGeometry height="90" width="470" x="970" y="1030" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-51" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ pl_coord : math::vec2&lt;br&gt;+ pl_dir : math::vec2&lt;br&gt;+ front_box : bounding_box&lt;br&gt;+ back_box : bounding_box&lt;br&gt;+ front : util::indexed_storage&amp;lt;bsp_node&amp;gt;::id_t&lt;br&gt;+ back : util::indexed_storage&amp;lt;bsp_node&amp;gt;::id_t&lt;br&gt;+ leaf_flag : util::indexed_storage&amp;lt;bsp_node&amp;gt;::id_t" vertex="1">
+          <mxGeometry height="110" width="470" x="970" y="920" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-52" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="geometry::bsp_node" vertex="1">
+          <mxGeometry height="30" width="470" x="970" y="890" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-53" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ get_subsector_id(pt : const math::vec2&amp;amp;) : util::indexed_storage&amp;lt;subsector&amp;gt;::id_t&lt;br&gt;+ move_to(spr : rendering::sprite*, new_pos : const math::vec2&amp;amp;) : void&lt;br&gt;+ load_from_bin(sectors_res : const util::resource&amp;amp;, sidedefs_res : const util::resource&amp;amp;, linedefs_res : const util::resource&amp;amp;, subsectors_res : const util::resource&amp;amp;, nodes_res : const util::resource&amp;amp;) : map_data" vertex="1">
+          <mxGeometry height="70" width="670" x="190" y="1340" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-54" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ sectors : util::indexed_storage&amp;lt;sector&amp;gt;&lt;br&gt;+ sidedefs : util::indexed_storage&amp;lt;sidedef&amp;gt;&lt;br&gt;+ linedefs : util::indexed_storage&amp;lt;linedef&amp;gt;&lt;br&gt;+ subsectors : util::indexed_storage&amp;lt;subsector&amp;gt;&lt;br&gt;+ nodes : util::indexed_storage&amp;lt;bsp_node&amp;gt;&lt;br&gt;+ root_node_id : util::indexed_storage&amp;lt;bsp_node&amp;gt;::id_t" vertex="1">
+          <mxGeometry height="100" width="670" x="190" y="1240" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-55" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="geometry::map_data" vertex="1">
+          <mxGeometry height="30" width="670" x="190" y="1210" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-56" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="geometry::bsp_node::bounding_box" vertex="1">
+          <mxGeometry height="30" width="260" x="1060" y="1220" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-57" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ top : float&lt;br&gt;+ bottom : float&lt;br&gt;+ left : float&lt;br&gt;+ right : float" vertex="1">
+          <mxGeometry height="70" width="260" x="1060" y="1250" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-58" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="20" width="260" x="1060" y="1320" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-59" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ renderer_2d()&lt;br&gt;+ set_target(tgt : rendering_backend* const) : void&lt;br&gt;+ set_texture_manager(tm : const graphics::texture_manager* const) : void&lt;br&gt;+ set_font_texture(font_tex : const graphics::texture* const) : void&lt;br&gt;+ draw_texture(tex : const graphics::texture&amp;amp;, x : int, y : int, w : int, h : int) : void&lt;br&gt;+ draw_text(text : std::string_view, x : int, y : int, char_w : int, char_h : int, color : const std::uint32_t) : void&lt;br&gt;+ draw_rect(x : int, y : int, w : int, h : int, color : std::uint32_t) : void" vertex="1">
+          <mxGeometry height="110" width="670" x="230" y="2300" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-60" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- target : rendering_backend*&lt;br&gt;- tex_manager : const graphics::texture_manager*&lt;br&gt;- font_texture : const graphics::texture*" vertex="1">
+          <mxGeometry height="50" width="670" x="230" y="2250" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-61" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="rendering::renderer_2d" vertex="1">
+          <mxGeometry height="20" width="670" x="230" y="2230" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-62" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="rendering::sprite" vertex="1">
+          <mxGeometry height="25" width="657.5" x="935" y="2300" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-63" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ pos : math::vec2&lt;br&gt;+ z_pos : float&lt;br&gt;+ tex_id : graphics::texture_set::texture_id&lt;br&gt;+ inherent_scale : float" vertex="1">
+          <mxGeometry height="75" width="657.5" x="935" y="2325" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-64" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ sprite(p : const math::vec2, z : const float, tex : const graphics::texture_set::texture_id, is : const float)&lt;br&gt;+ sprite()&lt;br&gt;+ ~sprite()" vertex="1">
+          <mxGeometry height="50" width="657.5" x="935" y="2400" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-65" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="rendering::vissprite" vertex="1">
+          <mxGeometry height="25" width="1300" x="300" y="2480" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-66" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ depth : float&lt;br&gt;+ cx1 : int&lt;br&gt;+ cx2 : int&lt;br&gt;+ proj_x : float&lt;br&gt;+ scale : float&lt;br&gt;+ z_pos : float&lt;br&gt;+ tex_id : graphics::texture_set::texture_id&lt;br&gt;+ light_level : std::uint8_t&lt;br&gt;+ upper_clip : std::vector&amp;lt;int&amp;gt;&lt;br&gt;+ lower_clip : std::vector&amp;lt;int&amp;gt;" vertex="1">
+          <mxGeometry height="155" width="1300" x="300" y="2505" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-67" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ vissprite(sprite : const sprite&amp;amp;, z : const float, clamped_x1 : const int, clamped_x2 : const int, px : const float, sc : const float, light : const std::uint8_t, uc : const std::vector&amp;lt;int&amp;gt;&amp;amp;, lc : const std::vector&amp;lt;int&amp;gt;&amp;amp;)" vertex="1">
+          <mxGeometry height="30" width="1300" x="300" y="2660" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-68" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ visplane(x : const int, sw : const unsigned int, h : const float, tid : const graphics::texture_set::texture_id, light : const std::uint8_t)" vertex="1">
+          <mxGeometry height="30" width="820" x="330" y="2850" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-69" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ height : float&lt;br&gt;+ tex_id : graphics::texture_set::texture_id&lt;br&gt;+ light_level : std::uint8_t&lt;br&gt;+ min_x : int&lt;br&gt;+ max_x : int&lt;br&gt;+ top : std::vector&amp;lt;int&amp;gt;&lt;br&gt;+ bottom : std::vector&amp;lt;int&amp;gt;" vertex="1">
+          <mxGeometry height="105" width="820" x="330" y="2745" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-70" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;rendering::visplane&lt;/div&gt;" vertex="1">
+          <mxGeometry height="25" width="820" x="330" y="2720" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-71" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- render_bsp_node(node_id : util::indexed_storage&amp;lt;geometry::bsp_node&amp;gt;::id_t, frd : const frame_rendering_data) : void&lt;br&gt;- project_and_draw_linedef(line : const geometry::linedef&amp;amp;, frd : const frame_rendering_data) : void&lt;br&gt;- draw_solid_wall_span(proj_x1 : float, proj_x2 : float, z1 : float, z2 : float, u1 : float, u2 : float, line : const geometry::linedef&amp;amp;, frd : const frame_rendering_data) : void&lt;br&gt;- draw_portal_wall_span(proj_x1 : float, proj_x2 : float, z1 : float, z2 : float, u1 : float, u2 : float, line : const geometry::linedef&amp;amp;, frd : const frame_rendering_data) : void&lt;br&gt;- add_visplane(x : int, y_start : int, y_end : int, flat_height : float, tex_id : graphics::texture_set::texture_id, sector_light_level : const std::uint8_t, frd : const frame_rendering_data) : void&lt;br&gt;- render_visplanes(frd : const frame_rendering_data) : void&lt;br&gt;- add_vissprite(s : sprite* const, light : std::uint8_t, frd : const frame_rendering_data) : void&lt;br&gt;- render_vissprites(frd : const frame_rendering_data) : void&lt;br&gt;- is_box_visible(box : const geometry::bsp_node::bounding_box&amp;amp;, frd : const frame_rendering_data) : bool&lt;br&gt;- calculate_light(sector_light_level : const std::uint8_t, depth : const float) : int {inline}&lt;br&gt;- apply_light(orig : const std::uint32_t, light : int) : std::uint32_t {inline}&lt;br&gt;+ software_renderer() :&amp;nbsp;&lt;br&gt;+ set_target(tgt : rendering_backend* const) : void&lt;br&gt;+ set_texture_manager(tm : const graphics::texture_manager* const) : void&lt;br&gt;+ set_map(map : const geometry::map_data* const) : void&lt;br&gt;+ render_bsp(cam_pos : const math::vec2, cam_height : const float, cam_angle : float, fov : float) : void" vertex="1">
+          <mxGeometry height="240" width="1130" x="300" y="3150" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-72" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="- target : rendering_backend*&lt;br&gt;- tex_manager : const graphics::texture_manager*&lt;br&gt;- current_map : const geometry::map_data*&lt;br&gt;- near_z : float {static, constexpr}&lt;br&gt;- dl_start : float {static, constexpr}&lt;br&gt;- dl_density : float {static, constexpr}&lt;br&gt;- upper_clip : std::vector&amp;lt;int&amp;gt;&lt;br&gt;- lower_clip : std::vector&amp;lt;int&amp;gt;&lt;br&gt;- visplanes : std::vector&amp;lt;visplane&amp;gt;&lt;br&gt;- vissprites : std::vector&amp;lt;vissprite&amp;gt;&lt;br&gt;- euclidian_dist_factor : std::vector&amp;lt;float&amp;gt;" vertex="1">
+          <mxGeometry height="170" width="1130" x="300" y="2980" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-73" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="rendering::software_renderer" vertex="1">
+          <mxGeometry height="20" width="1130" x="300" y="2960" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-74" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="15" width="240" x="1210" y="2920" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-75" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ cam_pos : math::vec2&lt;br&gt;+ cam_height : float&lt;br&gt;+ cam_angle : float&lt;br&gt;+ sw : unsigned int&lt;br&gt;+ sh : unsigned int&lt;br&gt;+ half_sw : float&lt;br&gt;+ pitch : unsigned int&lt;br&gt;+ mmio : std::uint32_t*&lt;br&gt;+ fov_scale : float&lt;br&gt;+ inv_fov_scale : float&lt;br&gt;+ cos_cam_angle : float&lt;br&gt;+ sin_cam_angle : float" vertex="1">
+          <mxGeometry height="185" width="240" x="1210" y="2735" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-76" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="rendering::frame_rendering_data" vertex="1">
+          <mxGeometry height="25" width="240" x="1210" y="2710" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-79" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0a30a;strokeColor=#BD7000;fontColor=#000000;" value="" vertex="1">
+          <mxGeometry height="950" width="1170" x="1640" y="1980" as="geometry" />
+        </mxCell>
+        <mxCell id="eJHNw_gLvaXjHgHkJN_1-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;rendering::drm_kms::backend&lt;/div&gt;" vertex="1">
+          <mxGeometry height="20" width="460" x="1700" y="2080" as="geometry" />
+        </mxCell>
+        <mxCell id="eJHNw_gLvaXjHgHkJN_1-13" edge="1" parent="1" source="eJHNw_gLvaXjHgHkJN_1-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="eJHNw_gLvaXjHgHkJN_1-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-80" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="# dev : std::unique_ptr&amp;lt;device_context&amp;gt;&lt;br&gt;# active_connector : std::unique_ptr&amp;lt;connector&amp;gt;&lt;br&gt;# active_crtc : std::unique_ptr&amp;lt;crtc&amp;gt;&lt;br&gt;# buffers : std::unique_ptr&amp;lt;framebuffer&amp;gt;[2]&lt;br&gt;# front_buffer_index : int&lt;br&gt;# shadow : std::vector&amp;lt;uint32_t&amp;gt;&lt;br&gt;# current_mode : std::unique_ptr&amp;lt;drm_rendering_mode const&amp;gt;&lt;br&gt;# original_fb_id : uint32_t&lt;br&gt;# original_connector_id : uint32_t&lt;br&gt;# original_mode : drm_mode_modeinfo&lt;br&gt;# has_original_state : bool" vertex="1">
+          <mxGeometry height="160" width="460" x="1700" y="2100" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-81" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ backend() :&amp;nbsp;&lt;br&gt;+ ~backend() :&amp;nbsp;&lt;br&gt;+ get_modes() : std::vector&amp;lt;std::unique_ptr&amp;lt;rendering_mode const&amp;gt;&amp;gt;&lt;br&gt;+ set_mode(mode : std::unique_ptr&amp;lt;rendering_mode const&amp;gt;) : void&lt;br&gt;+ is_bad() : bool&lt;br&gt;+ get_width() : unsigned int&lt;br&gt;+ get_height() : unsigned int&lt;br&gt;+ get_pitch() : unsigned int&lt;br&gt;+ get_mmio() : std::uint32_t*&lt;br&gt;+ wait_for_vsync() : void&lt;br&gt;+ flush() : void" vertex="1">
+          <mxGeometry height="160" width="460" x="1700" y="2260" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-82" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;rendering::drm_kms::device_context&lt;/div&gt;" vertex="1">
+          <mxGeometry height="20" width="400" x="2200" y="2080" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-83" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ fd : int&lt;/div&gt;" vertex="1">
+          <mxGeometry height="20" width="400" x="2200" y="2100" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-84" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ device_context(path : const std::string&amp;amp;)&lt;br&gt;+ ~device_context()&lt;br&gt;+ is_valid() : bool&lt;br&gt;+ ioctl(request : unsigned long, arg : void*) : int" vertex="1">
+          <mxGeometry height="70" width="400" x="2200" y="2120" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-85" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ connector(d : const device_context&amp;amp;, id : uint32_t)&lt;br&gt;+ probe_modes() : std::vector&amp;lt;std::unique_ptr&amp;lt;drm_rendering_mode const&amp;gt;&amp;gt;&lt;br&gt;+ is_bad() : bool" vertex="1">
+          <mxGeometry height="60" width="500" x="2210" y="2300" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-86" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="# dev : const device_context&amp;amp;&lt;br&gt;# bad : bool&lt;br&gt;+ connector_id : uint32_t&lt;br&gt;+ encoder_id : uint32_t" vertex="1">
+          <mxGeometry height="65" width="500" x="2210" y="2235" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-87" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;rendering::drm_kms::connector&lt;/div&gt;" vertex="1">
+          <mxGeometry height="20" width="500" x="2210" y="2215" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-88" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ crtc(d : const device_context&amp;amp;, id : uint32_t)&lt;br&gt;+ set_config(fb_id : uint32_t, conn_id : uint32_t, mode : const drm_rendering_mode&amp;amp;) : bool" vertex="1">
+          <mxGeometry height="60" width="570" x="2210" y="2450" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-89" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="# dev : const device_context&amp;amp;&lt;br&gt;+ crtc_id : uint32_t" vertex="1">
+          <mxGeometry height="40" width="570" x="2210" y="2410" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-90" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;rendering::drm_kms::crtc&lt;/div&gt;" vertex="1">
+          <mxGeometry height="20" width="570" x="2210" y="2390" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-91" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ drm_rendering_mode(info : const drm_mode_modeinfo&amp;amp;)&lt;br&gt;+ ~drm_rendering_mode()" vertex="1">
+          <mxGeometry height="40" width="400" x="1710" y="2510" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-92" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="10" width="400" x="1710" y="2500" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-93" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;rendering::drm_kms::rendering_mode&lt;/div&gt;" vertex="1">
+          <mxGeometry height="20" width="400" x="1710" y="2480" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-94" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;rendering::drm_kms::rendering_mode&lt;/div&gt;" vertex="1">
+          <mxGeometry height="20" width="400" x="2280" y="2547.5" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-95" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ drm_rendering_mode(info : const drm_mode_modeinfo&amp;amp;)&lt;br&gt;+ ~drm_rendering_mode()" vertex="1">
+          <mxGeometry height="40" width="400" x="2280" y="2577.5" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-96" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="10" width="400" x="2280" y="2567.5" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-97" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="+ framebuffer(d : const device_context&amp;amp;, width : uint32_t, height : uint32_t)&lt;br&gt;+ ~framebuffer()&lt;br&gt;+ is_bad() : bool" vertex="1">
+          <mxGeometry height="50" width="490" x="1960" y="2790" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-98" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="# dev : const device_context&amp;amp;&lt;br&gt;# handle : uint32_t&lt;br&gt;# bad : bool&lt;br&gt;+ fb_id : uint32_t&lt;br&gt;+ mmio_ptr : uint32_t*&lt;br&gt;+ size : size_t&lt;br&gt;+ pitch : uint32_t" vertex="1">
+          <mxGeometry height="110" width="490" x="1960" y="2680" as="geometry" />
+        </mxCell>
+        <mxCell id="uxC9v4wLEXnjpFs8sq-t-99" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="&lt;div&gt;rendering::drm_kms::framebuffer&lt;/div&gt;" vertex="1">
+          <mxGeometry height="20" width="490" x="1960" y="2660" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
