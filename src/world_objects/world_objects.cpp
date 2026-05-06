@@ -1,0 +1,54 @@
+#include "world_objects.h"
+#include "entities/entities.h"
+#include "combat/weapons/weapon.h"
+#include <algorithm>
+
+namespace engine::world_object {
+
+// ── pickup ────────────────────────────────────────────────────────────────────
+
+bool pickup::in_range(math::vec2 player_pos) const {
+    math::vec2 diff = player_pos - position;
+    return diff.sqr_len() < pickup_radius * pickup_radius;
+}
+
+// ── health_pickup ─────────────────────────────────────────────────────────────
+
+void health_pickup::on_pickup(entities::player& p) {
+    p.heal(heal_amount);
+    collected = true;
+}
+
+// ── armor_pickup ──────────────────────────────────────────────────────────────
+
+void armor_pickup::on_pickup(entities::player& p) {
+    p.add_shield(armor_amount);
+    collected = true;
+}
+
+// ── ammo_pickup ───────────────────────────────────────────────────────────────
+
+void ammo_pickup::on_pickup(entities::player& p) {
+    for (combat::weapon* w : p.weapons) {
+        if (!w || w->weapon_id != weapon_id) continue;
+        w->ammo_count = std::min(
+            w->ammo_count + static_cast<int>(amount),
+            w->max_ammo
+        );
+        break;
+    }
+    collected = true;
+}
+
+// ── weapon_pickup ─────────────────────────────────────────────────────────────
+
+void weapon_pickup::on_pickup(entities::player& p) {
+    if (!provided_weapon) return;
+    // Only add if the player doesn't already carry this weapon
+    for (combat::weapon const* w : p.weapons)
+        if (w == provided_weapon) return;
+    p.weapons.push_back(provided_weapon);
+    collected = true;
+}
+
+} // namespace engine::world_object

@@ -156,7 +156,7 @@ int main() {
     // ── Info strip layout ────────────────────────────────────────────────────
     const int INFO_H = 52;
     const int INFO_Y = SH - INFO_H;
-    const std::uint32_t TW = 1u;
+    const std::uint32_t TW = 0xffffff;
 
     // ── Game loop ─────────────────────────────────────────────────────────────
     while (true) {

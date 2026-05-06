@@ -1,0 +1,687 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 74.56      4.22     4.22     1791     2.36     2.37  rendering::software_renderer::draw_solid_wall_span(float, float, float, float, float, float, geometry::linedef const&, rendering::software_renderer::frame_rendering_data)
+ 21.02      5.41     1.19      600     1.98     1.98  rendering::software_renderer::render_visplanes(rendering::software_renderer::frame_rendering_data)
+  3.18      5.59     0.18     1200     0.15     0.15  rendering::renderer_2d::draw_rect(int, int, int, int, unsigned int)
+  0.88      5.64     0.05     1200     0.04     0.04  rendering::renderer_2d::draw_text(std::basic_string_view<char, std::char_traits<char> >, int, int, int, int, unsigned int)
+  0.35      5.66     0.02  2261594     0.00     0.00  rendering::software_renderer::add_visplane(int, int, int, float, unsigned int, unsigned char, rendering::software_renderer::frame_rendering_data)
+  0.00      5.66     0.00    82737     0.00     0.00  rendering::drm_kms::backend::get_height()
+  0.00      5.66     0.00    82736     0.00     0.00  rendering::drm_kms::backend::get_mmio()
+  0.00      5.66     0.00    82736     0.00     0.00  rendering::drm_kms::backend::get_pitch()
+  0.00      5.66     0.00    82137     0.00     0.00  rendering::drm_kms::backend::get_width()
+  0.00      5.66     0.00    22015     0.00     0.00  input::evdev::backend::process_event(input_event const&)
+  0.00      5.66     0.00     4800     0.00     0.00  math::vec2::rotate_with_known_trig(math::vec2, float, float)
+  0.00      5.66     0.00     3001     0.00     0.00  fmt2(float)
+  0.00      5.66     0.00     3001     0.00     0.00  input::evdev::backend::is_key_down(input::key) const
+  0.00      5.66     0.00     2552     0.00     0.00  graphics::texture_set::wall_tx_by_id(unsigned int) const
+  0.00      5.66     0.00     2552     0.00     0.00  graphics::texture_manager::wall_tx_by_id(unsigned int) const
+  0.00      5.66     0.00     2400     0.00     0.00  rendering::software_renderer::project_and_draw_linedef(geometry::linedef const&, rendering::software_renderer::frame_rendering_data)
+  0.00      5.66     0.00     2400     0.00     0.00  math::vec2::len() const
+  0.00      5.66     0.00     2400     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&)
+  0.00      5.66     0.00     1800     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long)
+  0.00      5.66     0.00     1226     0.00     0.00  rendering::drm_kms::device_context::ioctl(unsigned long, void*) const
+  0.00      5.66     0.00     1207     0.00     0.00  rendering::drm_kms::device_context::is_valid() const
+  0.00      5.66     0.00      761     0.00     0.00  rendering::visplane::visplane(int, unsigned int, float, unsigned int, unsigned char)
+  0.00      5.66     0.00      602     0.00     0.00  input::input_backend::is_bad() const
+  0.00      5.66     0.00      601     0.00     0.00  input::evdev::backend::update()
+  0.00      5.66     0.00      600     0.00     0.00  engine::systems::health_system::process_effects(float, engine::actor&)
+  0.00      5.66     0.00      600     0.00     0.00  engine::entities::player::update(float)
+  0.00      5.66     0.00      600     0.00     9.05  rendering::software_renderer::render_bsp(math::vec2, float, float, float)
+  0.00      5.66     0.00      600     0.00     7.07  rendering::software_renderer::render_bsp_node(unsigned int, rendering::software_renderer::frame_rendering_data)
+  0.00      5.66     0.00      600     0.00     0.00  rendering::software_renderer::render_vissprites(rendering::software_renderer::frame_rendering_data)
+  0.00      5.66     0.00      600     0.00     0.00  rendering::drm_kms::backend::wait_for_vsync()
+  0.00      5.66     0.00      600     0.00     0.00  rendering::drm_kms::backend::flush()
+  0.00      5.66     0.00      600     0.00     0.00  input::evdev::backend::get_mouse_state() const
+  0.00      5.66     0.00      378     0.00     0.00  engine::entities::player::rotate(float, float)
+  0.00      5.66     0.00      361     0.00     0.00  engine::entities::player::move(math::vec3)
+  0.00      5.66     0.00       65     0.00     0.00  input::evdev::backend::probe_device(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)
+  0.00      5.66     0.00       64     0.00     0.00  std::__cxx11::to_string(int)
+  0.00      5.66     0.00       28     0.00     0.00  util::resource::resource(void const*, void const*)
+  0.00      5.66     0.00       14     0.00     0.00  util::file_resource::file_resource(std::vector<std::byte, std::allocator<std::byte> >)
+  0.00      5.66     0.00       14     0.00     0.00  util::file_resource::~file_resource()
+  0.00      5.66     0.00       14     0.00     0.00  util::resource_loader::lookup_resource_runtime(std::basic_string_view<char, std::char_traits<char> >)
+  0.00      5.66     0.00       14     0.00     0.00  util::resource_loader::load_file(std::basic_string_view<char, std::char_traits<char> >) const
+  0.00      5.66     0.00       14     0.00     0.00  std::__detail::_Map_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > > >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  0.00      5.66     0.00        9     0.00     0.00  graphics::texture::load_from_bin(util::resource)
+  0.00      5.66     0.00        4     0.00     0.00  util::indexed_storage<geometry::linedef>::add(geometry::linedef const&)
+  0.00      5.66     0.00        4     0.00     0.00  util::indexed_storage<geometry::sidedef>::add(geometry::sidedef const&)
+  0.00      5.66     0.00        3     0.00     0.00  graphics::texture_set::tx_from_meta(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >)
+  0.00      5.66     0.00        3     0.00     0.00  std::vector<graphics::texture, std::allocator<graphics::texture> >::vector(std::vector<graphics::texture, std::allocator<graphics::texture> > const&)
+  0.00      5.66     0.00        2     0.00     0.00  rendering::drm_kms::framebuffer::framebuffer(rendering::drm_kms::device_context const&, unsigned int, unsigned int)
+  0.00      5.66     0.00        2     0.00     0.00  rendering::drm_kms::framebuffer::~framebuffer()
+  0.00      5.66     0.00        2     0.00     0.00  rendering::drm_kms::device_context::device_context(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+  0.00      5.66     0.00        2     0.00     0.00  rendering::drm_kms::device_context::~device_context()
+  0.00      5.66     0.00        2     0.00     0.00  rendering::drm_kms::drm_rendering_mode::drm_rendering_mode(drm_mode_modeinfo const&)
+  0.00      5.66     0.00        2     0.00     0.00  rendering::drm_kms::crtc::set_config(unsigned int, unsigned int, rendering::drm_kms::drm_rendering_mode const&)
+  0.00      5.66     0.00        2     0.00     0.00  rendering::drm_kms::framebuffer::is_bad() const
+  0.00      5.66     0.00        2     0.00     0.00  rendering::drm_kms::backend::is_bad() const
+  0.00      5.66     0.00        2     0.00     0.00  std::vector<graphics::texture_set, std::allocator<graphics::texture_set> >::~vector()
+  0.00      5.66     0.00        2     0.00     0.00  std::vector<int, std::allocator<int> >::_M_default_append(unsigned long)
+  0.00      5.66     0.00        1     0.00     0.00  input::input_backend::input_backend()
+  0.00      5.66     0.00        1     0.00     0.00  input::evdev::backend::probe_devices()
+  0.00      5.66     0.00        1     0.00     0.00  input::evdev::backend::backend()
+  0.00      5.66     0.00        1     0.00     0.00  input::evdev::backend::~backend()
+  0.00      5.66     0.00        1     0.00     0.00  input::evdev::backend::~backend()
+  0.00      5.66     0.00        1     0.00     0.00  geometry::map_data::map_data()
+  0.00      5.66     0.00        1     0.00     0.00  geometry::map_data::~map_data()
+  0.00      5.66     0.00        1     0.00     0.00  graphics::texture_set::load(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >)
+  0.00      5.66     0.00        1     0.00     0.00  graphics::texture_manager::load(util::resource_loader&)
+  0.00      5.66     0.00        1     0.00     0.00  rendering::renderer_2d::set_target(rendering::rendering_backend*)
+  0.00      5.66     0.00        1     0.00     0.00  rendering::renderer_2d::set_font_texture(graphics::texture const*)
+  0.00      5.66     0.00        1     0.00     0.00  rendering::renderer_2d::set_texture_manager(graphics::texture_manager const*)
+  0.00      5.66     0.00        1     0.00     0.00  rendering::renderer_2d::renderer_2d()
+  0.00      5.66     0.00        1     0.00     0.00  rendering::rendering_backend::rendering_backend()
+  0.00      5.66     0.00        1     0.00     0.00  rendering::software_renderer::set_target(rendering::rendering_backend*)
+  0.00      5.66     0.00        1     0.00     0.00  rendering::software_renderer::set_texture_manager(graphics::texture_manager const*)
+  0.00      5.66     0.00        1     0.00     0.00  rendering::software_renderer::set_map(geometry::map_data const*)
+  0.00      5.66     0.00        1     0.00     0.00  rendering::software_renderer::software_renderer()
+  0.00      5.66     0.00        1     0.00     0.00  rendering::software_renderer::~software_renderer()
+  0.00      5.66     0.00        1     0.00     0.00  rendering::drm_kms::crtc::crtc(rendering::drm_kms::device_context const&, unsigned int)
+  0.00      5.66     0.00        1     0.00     0.00  rendering::drm_kms::backend::set_mode(std::unique_ptr<rendering::rendering_mode const, std::default_delete<rendering::rendering_mode const> >)
+  0.00      5.66     0.00        1     0.00     0.00  rendering::drm_kms::backend::get_modes()
+  0.00      5.66     0.00        1     0.00     0.00  rendering::drm_kms::backend::backend()
+  0.00      5.66     0.00        1     0.00     0.00  rendering::drm_kms::backend::~backend()
+  0.00      5.66     0.00        1     0.00     0.00  rendering::drm_kms::backend::~backend()
+  0.00      5.66     0.00        1     0.00     0.00  rendering::drm_kms::connector::probe_modes()
+  0.00      5.66     0.00        1     0.00     0.00  rendering::drm_kms::connector::connector(rendering::drm_kms::device_context const&, unsigned int)
+  0.00      5.66     0.00        1     0.00     0.00  graphics::texture_set::flat_tx_by_id(unsigned int) const
+  0.00      5.66     0.00        1     0.00     0.00  graphics::texture_manager::flat_tx_by_id(unsigned int) const
+  0.00      5.66     0.00        1     0.00     0.00  std::_Hashtable<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > > >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::~_Hashtable()
+  0.00      5.66     0.00        1     0.00     0.00  std::vector<float, std::allocator<float> >::_M_default_append(unsigned long)
+  0.00      5.66     0.00        1     0.00     0.00  std::vector<unsigned int, std::allocator<unsigned int> >::_M_default_append(unsigned long)
+  0.00      5.66     0.00        1     0.00     0.00  std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_dispose()
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2026 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 4 byte(s) for 0.18% of 5.66 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]    100.0    0.00    5.66                 main [1]
+                0.00    5.43     600/600         rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+                0.18    0.00    1200/1200        rendering::renderer_2d::draw_rect(int, int, int, int, unsigned int) [6]
+                0.05    0.00    1200/1200        rendering::renderer_2d::draw_text(std::basic_string_view<char, std::char_traits<char> >, int, int, int, int, unsigned int) [7]
+                0.00    0.00    3001/3001        input::evdev::backend::is_key_down(input::key) const [22]
+                0.00    0.00    3001/3001        fmt2(float) [21]
+                0.00    0.00    2400/2400        std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&) [27]
+                0.00    0.00    1194/1800        std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) [28]
+                0.00    0.00     602/602         input::input_backend::is_bad() const [32]
+                0.00    0.00     601/82737       rendering::drm_kms::backend::get_height() [15]
+                0.00    0.00     601/601         input::evdev::backend::update() [33]
+                0.00    0.00     600/600         input::evdev::backend::get_mouse_state() const [39]
+                0.00    0.00     600/600         engine::entities::player::update(float) [35]
+                0.00    0.00     600/82736       rendering::drm_kms::backend::get_pitch() [17]
+                0.00    0.00     600/82736       rendering::drm_kms::backend::get_mmio() [16]
+                0.00    0.00     600/600         rendering::drm_kms::backend::wait_for_vsync() [37]
+                0.00    0.00     600/600         rendering::drm_kms::backend::flush() [38]
+                0.00    0.00     378/378         engine::entities::player::rotate(float, float) [40]
+                0.00    0.00     361/361         engine::entities::player::move(math::vec3) [41]
+                0.00    0.00       4/4           util::indexed_storage<geometry::sidedef>::add(geometry::sidedef const&) [52]
+                0.00    0.00       4/4           util::indexed_storage<geometry::linedef>::add(geometry::linedef const&) [51]
+                0.00    0.00       2/2           rendering::drm_kms::backend::is_bad() const [62]
+                0.00    0.00       1/1           rendering::drm_kms::backend::backend() [87]
+                0.00    0.00       1/1           rendering::drm_kms::backend::get_modes() [86]
+                0.00    0.00       1/1           std::vector<unsigned int, std::allocator<unsigned int> >::_M_default_append(unsigned long) [96]
+                0.00    0.00       1/1           rendering::drm_kms::backend::set_mode(std::unique_ptr<rendering::rendering_mode const, std::default_delete<rendering::rendering_mode const> >) [85]
+                0.00    0.00       1/82137       rendering::drm_kms::backend::get_width() [18]
+                0.00    0.00       1/1           graphics::texture_manager::load(util::resource_loader&) [73]
+                0.00    0.00       1/1           geometry::map_data::map_data() [70]
+                0.00    0.00       1/1           rendering::software_renderer::software_renderer() [82]
+                0.00    0.00       1/1           rendering::software_renderer::set_target(rendering::rendering_backend*) [79]
+                0.00    0.00       1/1           rendering::software_renderer::set_texture_manager(graphics::texture_manager const*) [80]
+                0.00    0.00       1/1           rendering::software_renderer::set_map(geometry::map_data const*) [81]
+                0.00    0.00       1/1           rendering::renderer_2d::renderer_2d() [77]
+                0.00    0.00       1/1           rendering::renderer_2d::set_target(rendering::rendering_backend*) [74]
+                0.00    0.00       1/1           rendering::renderer_2d::set_texture_manager(graphics::texture_manager const*) [76]
+                0.00    0.00       1/1           graphics::texture_set::flat_tx_by_id(unsigned int) const [92]
+                0.00    0.00       1/1           graphics::texture_manager::flat_tx_by_id(unsigned int) const [93]
+                0.00    0.00       1/1           rendering::renderer_2d::set_font_texture(graphics::texture const*) [75]
+                0.00    0.00       1/1           input::evdev::backend::backend() [67]
+                0.00    0.00       1/1           input::evdev::backend::~backend() [68]
+                0.00    0.00       1/1           rendering::software_renderer::~software_renderer() [83]
+                0.00    0.00       1/1           geometry::map_data::~map_data() [71]
+                0.00    0.00       1/1           std::_Hashtable<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > > >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::~_Hashtable() [94]
+                0.00    0.00       1/1           rendering::drm_kms::backend::~backend() [88]
+                0.00    0.00       1/1           std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_dispose() [97]
+-----------------------------------------------
+                0.00    5.43     600/600         main [1]
+[2]     95.9    0.00    5.43     600         rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+                0.00    4.24     600/600         rendering::software_renderer::render_bsp_node(unsigned int, rendering::software_renderer::frame_rendering_data) [4]
+                1.19    0.00     600/600         rendering::software_renderer::render_visplanes(rendering::software_renderer::frame_rendering_data) [5]
+                0.00    0.00     600/82137       rendering::drm_kms::backend::get_width() [18]
+                0.00    0.00     600/82737       rendering::drm_kms::backend::get_height() [15]
+                0.00    0.00     600/82736       rendering::drm_kms::backend::get_pitch() [17]
+                0.00    0.00     600/82736       rendering::drm_kms::backend::get_mmio() [16]
+                0.00    0.00     600/600         rendering::software_renderer::render_vissprites(rendering::software_renderer::frame_rendering_data) [36]
+                0.00    0.00       2/2           std::vector<int, std::allocator<int> >::_M_default_append(unsigned long) [64]
+                0.00    0.00       1/1           std::vector<float, std::allocator<float> >::_M_default_append(unsigned long) [95]
+-----------------------------------------------
+                4.22    0.02    1791/1791        rendering::software_renderer::render_bsp_node(unsigned int, rendering::software_renderer::frame_rendering_data) [4]
+[3]     74.9    4.22    0.02    1791         rendering::software_renderer::draw_solid_wall_span(float, float, float, float, float, float, geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [3]
+                0.02    0.00 2261594/2261594     rendering::software_renderer::add_visplane(int, int, int, float, unsigned int, unsigned char, rendering::software_renderer::frame_rendering_data) [8]
+                0.00    0.00    1791/2552        graphics::texture_set::wall_tx_by_id(unsigned int) const [23]
+                0.00    0.00    1791/2552        graphics::texture_manager::wall_tx_by_id(unsigned int) const [24]
+-----------------------------------------------
+                0.00    4.24     600/600         rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+[4]     74.9    0.00    4.24     600         rendering::software_renderer::render_bsp_node(unsigned int, rendering::software_renderer::frame_rendering_data) [4]
+                4.22    0.02    1791/1791        rendering::software_renderer::draw_solid_wall_span(float, float, float, float, float, float, geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [3]
+                0.00    0.00    2400/2400        rendering::software_renderer::project_and_draw_linedef(geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [25]
+-----------------------------------------------
+                1.19    0.00     600/600         rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+[5]     21.0    1.19    0.00     600         rendering::software_renderer::render_visplanes(rendering::software_renderer::frame_rendering_data) [5]
+                0.00    0.00     761/2552        graphics::texture_set::wall_tx_by_id(unsigned int) const [23]
+                0.00    0.00     761/2552        graphics::texture_manager::wall_tx_by_id(unsigned int) const [24]
+-----------------------------------------------
+                0.18    0.00    1200/1200        main [1]
+[6]      3.2    0.18    0.00    1200         rendering::renderer_2d::draw_rect(int, int, int, int, unsigned int) [6]
+                0.00    0.00    1200/82736       rendering::drm_kms::backend::get_mmio() [16]
+                0.00    0.00    1200/82137       rendering::drm_kms::backend::get_width() [18]
+                0.00    0.00    1200/82736       rendering::drm_kms::backend::get_pitch() [17]
+                0.00    0.00    1200/82737       rendering::drm_kms::backend::get_height() [15]
+-----------------------------------------------
+                0.05    0.00    1200/1200        main [1]
+[7]      0.9    0.05    0.00    1200         rendering::renderer_2d::draw_text(std::basic_string_view<char, std::char_traits<char> >, int, int, int, int, unsigned int) [7]
+                0.00    0.00   80336/82137       rendering::drm_kms::backend::get_width() [18]
+                0.00    0.00   80336/82737       rendering::drm_kms::backend::get_height() [15]
+                0.00    0.00   80336/82736       rendering::drm_kms::backend::get_mmio() [16]
+                0.00    0.00   80336/82736       rendering::drm_kms::backend::get_pitch() [17]
+-----------------------------------------------
+                0.02    0.00 2261594/2261594     rendering::software_renderer::draw_solid_wall_span(float, float, float, float, float, float, geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [3]
+[8]      0.4    0.02    0.00 2261594         rendering::software_renderer::add_visplane(int, int, int, float, unsigned int, unsigned char, rendering::software_renderer::frame_rendering_data) [8]
+                0.00    0.00     761/761         rendering::visplane::visplane(int, unsigned int, float, unsigned int, unsigned char) [31]
+-----------------------------------------------
+                0.00    0.00     600/82737       rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+                0.00    0.00     601/82737       main [1]
+                0.00    0.00    1200/82737       rendering::renderer_2d::draw_rect(int, int, int, int, unsigned int) [6]
+                0.00    0.00   80336/82737       rendering::renderer_2d::draw_text(std::basic_string_view<char, std::char_traits<char> >, int, int, int, int, unsigned int) [7]
+[15]     0.0    0.00    0.00   82737         rendering::drm_kms::backend::get_height() [15]
+-----------------------------------------------
+                0.00    0.00     600/82736       main [1]
+                0.00    0.00     600/82736       rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+                0.00    0.00    1200/82736       rendering::renderer_2d::draw_rect(int, int, int, int, unsigned int) [6]
+                0.00    0.00   80336/82736       rendering::renderer_2d::draw_text(std::basic_string_view<char, std::char_traits<char> >, int, int, int, int, unsigned int) [7]
+[16]     0.0    0.00    0.00   82736         rendering::drm_kms::backend::get_mmio() [16]
+-----------------------------------------------
+                0.00    0.00     600/82736       main [1]
+                0.00    0.00     600/82736       rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+                0.00    0.00    1200/82736       rendering::renderer_2d::draw_rect(int, int, int, int, unsigned int) [6]
+                0.00    0.00   80336/82736       rendering::renderer_2d::draw_text(std::basic_string_view<char, std::char_traits<char> >, int, int, int, int, unsigned int) [7]
+[17]     0.0    0.00    0.00   82736         rendering::drm_kms::backend::get_pitch() [17]
+-----------------------------------------------
+                0.00    0.00       1/82137       main [1]
+                0.00    0.00     600/82137       rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+                0.00    0.00    1200/82137       rendering::renderer_2d::draw_rect(int, int, int, int, unsigned int) [6]
+                0.00    0.00   80336/82137       rendering::renderer_2d::draw_text(std::basic_string_view<char, std::char_traits<char> >, int, int, int, int, unsigned int) [7]
+[18]     0.0    0.00    0.00   82137         rendering::drm_kms::backend::get_width() [18]
+-----------------------------------------------
+                0.00    0.00   22015/22015       input::evdev::backend::update() [33]
+[19]     0.0    0.00    0.00   22015         input::evdev::backend::process_event(input_event const&) [19]
+-----------------------------------------------
+                0.00    0.00    4800/4800        rendering::software_renderer::project_and_draw_linedef(geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [25]
+[20]     0.0    0.00    0.00    4800         math::vec2::rotate_with_known_trig(math::vec2, float, float) [20]
+-----------------------------------------------
+                0.00    0.00    3001/3001        main [1]
+[21]     0.0    0.00    0.00    3001         fmt2(float) [21]
+-----------------------------------------------
+                0.00    0.00    3001/3001        main [1]
+[22]     0.0    0.00    0.00    3001         input::evdev::backend::is_key_down(input::key) const [22]
+-----------------------------------------------
+                0.00    0.00     761/2552        rendering::software_renderer::render_visplanes(rendering::software_renderer::frame_rendering_data) [5]
+                0.00    0.00    1791/2552        rendering::software_renderer::draw_solid_wall_span(float, float, float, float, float, float, geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [3]
+[23]     0.0    0.00    0.00    2552         graphics::texture_set::wall_tx_by_id(unsigned int) const [23]
+-----------------------------------------------
+                0.00    0.00     761/2552        rendering::software_renderer::render_visplanes(rendering::software_renderer::frame_rendering_data) [5]
+                0.00    0.00    1791/2552        rendering::software_renderer::draw_solid_wall_span(float, float, float, float, float, float, geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [3]
+[24]     0.0    0.00    0.00    2552         graphics::texture_manager::wall_tx_by_id(unsigned int) const [24]
+-----------------------------------------------
+                0.00    0.00    2400/2400        rendering::software_renderer::render_bsp_node(unsigned int, rendering::software_renderer::frame_rendering_data) [4]
+[25]     0.0    0.00    0.00    2400         rendering::software_renderer::project_and_draw_linedef(geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [25]
+                0.00    0.00    4800/4800        math::vec2::rotate_with_known_trig(math::vec2, float, float) [20]
+                0.00    0.00    2400/2400        math::vec2::len() const [26]
+-----------------------------------------------
+                0.00    0.00    2400/2400        rendering::software_renderer::project_and_draw_linedef(geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [25]
+[26]     0.0    0.00    0.00    2400         math::vec2::len() const [26]
+-----------------------------------------------
+                0.00    0.00    2400/2400        main [1]
+[27]     0.0    0.00    0.00    2400         std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&) [27]
+                0.00    0.00     606/1800        std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) [28]
+-----------------------------------------------
+                0.00    0.00     606/1800        std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&) [27]
+                0.00    0.00    1194/1800        main [1]
+[28]     0.0    0.00    0.00    1800         std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long) [28]
+-----------------------------------------------
+                0.00    0.00       1/1226        rendering::drm_kms::connector::connector(rendering::drm_kms::device_context const&, unsigned int) [91]
+                0.00    0.00       2/1226        rendering::drm_kms::connector::probe_modes() [90]
+                0.00    0.00       2/1226        rendering::drm_kms::crtc::set_config(unsigned int, unsigned int, rendering::drm_kms::drm_rendering_mode const&) [60]
+                0.00    0.00       4/1226        rendering::drm_kms::framebuffer::~framebuffer() [56]
+                0.00    0.00       6/1226        rendering::drm_kms::framebuffer::framebuffer(rendering::drm_kms::device_context const&, unsigned int, unsigned int) [55]
+                0.00    0.00      11/1226        rendering::drm_kms::backend::backend() [87]
+                0.00    0.00     600/1226        rendering::drm_kms::backend::wait_for_vsync() [37]
+                0.00    0.00     600/1226        rendering::drm_kms::backend::flush() [38]
+[29]     0.0    0.00    0.00    1226         rendering::drm_kms::device_context::ioctl(unsigned long, void*) const [29]
+-----------------------------------------------
+                0.00    0.00       1/1207        rendering::drm_kms::backend::~backend() [89]
+                0.00    0.00       1/1207        rendering::drm_kms::backend::get_modes() [86]
+                0.00    0.00       1/1207        rendering::drm_kms::backend::set_mode(std::unique_ptr<rendering::rendering_mode const, std::default_delete<rendering::rendering_mode const> >) [85]
+                0.00    0.00       2/1207        rendering::drm_kms::backend::is_bad() const [62]
+                0.00    0.00       2/1207        rendering::drm_kms::backend::backend() [87]
+                0.00    0.00     600/1207        rendering::drm_kms::backend::wait_for_vsync() [37]
+                0.00    0.00     600/1207        rendering::drm_kms::backend::flush() [38]
+[30]     0.0    0.00    0.00    1207         rendering::drm_kms::device_context::is_valid() const [30]
+-----------------------------------------------
+                0.00    0.00     761/761         rendering::software_renderer::add_visplane(int, int, int, float, unsigned int, unsigned char, rendering::software_renderer::frame_rendering_data) [8]
+[31]     0.0    0.00    0.00     761         rendering::visplane::visplane(int, unsigned int, float, unsigned int, unsigned char) [31]
+-----------------------------------------------
+                0.00    0.00     602/602         main [1]
+[32]     0.0    0.00    0.00     602         input::input_backend::is_bad() const [32]
+-----------------------------------------------
+                0.00    0.00     601/601         main [1]
+[33]     0.0    0.00    0.00     601         input::evdev::backend::update() [33]
+                0.00    0.00   22015/22015       input::evdev::backend::process_event(input_event const&) [19]
+-----------------------------------------------
+                0.00    0.00     600/600         engine::entities::player::update(float) [35]
+[34]     0.0    0.00    0.00     600         engine::systems::health_system::process_effects(float, engine::actor&) [34]
+-----------------------------------------------
+                0.00    0.00     600/600         main [1]
+[35]     0.0    0.00    0.00     600         engine::entities::player::update(float) [35]
+                0.00    0.00     600/600         engine::systems::health_system::process_effects(float, engine::actor&) [34]
+-----------------------------------------------
+                0.00    0.00     600/600         rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+[36]     0.0    0.00    0.00     600         rendering::software_renderer::render_vissprites(rendering::software_renderer::frame_rendering_data) [36]
+-----------------------------------------------
+                0.00    0.00     600/600         main [1]
+[37]     0.0    0.00    0.00     600         rendering::drm_kms::backend::wait_for_vsync() [37]
+                0.00    0.00     600/1207        rendering::drm_kms::device_context::is_valid() const [30]
+                0.00    0.00     600/1226        rendering::drm_kms::device_context::ioctl(unsigned long, void*) const [29]
+-----------------------------------------------
+                0.00    0.00     600/600         main [1]
+[38]     0.0    0.00    0.00     600         rendering::drm_kms::backend::flush() [38]
+                0.00    0.00     600/1207        rendering::drm_kms::device_context::is_valid() const [30]
+                0.00    0.00     600/1226        rendering::drm_kms::device_context::ioctl(unsigned long, void*) const [29]
+-----------------------------------------------
+                0.00    0.00     600/600         main [1]
+[39]     0.0    0.00    0.00     600         input::evdev::backend::get_mouse_state() const [39]
+-----------------------------------------------
+                0.00    0.00     378/378         main [1]
+[40]     0.0    0.00    0.00     378         engine::entities::player::rotate(float, float) [40]
+-----------------------------------------------
+                0.00    0.00     361/361         main [1]
+[41]     0.0    0.00    0.00     361         engine::entities::player::move(math::vec3) [41]
+-----------------------------------------------
+                0.00    0.00      65/65          input::evdev::backend::probe_devices() [66]
+[42]     0.0    0.00    0.00      65         input::evdev::backend::probe_device(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) [42]
+-----------------------------------------------
+                0.00    0.00      64/64          input::evdev::backend::probe_devices() [66]
+[43]     0.0    0.00    0.00      64         std::__cxx11::to_string(int) [43]
+-----------------------------------------------
+                0.00    0.00      14/28          util::file_resource::file_resource(std::vector<std::byte, std::allocator<std::byte> >) [45]
+                0.00    0.00      14/28          std::__detail::_Map_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > > >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [49]
+[44]     0.0    0.00    0.00      28         util::resource::resource(void const*, void const*) [44]
+-----------------------------------------------
+                0.00    0.00      14/14          util::resource_loader::load_file(std::basic_string_view<char, std::char_traits<char> >) const [48]
+[45]     0.0    0.00    0.00      14         util::file_resource::file_resource(std::vector<std::byte, std::allocator<std::byte> >) [45]
+                0.00    0.00      14/28          util::resource::resource(void const*, void const*) [44]
+-----------------------------------------------
+                0.00    0.00      14/14          std::_Hashtable<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > > >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::~_Hashtable() [94]
+[46]     0.0    0.00    0.00      14         util::file_resource::~file_resource() [46]
+-----------------------------------------------
+                0.00    0.00       1/14          graphics::texture_manager::load(util::resource_loader&) [73]
+                0.00    0.00       1/14          graphics::texture_set::load(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [72]
+                0.00    0.00      12/14          graphics::texture_set::tx_from_meta(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [53]
+[47]     0.0    0.00    0.00      14         util::resource_loader::lookup_resource_runtime(std::basic_string_view<char, std::char_traits<char> >) [47]
+                0.00    0.00      14/14          util::resource_loader::load_file(std::basic_string_view<char, std::char_traits<char> >) const [48]
+                0.00    0.00      14/14          std::__detail::_Map_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > > >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [49]
+-----------------------------------------------
+                0.00    0.00      14/14          util::resource_loader::lookup_resource_runtime(std::basic_string_view<char, std::char_traits<char> >) [47]
+[48]     0.0    0.00    0.00      14         util::resource_loader::load_file(std::basic_string_view<char, std::char_traits<char> >) const [48]
+                0.00    0.00      14/14          util::file_resource::file_resource(std::vector<std::byte, std::allocator<std::byte> >) [45]
+-----------------------------------------------
+                0.00    0.00      14/14          util::resource_loader::lookup_resource_runtime(std::basic_string_view<char, std::char_traits<char> >) [47]
+[49]     0.0    0.00    0.00      14         std::__detail::_Map_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > > >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [49]
+                0.00    0.00      14/28          util::resource::resource(void const*, void const*) [44]
+-----------------------------------------------
+                0.00    0.00       9/9           graphics::texture_set::tx_from_meta(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [53]
+[50]     0.0    0.00    0.00       9         graphics::texture::load_from_bin(util::resource) [50]
+-----------------------------------------------
+                0.00    0.00       4/4           main [1]
+[51]     0.0    0.00    0.00       4         util::indexed_storage<geometry::linedef>::add(geometry::linedef const&) [51]
+-----------------------------------------------
+                0.00    0.00       4/4           main [1]
+[52]     0.0    0.00    0.00       4         util::indexed_storage<geometry::sidedef>::add(geometry::sidedef const&) [52]
+-----------------------------------------------
+                0.00    0.00       3/3           graphics::texture_set::load(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [72]
+[53]     0.0    0.00    0.00       3         graphics::texture_set::tx_from_meta(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [53]
+                0.00    0.00      12/14          util::resource_loader::lookup_resource_runtime(std::basic_string_view<char, std::char_traits<char> >) [47]
+                0.00    0.00       9/9           graphics::texture::load_from_bin(util::resource) [50]
+-----------------------------------------------
+                0.00    0.00       3/3           graphics::texture_set::load(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [72]
+[54]     0.0    0.00    0.00       3         std::vector<graphics::texture, std::allocator<graphics::texture> >::vector(std::vector<graphics::texture, std::allocator<graphics::texture> > const&) [54]
+-----------------------------------------------
+                0.00    0.00       2/2           rendering::drm_kms::backend::set_mode(std::unique_ptr<rendering::rendering_mode const, std::default_delete<rendering::rendering_mode const> >) [85]
+[55]     0.0    0.00    0.00       2         rendering::drm_kms::framebuffer::framebuffer(rendering::drm_kms::device_context const&, unsigned int, unsigned int) [55]
+                0.00    0.00       6/1226        rendering::drm_kms::device_context::ioctl(unsigned long, void*) const [29]
+-----------------------------------------------
+                0.00    0.00       2/2           rendering::drm_kms::backend::~backend() [89]
+[56]     0.0    0.00    0.00       2         rendering::drm_kms::framebuffer::~framebuffer() [56]
+                0.00    0.00       4/1226        rendering::drm_kms::device_context::ioctl(unsigned long, void*) const [29]
+-----------------------------------------------
+                0.00    0.00       2/2           rendering::drm_kms::backend::backend() [87]
+[57]     0.0    0.00    0.00       2         rendering::drm_kms::device_context::device_context(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [57]
+-----------------------------------------------
+                0.00    0.00       1/2           rendering::drm_kms::backend::~backend() [89]
+                0.00    0.00       1/2           rendering::drm_kms::backend::backend() [87]
+[58]     0.0    0.00    0.00       2         rendering::drm_kms::device_context::~device_context() [58]
+-----------------------------------------------
+                0.00    0.00       1/2           rendering::drm_kms::backend::~backend() [89]
+                0.00    0.00       1/2           rendering::drm_kms::connector::probe_modes() [90]
+[59]     0.0    0.00    0.00       2         rendering::drm_kms::drm_rendering_mode::drm_rendering_mode(drm_mode_modeinfo const&) [59]
+-----------------------------------------------
+                0.00    0.00       1/2           rendering::drm_kms::backend::~backend() [89]
+                0.00    0.00       1/2           rendering::drm_kms::backend::set_mode(std::unique_ptr<rendering::rendering_mode const, std::default_delete<rendering::rendering_mode const> >) [85]
+[60]     0.0    0.00    0.00       2         rendering::drm_kms::crtc::set_config(unsigned int, unsigned int, rendering::drm_kms::drm_rendering_mode const&) [60]
+                0.00    0.00       2/1226        rendering::drm_kms::device_context::ioctl(unsigned long, void*) const [29]
+-----------------------------------------------
+                0.00    0.00       2/2           rendering::drm_kms::backend::set_mode(std::unique_ptr<rendering::rendering_mode const, std::default_delete<rendering::rendering_mode const> >) [85]
+[61]     0.0    0.00    0.00       2         rendering::drm_kms::framebuffer::is_bad() const [61]
+-----------------------------------------------
+                0.00    0.00       2/2           main [1]
+[62]     0.0    0.00    0.00       2         rendering::drm_kms::backend::is_bad() const [62]
+                0.00    0.00       2/1207        rendering::drm_kms::device_context::is_valid() const [30]
+-----------------------------------------------
+                0.00    0.00       2/2           graphics::texture_manager::load(util::resource_loader&) [73]
+[63]     0.0    0.00    0.00       2         std::vector<graphics::texture_set, std::allocator<graphics::texture_set> >::~vector() [63]
+-----------------------------------------------
+                0.00    0.00       2/2           rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+[64]     0.0    0.00    0.00       2         std::vector<int, std::allocator<int> >::_M_default_append(unsigned long) [64]
+-----------------------------------------------
+                0.00    0.00       1/1           input::evdev::backend::backend() [67]
+[65]     0.0    0.00    0.00       1         input::input_backend::input_backend() [65]
+-----------------------------------------------
+                0.00    0.00       1/1           input::evdev::backend::backend() [67]
+[66]     0.0    0.00    0.00       1         input::evdev::backend::probe_devices() [66]
+                0.00    0.00      65/65          input::evdev::backend::probe_device(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) [42]
+                0.00    0.00      64/64          std::__cxx11::to_string(int) [43]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[67]     0.0    0.00    0.00       1         input::evdev::backend::backend() [67]
+                0.00    0.00       1/1           input::input_backend::input_backend() [65]
+                0.00    0.00       1/1           input::evdev::backend::probe_devices() [66]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[68]     0.0    0.00    0.00       1         input::evdev::backend::~backend() [68]
+                0.00    0.00       1/1           input::evdev::backend::~backend() [69]
+-----------------------------------------------
+                0.00    0.00       1/1           input::evdev::backend::~backend() [68]
+[69]     0.0    0.00    0.00       1         input::evdev::backend::~backend() [69]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[70]     0.0    0.00    0.00       1         geometry::map_data::map_data() [70]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[71]     0.0    0.00    0.00       1         geometry::map_data::~map_data() [71]
+-----------------------------------------------
+                0.00    0.00       1/1           graphics::texture_manager::load(util::resource_loader&) [73]
+[72]     0.0    0.00    0.00       1         graphics::texture_set::load(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [72]
+                0.00    0.00       3/3           graphics::texture_set::tx_from_meta(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [53]
+                0.00    0.00       3/3           std::vector<graphics::texture, std::allocator<graphics::texture> >::vector(std::vector<graphics::texture, std::allocator<graphics::texture> > const&) [54]
+                0.00    0.00       1/14          util::resource_loader::lookup_resource_runtime(std::basic_string_view<char, std::char_traits<char> >) [47]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[73]     0.0    0.00    0.00       1         graphics::texture_manager::load(util::resource_loader&) [73]
+                0.00    0.00       2/2           std::vector<graphics::texture_set, std::allocator<graphics::texture_set> >::~vector() [63]
+                0.00    0.00       1/14          util::resource_loader::lookup_resource_runtime(std::basic_string_view<char, std::char_traits<char> >) [47]
+                0.00    0.00       1/1           graphics::texture_set::load(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [72]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[74]     0.0    0.00    0.00       1         rendering::renderer_2d::set_target(rendering::rendering_backend*) [74]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[75]     0.0    0.00    0.00       1         rendering::renderer_2d::set_font_texture(graphics::texture const*) [75]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[76]     0.0    0.00    0.00       1         rendering::renderer_2d::set_texture_manager(graphics::texture_manager const*) [76]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[77]     0.0    0.00    0.00       1         rendering::renderer_2d::renderer_2d() [77]
+-----------------------------------------------
+                0.00    0.00       1/1           rendering::drm_kms::backend::backend() [87]
+[78]     0.0    0.00    0.00       1         rendering::rendering_backend::rendering_backend() [78]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[79]     0.0    0.00    0.00       1         rendering::software_renderer::set_target(rendering::rendering_backend*) [79]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[80]     0.0    0.00    0.00       1         rendering::software_renderer::set_texture_manager(graphics::texture_manager const*) [80]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[81]     0.0    0.00    0.00       1         rendering::software_renderer::set_map(geometry::map_data const*) [81]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[82]     0.0    0.00    0.00       1         rendering::software_renderer::software_renderer() [82]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[83]     0.0    0.00    0.00       1         rendering::software_renderer::~software_renderer() [83]
+-----------------------------------------------
+                0.00    0.00       1/1           rendering::drm_kms::backend::backend() [87]
+[84]     0.0    0.00    0.00       1         rendering::drm_kms::crtc::crtc(rendering::drm_kms::device_context const&, unsigned int) [84]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[85]     0.0    0.00    0.00       1         rendering::drm_kms::backend::set_mode(std::unique_ptr<rendering::rendering_mode const, std::default_delete<rendering::rendering_mode const> >) [85]
+                0.00    0.00       2/2           rendering::drm_kms::framebuffer::framebuffer(rendering::drm_kms::device_context const&, unsigned int, unsigned int) [55]
+                0.00    0.00       2/2           rendering::drm_kms::framebuffer::is_bad() const [61]
+                0.00    0.00       1/1207        rendering::drm_kms::device_context::is_valid() const [30]
+                0.00    0.00       1/2           rendering::drm_kms::crtc::set_config(unsigned int, unsigned int, rendering::drm_kms::drm_rendering_mode const&) [60]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[86]     0.0    0.00    0.00       1         rendering::drm_kms::backend::get_modes() [86]
+                0.00    0.00       1/1207        rendering::drm_kms::device_context::is_valid() const [30]
+                0.00    0.00       1/1           rendering::drm_kms::connector::probe_modes() [90]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[87]     0.0    0.00    0.00       1         rendering::drm_kms::backend::backend() [87]
+                0.00    0.00      11/1226        rendering::drm_kms::device_context::ioctl(unsigned long, void*) const [29]
+                0.00    0.00       2/2           rendering::drm_kms::device_context::device_context(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [57]
+                0.00    0.00       2/1207        rendering::drm_kms::device_context::is_valid() const [30]
+                0.00    0.00       1/1           rendering::rendering_backend::rendering_backend() [78]
+                0.00    0.00       1/2           rendering::drm_kms::device_context::~device_context() [58]
+                0.00    0.00       1/1           rendering::drm_kms::connector::connector(rendering::drm_kms::device_context const&, unsigned int) [91]
+                0.00    0.00       1/1           rendering::drm_kms::crtc::crtc(rendering::drm_kms::device_context const&, unsigned int) [84]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[88]     0.0    0.00    0.00       1         rendering::drm_kms::backend::~backend() [88]
+                0.00    0.00       1/1           rendering::drm_kms::backend::~backend() [89]
+-----------------------------------------------
+                0.00    0.00       1/1           rendering::drm_kms::backend::~backend() [88]
+[89]     0.0    0.00    0.00       1         rendering::drm_kms::backend::~backend() [89]
+                0.00    0.00       2/2           rendering::drm_kms::framebuffer::~framebuffer() [56]
+                0.00    0.00       1/1207        rendering::drm_kms::device_context::is_valid() const [30]
+                0.00    0.00       1/2           rendering::drm_kms::drm_rendering_mode::drm_rendering_mode(drm_mode_modeinfo const&) [59]
+                0.00    0.00       1/2           rendering::drm_kms::crtc::set_config(unsigned int, unsigned int, rendering::drm_kms::drm_rendering_mode const&) [60]
+                0.00    0.00       1/2           rendering::drm_kms::device_context::~device_context() [58]
+-----------------------------------------------
+                0.00    0.00       1/1           rendering::drm_kms::backend::get_modes() [86]
+[90]     0.0    0.00    0.00       1         rendering::drm_kms::connector::probe_modes() [90]
+                0.00    0.00       2/1226        rendering::drm_kms::device_context::ioctl(unsigned long, void*) const [29]
+                0.00    0.00       1/2           rendering::drm_kms::drm_rendering_mode::drm_rendering_mode(drm_mode_modeinfo const&) [59]
+-----------------------------------------------
+                0.00    0.00       1/1           rendering::drm_kms::backend::backend() [87]
+[91]     0.0    0.00    0.00       1         rendering::drm_kms::connector::connector(rendering::drm_kms::device_context const&, unsigned int) [91]
+                0.00    0.00       1/1226        rendering::drm_kms::device_context::ioctl(unsigned long, void*) const [29]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[92]     0.0    0.00    0.00       1         graphics::texture_set::flat_tx_by_id(unsigned int) const [92]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[93]     0.0    0.00    0.00       1         graphics::texture_manager::flat_tx_by_id(unsigned int) const [93]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[94]     0.0    0.00    0.00       1         std::_Hashtable<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > > >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::~_Hashtable() [94]
+                0.00    0.00      14/14          util::file_resource::~file_resource() [46]
+-----------------------------------------------
+                0.00    0.00       1/1           rendering::software_renderer::render_bsp(math::vec2, float, float, float) [2]
+[95]     0.0    0.00    0.00       1         std::vector<float, std::allocator<float> >::_M_default_append(unsigned long) [95]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[96]     0.0    0.00    0.00       1         std::vector<unsigned int, std::allocator<unsigned int> >::_M_default_append(unsigned long) [96]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[97]     0.0    0.00    0.00       1         std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_dispose() [97]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2026 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [21] fmt2(float) (player-movement-3d.cpp) [7] rendering::renderer_2d::draw_text(std::basic_string_view<char, std::char_traits<char> >, int, int, int, int, unsigned int) [87] rendering::drm_kms::backend::backend()
+  [20] math::vec2::rotate_with_known_trig(math::vec2, float, float) [77] rendering::renderer_2d::renderer_2d() [88] rendering::drm_kms::backend::~backend()
+  [45] util::file_resource::file_resource(std::vector<std::byte, std::allocator<std::byte> >) [78] rendering::rendering_backend::rendering_backend() [89] rendering::drm_kms::backend::~backend()
+  [46] util::file_resource::~file_resource() [2] rendering::software_renderer::render_bsp(math::vec2, float, float, float) [90] rendering::drm_kms::connector::probe_modes()
+  [51] util::indexed_storage<geometry::linedef>::add(geometry::linedef const&) [79] rendering::software_renderer::set_target(rendering::rendering_backend*) [91] rendering::drm_kms::connector::connector(rendering::drm_kms::device_context const&, unsigned int)
+  [52] util::indexed_storage<geometry::sidedef>::add(geometry::sidedef const&) [8] rendering::software_renderer::add_visplane(int, int, int, float, unsigned int, unsigned char, rendering::software_renderer::frame_rendering_data) [31] rendering::visplane::visplane(int, unsigned int, float, unsigned int, unsigned char)
+  [47] util::resource_loader::lookup_resource_runtime(std::basic_string_view<char, std::char_traits<char> >) [4] rendering::software_renderer::render_bsp_node(unsigned int, rendering::software_renderer::frame_rendering_data) [26] math::vec2::len() const
+  [44] util::resource::resource(void const*, void const*) [5] rendering::software_renderer::render_visplanes(rendering::software_renderer::frame_rendering_data) [48] util::resource_loader::load_file(std::basic_string_view<char, std::char_traits<char> >) const
+  [65] input::input_backend::input_backend() [36] rendering::software_renderer::render_vissprites(rendering::software_renderer::frame_rendering_data) [32] input::input_backend::is_bad() const
+  [42] input::evdev::backend::probe_device(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) [80] rendering::software_renderer::set_texture_manager(graphics::texture_manager const*) [22] input::evdev::backend::is_key_down(input::key) const
+  [66] input::evdev::backend::probe_devices() [3] rendering::software_renderer::draw_solid_wall_span(float, float, float, float, float, float, geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [39] input::evdev::backend::get_mouse_state() const
+  [19] input::evdev::backend::process_event(input_event const&) [25] rendering::software_renderer::project_and_draw_linedef(geometry::linedef const&, rendering::software_renderer::frame_rendering_data) [92] graphics::texture_set::flat_tx_by_id(unsigned int) const
+  [33] input::evdev::backend::update() [81] rendering::software_renderer::set_map(geometry::map_data const*) [23] graphics::texture_set::wall_tx_by_id(unsigned int) const
+  [67] input::evdev::backend::backend() [82] rendering::software_renderer::software_renderer() [93] graphics::texture_manager::flat_tx_by_id(unsigned int) const
+  [68] input::evdev::backend::~backend() [83] rendering::software_renderer::~software_renderer() [24] graphics::texture_manager::wall_tx_by_id(unsigned int) const
+  [69] input::evdev::backend::~backend() [55] rendering::drm_kms::framebuffer::framebuffer(rendering::drm_kms::device_context const&, unsigned int, unsigned int) [61] rendering::drm_kms::framebuffer::is_bad() const
+  [34] engine::systems::health_system::process_effects(float, engine::actor&) [56] rendering::drm_kms::framebuffer::~framebuffer() [29] rendering::drm_kms::device_context::ioctl(unsigned long, void*) const
+  [41] engine::entities::player::move(math::vec3) [57] rendering::drm_kms::device_context::device_context(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) [30] rendering::drm_kms::device_context::is_valid() const
+  [40] engine::entities::player::rotate(float, float) [58] rendering::drm_kms::device_context::~device_context() [62] rendering::drm_kms::backend::is_bad() const
+  [35] engine::entities::player::update(float) [59] rendering::drm_kms::drm_rendering_mode::drm_rendering_mode(drm_mode_modeinfo const&) [94] std::_Hashtable<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > > >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::~_Hashtable()
+  [70] geometry::map_data::map_data() [60] rendering::drm_kms::crtc::set_config(unsigned int, unsigned int, rendering::drm_kms::drm_rendering_mode const&) [63] std::vector<graphics::texture_set, std::allocator<graphics::texture_set> >::~vector()
+  [71] geometry::map_data::~map_data() [84] rendering::drm_kms::crtc::crtc(rendering::drm_kms::device_context const&, unsigned int) [54] std::vector<graphics::texture, std::allocator<graphics::texture> >::vector(std::vector<graphics::texture, std::allocator<graphics::texture> > const&)
+  [53] graphics::texture_set::tx_from_meta(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [15] rendering::drm_kms::backend::get_height() [95] std::vector<float, std::allocator<float> >::_M_default_append(unsigned long)
+  [72] graphics::texture_set::load(util::resource_loader&, std::basic_string_view<char, std::char_traits<char> >) [37] rendering::drm_kms::backend::wait_for_vsync() [64] std::vector<int, std::allocator<int> >::_M_default_append(unsigned long)
+  [73] graphics::texture_manager::load(util::resource_loader&) [38] rendering::drm_kms::backend::flush() [96] std::vector<unsigned int, std::allocator<unsigned int> >::_M_default_append(unsigned long)
+  [50] graphics::texture::load_from_bin(util::resource) [16] rendering::drm_kms::backend::get_mmio() [97] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_dispose()
+  [74] rendering::renderer_2d::set_target(rendering::rendering_backend*) [85] rendering::drm_kms::backend::set_mode(std::unique_ptr<rendering::rendering_mode const, std::default_delete<rendering::rendering_mode const> >) [28] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate(unsigned long, unsigned long, char const*, unsigned long)
+  [75] rendering::renderer_2d::set_font_texture(graphics::texture const*) [86] rendering::drm_kms::backend::get_modes() [43] std::__cxx11::to_string(int)
+  [76] rendering::renderer_2d::set_texture_manager(graphics::texture_manager const*) [17] rendering::drm_kms::backend::get_pitch() [49] std::__detail::_Map_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, std::unique_ptr<util::resource, std::default_delete<util::resource> > > >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+   [6] rendering::renderer_2d::draw_rect(int, int, int, int, unsigned int) [18] rendering::drm_kms::backend::get_width() [27] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > std::operator+<char, std::char_traits<char>, std::allocator<char> >(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&)

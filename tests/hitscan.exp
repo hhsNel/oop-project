@@ -1,0 +1,100 @@
+#!/usr/bin/expect -f
+
+log_user 0
+
+set timeout 2
+spawn ./tests/hitscan.out
+
+expect "READY"
+
+proc run_test {cmd expected} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set result $expect_out(1,string)
+    if {$result != $expected} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $result"
+        puts "\tExpected: $expected"
+        exit 1
+    }
+}
+
+proc run_test2 {cmd exp1 exp2} {
+    global expect_out
+    send "$cmd\r"
+    expect -re {RESULT ([^\r\n]+)}
+    set r1 $expect_out(1,string)
+    expect -re {RESULT ([^\r\n]+)}
+    set r2 $expect_out(1,string)
+    if {$r1 != $exp1 || $r2 != $exp2} {
+        puts "FAIL ($cmd)"
+        puts "\tGot:      $r1 / $r2"
+        puts "\tExpected: $exp1 / $exp2"
+        exit 1
+    }
+}
+
+# =====================================================================
+# Trafienie proste
+# =====================================================================
+
+# Aktor wprost przed strzelcem — powinien zostać trafiony (HP 30 → 20)
+run_test "hs_direct_hit"       "20"
+
+# Dokładna wartość obrażeń: dmg=7, HP 30 → 23
+run_test "hs_damage_exact"     "23"
+
+# =====================================================================
+# Chybienia
+# =====================================================================
+
+# Aktor z boku (prostopadle) — nie trafiony
+run_test "hs_miss_side"        "30"
+
+# Aktor za strzelcem — nie trafiony (t < 0)
+run_test "hs_miss_behind"      "30"
+
+# Aktor poza zasięgiem (600u, range=500) — nie trafiony
+run_test "hs_miss_range"       "30"
+
+# Aktor w zasięgu (400u, range=500) — trafiony
+run_test "hs_hit_in_range"     "20"
+
+# =====================================================================
+# Kąt strzału
+# =====================================================================
+
+# Strzelanie na północ (π/2), aktor na północy — trafiony
+run_test "hs_angle_north"      "20"
+
+# =====================================================================
+# Ściany
+# =====================================================================
+
+# Solidna ściana między strzelcem a aktorem — blokuje
+run_test "hs_wall_blocks"      "30"
+
+# Solidna ściana za aktorem — nie blokuje, aktor trafiony
+run_test "hs_wall_behind_actor" "20"
+
+# Portal (ściana obustronna) — nie blokuje, aktor trafiony
+run_test "hs_portal_passes"    "20"
+
+# =====================================================================
+# Priorytety i przypadki graniczne
+# =====================================================================
+
+# Dwóch aktorów na jednej linii — trafia tylko bliższy
+run_test2 "hs_closest_wins"    "20" "30"
+
+# Martwy aktor — pomijany przy obliczaniu trafienia
+run_test "hs_dead_skipped"     "0"
+
+# Brak celów — nie crashuje
+run_test "hs_no_targets"       "OK"
+
+send "exit\r"
+expect eof
+
+puts "PASS hitscan"
