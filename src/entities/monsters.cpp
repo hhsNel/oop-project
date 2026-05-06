@@ -59,7 +59,7 @@ void monster_assault::update(float dt) {
     }
     strafe(movement_speed * 0.7f, strafe_sign, dt);
 
-    // Reposition lekko naprzód/wstecz
+    // Repos lekko naprzód/wstecz
     float preferred = attack_range * 0.75f;
     if (dist > preferred + 1.5f) move_toward_target(movement_speed * 0.5f, dt);
     else if (dist < preferred - 1.5f) move_away_from_target(movement_speed * 0.5f, dt);
@@ -126,7 +126,7 @@ void monster_trapper::update(float dt) {
         if (trap_timer <= 0.0f) {
             ++traps_placed;
             trap_timer = trap_interval;
-            // Sygnał dla world o stworzeniu pułapki w pozycji position.
+            // Sygnał dla world o stworzeniu pułapki w pozycji pos.
             // Implementacja spawnu należy do warstwy world/game-loop.
         }
     }
@@ -227,7 +227,7 @@ void monster_spawner::update(float dt) {
     if (spawn_timer <= 0.0f) {
         ++current_spawns;
         spawn_timer = spawn_interval;
-        // Sygnał dla world: stwórz nowego potwora w okolicach position.
+        // Sygnał dla world: stwórz nowego potwora w okolicach pos.
     }
 }
 
@@ -337,8 +337,8 @@ void monster_elite_swift::update(float dt) {
     circle_angle += movement_speed * dt;
     auto t = target_ptr.lock();
     if (t) {
-        position.x = t->position.x + std::cos(circle_angle) * circle_radius;
-        position.y = t->position.y + std::sin(circle_angle) * circle_radius;
+        pos.x = t->pos.x + std::cos(circle_angle) * circle_radius;
+        pos.y = t->pos.y + std::sin(circle_angle) * circle_radius;
     }
 
     // Strzela będąc w zasięgu

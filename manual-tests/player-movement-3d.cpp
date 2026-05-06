@@ -140,7 +140,7 @@ int main() {
 
     // ── Player ───────────────────────────────────────────────────────────────
     engine::entities::player p(100.0f, 50.0f, 120.0f, 1.0f);
-    p.position = {256.0f, 256.0f};   // center of room
+    p.pos = {256.0f, 256.0f};   // center of room
     p.angle    = 0.0f;               // facing +X
 
     const float CAM_HEIGHT  = 120.0f;   // eye height (floor=0, ceil=256)
@@ -197,7 +197,7 @@ int main() {
                     static_cast<std::size_t>(r_back->get_height()) * r_back->get_pitch());
 
         // 3D scene
-        r3d.render_bsp(p.position, CAM_HEIGHT, p.angle, FOV);
+        r3d.render_bsp(p.pos, CAM_HEIGHT, p.angle, FOV);
 
         // Info strip at bottom
         r2d.draw_rect(0, INFO_Y, SW, INFO_H, 0xDD0A0A0A);
@@ -205,7 +205,7 @@ int main() {
 
         float deg = p.angle * (180.0f / std::numbers::pi_v<float>);
         r2d.draw_text("FPS  " + fmt2(fps)
-                      + "     POS  x=" + fmt2(p.position.x) + "  y=" + fmt2(p.position.y)
+                      + "     POS  x=" + fmt2(p.pos.x) + "  y=" + fmt2(p.pos.y)
                       + "     ANG  " + fmt2(p.angle) + " rad  (" + fmt2(deg) + " deg)",
                       14, INFO_Y + 8, 13, 20, TW);
         r2d.draw_text("W/S: forward/back     A/D: strafe     Mouse: rotate     ESC: exit",

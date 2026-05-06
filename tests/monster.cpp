@@ -187,75 +187,75 @@ int main() {
 		// basic porusza się w stronę celu w zasięgu detekcji
 		} else if (cmd == "basic_moves") {
 			auto t = std::make_shared<engine::entities::player>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {5.0f, 0.0f};
+			t->pos = {5.0f, 0.0f};
 			engine::entities::monster_basic m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(1.0f);
-			result(m.position.x > 0.0f ? "YES" : "NO");
+			result(m.pos.x > 0.0f ? "YES" : "NO");
 
 		// basic NIE rusza się gdy cel poza detection_radius=8
 		} else if (cmd == "basic_no_detect") {
 			auto t = std::make_shared<engine::entities::player>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {10.0f, 0.0f};
+			t->pos = {10.0f, 0.0f};
 			engine::entities::monster_basic m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(1.0f);
-			result(m.position.x == 0.0f ? "YES" : "NO");
+			result(m.pos.x == 0.0f ? "YES" : "NO");
 
 		// basic NIE rusza się gdy cel martwy
 		} else if (cmd == "basic_dead_target") {
 			auto t = std::make_shared<engine::entities::player>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {5.0f, 0.0f};
+			t->pos = {5.0f, 0.0f};
 			engine::entities::monster_basic m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			t->take_damage(200.0f);
 			m.update(1.0f);
-			result(m.position.x == 0.0f ? "YES" : "NO");
+			result(m.pos.x == 0.0f ? "YES" : "NO");
 
 		// ranged oddala się gdy cel za blisko (< preferred_dist=8)
 		} else if (cmd == "ranged_retreats") {
 			auto t = std::make_shared<engine::entities::player>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {3.0f, 0.0f};
+			t->pos = {3.0f, 0.0f};
 			engine::entities::monster_ranged m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(1.0f);
-			result(m.position.x < 0.0f ? "YES" : "NO");
+			result(m.pos.x < 0.0f ? "YES" : "NO");
 
 		// ranged przybliża się gdy cel za daleko (> preferred_dist, w detection)
 		} else if (cmd == "ranged_advances") {
 			auto t = std::make_shared<engine::entities::player>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {12.0f, 0.0f};
+			t->pos = {12.0f, 0.0f};
 			engine::entities::monster_ranged m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(1.0f);
-			result(m.position.x > 0.0f ? "YES" : "NO");
+			result(m.pos.x > 0.0f ? "YES" : "NO");
 
 		// maly_szybki po detection ustawia dash i pędzi w stronę celu
 		} else if (cmd == "maly_szybki_dashes") {
 			auto t = std::make_shared<engine::entities::player>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {5.0f, 0.0f};
+			t->pos = {5.0f, 0.0f};
 			engine::entities::monster_Maly_Szybki m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(0.01f); // ustawia is_dashing=true
 			m.update(0.5f);  // pędzi
-			result(m.position.x > 0.0f ? "YES" : "NO");
+			result(m.pos.x > 0.0f ? "YES" : "NO");
 
 		// elite_swift krąży wokół celu zmieniając pozycję
 		} else if (cmd == "elite_swift_circles") {
 			auto t = std::make_shared<engine::entities::player>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {0.0f, 0.0f};
+			t->pos = {0.0f, 0.0f};
 			engine::entities::monster_elite_swift m;
-			m.position = {5.0f, 0.0f};
+			m.pos = {5.0f, 0.0f};
 			m.charge_cd = 999.0f;
 			m.set_target(t);
 			m.update(0.5f);
-			result(m.position.x < 0.0f ? "YES" : "NO"); // cos(7*0.5)=cos(3.5) < 0
+			result(m.pos.x < 0.0f ? "YES" : "NO"); // cos(7*0.5)=cos(3.5) < 0
 
 		// =====================================================================
 		// AI — ataki
@@ -264,9 +264,9 @@ int main() {
 		// basic atakuje cel w zasięgu attack_range — cel traci HP
 		} else if (cmd == "basic_attacks") {
 			auto t = std::make_shared<inspect<engine::entities::player>>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {1.0f, 0.0f};
+			t->pos = {1.0f, 0.0f};
 			engine::entities::monster_basic m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(1.0f);
 			result(t->hp());
@@ -274,9 +274,9 @@ int main() {
 		// basic nie atakuje dwa razy pod rząd — cooldown blokuje drugi atak
 		} else if (cmd == "basic_attack_cooldown") {
 			auto t = std::make_shared<inspect<engine::entities::player>>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {1.0f, 0.0f};
+			t->pos = {1.0f, 0.0f};
 			engine::entities::monster_basic m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(0.01f); // pierwszy atak
 			m.update(0.01f); // cooldown aktywny
@@ -285,9 +285,9 @@ int main() {
 		// sniper nie strzela przed upływem shoot_interval=3s
 		} else if (cmd == "sniper_no_early") {
 			auto t = std::make_shared<inspect<engine::entities::player>>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {5.0f, 0.0f};
+			t->pos = {5.0f, 0.0f};
 			engine::entities::monster_sniper m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(1.0f); // aim_timer=1.0 < shoot_interval=3.0
 			result(t->hp());
@@ -295,9 +295,9 @@ int main() {
 		// sniper strzela gdy aim_timer >= shoot_interval (30 dmg)
 		} else if (cmd == "sniper_fires") {
 			auto t = std::make_shared<inspect<engine::entities::player>>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {5.0f, 0.0f};
+			t->pos = {5.0f, 0.0f};
 			engine::entities::monster_sniper m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.aim_timer = 2.99f;
 			m.set_target(t);
 			m.update(0.1f); // aim_timer=3.09 >= 3.0 -> strzal
@@ -306,9 +306,9 @@ int main() {
 		// magic strzela po naladowaniu charge_time=2s (40 dmg)
 		} else if (cmd == "magic_fires") {
 			auto t = std::make_shared<inspect<engine::entities::player>>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {5.0f, 0.0f};
+			t->pos = {5.0f, 0.0f};
 			engine::entities::monster_magic m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.is_charging = true;
 			m.charge_timer = 1.99f;
 			m.set_target(t);
@@ -322,9 +322,9 @@ int main() {
 		// all_rounder przechodzi w tryb melee gdy cel jest blisko
 		} else if (cmd == "all_rounder_melee") {
 			auto t = std::make_shared<engine::entities::player>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {2.0f, 0.0f}; // < melee_threshold=2.5
+			t->pos = {2.0f, 0.0f}; // < melee_threshold=2.5
 			engine::entities::monster_all_rounder m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(0.01f);
 			result(m.melee_mode ? "YES" : "NO");
@@ -338,9 +338,9 @@ int main() {
 		// trapper po trap_interval=2s rozstawia pułapkę
 		} else if (cmd == "trapper_places_trap") {
 			auto t = std::make_shared<engine::entities::player>(100.0f, 0.0f, 2.0f, 1.0f);
-			t->position = {5.0f, 0.0f}; // w detection_radius=8
+			t->pos = {5.0f, 0.0f}; // w detection_radius=8
 			engine::entities::monster_trapper m;
-			m.position = {0.0f, 0.0f};
+			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(2.1f);
 			result(m.traps_placed);

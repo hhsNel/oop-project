@@ -1,42 +1,35 @@
 #pragma once
-#define WORLD_H
-
-#include <utility> //zmienione z <pair>
 #include <vector>
 #include <memory>
-#include <unordered_map>
 
 #include "util/indexed-storage.h"
 #include "entity.h"
-#include "rendering/renderable.h"
-#include "math/ray2.h"
-#include "math/vec2.h"
 
 namespace engine {
-	class world {
-		util::indexed_storage< std::shared_ptr<entity> > entities;
-		util::indexed_storage< std::shared_ptr<rendering::renderable> > renderables;
+    class world {
+    private:
+        util::indexed_storage<std::unique_ptr<entity>> entities;
+        std::vector<util::indexed_storage<std::unique_ptr<entity>>::id_t> deleted_entities;
 
-		std::vector< util::indexed_storage< std::shared_ptr<entity> >::id_t > deleted_entities;
-		std::vector< util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t > deleted_renderables;
+    public:
+        world();
+        ~world();
 
-		std::unordered_map< util::indexed_storage< std::shared_ptr<entity> >::id_t const, util::indexed_storage< std::shared_ptr<rendering::renderable> > >::id_t const> e_to_r;
-		std::unordered_map< util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const, util::indexed_storage< std::shared_ptr<entity> > >::id_t const> r_to_e;
-	public:
-		world();
+        world(const world&) = delete;
+        world& operator=(const world&) = delete;
 
-		void update(float const dt);
+        void update(float const dt);
 
-		util::indexed_storage< std::shared_ptr<rendering::renderable> > const& get_renderable() const;
-		std::pair< util::indexed_storage< std::shared_ptr<entity> >::id_t const, util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const > const register_entity(std::shared_ptr<entity> const e);
-		void delete_entity(util::indexed_storage< std::shared_ptr<entity> >:id_t const id);
-		util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const register_renderable(std::shared_ptr<rendering::renderable> const r);
-		void delete_renderable(util::indexed_storage< std::shared_ptr<rendering::renderable> >:id_t const id);
-		std::shared_ptr<entity> const entity_from_id(util::indexed_storage< std::shared_ptr<entity> >::id_t const id) const;
-		std::shared_ptr<rendering::renderable> const renderable_from_id(util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const id) const;
+        entity& operator[](util::indexed_storage<std::unique_ptr<entity>>::id_t const id);
+        entity const& operator[](util::indexed_storage<std::unique_ptr<entity>>::id_t const id) const;
 
-		util::indexed_storage< std::shared_ptr<rendering::renderable> >::id_t const raycast(math::ray2 const r, math::vec2 &hit_point, float &distance, float &renderable_len) const;
+        util::indexed_storage<std::unique_ptr<entity>> const& get_entities() const;
 
-	};
+        util::indexed_storage<std::unique_ptr<entity>>::id_t register_entity(std::unique_ptr<entity> e);
+
+        void delete_entity(util::indexed_storage<std::unique_ptr<entity>>::id_t const id);
+
+        entity* entity_from_id(util::indexed_storage<std::unique_ptr<entity>>::id_t const id) const;
+    };
 }
 

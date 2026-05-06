@@ -15,31 +15,31 @@ namespace engine::entities {
 	float monster::dist_to_target() const {
 		auto t = target_ptr.lock();
 		if (!t) return 0.0f;
-		math::vec2 d = t->position - position;
+		math::vec2 d = t->pos - pos;
 		return std::sqrt(d.x * d.x + d.y * d.y);
 	}
 
 	math::vec2 monster::dir_to_target() const {
 		auto t = target_ptr.lock();
 		if (!t) return {0.0f, 0.0f};
-		math::vec2 d = t->position - position;
+		math::vec2 d = t->pos - pos;
 		float len = std::sqrt(d.x * d.x + d.y * d.y);
 		if (len < 0.0001f) return {0.0f, 0.0f};
 		return d / len;
 	}
 
 	void monster::move_toward_target(float speed, float dt) {
-		position += dir_to_target() * (speed * dt);
+		pos += dir_to_target() * (speed * dt);
 	}
 
 	void monster::move_away_from_target(float speed, float dt) {
-		position -= dir_to_target() * (speed * dt);
+		pos -= dir_to_target() * (speed * dt);
 	}
 
 	void monster::strafe(float speed, float sign, float dt) {
 		math::vec2 d = dir_to_target();
 		math::vec2 perp = d.perpendicular() * sign;
-		position += perp * (speed * dt);
+		pos += perp * (speed * dt);
 	}
 
 	void monster::melee_attack(float damage) {
@@ -80,8 +80,8 @@ namespace engine::entities {
 		float ca = std::cos(angle);
 		float sa = std::sin(angle);
 		// forward = {ca, sa},  right = {sa, -ca}
-		position.x += (direction.y * ca + direction.x * sa) * movement_speed;
-		position.y += (direction.y * sa - direction.x * ca) * movement_speed;
+		pos.x += (direction.y * ca + direction.x * sa) * movement_speed;
+		pos.y += (direction.y * sa - direction.x * ca) * movement_speed;
 	}
 
 	void player::rotate(float yaw, float /*pitch*/) {
