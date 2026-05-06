@@ -87,9 +87,34 @@ namespace util {
 
         id_t m_next_id = 1;
 
+    private:
+        void init_from_objects() {
+            size_t n = objects.size();
+            lookup.reserve(n);
+            reverse.reserve(n + 1);
+
+            reverse.push_back(0);
+
+            for (size_t i = 0; i < n; ++i) {
+                id_t new_id = m_next_id++;
+                lookup.push_back(new_id);
+                reverse.push_back(i);
+            }
+        }
+
     public:
         indexed_storage() {
             reverse.push_back(0);
+        }
+
+        explicit indexed_storage(const std::vector<T>& initial_objects)
+            : objects(initial_objects) {
+            init_from_objects();
+        }
+
+        explicit indexed_storage(std::vector<T>&& initial_objects) noexcept
+            : objects(std::move(initial_objects)) {
+            init_from_objects();
         }
 
         id_t size() const { return static_cast<id_t>(objects.size()); }
@@ -184,3 +209,4 @@ namespace util {
         }
     };
 }
+
