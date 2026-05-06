@@ -125,7 +125,8 @@ int main() {
     rendering::software_renderer renderer;
     renderer.set_target(backend.get());
 
-    auto tm = std::make_unique<graphics::texture_manager>(graphics::texture_manager::load());
+	util::resource_loader rl;
+    auto tm = std::make_unique<graphics::texture_manager>(graphics::texture_manager::load(rl));
     renderer.set_texture_manager(tm.get());
 
 	rendering::renderer_2d r2d;

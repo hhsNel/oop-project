@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstring>
 
+#include "util/resource-loader.h"
 #include "entities/entities.h"
 #include "combat/weapons/pistol.h"
 #include "combat/weapons/smg.h"
@@ -77,7 +78,8 @@ int main() {
 	r_back->set_mode(std::move(modes[0]));
 	if (r_back->is_bad()) { std::cerr << "error: set_mode failed\n"; return 1; }
 
-	auto tex_mgr = graphics::texture_manager::load();
+	util::resource_loader rl;
+	auto tex_mgr = graphics::texture_manager::load(rl);
 	rendering::renderer_2d_temp r2d;
 	r2d.set_target(r_back.get());
 	r2d.set_texture_manager(&tex_mgr);

@@ -23,3 +23,4 @@ namespace engine::combat
 		target.movement_speed /= slow_factor;
 	}
 }
+

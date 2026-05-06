@@ -48,7 +48,8 @@ int main(int argc, char **argv) {
 	if(argc > 2) id = std::atoi(argv[2]);
 
     std::cout << "loading textures..." << std::endl;
-    auto tex_mgr = graphics::texture_manager::load();
+	util::resource_loader rl;
+    auto tex_mgr = graphics::texture_manager::load(rl);
     const graphics::texture *wall_tex;
 	switch(tx_type) {
 	case 'f':

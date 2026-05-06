@@ -5,8 +5,8 @@
 #include <string>
 
 namespace graphics {
-    texture_manager::texture_manager(std::vector<texture> const& walls, std::vector<texture> const& sprites, std::vector<texture> const& flat)
-        : wall_textures(walls), sprite_textures(sprites), flat_textures(flat) {}
+    texture_manager::texture_manager(util::resource_loader &resld, std::vector<texture> const& walls, std::vector<texture> const& sprites, std::vector<texture> const& flat)
+        : rl(resld), wall_textures(walls), sprite_textures(sprites), flat_textures(flat) {}
 
     texture const& texture_manager::wall_tx_by_id(texture_id const id) const {
         return wall_textures.at(id);
@@ -20,8 +20,8 @@ namespace graphics {
         return flat_textures.at(id);
     }
 
-	std::vector<texture> texture_manager::tx_from_meta(std::string_view meta_path) {
-        util::resource meta_res = util::resource_loader::lookup_resource(meta_path);
+	std::vector<texture> texture_manager::tx_from_meta(util::resource_loader &resld, std::string_view meta_path) {
+        util::resource meta_res = *resld.lookup_resource(meta_path);
 
         if (!meta_res.begin || meta_res.size == 0) {
             return {};
@@ -41,7 +41,7 @@ namespace graphics {
                 continue;
             }
 
-            util::resource tex_res = util::resource_loader::lookup_resource(line);
+            util::resource tex_res = *resld.lookup_resource(line);
 
             textures.push_back(texture::load_from_bin(tex_res));
         }
@@ -49,11 +49,11 @@ namespace graphics {
         return textures;
     }
 
-    texture_manager const texture_manager::load() {
-        std::vector<texture> walls   = tx_from_meta("meta-walls");
-        std::vector<texture> sprites = tx_from_meta("meta-sprite");
-        std::vector<texture> flats   = tx_from_meta("meta-flat");
+	texture_manager const texture_manager::load(util::resource_loader &resld) {
+        std::vector<texture> walls   = tx_from_meta(resld, "meta-walls");
+        std::vector<texture> sprites = tx_from_meta(resld, "meta-sprite");
+        std::vector<texture> flats   = tx_from_meta(resld, "meta-flat");
 
-        return texture_manager(walls, sprites, flats);
+        return texture_manager(resld, walls, sprites, flats);
     }
 }

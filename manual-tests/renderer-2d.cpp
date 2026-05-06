@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cstring>
 
+
 #include "rendering/drm-kms/backend.h"
 #include "rendering/renderer-2d.h"
 #include "graphics/texture-manager.h"
@@ -45,7 +46,8 @@ int main() {
     if (!check_backend_state(backend, "setting mode")) return 1;
 
     std::cout << "loading textures..." << std::endl;
-    auto tex_mgr = graphics::texture_manager::load();
+	util::resource_loader rl;
+    auto tex_mgr = graphics::texture_manager::load(rl);
 
 	rendering::renderer_2d r2d;
 	r2d.set_target(backend.get());
