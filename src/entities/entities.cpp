@@ -1,6 +1,7 @@
 #include "entities/entities.h"
 #include <cmath>
 #include <algorithm>
+#include <numbers>
 
 namespace engine::entities {
 
@@ -75,8 +76,21 @@ namespace engine::entities {
 		if (current_weapon) current_weapon->reload();
 	}
 
-	void player::move(math::vec3)    {}
-	void player::rotate(float, float) {}
-	void player::use_grenade()        {}
+	void player::move(math::vec3 direction) {
+		float ca = std::cos(angle);
+		float sa = std::sin(angle);
+		// forward = {ca, sa},  right = {sa, -ca}
+		position.x += (direction.y * ca + direction.x * sa) * movement_speed;
+		position.y += (direction.y * sa - direction.x * ca) * movement_speed;
+	}
+
+	void player::rotate(float yaw, float /*pitch*/) {
+		angle += yaw * sensitivity;
+		// keep angle in [0, 2π)
+		angle = std::fmod(angle, 2.0f * std::numbers::pi_v<float>);
+		if (angle < 0.0f) angle += 2.0f * std::numbers::pi_v<float>;
+	}
+
+	void player::use_grenade() {}
 
 }

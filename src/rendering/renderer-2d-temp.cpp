@@ -102,10 +102,28 @@ namespace rendering {
     unsigned pitch = target->get_pitch() / sizeof(std::uint32_t);
     unsigned scr_w = target->get_width();
     unsigned scr_h = target->get_height();
-    int x1 = std::max(0, x),        y1 = std::max(0, y);
+    int x1 = std::max(0, x),              y1 = std::max(0, y);
     int x2 = std::min((int)scr_w, x + w), y2 = std::min((int)scr_h, y + h);
-    for (int row = y1; row < y2; ++row)
-        for (int col = x1; col < x2; ++col)
-            fb[row * pitch + col] = color;
+
+    std::uint32_t alpha = (color >> 24) & 0xFF;
+    if (alpha == 0xFF) {
+        for (int row = y1; row < y2; ++row)
+            for (int col = x1; col < x2; ++col)
+                fb[row * pitch + col] = color;
+    } else {
+        std::uint32_t inv = 255 - alpha;
+        std::uint32_t sr = (color >> 16) & 0xFF;
+        std::uint32_t sg = (color >>  8) & 0xFF;
+        std::uint32_t sb = (color      ) & 0xFF;
+        for (int row = y1; row < y2; ++row) {
+            for (int col = x1; col < x2; ++col) {
+                std::uint32_t dst = fb[row * pitch + col];
+                std::uint32_t r = (sr * alpha + ((dst >> 16) & 0xFF) * inv) / 255;
+                std::uint32_t g = (sg * alpha + ((dst >>  8) & 0xFF) * inv) / 255;
+                std::uint32_t b = (sb * alpha + ((dst      ) & 0xFF) * inv) / 255;
+                fb[row * pitch + col] = (0xFF << 24) | (r << 16) | (g << 8) | b;
+            }
+        }
+    }
 }
 }

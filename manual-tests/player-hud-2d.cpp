@@ -144,7 +144,7 @@ int main() {
     const std::uint32_t C_RELOAD  = 0xFF441111;
     const std::uint32_t C_RED     = 0xFFCC0000;
     const std::uint32_t C_OVERLAY = 0xFF1A1A2A;
-    const std::uint32_t TW        = 1u;  // white text (pixel * 1 = original white)
+    const std::uint32_t TW        = 0xFFFF00;  // white text (pixel * 1 = original white)
 
     // Filled progress bar: background + colored fill proportional to cur/max.
     auto draw_bar = [&](int x, int y, int w, int h, float cur, float max,
@@ -245,6 +245,9 @@ int main() {
 
     auto last_time = std::chrono::steady_clock::now();
 
+    float damage_flash_timer = 0.0f;
+    const float FLASH_DURATION = 0.45f;
+
     // ── Game loop ─────────────────────────────────────────────────────────────
     while (true) {
         auto now = std::chrono::steady_clock::now();
@@ -344,7 +347,7 @@ int main() {
                 if (edge(input::key::enter, prev_enter)) {
                     if (!num_buf.empty()) {
                         float val = static_cast<float>(std::stoi(num_buf));
-                        if      (mode == cmd_mode::damage) p.take_damage(val);
+                        if      (mode == cmd_mode::damage) { p.take_damage(val); damage_flash_timer = FLASH_DURATION; }
                         else if (mode == cmd_mode::heal)   p.heal(val);
                         else if (mode == cmd_mode::armor)  p.add_shield(val);
                     }
@@ -365,14 +368,27 @@ int main() {
             }
         }
 
+        float hp_before = p.hp();
         p.update(dt);
+        if (p.hp() < hp_before)           // status effects (np. burning) zadaly obrazenia
+            damage_flash_timer = FLASH_DURATION;
+
         cur_slot = find_slot(pool, p.current_weapon);
+        if (damage_flash_timer > 0.0f)
+            damage_flash_timer -= dt;
 
         // ── RENDER FRAME ──────────────────────────────────────────────────────
 
         // Clear to black
         std::memset(r_back->get_mmio(), 0,
                     static_cast<std::size_t>(r_back->get_height()) * r_back->get_pitch());
+
+        // Damage flash: red overlay fading out over FLASH_DURATION seconds
+        if (damage_flash_timer > 0.0f) {
+            float t     = std::clamp(damage_flash_timer / FLASH_DURATION, 0.0f, 1.0f);
+            auto  alpha = static_cast<std::uint32_t>(t * 160);  // max ~63% opacity
+            r2d.draw_rect(0, 0, SW, SH, (alpha << 24) | 0x00CC0000);
+        }
 
         // HUD background: HUD.jpg (flat texture id 1) stretched across full width
         r2d.draw_texture(tex_mgr.flat_tx_by_id(1), 0, HUD_Y, SW, HUD_H);
@@ -537,6 +553,8 @@ int main() {
             r2d.draw_text("GAME  OVER", X + 24, Y + 10, 36, 60, 0u);
             r2d.draw_text("[V] Revive              [ESC] Exit",
                           X + 24, Y + 82, CW, CH, 0u);
+            r2d.draw_text("[V] Revive              [ESC] Exit",
+                          X + 25, Y + 82, CW, CH, 0u);
         }
 
         // ── Command input overlay (centered above HUD) ────────────────────

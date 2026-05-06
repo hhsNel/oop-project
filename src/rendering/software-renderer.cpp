@@ -314,7 +314,7 @@ void software_renderer::render_visplanes(frame_rendering_data const frd) {
     float dx_sin = frd.inv_fov_scale * frd.sin_cam_angle;
 
     for (auto const& vp : visplanes) {
-        graphics::texture const& tex = tex_manager->wall_tx_by_id(vp.tex_id);
+        graphics::texture const& tex = tex_manager->flat_tx_by_id(vp.tex_id);
         float h = std::abs(frd.cam_height - vp.height);
 
 		/* true y bounds */
