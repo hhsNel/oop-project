@@ -3,7 +3,7 @@
 #include "combat/weapons/weapon.h"
 #include <algorithm>
 
-namespace engine::world_object {
+namespace world_object {
 
 // ── pickup ────────────────────────────────────────────────────────────────────
 

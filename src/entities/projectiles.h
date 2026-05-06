@@ -2,7 +2,7 @@
 
 #include "engine/projectile.h"
 
-namespace engine::entities {
+namespace entities {
 
 	class plasma_projectile : public projectile {
 	public:

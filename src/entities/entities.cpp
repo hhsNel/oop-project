@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <numbers>
 
-namespace engine::entities {
+namespace entities {
 
 	void monster::set_target(std::shared_ptr<actor> t) { target_ptr = t; }
 

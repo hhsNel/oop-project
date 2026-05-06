@@ -1,7 +1,7 @@
 #include "charmed.h"
 #include "engine/actor.h"
 
-namespace engine::combat
+namespace combat
 {
 	//charmed zmienia frakcję celu na gracza (player) przy nałożeniu,
 	//przywraca orginalną frakcję po wygaśnięciu

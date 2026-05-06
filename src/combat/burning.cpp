@@ -1,7 +1,7 @@
 #include "burning.h"
 #include "engine/actor.h"
 
-namespace engine::combat
+namespace combat
 {
 	void burning::affect(engine::actor& target)
 	{

@@ -11,7 +11,6 @@
 #include "engine/entity.h"
 #include "math/vec3.h"
 
-namespace engine {
 	namespace entities {
 		class monster : public actor {
 		protected:
@@ -71,4 +70,3 @@ namespace engine {
 			void take_damage(float dmg) override;
 		};
 	}
-}

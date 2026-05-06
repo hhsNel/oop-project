@@ -8,7 +8,6 @@
 namespace engine::entities { class player; }
 namespace engine::combat    { class weapon; }
 
-namespace engine {
     namespace world_object {
 
         // Abstract base for all collectible world items.
@@ -80,4 +79,3 @@ namespace engine {
         };
 
     }
-}

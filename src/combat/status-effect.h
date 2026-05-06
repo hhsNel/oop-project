@@ -7,7 +7,7 @@
 
 namespace engine {class actor;}
 
-namespace engine::combat
+namespace combat
 {
 	class status_effect {
 	protected:
