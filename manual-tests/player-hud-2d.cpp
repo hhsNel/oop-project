@@ -43,7 +43,7 @@
 #include "input/input-backend.h"
 #include "input/evdev-backend.h"
 #include "rendering/drm-kms/backend.h"
-#include "rendering/renderer-2d-temp.h"
+#include "rendering/renderer-2d.h"
 #include "graphics/texture-manager.h"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -109,7 +109,7 @@ int main() {
     util::resource_loader rl;
     auto tex_mgr = graphics::texture_manager::load(rl);
 
-    rendering::renderer_2d_temp r2d;
+    rendering::renderer_2d r2d;
     r2d.set_target(r_back.get());
     r2d.set_texture_manager(&tex_mgr);
     r2d.set_font_texture(&tex_mgr.flat_tx_by_id(0));  // flat-font-atlas.btx (16×16 ASCII grid)

@@ -25,6 +25,8 @@ namespace rendering {
 
         void draw_texture(graphics::texture const& tex, int x, int y, int w, int h);
         
-        void draw_text(std::string_view text, int x, int y, int char_w, int char_h);
+        void draw_text(std::string_view text, int x, int y, int char_w, int char_h, std::uint32_t const color);
+
+	void draw_rect(int x, int y, int w, int h, std::uint32_t color);
     };
 }

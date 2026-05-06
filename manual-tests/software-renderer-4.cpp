@@ -1,4 +1,4 @@
-/* similiar to test 2 */
+/* similiar to test 2 , 0x000000*/
 
 #include <iostream>
 #include <memory>
@@ -39,28 +39,28 @@ void render_frame(math::vec2 cam_pos, float cam_height, float &cam_angle, float 
 	ss << std::fixed << std::setprecision(2);
 
 	ss << "Frame Time: " << dt_ms << " ms";
-	r2d.draw_text(ss.str().c_str(), 10, 10, 12, 16);
+	r2d.draw_text(ss.str().c_str(), 10, 10, 12, 16, 0x000000);
 	ss.str(""); ss.clear();
 	ss << "Raw Render: " << raw_render_ms << " ms";
-	r2d.draw_text(ss.str().c_str(), 10, 30, 12, 16);
+	r2d.draw_text(ss.str().c_str(), 10, 30, 12, 16, 0x000000);
 	ss.str(""); ss.clear();
 	ss << "Total Time: " << total_time_ms / 1000.0f << " s";
-	r2d.draw_text(ss.str().c_str(), 10, 50, 12, 16);
+	r2d.draw_text(ss.str().c_str(), 10, 50, 12, 16, 0x000000);
 	ss.str(""); ss.clear();
 	ss << "FPS: " << current_fps;
-	r2d.draw_text(ss.str().c_str(), 10, 70, 12, 16);
+	r2d.draw_text(ss.str().c_str(), 10, 70, 12, 16, 0x000000);
 	ss.str(""); ss.clear();
 	ss << "Avg FPS: " << avg_fps;
-	r2d.draw_text(ss.str().c_str(), 10, 90, 12, 16);
+	r2d.draw_text(ss.str().c_str(), 10, 90, 12, 16, 0x000000);
 	ss.str(""); ss.clear();
 	ss << "Camera: (" << cam_pos.x << ", " << cam_pos.y << ", " << cam_height << ")";
-	r2d.draw_text(ss.str().c_str(), 10, 110, 12, 16);
+	r2d.draw_text(ss.str().c_str(), 10, 110, 12, 16, 0x000000);
 	ss.str(""); ss.clear();
 	ss << "Camera Angle: " << cam_angle << "rad";
-	r2d.draw_text(ss.str().c_str(), 10, 130, 12, 16);
+	r2d.draw_text(ss.str().c_str(), 10, 130, 12, 16, 0x000000);
 	ss.str(""); ss.clear();
 	ss << "FOV: " << fov << "rad";
-	r2d.draw_text(ss.str().c_str(), 10, 150, 12, 16);
+	r2d.draw_text(ss.str().c_str(), 10, 150, 12, 16, 0x000000);
 
 	backend->flush();
 	backend->wait_for_vsync();

@@ -30,7 +30,7 @@
 #include "geometry/subsector.h"
 #include "geometry/bsp-node.h"
 #include "rendering/software-renderer.h"
-#include "rendering/renderer-2d-temp.h"
+#include "rendering/renderer-2d.h"
 #include "rendering/drm-kms/backend.h"
 #include "input/input-backend.h"
 #include "input/evdev-backend.h"
@@ -129,7 +129,7 @@ int main() {
     r3d.set_map(&room_map);
 
     // ── 2D overlay (info strip) ───────────────────────────────────────────────
-    rendering::renderer_2d_temp r2d;
+    rendering::renderer_2d r2d;
     r2d.set_target(r_back.get());
     r2d.set_texture_manager(&tex_mgr);
     r2d.set_font_texture(&tex_mgr.flat_tx_by_id(0));  // font atlas

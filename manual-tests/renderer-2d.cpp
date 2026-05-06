@@ -114,7 +114,7 @@ int main() {
             int draw_x = (screen_w - text_pixel_width) / 2;
             int draw_y = static_cast<int>(flat_y);
 
-            r2d.draw_text(crawl_text[i].c_str(), draw_x, draw_y, char_w, char_h);
+            r2d.draw_text(crawl_text[i].c_str(), draw_x, draw_y, char_w, char_h, 0x007fff);
         }
 
         backend->flush();
