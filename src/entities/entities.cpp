@@ -5,7 +5,7 @@
 
 namespace entities {
 
-	void monster::set_target(std::shared_ptr<actor> t) { target_ptr = t; }
+	void monster::set_target(std::shared_ptr<engine::actor> t) { target_ptr = t; }
 
 	bool monster::has_target() const {
 		auto t = target_ptr.lock();

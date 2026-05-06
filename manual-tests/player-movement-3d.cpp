@@ -139,7 +139,7 @@ int main() {
     if (i_back->is_bad()) { std::cerr << "error: input init failed\n"; return 1; }
 
     // ── Player ───────────────────────────────────────────────────────────────
-    engine::entities::player p(100.0f, 50.0f, 120.0f, 1.0f);
+    entities::player p(100.0f, 50.0f, 120.0f, 1.0f);
     p.pos = {256.0f, 256.0f};   // center of room
     p.angle    = 0.0f;               // facing +X
 

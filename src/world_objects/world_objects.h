@@ -5,15 +5,15 @@
 #include "math/vec2.h"
 
 // Forward declarations
-namespace engine::entities { class player; }
-namespace engine::combat    { class weapon; }
+namespace entities { class player; }
+namespace combat { namespace weapons { class weapon; } }
 
     namespace world_object {
 
         // Abstract base for all collectible world items.
         // Each frame, the game loop checks in_range(player.position) and calls
         // on_pickup(player) when the player is close enough.
-        class pickup : public entity {
+        class pickup : public engine::entity {
         public:
             math::vec2 position;
             float      pickup_radius;
@@ -70,9 +70,9 @@ namespace engine::combat    { class weapon; }
         // The weapon is owned externally (e.g. by the level/game state).
         class weapon_pickup : public pickup {
         public:
-            combat::weapon* provided_weapon;
+            combat::weapons::weapon* provided_weapon;
 
-            weapon_pickup(math::vec2 pos, combat::weapon* w, float radius = 25.0f)
+            weapon_pickup(math::vec2 pos, combat::weapons::weapon* w, float radius = 25.0f)
                 : pickup(pos, radius), provided_weapon(w) {}
 
             void on_pickup(entities::player& p) override;

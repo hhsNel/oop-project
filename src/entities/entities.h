@@ -10,11 +10,12 @@
 #include "util/indexed-storage.h"
 #include "engine/entity.h"
 #include "math/vec3.h"
+#include "combat/weapons/weapon.h"
 
 	namespace entities {
-		class monster : public actor {
+		class monster : public engine::actor {
 		protected:
-			std::weak_ptr<actor> target_ptr;
+			std::weak_ptr<engine::actor> target_ptr;
 			float attack_cooldown;
 
 			bool has_target() const;
@@ -32,29 +33,29 @@
 			float attack_cd_max;
 
 			monster(float hp, float shield, float move_speed, float atk_range, float det_radius)
-				: actor(hp, shield, move_speed, faction::enemy),
+				: engine::actor(hp, shield, move_speed, engine::faction::enemy),
 				  attack_cooldown(0.0f),
 				  attack_range(atk_range),
 				  detection_radius(det_radius),
 				  attack_damage(10.0f),
 				  attack_cd_max(1.0f) {}
 
-			void set_target(std::shared_ptr<actor> t);
+			void set_target(std::shared_ptr<engine::actor> t);
 
 			void update(float dt) override;
 			void take_damage(float dmg) override;
 		};
 
-		class player : public actor {
+		class player : public engine::actor {
 		public:
 			float sensitivity;
 
-			std::vector<combat::weapon*> weapons;
-			combat::weapon* current_weapon;
+			std::vector<combat::weapons::weapon*> weapons;
+			combat::weapons::weapon* current_weapon;
 			int current_weapon_index;
 
 			player(float hp, float shield, float move_speed, float sens)
-				: actor(hp, shield, move_speed, faction::player),
+				: engine::actor(hp, shield, move_speed, engine::faction::player),
 				  sensitivity(sens),
 				  current_weapon(nullptr),
 				  current_weapon_index(0) {}

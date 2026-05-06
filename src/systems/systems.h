@@ -43,13 +43,13 @@ namespace engine {class actor;}
 
 			bool is_dead() const {return current_hp <= 0.0f;}
 
-			void add_effect(std::unique_ptr<combat::status_effect>effect, actor& owner)
+			void add_effect(std::unique_ptr<combat::status_effect>effect, engine::actor& owner)
 			{
 				effect->on_apply(owner);
 				active_effects.push_back(std::move(effect));
 			}
 
-			void process_effects(float dt, actor& owner)
+			void process_effects(float dt, engine::actor& owner)
 			{
 				for(auto& effect : active_effects)
 				{

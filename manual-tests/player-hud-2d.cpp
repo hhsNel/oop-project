@@ -62,7 +62,7 @@ struct inspect : public M {
 
 // Reload state and reserve magazines live here (not in the engine weapon class).
 struct weapon_slot {
-    std::unique_ptr<engine::combat::weapon> owned;
+    std::unique_ptr<combat::weapons::weapon> owned;
     std::string name;
     int   reserve_mags;
     float reload_timer;
@@ -75,7 +75,7 @@ struct weapon_slot {
 enum class cmd_mode { none, damage, heal, armor };
 
 static weapon_slot* find_slot(std::vector<weapon_slot>& pool,
-                               engine::combat::weapon* cur)
+                               combat::weapons::weapon* cur)
 {
     if (!cur) return nullptr;
     for (auto& s : pool)
@@ -166,35 +166,35 @@ int main() {
                          false, melee, is_auto });
     };
 
-    { auto a = std::make_unique<engine::combat::bullet_ammunition>();
-      add_slot(std::make_unique<engine::combat::pistol>(std::move(a)),
+    { auto a = std::make_unique<combat::weapons::bullet_ammunition>();
+      add_slot(std::make_unique<combat::weapons::pistol>(std::move(a)),
                "Pistol",  5, 1.5f); }
-    { auto a = std::make_unique<engine::combat::bullet_ammunition>();
-      add_slot(std::make_unique<engine::combat::smg>(std::move(a)),
+    { auto a = std::make_unique<combat::weapons::bullet_ammunition>();
+      add_slot(std::make_unique<combat::weapons::smg>(std::move(a)),
                "SMG",     4, 2.5f, false, true); }
-    { auto a = std::make_unique<engine::combat::bullet_ammunition>();
-      add_slot(std::make_unique<engine::combat::rifle>(std::move(a)),
+    { auto a = std::make_unique<combat::weapons::bullet_ammunition>();
+      add_slot(std::make_unique<combat::weapons::rifle>(std::move(a)),
                "Rifle",   4, 2.0f, false, true); }
-    { auto a = std::make_unique<engine::combat::bullet_ammunition>();
-      add_slot(std::make_unique<engine::combat::shotgun>(std::move(a)),
+    { auto a = std::make_unique<combat::weapons::bullet_ammunition>();
+      add_slot(std::make_unique<combat::weapons::shotgun>(std::move(a)),
                "Shotgun", 4, 3.0f); }
-    { auto a = std::make_unique<engine::combat::bullet_ammunition>();
-      add_slot(std::make_unique<engine::combat::sniper_rifle>(std::move(a)),
+    { auto a = std::make_unique<combat::weapons::bullet_ammunition>();
+      add_slot(std::make_unique<combat::weapons::sniper_rifle>(std::move(a)),
                "Sniper",  3, 3.5f); }
-    { auto a = std::make_unique<engine::combat::plasma_ammunition>();
-      add_slot(std::make_unique<engine::combat::plasma_gun>(std::move(a)),
+    { auto a = std::make_unique<combat::weapons::plasma_ammunition>();
+      add_slot(std::make_unique<combat::weapons::plasma_gun>(std::move(a)),
                "Plasma",  3, 2.0f); }
-    add_slot(std::make_unique<engine::combat::katana>(),
+    add_slot(std::make_unique<combat::weapons::katana>(),
              "Katana", 0, 0.0f, true);
 
     pool[0].in_loadout = true;  // start with Pistol equipped
 
     // ── Player ───────────────────────────────────────────────────────────────
-    inspect<engine::entities::player> p(100.0f, 50.0f, 2.0f, 1.0f);
+    inspect<entities::player> p(100.0f, 50.0f, 2.0f, 1.0f);
 
     // Rebuilds p.weapons from pool.in_loadout flags; preserves current weapon.
     auto rebuild_loadout = [&]() {
-        engine::combat::weapon* prev = p.current_weapon;
+        combat::weapons::weapon* prev = p.current_weapon;
         p.weapons.clear();
         for (auto& s : pool)
             if (s.in_loadout) p.weapons.push_back(s.owned.get());
@@ -332,7 +332,7 @@ int main() {
                 if (edge(input::key::h, prev_h)) { mode = cmd_mode::heal;   num_buf.clear(); }
                 if (edge(input::key::a, prev_a)) { mode = cmd_mode::armor;  num_buf.clear(); }
                 if (edge(input::key::b, prev_b))
-                    p.add_effect(std::make_unique<engine::combat::burning>(5.0f, 5));
+                    p.add_effect(std::make_unique<combat::burning>(5.0f, 5));
             }
 
             // Number / Backspace / Enter while a command is active

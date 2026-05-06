@@ -29,7 +29,7 @@ void armor_pickup::on_pickup(entities::player& p) {
 // ── ammo_pickup ───────────────────────────────────────────────────────────────
 
 void ammo_pickup::on_pickup(entities::player& p) {
-    for (combat::weapon* w : p.weapons) {
+    for (combat::weapons::weapon* w : p.weapons) {
         if (!w || w->weapon_id != weapon_id) continue;
         w->ammo_count = std::min(
             w->ammo_count + static_cast<int>(amount),
@@ -45,7 +45,7 @@ void ammo_pickup::on_pickup(entities::player& p) {
 void weapon_pickup::on_pickup(entities::player& p) {
     if (!provided_weapon) return;
     // Only add if the player doesn't already carry this weapon
-    for (combat::weapon const* w : p.weapons)
+    for (combat::weapons::weapon const* w : p.weapons)
         if (w == provided_weapon) return;
     p.weapons.push_back(provided_weapon);
     collected = true;

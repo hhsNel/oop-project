@@ -24,58 +24,58 @@ static void result(const std::string& s) {
 }
 
 // Helpers — rate=100 bypasses cooldown unless testing cooldown specifically.
-static engine::combat::pistol make_pistol(
-	engine::combat::bullet_ammunition*& ammo_out,
+static combat::weapons::pistol make_pistol(
+	combat::weapons::bullet_ammunition*& ammo_out,
 	int mag = 8, int max = 8, float rate = 100.0f)
 {
-	auto ammo = std::make_unique<engine::combat::bullet_ammunition>();
+	auto ammo = std::make_unique<combat::weapons::bullet_ammunition>();
 	ammo_out = ammo.get();
-	return engine::combat::pistol(std::move(ammo), mag, max, rate);
+	return combat::weapons::pistol(std::move(ammo), mag, max, rate);
 }
 
-static engine::combat::smg make_smg(
-	engine::combat::bullet_ammunition*& ammo_out,
+static combat::weapons::smg make_smg(
+	combat::weapons::bullet_ammunition*& ammo_out,
 	int mag = 30, int max = 30, float rate = 100.0f)
 {
-	auto ammo = std::make_unique<engine::combat::bullet_ammunition>();
+	auto ammo = std::make_unique<combat::weapons::bullet_ammunition>();
 	ammo_out = ammo.get();
-	return engine::combat::smg(std::move(ammo), mag, max, rate);
+	return combat::weapons::smg(std::move(ammo), mag, max, rate);
 }
 
-static engine::combat::rifle make_rifle(
-	engine::combat::bullet_ammunition*& ammo_out,
+static combat::weapons::rifle make_rifle(
+	combat::weapons::bullet_ammunition*& ammo_out,
 	int mag = 20, int max = 20, float rate = 100.0f)
 {
-	auto ammo = std::make_unique<engine::combat::bullet_ammunition>();
+	auto ammo = std::make_unique<combat::weapons::bullet_ammunition>();
 	ammo_out = ammo.get();
-	return engine::combat::rifle(std::move(ammo), mag, max, rate);
+	return combat::weapons::rifle(std::move(ammo), mag, max, rate);
 }
 
-static engine::combat::sniper_rifle make_sniper(
-	engine::combat::bullet_ammunition*& ammo_out,
+static combat::weapons::sniper_rifle make_sniper(
+	combat::weapons::bullet_ammunition*& ammo_out,
 	int mag = 5, int max = 5, float rate = 100.0f)
 {
-	auto ammo = std::make_unique<engine::combat::bullet_ammunition>();
+	auto ammo = std::make_unique<combat::weapons::bullet_ammunition>();
 	ammo_out = ammo.get();
-	return engine::combat::sniper_rifle(std::move(ammo), mag, max, rate);
+	return combat::weapons::sniper_rifle(std::move(ammo), mag, max, rate);
 }
 
-static engine::combat::plasma_gun make_plasma(
-	engine::combat::plasma_ammunition*& ammo_out,
+static combat::weapons::plasma_gun make_plasma(
+	combat::weapons::plasma_ammunition*& ammo_out,
 	int mag = 10, int max = 10, float rate = 100.0f)
 {
-	auto ammo = std::make_unique<engine::combat::plasma_ammunition>();
+	auto ammo = std::make_unique<combat::weapons::plasma_ammunition>();
 	ammo_out = ammo.get();
-	return engine::combat::plasma_gun(std::move(ammo), mag, max, rate);
+	return combat::weapons::plasma_gun(std::move(ammo), mag, max, rate);
 }
 
-static engine::combat::shotgun make_shotgun(
-	engine::combat::bullet_ammunition*& ammo_out,
+static combat::weapons::shotgun make_shotgun(
+	combat::weapons::bullet_ammunition*& ammo_out,
 	int mag = 8, int max = 8, float rate = 100.0f)
 {
-	auto ammo = std::make_unique<engine::combat::bullet_ammunition>();
+	auto ammo = std::make_unique<combat::weapons::bullet_ammunition>();
 	ammo_out = ammo.get();
-	return engine::combat::shotgun(std::move(ammo), mag, max, rate);
+	return combat::weapons::shotgun(std::move(ammo), mag, max, rate);
 }
 
 int main() {
@@ -86,7 +86,7 @@ int main() {
 
 		// pistol_fire — fire once: ammo drops 8→7, 1 bullet spawned
 		if (cmd == "pistol_fire") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			result(p.ammo_count);
@@ -94,21 +94,21 @@ int main() {
 
 		// pistol_empty — fire full magazine (with cooldown bypass), can_fire() = false
 		} else if (cmd == "pistol_empty") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
 			result(p.can_fire() ? 1 : 0);
 
 		// pistol_overshoot — fire more than magazine, check spawned count capped at 8
 		} else if (cmd == "pistol_overshoot") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			for (int i = 0; i < 12; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
 			result(static_cast<int>(a->spawned.size()));
 
 		// pistol_reload — fire empty, reload: can_fire() = true, ammo_count = 8
 		} else if (cmd == "pistol_reload") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
 			p.update(1.0f);
@@ -118,7 +118,7 @@ int main() {
 
 		// pistol_cooldown_ready — fire, advance 0.6s (> 0.5s for rate=2.0), can fire
 		} else if (cmd == "pistol_cooldown_ready") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a, 8, 8, 2.0f);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.update(0.6f);
@@ -126,7 +126,7 @@ int main() {
 
 		// pistol_cooldown_block — fire, advance 0.3s (< 0.5s for rate=2.0), blocked
 		} else if (cmd == "pistol_cooldown_block") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a, 8, 8, 2.0f);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.update(0.3f);
@@ -134,7 +134,7 @@ int main() {
 
 		// pistol_no_fire_blocked — second fire during cooldown spawns nothing extra
 		} else if (cmd == "pistol_no_fire_blocked") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a, 8, 8, 2.0f);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.update(0.3f);
@@ -145,7 +145,7 @@ int main() {
 		} else if (cmd == "pistol_bullet_pos") {
 			float px, py, ang;
 			std::cin >> px >> py >> ang;
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			p.fire({px, py}, ang);
 			result(a->spawned[0].pos.x);
@@ -160,7 +160,7 @@ int main() {
 		} else if (cmd == "fire_count") {
 			int shots;
 			std::cin >> shots;
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			for (int i = 0; i < shots; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
 			result(p.ammo_count);
@@ -170,7 +170,7 @@ int main() {
 		} else if (cmd == "cooldown_check") {
 			float rate, dt;
 			std::cin >> rate >> dt;
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a, 8, 8, rate);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.update(dt);
@@ -180,7 +180,7 @@ int main() {
 		} else if (cmd == "reload_check") {
 			int mag;
 			std::cin >> mag;
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a, mag, mag);
 			for (int i = 0; i < mag; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
 			p.reload();
@@ -192,7 +192,7 @@ int main() {
 
 		// smg_fire — fire once: ammo 30→29, 1 bullet spawned
 		} else if (cmd == "smg_fire") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto s = make_smg(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
 			result(s.ammo_count);
@@ -204,7 +204,7 @@ int main() {
 
 		// rifle_fire — fire once: ammo 20→19, 1 bullet spawned
 		} else if (cmd == "rifle_fire") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto r = make_rifle(a);
 			r.fire({0.0f, 0.0f}, 0.0f);
 			result(r.ammo_count);
@@ -216,7 +216,7 @@ int main() {
 
 		// sniper_fire — fire once: ammo 5→4, 1 bullet spawned
 		} else if (cmd == "sniper_fire") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto s = make_sniper(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
 			result(s.ammo_count);
@@ -228,7 +228,7 @@ int main() {
 
 		// plasma_fire — fire once: ammo 10→9, 1 plasma spawned
 		} else if (cmd == "plasma_fire") {
-			engine::combat::plasma_ammunition* a;
+			combat::weapons::plasma_ammunition* a;
 			auto p = make_plasma(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			result(p.ammo_count);
@@ -240,7 +240,7 @@ int main() {
 
 		// shotgun_fire — fire once: ammo 8→7, pellet_count pellets spawned
 		} else if (cmd == "shotgun_fire") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto s = make_shotgun(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
 			result(s.ammo_count);
@@ -248,7 +248,7 @@ int main() {
 
 		// shotgun_spread — fire at angle 0, report min and max pellet angles
 		} else if (cmd == "shotgun_spread") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto s = make_shotgun(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
 			float mn = a->spawned[0].angle, mx = a->spawned[0].angle;
@@ -263,7 +263,7 @@ int main() {
 		} else if (cmd == "shotgun_pellet_count") {
 			int shots;
 			std::cin >> shots;
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto s = make_shotgun(a);
 			for (int i = 0; i < shots; ++i) { s.fire({0.0f, 0.0f}, 0.0f); s.update(1.0f); }
 			result(static_cast<int>(a->spawned.size()));
@@ -274,21 +274,21 @@ int main() {
 
 		// katana_swing — swing once: swing_count=1, immediately blocked
 		} else if (cmd == "katana_swing") {
-			engine::combat::katana k;
+			combat::weapons::katana k;
 			k.fire({0.0f, 0.0f}, 0.0f);
 			result(k.swing_count);
 			result(k.can_fire() ? "YES" : "NO");
 
 		// katana_cooldown — swing, advance 0.5s (< 1/1.5≈0.667s), blocked
 		} else if (cmd == "katana_cooldown") {
-			engine::combat::katana k(1.5f);
+			combat::weapons::katana k(1.5f);
 			k.fire({0.0f, 0.0f}, 0.0f);
 			k.update(0.5f);
 			result(k.can_fire() ? "YES" : "NO");
 
 		// katana_cooldown_ready — swing, advance 0.7s (> 0.667s), ready
 		} else if (cmd == "katana_cooldown_ready") {
-			engine::combat::katana k(1.5f);
+			combat::weapons::katana k(1.5f);
 			k.fire({0.0f, 0.0f}, 0.0f);
 			k.update(0.7f);
 			result(k.can_fire() ? "YES" : "NO");
@@ -297,7 +297,7 @@ int main() {
 		} else if (cmd == "katana_swings") {
 			int n;
 			std::cin >> n;
-			engine::combat::katana k;
+			combat::weapons::katana k;
 			for (int i = 0; i < n; ++i) { k.fire({0.0f, 0.0f}, 0.0f); k.update(1.0f); }
 			result(k.swing_count);
 
@@ -311,37 +311,37 @@ int main() {
 			std::string w;
 			std::cin >> w;
 			if (w == "pistol") {
-				engine::combat::bullet_ammunition* a;
+				combat::weapons::bullet_ammunition* a;
 				auto p = make_pistol(a);
 				p.fire({0.0f, 0.0f}, 0.0f);
 				result(a->spawned[0].damage);
 			} else if (w == "smg") {
-				engine::combat::bullet_ammunition* a;
+				combat::weapons::bullet_ammunition* a;
 				auto s = make_smg(a);
 				s.fire({0.0f, 0.0f}, 0.0f);
 				result(a->spawned[0].damage);
 			} else if (w == "rifle") {
-				engine::combat::bullet_ammunition* a;
+				combat::weapons::bullet_ammunition* a;
 				auto r = make_rifle(a);
 				r.fire({0.0f, 0.0f}, 0.0f);
 				result(a->spawned[0].damage);
 			} else if (w == "sniper") {
-				engine::combat::bullet_ammunition* a;
+				combat::weapons::bullet_ammunition* a;
 				auto s = make_sniper(a);
 				s.fire({0.0f, 0.0f}, 0.0f);
 				result(a->spawned[0].damage);
 			} else if (w == "plasma") {
-				engine::combat::plasma_ammunition* a;
+				combat::weapons::plasma_ammunition* a;
 				auto p = make_plasma(a);
 				p.fire({0.0f, 0.0f}, 0.0f);
 				result(a->spawned[0].damage);
 			} else if (w == "shotgun") {
-				engine::combat::bullet_ammunition* a;
+				combat::weapons::bullet_ammunition* a;
 				auto s = make_shotgun(a);
 				s.fire({0.0f, 0.0f}, 0.0f);
 				result(a->spawned[0].damage); // damage per pellet
 			} else if (w == "katana") {
-				engine::combat::katana k;
+				combat::weapons::katana k;
 				result(k.damage);
 			} else {
 				result("UNKNOWN");
@@ -349,7 +349,7 @@ int main() {
 
 		// shotgun_total_damage — fire once, sum damage of all pellets
 		} else if (cmd == "shotgun_total_damage") {
-			engine::combat::bullet_ammunition* a;
+			combat::weapons::bullet_ammunition* a;
 			auto s = make_shotgun(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
 			float total = 0.0f;

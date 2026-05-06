@@ -60,7 +60,7 @@ int main() {
     if (i_back->is_bad()) { std::cerr << "error: input init failed\n"; return 1; }
 
     // ── Player ───────────────────────────────────────────────────────────────
-    engine::entities::player p(100.0f, 50.0f, 4.0f, 1.0f);
+    entities::player p(100.0f, 50.0f, 4.0f, 1.0f);
     // start at world origin, facing +X
     p.pos = {0.0f, 0.0f};
     p.angle    = 0.0f;
