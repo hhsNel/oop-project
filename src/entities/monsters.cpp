@@ -2,7 +2,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace engine::entities {
+namespace entities {
 
 // ── monster_basic ────────────────────────────────────────────────────────────
 // Idzie prosto w gracza i atakuje melee.

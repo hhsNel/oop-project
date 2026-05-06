@@ -10,7 +10,6 @@
 
 namespace engine {class actor;}
 
-namespace engine {
 	namespace systems {
 		class health_system {
 		public:
@@ -74,6 +73,5 @@ namespace engine {
 
 		};
 	}
-}
 
 #endif

@@ -6,7 +6,7 @@
 
 #include "math/vec2.h"
 
-namespace engine::combat
+namespace combat::weapons
 {
 	class ammunition {
 	public:

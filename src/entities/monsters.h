@@ -2,7 +2,7 @@
 
 #include "entities/entities.h"
 
-namespace engine::entities {
+namespace entities {
 
 	class monster_basic : public monster {
 	public:

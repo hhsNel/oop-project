@@ -1,6 +1,6 @@
 #include "katana.h"
 
-namespace engine::combat {
+namespace combat::weapons {
 	katana::katana(float rate, float dmg)
 		: weapon(0, nullptr, 0, 0, rate, dmg), swing_count(0) {}
 

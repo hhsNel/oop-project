@@ -5,7 +5,7 @@
 #include "geometry/map-data.h"
 #include "engine/actor.h"
 
-namespace engine::combat {
+namespace combat::weapons {
 
     // Hitscan ammunition: resolves bullet hits instantly via raycasting.
     // Casts a ray from the firing position, stops at the nearest solid wall,

@@ -1,7 +1,7 @@
 #pragma once
 #include "weapon.h"
 
-namespace engine::combat {
+namespace combat::weapons {
 	class plasma_gun : public weapon {
 	public:
 		plasma_gun(std::unique_ptr<ammunition> ammo_type, int mag_size = 10, int max = 10, float rate = 1.0f, float dmg = 75.0f);

@@ -1,7 +1,7 @@
 #pragma once
 #include "weapon.h"
 
-namespace engine::combat {
+namespace combat::weapons {
 	class katana : public weapon {
 	public:
 		int swing_count;

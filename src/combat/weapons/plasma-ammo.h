@@ -2,7 +2,7 @@
 #include "ammunition.h"
 #include <vector>
 
-namespace engine::combat {
+namespace combat::weapons {
 	// Records spawned plasma shots; replace body when world/projectile system exists.
 	class plasma_ammunition : public ammunition {
 	public:

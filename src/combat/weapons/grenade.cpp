@@ -1,6 +1,6 @@
 #include "grenade.h"
 
-namespace engine::combat {
+namespace combat::weapons {
 
 grenade_weapon::grenade_weapon(std::unique_ptr<ammunition> ammo_type,
                                int count, int max_count, float rate, float dmg)

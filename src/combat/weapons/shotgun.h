@@ -1,7 +1,7 @@
 #pragma once
 #include "weapon.h"
 
-namespace engine::combat {
+namespace combat::weapons {
 	class shotgun : public weapon {
 	public:
 		static constexpr int   pellet_count = 8;

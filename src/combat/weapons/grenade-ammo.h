@@ -5,7 +5,7 @@
 #include "geometry/map-data.h"
 #include "engine/actor.h"
 
-namespace engine::combat {
+namespace combat::weapons {
 
     // Grenade ammunition: manages physically simulated grenades.
     // Each throw creates a live_grenade that moves through the map,

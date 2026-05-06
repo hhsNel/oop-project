@@ -3,7 +3,7 @@
 
 #include "status-effect.h"
 
-namespace engine::combat
+namespace combat
 {
 	class slowed : public status_effect {
 	public:

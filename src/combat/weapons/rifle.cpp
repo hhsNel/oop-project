@@ -1,6 +1,6 @@
 #include "rifle.h"
 
-namespace engine::combat {
+namespace combat::weapons {
 	rifle::rifle(std::unique_ptr<ammunition> ammo_type, int mag_size, int max, float rate, float dmg)
 		: weapon(0, std::move(ammo_type), mag_size, max, rate, dmg) {}
 

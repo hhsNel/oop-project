@@ -3,7 +3,7 @@
 #include "geometry/sidedef.h"
 #include <cmath>
 
-namespace engine::combat {
+namespace combat::weapons {
 
 grenade_ammunition::grenade_ammunition(geometry::map_data* m, float fuse, float radius, float speed)
     : map(m), fuse_time(fuse), explosion_radius(radius), throw_speed(speed) {}

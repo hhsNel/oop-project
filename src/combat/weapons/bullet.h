@@ -2,7 +2,7 @@
 #include "ammunition.h"
 #include <vector>
 
-namespace engine::combat {
+namespace combat::weapons {
 	// Records spawned bullets for testing; replace body of spawn_bullet when world exists.
 	class bullet_ammunition : public ammunition {
 	public:

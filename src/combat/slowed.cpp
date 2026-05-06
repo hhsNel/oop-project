@@ -1,7 +1,7 @@
 #include "slowed.h"
 #include "engine/actor.h"
 
-namespace engine::combat
+namespace combat
 {
 	// Slowed zmniejsza movement_speed przy nałożeniu i przywraca go po wygaśnięciu.
 	// intensity = procent spowolnienia

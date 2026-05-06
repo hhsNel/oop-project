@@ -3,7 +3,7 @@
 #include "geometry/sidedef.h"
 #include <cmath>
 
-namespace engine::combat {
+namespace combat::weapons {
 
 hitscan_ammunition::hitscan_ammunition(geometry::map_data* m, float range, float radius)
     : map(m), max_range(range), hit_radius(radius) {}

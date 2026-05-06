@@ -3,7 +3,7 @@
 
 #include "status-effect.h"
 
-namespace engine::combat
+namespace combat
 {
 	class charmed : public status_effect {
 	public:

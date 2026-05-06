@@ -1,7 +1,7 @@
 #pragma once
 #include "weapon.h"
 
-namespace engine::combat {
+namespace combat::weapons {
     // Grenade launcher / grenade slot.
     // Requires a grenade_ammunition instance as ammo_type.
     class grenade_weapon : public weapon {
