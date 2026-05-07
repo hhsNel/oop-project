@@ -26,7 +26,6 @@
 			void strafe(float speed, float sign, float dt);
 			void melee_attack(float damage);
 
-		public:
 			float attack_range;
 			float detection_radius;
 			float attack_damage;
@@ -47,8 +46,6 @@
 		};
 
 		class player : public engine::actor {
-		public:
-			float sensitivity;
 
 			std::vector<combat::weapons::weapon*> weapons;
 			combat::weapons::weapon* current_weapon;
