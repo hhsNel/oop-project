@@ -6,19 +6,15 @@ namespace entities {
 
 	class monster_basic : public monster {
 	public:
-		monster_basic() : monster(30.0f, 0.0f, 1.5f, 1.5f, 8.0f) {
-			attack_damage = 10.0f; attack_cd_max = 1.0f;
-		}
+		monster_basic() : monster(30.0f, 0.0f, 1.5f, 1.5f, 8.0f, 10.0f, 1.0f) {}
 		void update(float dt) override;
 	};
 
 	class monster_ranged : public monster {
 	public:
 		float preferred_dist;
-		monster_ranged() : monster(25.0f, 0.0f, 1.2f, 10.0f, 15.0f),
-		                   preferred_dist(8.0f) {
-			attack_damage = 8.0f; attack_cd_max = 1.5f;
-		}
+		monster_ranged() : monster(25.0f, 0.0f, 1.2f, 10.0f, 15.0f, 8.0f, 1.5f),
+		                   preferred_dist(8.0f) {}
 		void update(float dt) override;
 	};
 
@@ -32,12 +28,10 @@ namespace entities {
 		float strafe_sign;
 		float strafe_timer;
 
-		monster_assault() : monster(60.0f, 10.0f, 2.0f, 6.0f, 12.0f),
+		monster_assault() : monster(60.0f, 10.0f, 2.0f, 6.0f, 12.0f, 7.0f, 0.2f),
 		    burst_size(3), burst_interval(0.2f),
 		    burst_remaining(0), burst_timer(0.0f), burst_cooldown(0.0f),
-		    strafe_sign(1.0f), strafe_timer(0.0f) {
-			attack_damage = 7.0f; attack_cd_max = burst_interval;
-		}
+		    strafe_sign(1.0f), strafe_timer(0.0f) {}
 		void update(float dt) override;
 	};
 
@@ -46,10 +40,8 @@ namespace entities {
 		float shoot_interval;
 		float aim_timer;
 
-		monster_sniper() : monster(40.0f, 0.0f, 1.0f, 25.0f, 30.0f),
-		    shoot_interval(3.0f), aim_timer(0.0f) {
-			attack_damage = 30.0f; attack_cd_max = shoot_interval;
-		}
+		monster_sniper() : monster(40.0f, 0.0f, 1.0f, 25.0f, 30.0f, 30.0f, 3.0f),
+		    shoot_interval(3.0f), aim_timer(0.0f) {}
 		void update(float dt) override;
 	};
 
@@ -62,20 +54,16 @@ namespace entities {
 		float wander_timer;
 		float wander_sign;
 
-		monster_trapper() : monster(45.0f, 15.0f, 3.0f, 3.0f, 8.0f),
+		monster_trapper() : monster(45.0f, 15.0f, 3.0f, 3.0f, 8.0f, 15.0f),
 		    max_traps(3), traps_placed(0),
 		    trap_timer(0.0f), trap_interval(2.0f),
-		    wander_timer(0.0f), wander_sign(1.0f) {
-			attack_damage = 15.0f;
-		}
+		    wander_timer(0.0f), wander_sign(1.0f) {}
 		void update(float dt) override;
 	};
 
 	class monster_Duzy_Gruby : public monster {
 	public:
-		monster_Duzy_Gruby() : monster(200.0f, 50.0f, 0.8f, 2.0f, 6.0f) {
-			attack_damage = 25.0f; attack_cd_max = 2.0f;
-		}
+		monster_Duzy_Gruby() : monster(200.0f, 50.0f, 0.8f, 2.0f, 6.0f, 25.0f, 2.0f) {}
 		void update(float dt) override;
 	};
 
@@ -85,10 +73,8 @@ namespace entities {
 		float dash_timer;
 		float dash_cooldown;
 
-		monster_Maly_Szybki() : monster(15.0f, 0.0f, 4.5f, 1.5f, 12.0f),
-		    is_dashing(false), dash_timer(0.0f), dash_cooldown(0.0f) {
-			attack_damage = 12.0f; attack_cd_max = 0.5f;
-		}
+		monster_Maly_Szybki() : monster(15.0f, 0.0f, 4.5f, 1.5f, 12.0f, 12.0f, 0.5f),
+		    is_dashing(false), dash_timer(0.0f), dash_cooldown(0.0f) {}
 		void update(float dt) override;
 	};
 
@@ -97,10 +83,8 @@ namespace entities {
 		bool  melee_mode;
 		float melee_threshold;
 
-		monster_all_rounder() : monster(80.0f, 20.0f, 2.0f, 5.0f, 10.0f),
-		    melee_mode(false), melee_threshold(2.5f) {
-			attack_damage = 10.0f; attack_cd_max = 1.0f;
-		}
+		monster_all_rounder() : monster(80.0f, 20.0f, 2.0f, 5.0f, 10.0f, 10.0f, 1.0f),
+		    melee_mode(false), melee_threshold(2.5f) {}
 		void update(float dt) override;
 	};
 
@@ -126,11 +110,9 @@ namespace entities {
 		float sidestep_timer;
 		float sidestep_sign;
 
-		monster_magic() : monster(50.0f, 30.0f, 1.5f, 12.0f, 15.0f),
+		monster_magic() : monster(50.0f, 30.0f, 1.5f, 12.0f, 15.0f, 40.0f, 2.0f),
 		    charge_time(2.0f), charge_timer(0.0f), is_charging(false),
-		    post_fire_cooldown(0.0f), sidestep_timer(0.0f), sidestep_sign(1.0f) {
-			attack_damage = 40.0f; attack_cd_max = charge_time;
-		}
+		    post_fire_cooldown(0.0f), sidestep_timer(0.0f), sidestep_sign(1.0f) {}
 		void update(float dt) override;
 	};
 
@@ -141,11 +123,9 @@ namespace entities {
 		float heavy_timer;
 		float heavy_cd;
 
-		monster_elite_tank() : monster(400.0f, 150.0f, 1.2f, 2.5f, 8.0f),
+		monster_elite_tank() : monster(400.0f, 150.0f, 1.2f, 2.5f, 8.0f, 15.0f, 1.2f),
 		    melee_mode(false), melee_threshold(3.0f),
-		    heavy_timer(0.0f), heavy_cd(6.0f) {
-			attack_damage = 15.0f; attack_cd_max = 1.2f;
-		}
+		    heavy_timer(0.0f), heavy_cd(6.0f) {}
 		void update(float dt) override;
 	};
 
@@ -158,12 +138,10 @@ namespace entities {
 		float circle_angle;
 		float circle_radius;
 
-		monster_elite_swift() : monster(60.0f, 0.0f, 7.0f, 2.0f, 20.0f),
+		monster_elite_swift() : monster(60.0f, 0.0f, 7.0f, 2.0f, 20.0f, 12.0f, 0.8f),
 		    charge_speed(15.0f), is_charging(false),
 		    charge_timer(0.0f), charge_cd(0.0f),
-		    circle_angle(0.0f), circle_radius(5.0f) {
-			attack_damage = 12.0f; attack_cd_max = 0.8f;
-		}
+		    circle_angle(0.0f), circle_radius(5.0f) {}
 		void update(float dt) override;
 	};
 
@@ -171,10 +149,8 @@ namespace entities {
 	public:
 		int phase_count;
 
-		monster_boss() : monster(1000.0f, 300.0f, 1.5f, 3.0f, 30.0f),
-		    phase_count(3) {
-			attack_damage = 20.0f; attack_cd_max = 1.0f;
-		}
+		monster_boss() : monster(1000.0f, 300.0f, 1.5f, 3.0f, 30.0f, 20.0f, 1.0f),
+		    phase_count(3) {}
 	};
 
 }

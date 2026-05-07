@@ -16,14 +16,14 @@ namespace entities {
 		auto t = target_ptr.lock();
 		if (!t) return 0.0f;
 		math::vec2 d = t->pos - pos;
-		return std::sqrt(d.x * d.x + d.y * d.y);
+		return std::sqrt(d("x"_f) * d("x"_f) + d("y"_f) * d("y"_f));
 	}
 
 	math::vec2 monster::dir_to_target() const {
 		auto t = target_ptr.lock();
 		if (!t) return {0.0f, 0.0f};
 		math::vec2 d = t->pos - pos;
-		float len = std::sqrt(d.x * d.x + d.y * d.y);
+		float len = std::sqrt(d("x"_f) * d("x"_f) + d("y"_f) * d("y"_f));
 		if (len < 0.0001f) return {0.0f, 0.0f};
 		return d / len;
 	}
@@ -80,8 +80,8 @@ namespace entities {
 		float ca = std::cos(angle);
 		float sa = std::sin(angle);
 		// forward = {ca, sa},  right = {sa, -ca}
-		pos.x += (direction.y * ca + direction.x * sa) * movement_speed;
-		pos.y += (direction.y * sa - direction.x * ca) * movement_speed;
+		pos("x"_f) += (direction("y"_f) * ca + direction("x"_f) * sa) * movement_speed;
+		pos("y"_f) += (direction("y"_f) * sa - direction("x"_f) * ca) * movement_speed;
 	}
 
 	void player::rotate(float yaw, float /*pitch*/) {

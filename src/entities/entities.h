@@ -12,59 +12,70 @@
 #include "math/vec3.h"
 #include "combat/weapons/weapon.h"
 
-	namespace entities {
-		class monster : public engine::actor {
-		protected:
-			std::weak_ptr<engine::actor> target_ptr;
-			float attack_cooldown;
+namespace world_object {
+	class ammo_pickup;
+	class weapon_pickup;
+}
 
-			bool has_target() const;
-			float dist_to_target() const;
-			math::vec2 dir_to_target() const;
-			void move_toward_target(float speed, float dt);
-			void move_away_from_target(float speed, float dt);
-			void strafe(float speed, float sign, float dt);
-			void melee_attack(float damage);
+namespace entities {
+	class monster : public engine::actor {
+		std::weak_ptr<engine::actor> target_ptr;
+		float attack_cooldown;
 
-			float attack_range;
-			float detection_radius;
-			float attack_damage;
-			float attack_cd_max;
+		bool has_target() const;
+		float dist_to_target() const;
+		math::vec2 dir_to_target() const;
+		void move_toward_target(float speed, float dt);
+		void move_away_from_target(float speed, float dt);
+		void strafe(float speed, float sign, float dt);
+		void melee_attack(float damage);
 
-			monster(float hp, float shield, float move_speed, float atk_range, float det_radius)
-				: engine::actor(hp, shield, move_speed, engine::faction::enemy),
-				  attack_cooldown(0.0f),
-				  attack_range(atk_range),
-				  detection_radius(det_radius),
-				  attack_damage(10.0f),
-				  attack_cd_max(1.0f) {}
+		float attack_range;
+		float detection_radius;
+		float attack_damage;
+		float attack_cd_max;
+	
+	public:
 
-			void set_target(std::shared_ptr<engine::actor> t);
+		monster(float hp, float shield, float move_speed, float atk_range, float det_radius, float atk_dmg = 10.0f, float atk_cd = 1.0f)
+			: engine::actor(hp, shield, move_speed, engine::faction::enemy),
+			  attack_cooldown(0.0f),
+			  attack_range(atk_range),
+			  detection_radius(det_radius),
+			  attack_damage(atk_dmg),
+			  attack_cd_max(atk_cd) {};
 
-			void update(float dt) override;
-			void take_damage(float dmg) override;
-		};
+		void set_target(std::shared_ptr<engine::actor> t);
 
-		class player : public engine::actor {
+		void update(float dt) override;
+		void take_damage(float dmg) override;
+	};
 
-			std::vector<combat::weapons::weapon*> weapons;
-			combat::weapons::weapon* current_weapon;
-			int current_weapon_index;
+	class player : public engine::actor {
+		std::vector<combat::weapons::weapon*> weapons;
+		float sensitivity;
+		combat::weapons::weapon* current_weapon;
+		int current_weapon_index;
 
-			player(float hp, float shield, float move_speed, float sens)
-				: engine::actor(hp, shield, move_speed, engine::faction::player),
-				  sensitivity(sens),
-				  current_weapon(nullptr),
-				  current_weapon_index(0) {}
+	public:
 
-			void update(float dt) override;
-			void move(math::vec3 direction);
-			void rotate(float yaw, float pitch);
-			void shoot();
-			void reload();
-			void switch_weapons(int index);
-			void use_grenade();
+		player(float hp, float shield, float move_speed, float sens)
+			: engine::actor(hp, shield, move_speed, engine::faction::player),
+			  sensitivity(sens),
+			  current_weapon(nullptr),
+			  current_weapon_index(0) {}
 
-			void take_damage(float dmg) override;
-		};
-	}
+		void update(float dt) override;
+		void move(math::vec3 direction);
+		void rotate(float yaw, float pitch);
+		void shoot();
+		void reload();
+		void switch_weapons(int index);
+		void use_grenade();
+
+		void take_damage(float dmg) override;
+
+		friend class world_object::ammo_pickup;
+		friend class world_object::weapon_pickup;
+	};
+}

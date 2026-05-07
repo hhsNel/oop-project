@@ -67,7 +67,7 @@ namespace combat {
                         g.position = g.position + step.normalized() * min_dist;
                         // Reflect velocity and damp
                         float dot   = math::vec2::dot_product(g.velocity, best_normal);
-                        g.velocity  = (g.velocity - best_normal * (2.0f * dot)) * BOUNCE_DAMPING;
+                        g.velocity  = (g.velocity - best_normal * (2.0f * dot)) * bounce_damping;
                     } else {
                         g.position = g.position + step;
                     }

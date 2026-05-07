@@ -1,21 +1,19 @@
 #pragma once
 #define VEC2_H
 
+#include "util/componentized.h"
+
 namespace math {
 	class vec3;
 
-	class vec2 {
-		float x, y;
+	class vec2 : public util::componentized<vec2> {
+		[[=util::component_field{}]] float x;
+		[[=util::component_field{}]] float y;
 
 	public:
 
 		constexpr inline vec2(float const X = 0, float const Y = 0);
 		vec2(vec3 const& vec);
-
-		enum axis {
-			X_AXIS, Y_AXIS
-		};
-		__attribute__((always_inline)) consteval inline float const scalar(axis const a) const;
 
 		__attribute__((always_inline)) constexpr inline vec2 operator+(vec2 const other) const;
 		__attribute__((always_inline)) constexpr inline vec2 operator-(vec2 const other) const;
@@ -32,6 +30,7 @@ namespace math {
 		__attribute__((always_inline)) constexpr inline bool operator!=(vec2 const other) const;
 
 		static float dot_product(vec2 const first, vec2 const second);
+		static float cross_product(vec2 const first, vec2 const second);
 
 		float len() const;
 		float sqr_len() const;
@@ -42,6 +41,8 @@ namespace math {
 		static float angle_between(vec2 const first, vec2 const second);
 		static vec2 const rotate(vec2 const vec, float const angle);
 		static vec2 const rotate_with_known_trig(vec2 const vec, float const cos, float const sin);
+
+		friend util::componentized<vec2>;
 	};
 }
 

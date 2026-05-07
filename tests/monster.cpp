@@ -192,7 +192,7 @@ int main() {
 			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(1.0f);
-			result(m.pos.x > 0.0f ? "YES" : "NO");
+			result(m.pos("x"_f) > 0.0f ? "YES" : "NO");
 
 		// basic NIE rusza się gdy cel poza detection_radius=8
 		} else if (cmd == "basic_no_detect") {
@@ -202,7 +202,7 @@ int main() {
 			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(1.0f);
-			result(m.pos.x == 0.0f ? "YES" : "NO");
+			result(m.pos("x"_f) == 0.0f ? "YES" : "NO");
 
 		// basic NIE rusza się gdy cel martwy
 		} else if (cmd == "basic_dead_target") {
@@ -213,7 +213,7 @@ int main() {
 			m.set_target(t);
 			t->take_damage(200.0f);
 			m.update(1.0f);
-			result(m.pos.x == 0.0f ? "YES" : "NO");
+			result(m.pos("x"_f) == 0.0f ? "YES" : "NO");
 
 		// ranged oddala się gdy cel za blisko (< preferred_dist=8)
 		} else if (cmd == "ranged_retreats") {
@@ -223,7 +223,7 @@ int main() {
 			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(1.0f);
-			result(m.pos.x < 0.0f ? "YES" : "NO");
+			result(m.pos("x"_f) < 0.0f ? "YES" : "NO");
 
 		// ranged przybliża się gdy cel za daleko (> preferred_dist, w detection)
 		} else if (cmd == "ranged_advances") {
@@ -233,7 +233,7 @@ int main() {
 			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(1.0f);
-			result(m.pos.x > 0.0f ? "YES" : "NO");
+			result(m.pos("x"_f) > 0.0f ? "YES" : "NO");
 
 		// maly_szybki po detection ustawia dash i pędzi w stronę celu
 		} else if (cmd == "maly_szybki_dashes") {
@@ -244,7 +244,7 @@ int main() {
 			m.set_target(t);
 			m.update(0.01f); // ustawia is_dashing=true
 			m.update(0.5f);  // pędzi
-			result(m.pos.x > 0.0f ? "YES" : "NO");
+			result(m.pos("x"_f) > 0.0f ? "YES" : "NO");
 
 		// elite_swift krąży wokół celu zmieniając pozycję
 		} else if (cmd == "elite_swift_circles") {
@@ -255,7 +255,7 @@ int main() {
 			m.charge_cd = 999.0f;
 			m.set_target(t);
 			m.update(0.5f);
-			result(m.pos.x < 0.0f ? "YES" : "NO"); // cos(7*0.5)=cos(3.5) < 0
+			result(m.pos("x"_f) < 0.0f ? "YES" : "NO"); // cos(7*0.5)=cos(3.5) < 0
 
 		// =====================================================================
 		// AI — ataki

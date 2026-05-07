@@ -3,11 +3,16 @@
 
 #include <cmath>
 
-math::vec2::vec2(vec3 const& vec) : x(vec.x), y(vec.y) {}
+math::vec2::vec2(vec3 const& vec) : x(vec("x"_f)), y(vec("y"_f)) {}
 
 float
 math::vec2::dot_product(vec2 const first, vec2 const second) {
 	return first.x * second.x + first.y * second.y;
+}
+
+float
+math::vec2::cross_product(vec2 const first, vec2 const second) {
+	return first.x * second.y + first.y * second.x;
 }
 
 float

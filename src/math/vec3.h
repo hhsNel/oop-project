@@ -1,12 +1,15 @@
 #pragma once
 #define VEC3_H
 
+#include "util/componentized.h"
 #include "vec2.h"
 
 namespace math {
-	class vec3 {
+	class vec3 : public util::componentized<vec3> {
+		[[=util::component_field{}]] float x;
+		[[=util::component_field{}]] float y;
+		[[=util::component_field{}]] float z;
 	public:
-		float x, y, z;
 
 		constexpr inline vec3(float const X = 0, float const Y = 0, float const Z = 0);
 		constexpr inline vec3(vec2 const flat, float const Z = 0);
@@ -31,6 +34,8 @@ namespace math {
 		constexpr float len() const;
 		constexpr float sqr_len() const;
 		constexpr vec3 const normalized() const;
+
+		friend util::componentized<vec3>;
 	};
 }
 
@@ -38,7 +43,7 @@ constexpr inline
 math::vec3::vec3(float const X, float const Y, float const Z) : x(X), y(Y), z(Z) {}
 
 constexpr inline
-math::vec3::vec3(vec2 const flat, float const Z) : x(flat.x), y(flat.y), z(Z) {}
+math::vec3::vec3(vec2 const flat, float const Z) : x(flat("x"_f)), y(flat("y"_f)), z(Z) {}
 
 __attribute__((always_inline)) constexpr inline math::vec3 const
 math::vec3::operator+(vec3 const other) const {

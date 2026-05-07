@@ -82,33 +82,33 @@ void software_renderer::project_and_draw_linedef(geometry::linedef const& line, 
     float u2 = (line.v1 - line.v2).len();
 
 	/* return if behind camera */
-    if (tr_v1.y <= near_z && tr_v2.y <= near_z) return;
+    if (tr_v1("y"_f) <= near_z && tr_v2("y"_f) <= near_z) return;
 
 	/* clip against the near plane */
-	float inv_dy = 1.0f / (tr_v2.y - tr_v1.y);
-    if (tr_v1.y < near_z) {
-        float t = (near_z - tr_v1.y) * inv_dy;
-        tr_v1.x = tr_v1.x + t * (tr_v2.x - tr_v1.x);
-        tr_v1.y = near_z;
+	float inv_dy = 1.0f / (tr_v2("y"_f) - tr_v1("y"_f));
+    if (tr_v1("y"_f) < near_z) {
+        float t = (near_z - tr_v1("y"_f)) * inv_dy;
+        tr_v1("x"_f) = tr_v1("x"_f) + t * (tr_v2("x"_f) - tr_v1("x"_f));
+        tr_v1("y"_f) = near_z;
         u1 = u1 + t * (u2 - u1);
-    } else if (tr_v2.y < near_z) {
-        float t = (tr_v2.y - near_z) * inv_dy;
-        tr_v2.x = tr_v2.x + t * (tr_v1.x - tr_v2.x);
-        tr_v2.y = near_z;
+    } else if (tr_v2("y"_f) < near_z) {
+        float t = (tr_v2("y"_f) - near_z) * inv_dy;
+        tr_v2("x"_f) = tr_v2("x"_f) + t * (tr_v1("x"_f) - tr_v2("x"_f));
+        tr_v2("y"_f) = near_z;
         u2 = u2 + t * (u1 - u2);
     }
 
 	/* exact values for tex mapping */
-    float proj_x1 = (tr_v1.x / tr_v1.y) * frd.fov_scale + frd.half_sw;
-    float proj_x2 = (tr_v2.x / tr_v2.y) * frd.fov_scale + frd.half_sw;
+    float proj_x1 = (tr_v1("x"_f) / tr_v1("y"_f)) * frd.fov_scale + frd.half_sw;
+    float proj_x2 = (tr_v2("x"_f) / tr_v2("y"_f)) * frd.fov_scale + frd.half_sw;
 
 	/* cull back face (wall facing opposite side */
     if (proj_x1 >= proj_x2) return;
 
 	if (line.back == util::indexed_storage<geometry::sidedef>::nullid) {
-        draw_solid_wall_span(proj_x1, proj_x2, tr_v1.y, tr_v2.y, u1, u2, line, frd);
+        draw_solid_wall_span(proj_x1, proj_x2, tr_v1("y"_f), tr_v2("y"_f), u1, u2, line, frd);
     } else {
-        draw_portal_wall_span(proj_x1, proj_x2, tr_v1.y, tr_v2.y, u1, u2, line, frd);
+        draw_portal_wall_span(proj_x1, proj_x2, tr_v1("y"_f), tr_v2("y"_f), u1, u2, line, frd);
     }
 }
 
@@ -361,8 +361,8 @@ void software_renderer::render_visplanes(frame_rendering_data const frd) {
 
                 float px = (float)span_start - frd.half_sw;
 				/* grab world space coords */
-                float world_x_f = z * (px * frd.inv_fov_scale * frd.cos_cam_angle - frd.sin_cam_angle) + frd.cam_pos.x;
-                float world_y_f = z * (px * frd.inv_fov_scale * frd.sin_cam_angle + frd.cos_cam_angle) + frd.cam_pos.y;
+                float world_x_f = z * (px * frd.inv_fov_scale * frd.cos_cam_angle - frd.sin_cam_angle) + frd.cam_pos("x"_f);
+                float world_y_f = z * (px * frd.inv_fov_scale * frd.sin_cam_angle + frd.cos_cam_angle) + frd.cam_pos("y"_f);
 
 				/* once again world coords as fxpt 16.16 to avoid fp math */
                 int32_t fx = (int32_t)(world_x_f * 65536.0f);
@@ -397,10 +397,10 @@ void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame
 	math::vec2 tr_pos = s->pos - frd.cam_pos;
 	tr_pos = math::vec2::rotate_with_known_trig(tr_pos, frd.cos_cam_angle, -frd.sin_cam_angle);
 
-	if(tr_pos.y <= near_z) return;
+	if(tr_pos("y"_f) <= near_z) return;
 
-	float proj_x = (tr_pos.x / tr_pos.y) * frd.fov_scale + frd.half_sw;
-	float scale = frd.fov_scale / tr_pos.y * s->inherent_scale;
+	float proj_x = (tr_pos("x"_f) / tr_pos("y"_f)) * frd.fov_scale + frd.half_sw;
+	float scale = frd.fov_scale / tr_pos("y"_f) * s->inherent_scale;
 
 	graphics::texture const& tex = tex_manager->sprite_tx_by_id(s->tex_id);
 
@@ -427,7 +427,7 @@ void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame
 
 	std::vector<int> slice_uc(upper_clip.begin() + cx1, upper_clip.begin() + cx2 + 1);
 	std::vector<int> slice_lc(lower_clip.begin() + cx1, lower_clip.begin() + cx2 + 1);
-	vissprites.emplace_back(*s, tr_pos.y, cx1, cx2, proj_x, scale, light, std::move(slice_uc), std::move(slice_lc));
+	vissprites.emplace_back(*s, tr_pos("y"_f), cx1, cx2, proj_x, scale, light, std::move(slice_uc), std::move(slice_lc));
 }
 
 void software_renderer::render_vissprites(frame_rendering_data const frd) {
@@ -480,8 +480,8 @@ void software_renderer::render_vissprites(frame_rendering_data const frd) {
 
 bool software_renderer::is_box_visible(geometry::bsp_node::bounding_box const& box, frame_rendering_data const frd) {
 	/* if the camera is inside, we def need to render the box */
-    if (frd.cam_pos.x >= box.left   && frd.cam_pos.x <= box.right &&
-        frd.cam_pos.y >= box.bottom && frd.cam_pos.y <= box.top) {
+    if (frd.cam_pos("x"_f) >= box.left   && frd.cam_pos("x"_f) <= box.right &&
+        frd.cam_pos("y"_f) >= box.bottom && frd.cam_pos("y"_f) <= box.top) {
         return true;
     }
 
@@ -508,8 +508,8 @@ bool software_renderer::is_box_visible(geometry::bsp_node::bounding_box const& b
 		/* modulo 4, but faster */
         math::vec2 p2 = corners[(i + 1) & 3];
 
-        bool p1_inside = p1.y >= near_z;
-        bool p2_inside = p2.y >= near_z;
+        bool p1_inside = p1("y"_f) >= near_z;
+        bool p2_inside = p2("y"_f) >= near_z;
 
         if (p1_inside) {
             clipped[num_clipped++] = p1;
@@ -517,8 +517,8 @@ bool software_renderer::is_box_visible(geometry::bsp_node::bounding_box const& b
 
         if (p1_inside != p2_inside) {
             /* edge intersects the near plane, calculate intersection */
-            float t = (near_z - p1.y) / (p2.y - p1.y);
-            clipped[num_clipped++] = { p1.x + t * (p2.x - p1.x), near_z };
+            float t = (near_z - p1("y"_f)) / (p2("y"_f) - p1("y"_f));
+            clipped[num_clipped++] = { p1("x"_f) + t * (p2("x"_f) - p1("x"_f)), near_z };
         }
     }
 
@@ -529,7 +529,7 @@ bool software_renderer::is_box_visible(geometry::bsp_node::bounding_box const& b
     float min_proj_x = 1e9f;
     float max_proj_x = -1e9f;
     for (int i = 0; i < num_clipped; ++i) {
-        float proj_x = (clipped[i].x / clipped[i].y) * frd.fov_scale + frd.half_sw;
+        float proj_x = (clipped[i]("x"_f) / clipped[i]("y"_f)) * frd.fov_scale + frd.half_sw;
         min_proj_x = std::min(min_proj_x, proj_x);
         max_proj_x = std::max(max_proj_x, proj_x);
     }

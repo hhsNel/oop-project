@@ -10,7 +10,7 @@ namespace geometry {
 
     bool bsp_node::is_pt_front_side(math::vec2 const& point) const {
         math::vec2 delta = point - pl_coord;
-        return (delta.y * pl_dir.x - delta.x * pl_dir.y) <= 0;
+        return math::vec2::cross_product(pl_dir, delta) <= 0;
     }
 
     std::vector<bsp_node> const bsp_node::load_from_bin(util::resource const& res) {
