@@ -5,11 +5,17 @@ namespace math {
 	class vec3;
 
 	class vec2 {
-	public:
 		float x, y;
+
+	public:
 
 		constexpr inline vec2(float const X = 0, float const Y = 0);
 		vec2(vec3 const& vec);
+
+		enum axis {
+			X_AXIS, Y_AXIS
+		};
+		__attribute__((always_inline)) consteval inline float const scalar(axis const a) const;
 
 		__attribute__((always_inline)) constexpr inline vec2 operator+(vec2 const other) const;
 		__attribute__((always_inline)) constexpr inline vec2 operator-(vec2 const other) const;
