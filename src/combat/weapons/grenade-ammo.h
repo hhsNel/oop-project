@@ -46,7 +46,7 @@ namespace combat {
             float fuse_time;
             float explosion_radius;
             float throw_speed;
-            static constexpr float BOUNCE_DAMPING = 0.5f; // fraction of speed kept after bounce
+            static constexpr float bounce_damping = 0.5f; // fraction of speed kept after bounce
 
             void explode(live_grenade const& g);
         };
