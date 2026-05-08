@@ -13,6 +13,7 @@ proc run_test {cmd expected} {
     expect -re {RESULT ([^\r\n]+)}
     set result $expect_out(1,string)
     if {$result != $expected} {
+		puts "hitscan"
         puts "FAIL ($cmd)"
         puts "\tGot:      $result"
         puts "\tExpected: $expected"

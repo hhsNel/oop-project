@@ -44,6 +44,7 @@ for {set i 0} {$i < 2000} {incr i} {
     set got_hp $expect_out(1,string)
 
     if {![near $got_armor $exp_armor] || ![near $got_hp $exp_hp]} {
+		puts "status-effects rand"
         puts "FAIL (burning_dmg $hp $armor $intensity)"
         puts "\tGot armor/hp: $got_armor / $got_hp"
         puts "\tExpected:     $exp_armor / $exp_hp"
@@ -69,6 +70,7 @@ for {set i 0} {$i < 500} {incr i} {
     set got_hp $expect_out(1,string)
 
     if {![near $got_hp $exp_hp]} {
+		puts "status-effects rand"
         puts "FAIL (burning_ticks $hp $intensity $n)"
         puts "\tGot:      $got_hp"
         puts "\tExpected: $exp_hp"
@@ -94,6 +96,7 @@ for {set i 0} {$i < 1000} {incr i} {
     set got_speed $expect_out(1,string)
 
     if {![near $got_speed $exp_speed]} {
+		puts "status-effects rand"
         puts "FAIL (slowed_calc $speed $intensity)"
         puts "\tGot:      $got_speed"
         puts "\tExpected: ~$exp_speed  (sf=$sf)"
@@ -117,6 +120,7 @@ for {set i 0} {$i < 1000} {incr i} {
     set got_speed $expect_out(1,string)
 
     if {![near $got_speed $exp_speed]} {
+		puts "status-effects rand"
         puts "FAIL (slowed_restore $speed $intensity)"
         puts "\tGot:      $got_speed"
         puts "\tExpected: ~$exp_speed"
@@ -147,6 +151,7 @@ for {set i 0} {$i < 500} {incr i} {
     set got $expect_out(1,string)
 
     if {$got != $expected} {
+		puts "status-effects rand"
         puts "FAIL (expire_check $dur_fmt $dt_fmt)"
         puts "\tGot:      $got"
         puts "\tExpected: $expected  (dt >= duration: [expr {$dt >= $duration}])"
