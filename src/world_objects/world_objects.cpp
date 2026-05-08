@@ -30,10 +30,10 @@ void armor_pickup::on_pickup(entities::player& p) {
 
 void ammo_pickup::on_pickup(entities::player& p) {
     for (combat::weapons::weapon* w : p.weapons) {
-        if (!w || w->weapon_id != weapon_id) continue;
-        w->ammo_count = std::min(
-            w->ammo_count + static_cast<int>(amount),
-            w->max_ammo
+        if (!w || (*w)("weapon_id"_f) != weapon_id) continue;
+        (*w)("ammo_count"_f) = std::min(
+            (*w)("ammo_count"_f) + static_cast<int>(amount),
+            (*w)("max_ammo"_f)
         );
         break;
     }

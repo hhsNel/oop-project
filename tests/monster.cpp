@@ -7,8 +7,8 @@
 template<typename M>
 struct inspect : public M {
 	using M::M;
-	float hp()    const { return this->health.current_hp; }
-	float armor() const { return this->health.armor; }
+	float hp()    const { return this->health("current_hp"_f); }
+	float armor() const { return this->health("armor"_f); }
 	bool  dead()  const { return this->health.is_dead(); }
 };
 
@@ -111,7 +111,7 @@ int main() {
 
 		} else if (cmd == "sniper_detection") {
 			entities::monster_sniper m;
-			result(m.detection_radius);
+			result(m("detection_radius"_f));
 
 		// =====================================================================
 		// TYPE-SPECIFIC FIELDS
@@ -119,29 +119,29 @@ int main() {
 
 		} else if (cmd == "assault_burst") {
 			entities::monster_assault m;
-			result(m.burst_size);
-			result(m.burst_interval);
+			result(m("burst_size"_f));
+			result(m("burst_interval"_f));
 
 		} else if (cmd == "sniper_interval") {
 			entities::monster_sniper m;
-			result(m.shoot_interval);
+			result(m("shoot_interval"_f));
 
 		} else if (cmd == "trapper_traps") {
 			entities::monster_trapper m;
-			result(m.max_traps);
+			result(m("max_traps"_f));
 
 		} else if (cmd == "spawner_fields") {
 			entities::monster_spawner m;
-			result(m.max_spawns);
-			result(m.spawn_interval);
+			result(m("max_spawns"_f));
+			result(m("spawn_interval"_f));
 
 		} else if (cmd == "elite_swift_charge") {
 			entities::monster_elite_swift m;
-			result(m.charge_speed);
+			result(m("charge_speed"_f));
 
 		} else if (cmd == "boss_phases") {
 			entities::monster_boss m;
-			result(m.phase_count);
+			result(m("phase_count"_f));
 
 		// =====================================================================
 		// HEALTH SYSTEM
@@ -252,7 +252,7 @@ int main() {
 			t->pos = {0.0f, 0.0f};
 			entities::monster_elite_swift m;
 			m.pos = {5.0f, 0.0f};
-			m.charge_cd = 999.0f;
+			m("charge_cd"_f) = 999.0f;
 			m.set_target(t);
 			m.update(0.5f);
 			result(m.pos("x"_f) < 0.0f ? "YES" : "NO"); // cos(7*0.5)=cos(3.5) < 0
@@ -298,7 +298,7 @@ int main() {
 			t->pos = {5.0f, 0.0f};
 			entities::monster_sniper m;
 			m.pos = {0.0f, 0.0f};
-			m.aim_timer = 2.99f;
+			m("aim_timer"_f) = 2.99f;
 			m.set_target(t);
 			m.update(0.1f); // aim_timer=3.09 >= 3.0 -> strzal
 			result(t->hp());
@@ -309,8 +309,8 @@ int main() {
 			t->pos = {5.0f, 0.0f};
 			entities::monster_magic m;
 			m.pos = {0.0f, 0.0f};
-			m.is_charging = true;
-			m.charge_timer = 1.99f;
+			m("is_charging"_f) = true;
+			m("charge_timer"_f) = 1.99f;
 			m.set_target(t);
 			m.update(0.1f); // charge_timer=2.09 >= 2.0 -> strzal
 			result(t->hp());
@@ -327,13 +327,13 @@ int main() {
 			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(0.01f);
-			result(m.melee_mode ? "YES" : "NO");
+			result(m("melee_mode"_f) ? "YES" : "NO");
 
 		// spawner co spawn_interval=5s tworzy nowego potwora
 		} else if (cmd == "spawner_spawns") {
 			entities::monster_spawner m;
 			m.update(5.1f);
-			result(m.current_spawns);
+			result(m("current_spawns"_f));
 
 		// trapper po trap_interval=2s rozstawia pułapkę
 		} else if (cmd == "trapper_places_trap") {
@@ -343,7 +343,7 @@ int main() {
 			m.pos = {0.0f, 0.0f};
 			m.set_target(t);
 			m.update(2.1f);
-			result(m.traps_placed);
+			result(m("traps_placed"_f));
 
 		} else if (cmd == "exit") {
 			break;

@@ -23,14 +23,14 @@ namespace engine {
 		actor(float hp, float shield, float move_speed, faction this_team)
 			: renderable_entity(), angle(0.0f), movement_speed(move_speed), team(this_team)
 		{
-			health.max_hp = hp;
-			health.current_hp = hp;
-			health.armor = shield;
-			health.max_armor = shield;
+			health("max_hp"_f) = hp;
+			health("current_hp"_f) = hp;
+			health("armor"_f) = shield;
+			health("max_armor"_f) = shield;
 		}
 
 		virtual void take_damage(float const dmg) { health.apply_damage(dmg); }
-		virtual void take_true_damage(float const dmg) { health.current_hp = std::max(0.0f, health.current_hp - dmg); }
+		virtual void take_true_damage(float const dmg) { health("current_hp"_f) = std::max(0.0f, health("current_hp"_f) - dmg); }
 		virtual void heal(float const amount) { health.apply_heal(amount); }
 		virtual void add_shield(float const amount) { health.apply_shield(amount); }
 

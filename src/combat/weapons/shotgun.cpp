@@ -10,13 +10,13 @@ namespace combat {
 			float step        = spread / static_cast<float>(pellet_count - 1);
 			float start_angle = angle - spread / 2.0f;
 			for (int i = 0; i < pellet_count; ++i)
-				ammo->spawn_bullet(pos, start_angle + static_cast<float>(i) * step, damage);
-			--ammo_count;
-			last_shot_time = 1.0f / fire_rate;
+				(*this)("ammo"_f)->spawn_bullet(pos, start_angle + static_cast<float>(i) * step, (*this)("damage"_f));
+			--(*this)("ammo_count"_f);
+			(*this)("last_shot_time"_f) = 1.0f / (*this)("fire_rate"_f);
 		}
 
 		void shotgun::reload() {
-			ammo_count = max_ammo;
+			(*this)("ammo_count"_f) = (*this)("max_ammo"_f);
 		}
 	}
 }

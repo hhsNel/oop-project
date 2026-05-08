@@ -205,7 +205,7 @@ int main() {
 
         float deg = p.angle * (180.0f / std::numbers::pi_v<float>);
         r2d.draw_text("FPS  " + fmt2(fps)
-                      + "     POS  x=" + fmt2(p.pos.x) + "  y=" + fmt2(p.pos.y)
+                      + "     POS  x=" + fmt2(p.pos("x"_f)) + "  y=" + fmt2(p.pos("y"_f))
                       + "     ANG  " + fmt2(p.angle) + " rad  (" + fmt2(deg) + " deg)",
                       14, INFO_Y + 8, 13, 20, TW);
         r2d.draw_text("W/S: forward/back     A/D: strafe     Mouse: rotate     ESC: exit",

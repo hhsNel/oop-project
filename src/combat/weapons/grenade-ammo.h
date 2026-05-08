@@ -4,6 +4,7 @@
 #include "ammunition.h"
 #include "geometry/map-data.h"
 #include "engine/actor.h"
+#include "util/componentized.h"
 
 namespace combat {
     namespace weapons {
@@ -16,7 +17,7 @@ namespace combat {
         // Usage:
         //   - populate `targets` with living actors before each frame
         //   - weapon::update(dt) automatically calls grenade_ammunition::update(dt)
-        class grenade_ammunition : public ammunition {
+        class grenade_ammunition : public ammunition, public util::componentized<grenade_ammunition> {
         public:
             struct live_grenade {
                 math::vec2 position;
@@ -26,9 +27,20 @@ namespace combat {
                 float      damage;
             };
 
-            std::vector<live_grenade> active;   // grenades currently in flight
-            std::vector<engine::actor*> targets; // populated by the game loop each frame
+        private:
+            [[=util::component_field{}]] std::vector<live_grenade> active;   // grenades currently in flight
+            [[=util::component_field{}]] std::vector<engine::actor*> targets; // populated by the game loop each frame
 
+            geometry::map_data* map;
+            float fuse_time;
+            float explosion_radius;
+            float throw_speed;
+            static constexpr float bounce_damping = 0.5f; // fraction of speed kept after bounce
+
+            void explode(live_grenade const& g);
+
+            friend class util::componentized<grenade_ammunition>;
+        public:
             grenade_ammunition(geometry::map_data* map        = nullptr,
                             float               fuse_time  = 2.0f,
                             float               radius     = 80.0f,
@@ -40,15 +52,6 @@ namespace combat {
             // Advances all live grenades: movement, wall bouncing, fuse countdown,
             // and AoE explosion. Called automatically by weapon::update(dt).
             void update(float dt) override;
-
-        private:
-            geometry::map_data* map;
-            float fuse_time;
-            float explosion_radius;
-            float throw_speed;
-            static constexpr float bounce_damping = 0.5f; // fraction of speed kept after bounce
-
-            void explode(live_grenade const& g);
         };
     }
 }

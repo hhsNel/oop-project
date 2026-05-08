@@ -7,18 +7,21 @@
 
 #include "combat/combat.h"
 #include "util/indexed-storage.h"
+#include "util/componentized.h"
 
 namespace engine {class actor;}
 
 	namespace systems {
-		class health_system {
-		public:
-			float current_hp;
-			float max_hp;
-			float armor;
-			float max_armor;
+		class health_system : public util::componentized<health_system> {
+			[[=util::component_field{}]] float current_hp;
+			[[=util::component_field{}]] float max_hp;
+			[[=util::component_field{}]] float armor;
+			[[=util::component_field{}]] float max_armor;
 
-			std::vector<std::unique_ptr<combat::status_effect>> active_effects;
+			[[=util::component_field{}]] std::vector<std::unique_ptr<combat::status_effect>> active_effects;
+
+			friend class util::componentized<health_system>;
+		public:
 
 			void apply_damage(float amount)
 			{

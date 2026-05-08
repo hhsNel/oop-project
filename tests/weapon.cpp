@@ -89,8 +89,8 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
-			result(p.ammo_count);
-			result(static_cast<int>(a->spawned.size()));
+			result(p("ammo_count"_f));
+			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// pistol_empty — fire full magazine (with cooldown bypass), can_fire() = false
 		} else if (cmd == "pistol_empty") {
@@ -104,7 +104,7 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			for (int i = 0; i < 12; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
-			result(static_cast<int>(a->spawned.size()));
+			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// pistol_reload — fire empty, reload: can_fire() = true, ammo_count = 8
 		} else if (cmd == "pistol_reload") {
@@ -114,7 +114,7 @@ int main() {
 			p.update(1.0f);
 			p.reload();
 			result(p.can_fire() ? 1 : 0);
-			result(p.ammo_count);
+			result(p("ammo_count"_f));
 
 		// pistol_cooldown_ready — fire, advance 0.6s (> 0.5s for rate=2.0), can fire
 		} else if (cmd == "pistol_cooldown_ready") {
@@ -139,7 +139,7 @@ int main() {
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.update(0.3f);
 			p.fire({0.0f, 0.0f}, 0.0f);
-			result(static_cast<int>(a->spawned.size()));
+			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// pistol_bullet_pos <px> <py> <angle> — bullet spawned at correct position
 		} else if (cmd == "pistol_bullet_pos") {
@@ -148,9 +148,9 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			p.fire({px, py}, ang);
-			result(a->spawned[0].pos.x);
-			result(a->spawned[0].pos.y);
-			result(a->spawned[0].angle);
+			result((*a)("spawned"_f)[0].pos("x"_f));
+			result((*a)("spawned"_f)[0].pos("y"_f));
+			result((*a)("spawned"_f)[0].angle);
 
 		// =====================================================================
 		// PARAMETRIC
@@ -163,8 +163,8 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			for (int i = 0; i < shots; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
-			result(p.ammo_count);
-			result(static_cast<int>(a->spawned.size()));
+			result(p("ammo_count"_f));
+			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// cooldown_check <rate> <dt> — fire once, advance dt, report can_fire
 		} else if (cmd == "cooldown_check") {
@@ -184,7 +184,7 @@ int main() {
 			auto p = make_pistol(a, mag, mag);
 			for (int i = 0; i < mag; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
 			p.reload();
-			result(p.ammo_count);
+			result(p("ammo_count"_f));
 
 		// =====================================================================
 		// SMG
@@ -195,8 +195,8 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto s = make_smg(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
-			result(s.ammo_count);
-			result(static_cast<int>(a->spawned.size()));
+			result(s("ammo_count"_f));
+			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// =====================================================================
 		// RIFLE
@@ -207,8 +207,8 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto r = make_rifle(a);
 			r.fire({0.0f, 0.0f}, 0.0f);
-			result(r.ammo_count);
-			result(static_cast<int>(a->spawned.size()));
+			result(r("ammo_count"_f));
+			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// =====================================================================
 		// SNIPER RIFLE
@@ -219,8 +219,8 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto s = make_sniper(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
-			result(s.ammo_count);
-			result(static_cast<int>(a->spawned.size()));
+			result(s("ammo_count"_f));
+			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// =====================================================================
 		// PLASMA GUN
@@ -231,8 +231,8 @@ int main() {
 			combat::weapons::plasma_ammunition* a;
 			auto p = make_plasma(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
-			result(p.ammo_count);
-			result(static_cast<int>(a->spawned.size()));
+			result(p("ammo_count"_f));
+			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// =====================================================================
 		// SHOTGUN
@@ -243,16 +243,16 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto s = make_shotgun(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
-			result(s.ammo_count);
-			result(static_cast<int>(a->spawned.size()));
+			result(s("ammo_count"_f));
+			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// shotgun_spread — fire at angle 0, report min and max pellet angles
 		} else if (cmd == "shotgun_spread") {
 			combat::weapons::bullet_ammunition* a;
 			auto s = make_shotgun(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
-			float mn = a->spawned[0].angle, mx = a->spawned[0].angle;
-			for (auto& r : a->spawned) {
+			float mn = (*a)("spawned"_f)[0].angle, mx = (*a)("spawned"_f)[0].angle;
+			for (auto& r : (*a)("spawned"_f)) {
 				mn = std::min(mn, r.angle);
 				mx = std::max(mx, r.angle);
 			}
@@ -266,7 +266,7 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto s = make_shotgun(a);
 			for (int i = 0; i < shots; ++i) { s.fire({0.0f, 0.0f}, 0.0f); s.update(1.0f); }
-			result(static_cast<int>(a->spawned.size()));
+			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// =====================================================================
 		// KATANA
@@ -276,7 +276,7 @@ int main() {
 		} else if (cmd == "katana_swing") {
 			combat::weapons::katana k;
 			k.fire({0.0f, 0.0f}, 0.0f);
-			result(k.swing_count);
+			result(k("swing_count"_f));
 			result(k.can_fire() ? "YES" : "NO");
 
 		// katana_cooldown — swing, advance 0.5s (< 1/1.5≈0.667s), blocked
@@ -299,7 +299,7 @@ int main() {
 			std::cin >> n;
 			combat::weapons::katana k;
 			for (int i = 0; i < n; ++i) { k.fire({0.0f, 0.0f}, 0.0f); k.update(1.0f); }
-			result(k.swing_count);
+			result(k("swing_count"_f));
 
 		// =====================================================================
 		// DAMAGE
@@ -314,35 +314,35 @@ int main() {
 				combat::weapons::bullet_ammunition* a;
 				auto p = make_pistol(a);
 				p.fire({0.0f, 0.0f}, 0.0f);
-				result(a->spawned[0].damage);
+				result((*a)("spawned"_f)[0].damage);
 			} else if (w == "smg") {
 				combat::weapons::bullet_ammunition* a;
 				auto s = make_smg(a);
 				s.fire({0.0f, 0.0f}, 0.0f);
-				result(a->spawned[0].damage);
+				result((*a)("spawned"_f)[0].damage);
 			} else if (w == "rifle") {
 				combat::weapons::bullet_ammunition* a;
 				auto r = make_rifle(a);
 				r.fire({0.0f, 0.0f}, 0.0f);
-				result(a->spawned[0].damage);
+				result((*a)("spawned"_f)[0].damage);
 			} else if (w == "sniper") {
 				combat::weapons::bullet_ammunition* a;
 				auto s = make_sniper(a);
 				s.fire({0.0f, 0.0f}, 0.0f);
-				result(a->spawned[0].damage);
+				result((*a)("spawned"_f)[0].damage);
 			} else if (w == "plasma") {
 				combat::weapons::plasma_ammunition* a;
 				auto p = make_plasma(a);
 				p.fire({0.0f, 0.0f}, 0.0f);
-				result(a->spawned[0].damage);
+				result((*a)("spawned"_f)[0].damage);
 			} else if (w == "shotgun") {
 				combat::weapons::bullet_ammunition* a;
 				auto s = make_shotgun(a);
 				s.fire({0.0f, 0.0f}, 0.0f);
-				result(a->spawned[0].damage); // damage per pellet
+				result((*a)("spawned"_f)[0].damage); // damage per pellet
 			} else if (w == "katana") {
 				combat::weapons::katana k;
-				result(k.damage);
+				result(k("damage"_f));
 			} else {
 				result("UNKNOWN");
 			}
@@ -353,7 +353,7 @@ int main() {
 			auto s = make_shotgun(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
 			float total = 0.0f;
-			for (auto& r : a->spawned) total += r.damage;
+			for (auto& r : (*a)("spawned"_f)) total += r.damage;
 			result(total);
 
 		} else if (cmd == "exit") {

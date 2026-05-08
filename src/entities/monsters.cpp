@@ -11,14 +11,14 @@ void monster_basic::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
-    if (dist > attack_range)
+    if (dist > (*this)("attack_range"_f))
         move_toward_target(movement_speed, dt);
 
-    if (dist <= attack_range && attack_cooldown <= 0.0f) {
-        melee_attack(attack_damage);
-        attack_cooldown = attack_cd_max;
+    if (dist <= (*this)("attack_range"_f) && (*this)("attack_cooldown"_f) <= 0.0f) {
+        melee_attack((*this)("attack_damage"_f));
+        (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
     }
 }
 
@@ -29,16 +29,16 @@ void monster_ranged::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
     if (dist < preferred_dist - 1.0f)
         move_away_from_target(movement_speed, dt);
     else if (dist > preferred_dist + 1.0f)
         move_toward_target(movement_speed, dt);
 
-    if (dist <= attack_range && attack_cooldown <= 0.0f) {
-        melee_attack(attack_damage); // ranged damage na celu
-        attack_cooldown = attack_cd_max;
+    if (dist <= (*this)("attack_range"_f) && (*this)("attack_cooldown"_f) <= 0.0f) {
+        melee_attack((*this)("attack_damage"_f)); // ranged damage na celu
+        (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
     }
 }
 
@@ -49,7 +49,7 @@ void monster_assault::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
     // Strafe co strafe_timer sekund
     strafe_timer -= dt;
@@ -60,7 +60,7 @@ void monster_assault::update(float dt) {
     strafe(movement_speed * 0.7f, strafe_sign, dt);
 
     // Repos lekko naprzód/wstecz
-    float preferred = attack_range * 0.75f;
+    float preferred = (*this)("attack_range"_f) * 0.75f;
     if (dist > preferred + 1.5f) move_toward_target(movement_speed * 0.5f, dt);
     else if (dist < preferred - 1.5f) move_away_from_target(movement_speed * 0.5f, dt);
 
@@ -70,8 +70,8 @@ void monster_assault::update(float dt) {
     // Burst aktywny
     if (burst_remaining > 0) {
         burst_timer -= dt;
-        if (burst_timer <= 0.0f && dist <= attack_range) {
-            melee_attack(attack_damage);
+        if (burst_timer <= 0.0f && dist <= (*this)("attack_range"_f)) {
+            melee_attack((*this)("attack_damage"_f));
             --burst_remaining;
             burst_timer = burst_interval;
         }
@@ -91,12 +91,12 @@ void monster_sniper::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
     aim_timer += dt;
-    if (aim_timer >= shoot_interval && dist <= attack_range && attack_cooldown <= 0.0f) {
-        melee_attack(attack_damage);
-        attack_cooldown = attack_cd_max;
+    if (aim_timer >= shoot_interval && dist <= (*this)("attack_range"_f) && (*this)("attack_cooldown"_f) <= 0.0f) {
+        melee_attack((*this)("attack_damage"_f));
+        (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
         aim_timer       = 0.0f;
     }
 }
@@ -109,7 +109,7 @@ void monster_trapper::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
     // Błądzi szybko, co jakiś czas zmienia kierunek
     wander_timer -= dt;
@@ -139,14 +139,14 @@ void monster_Duzy_Gruby::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
-    if (dist > attack_range)
+    if (dist > (*this)("attack_range"_f))
         move_toward_target(movement_speed, dt);
 
-    if (dist <= attack_range && attack_cooldown <= 0.0f) {
-        melee_attack(attack_damage);
-        attack_cooldown = attack_cd_max;
+    if (dist <= (*this)("attack_range"_f) && (*this)("attack_cooldown"_f) <= 0.0f) {
+        melee_attack((*this)("attack_damage"_f));
+        (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
     }
 }
 
@@ -157,7 +157,7 @@ void monster_Maly_Szybki::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
     if (dash_cooldown > 0.0f) { dash_cooldown -= dt; return; }
 
@@ -165,10 +165,10 @@ void monster_Maly_Szybki::update(float dt) {
         move_toward_target(movement_speed * 3.5f, dt);
         dash_timer -= dt;
 
-        if (dist <= attack_range) {
-            if (attack_cooldown <= 0.0f) {
-                melee_attack(attack_damage);
-                attack_cooldown = attack_cd_max;
+        if (dist <= (*this)("attack_range"_f)) {
+            if ((*this)("attack_cooldown"_f) <= 0.0f) {
+                melee_attack((*this)("attack_damage"_f));
+                (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
             }
             is_dashing   = false;
             dash_cooldown = 2.5f;
@@ -179,7 +179,7 @@ void monster_Maly_Szybki::update(float dt) {
         }
     } else {
         // Krótka pauza przed dashiem, potem ruszamy
-        if (dist <= detection_radius) {
+        if (dist <= (*this)("detection_radius"_f)) {
             is_dashing = true;
             dash_timer = 1.0f;
         }
@@ -193,25 +193,25 @@ void monster_all_rounder::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
     melee_mode = (dist < melee_threshold);
 
     if (melee_mode) {
-        if (dist > attack_range)
+        if (dist > (*this)("attack_range"_f))
             move_toward_target(movement_speed, dt);
-        if (dist <= attack_range && attack_cooldown <= 0.0f) {
-            melee_attack(attack_damage * 1.5f);
-            attack_cooldown = attack_cd_max;
+        if (dist <= (*this)("attack_range"_f) && (*this)("attack_cooldown"_f) <= 0.0f) {
+            melee_attack((*this)("attack_damage"_f) * 1.5f);
+            (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
         }
     } else {
-        float preferred = attack_range * 0.7f;
+        float preferred = (*this)("attack_range"_f) * 0.7f;
         if (dist < preferred - 1.0f) move_away_from_target(movement_speed, dt);
         else if (dist > preferred + 1.0f) move_toward_target(movement_speed, dt);
 
-        if (dist <= attack_range && attack_cooldown <= 0.0f) {
-            melee_attack(attack_damage);
-            attack_cooldown = attack_cd_max;
+        if (dist <= (*this)("attack_range"_f) && (*this)("attack_cooldown"_f) <= 0.0f) {
+            melee_attack((*this)("attack_damage"_f));
+            (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
         }
     }
 }
@@ -239,7 +239,7 @@ void monster_magic::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
     // Cooldown po strzale — idzie w bok
     if (post_fire_cooldown > 0.0f) {
@@ -262,9 +262,9 @@ void monster_magic::update(float dt) {
     strafe(movement_speed * 0.4f, sidestep_sign, dt);
 
     charge_timer += dt;
-    if (charge_timer >= charge_time && dist <= attack_range && attack_cooldown <= 0.0f) {
-        melee_attack(attack_damage);
-        attack_cooldown    = attack_cd_max;
+    if (charge_timer >= charge_time && dist <= (*this)("attack_range"_f) && (*this)("attack_cooldown"_f) <= 0.0f) {
+        melee_attack((*this)("attack_damage"_f));
+        (*this)("attack_cooldown"_f)    = (*this)("attack_cd_max"_f);
         is_charging        = false;
         charge_timer       = 0.0f;
         post_fire_cooldown = 3.0f;
@@ -278,26 +278,26 @@ void monster_elite_tank::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
     heavy_timer -= dt;
     melee_mode = (dist < melee_threshold);
 
     if (melee_mode) {
-        if (dist > attack_range) move_toward_target(movement_speed, dt);
-        if (dist <= attack_range && attack_cooldown <= 0.0f) {
-            melee_attack(attack_damage * 1.5f);
-            attack_cooldown = attack_cd_max;
+        if (dist > (*this)("attack_range"_f)) move_toward_target(movement_speed, dt);
+        if (dist <= (*this)("attack_range"_f) && (*this)("attack_cooldown"_f) <= 0.0f) {
+            melee_attack((*this)("attack_damage"_f) * 1.5f);
+            (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
         }
     } else {
-        float preferred = attack_range * 0.7f;
+        float preferred = (*this)("attack_range"_f) * 0.7f;
         if (dist < preferred - 1.0f) move_away_from_target(movement_speed, dt);
         else if (dist > preferred + 1.0f) move_toward_target(movement_speed, dt);
 
-        if (dist <= attack_range && attack_cooldown <= 0.0f) {
-            float dmg = (heavy_timer <= 0.0f) ? attack_damage * 3.0f : attack_damage;
+        if (dist <= (*this)("attack_range"_f) && (*this)("attack_cooldown"_f) <= 0.0f) {
+            float dmg = (heavy_timer <= 0.0f) ? (*this)("attack_damage"_f) * 3.0f : (*this)("attack_damage"_f);
             melee_attack(dmg);
-            attack_cooldown = attack_cd_max;
+            (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
             if (heavy_timer <= 0.0f) heavy_timer = heavy_cd;
         }
     }
@@ -310,7 +310,7 @@ void monster_elite_swift::update(float dt) {
     if (!has_target()) return;
 
     float dist = dist_to_target();
-    if (dist > detection_radius) return;
+    if (dist > (*this)("detection_radius"_f)) return;
 
     if (charge_cd > 0.0f) charge_cd -= dt;
 
@@ -318,10 +318,10 @@ void monster_elite_swift::update(float dt) {
         move_toward_target(charge_speed, dt);
         charge_timer -= dt;
 
-        if (dist <= attack_range) {
-            if (attack_cooldown <= 0.0f) {
-                melee_attack(attack_damage * 2.0f);
-                attack_cooldown = attack_cd_max;
+        if (dist <= (*this)("attack_range"_f)) {
+            if ((*this)("attack_cooldown"_f) <= 0.0f) {
+                melee_attack((*this)("attack_damage"_f) * 2.0f);
+                (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
             }
             is_charging = false;
             charge_cd   = 5.0f;
@@ -335,16 +335,16 @@ void monster_elite_swift::update(float dt) {
 
     // Kręci się wokół gracza
     circle_angle += movement_speed * dt;
-    auto t = target_ptr.lock();
+    auto t = (*this)("target_ptr"_f).lock();
     if (t) {
         pos("x"_f) = t->pos("x"_f) + std::cos(circle_angle) * circle_radius;
         pos("y"_f) = t->pos("y"_f) + std::sin(circle_angle) * circle_radius;
     }
 
     // Strzela będąc w zasięgu
-    if (dist <= attack_range && attack_cooldown <= 0.0f) {
-        melee_attack(attack_damage);
-        attack_cooldown = attack_cd_max;
+    if (dist <= (*this)("attack_range"_f) && (*this)("attack_cooldown"_f) <= 0.0f) {
+        melee_attack((*this)("attack_damage"_f));
+        (*this)("attack_cooldown"_f) = (*this)("attack_cd_max"_f);
     }
 
     // Inicjuje szarżę gdy cooldown minął

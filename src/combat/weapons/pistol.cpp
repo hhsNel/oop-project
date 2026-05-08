@@ -7,13 +7,13 @@ namespace combat {
 
 		void pistol::fire(math::vec2 pos, float angle) {
 			if (!can_fire()) return;
-			ammo->spawn_bullet(pos, angle, damage);
-			--ammo_count;
-			last_shot_time = 1.0f / fire_rate;
+			(*this)("ammo"_f)->spawn_bullet(pos, angle, (*this)("damage"_f));
+			--(*this)("ammo_count"_f);
+			(*this)("last_shot_time"_f) = 1.0f / (*this)("fire_rate"_f);
 		}
 
 		void pistol::reload() {
-			ammo_count = max_ammo;
+			(*this)("ammo_count"_f) = (*this)("max_ammo"_f);
 		}
 	}
 }

@@ -18,8 +18,8 @@ public:
 		engine::actor::update(dt);
 	}
  
-	float hp()     const { return health.current_hp; }
-	float shield() const { return health.armor; }
+	float hp()     const { return health("current_hp"_f); }
+	float shield() const { return health("armor"_f); }
 };
  
 // Pomocnik — wypisuje RESULT i wartość z dokładnością do 2 miejsc po przecinku

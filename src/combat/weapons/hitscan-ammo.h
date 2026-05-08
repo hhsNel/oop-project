@@ -4,6 +4,7 @@
 #include "ammunition.h"
 #include "geometry/map-data.h"
 #include "engine/actor.h"
+#include "util/componentized.h"
 
 namespace combat {
     namespace weapons {
@@ -12,13 +13,14 @@ namespace combat {
         // and applies damage to the closest actor hit before that wall.
         //
         // Usage: populate `targets` with all living actors before calling fire().
-        class hitscan_ammunition : public ammunition {
+        class hitscan_ammunition : public ammunition, public util::componentized<hitscan_ammunition> {
             geometry::map_data* map;
             float               max_range;
             float               hit_radius;   // actor hit-cylinder radius (map units)
-        public:
-            std::vector<engine::actor*> targets;
+            [[=util::component_field{}]] std::vector<engine::actor*> targets;
 
+            friend class util::componentized<hitscan_ammunition>;
+        public:
             // map     – geometry used for wall occlusion (may be nullptr → no wall check)
             // range   – maximum effective range in map units
             // radius  – actor hit-cylinder radius in map units

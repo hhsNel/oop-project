@@ -14,11 +14,11 @@ namespace combat { namespace weapons { class weapon; } }
         // Each frame, the game loop checks in_range(player.position) and calls
         // on_pickup(player) when the player is close enough.
         class pickup : public engine::entity {
-        public:
             math::vec2 position;
             float      pickup_radius;
+        protected:
             bool       collected;
-
+        public:
             pickup(math::vec2 pos, float radius = 20.0f)
                 : position(pos), pickup_radius(radius), collected(false) {}
 
@@ -34,9 +34,8 @@ namespace combat { namespace weapons { class weapon; } }
 
         // Restores player HP up to their maximum.
         class health_pickup : public pickup {
-        public:
             float heal_amount;
-
+        public:
             health_pickup(math::vec2 pos, float amount, float radius = 20.0f)
                 : pickup(pos, radius), heal_amount(amount) {}
 
@@ -45,9 +44,8 @@ namespace combat { namespace weapons { class weapon; } }
 
         // Restores player armor/shield up to their maximum.
         class armor_pickup : public pickup {
-        public:
             float armor_amount;
-
+        public:
             armor_pickup(math::vec2 pos, float amount, float radius = 20.0f)
                 : pickup(pos, radius), armor_amount(amount) {}
 
@@ -56,10 +54,9 @@ namespace combat { namespace weapons { class weapon; } }
 
         // Adds ammo to the player's weapon matching weapon_id.
         class ammo_pickup : public pickup {
-        public:
             unsigned int weapon_id;
             unsigned int amount;
-
+        public:
             ammo_pickup(math::vec2 pos, unsigned int wid, unsigned int amt, float radius = 20.0f)
                 : pickup(pos, radius), weapon_id(wid), amount(amt) {}
 
@@ -69,9 +66,8 @@ namespace combat { namespace weapons { class weapon; } }
         // Adds a pre-existing weapon to the player's loadout.
         // The weapon is owned externally (e.g. by the level/game state).
         class weapon_pickup : public pickup {
-        public:
             combat::weapons::weapon* provided_weapon;
-
+        public:
             weapon_pickup(math::vec2 pos, combat::weapons::weapon* w, float radius = 25.0f)
                 : pickup(pos, radius), provided_weapon(w) {}
 

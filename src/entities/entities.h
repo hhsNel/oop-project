@@ -18,10 +18,17 @@ namespace world_object {
 }
 
 namespace entities {
-	class monster : public engine::actor {
-		std::weak_ptr<engine::actor> target_ptr;
-		float attack_cooldown;
+	class monster : public engine::actor, public util::componentized<monster> {
+		[[=util::component_field{}]] std::weak_ptr<engine::actor> target_ptr;
+		[[=util::component_field{}]] float attack_cooldown;
 
+		[[=util::component_field{}]] float attack_range;
+		[[=util::component_field{}]] float detection_radius;
+		[[=util::component_field{}]] float attack_damage;
+		[[=util::component_field{}]] float attack_cd_max;
+
+		friend class util::componentized<monster>;
+	protected:
 		bool has_target() const;
 		float dist_to_target() const;
 		math::vec2 dir_to_target() const;
@@ -29,11 +36,6 @@ namespace entities {
 		void move_away_from_target(float speed, float dt);
 		void strafe(float speed, float sign, float dt);
 		void melee_attack(float damage);
-
-		float attack_range;
-		float detection_radius;
-		float attack_damage;
-		float attack_cd_max;
 	
 	public:
 
@@ -51,12 +53,13 @@ namespace entities {
 		void take_damage(float dmg) override;
 	};
 
-	class player : public engine::actor {
-		std::vector<combat::weapons::weapon*> weapons;
+	class player : public engine::actor, public util::componentized<player> {
+		[[=util::component_field{}]] std::vector<combat::weapons::weapon*> weapons;
 		float sensitivity;
-		combat::weapons::weapon* current_weapon;
-		int current_weapon_index;
+		[[=util::component_field{}]] combat::weapons::weapon* current_weapon;
+		[[=util::component_field{}]] int current_weapon_index;
 
+		friend class util::componentized<player>;
 	public:
 
 		player(float hp, float shield, float move_speed, float sens)

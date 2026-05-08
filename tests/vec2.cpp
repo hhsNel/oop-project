@@ -39,7 +39,7 @@ int main() {
             continue;
         }
 
-        std::cout << "RESULT " << std::fixed << static_cast<float>(res.x) << " " << static_cast<float>(res.y) << std::endl;
+        std::cout << "RESULT " << std::fixed << static_cast<float>(res("x"_f)) << " " << static_cast<float>(res("y"_f)) << std::endl;
     }
     return 0;
 }

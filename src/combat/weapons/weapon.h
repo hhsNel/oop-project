@@ -6,20 +6,22 @@
 
 #include "math/vec2.h"
 #include "ammunition.h"
+#include "util/componentized.h"
 
 namespace combat
 {
 	namespace weapons {
-		class weapon {
-		public:
-			unsigned int weapon_id;
-			std::unique_ptr<ammunition> ammo;
-			int ammo_count;
-			int max_ammo;
-			float fire_rate;
-			float last_shot_time;
-			float damage;
+		class weapon : public util::componentized<weapon> {
+			[[=util::component_field{}]] unsigned int weapon_id;
+			[[=util::component_field{}]] std::unique_ptr<ammunition> ammo;
+			[[=util::component_field{}]] int ammo_count;
+			[[=util::component_field{}]] int max_ammo;
+			[[=util::component_field{}]] float fire_rate;
+			[[=util::component_field{}]] float last_shot_time;
+			[[=util::component_field{}]] float damage;
 
+			friend class util::componentized<weapon>;
+		public:
 			virtual bool can_fire() const { return ammo_count > 0 && last_shot_time <= 0.0f; }
 			void update(float dt) {
 				last_shot_time = std::max(0.0f, last_shot_time - dt);
