@@ -16,11 +16,11 @@ int main() {
         std::cin >> x1 >> y1 >> x2 >> y2;
         segment seg(vec2(x1, y1), vec2(x2, y2));
 
-		std::cout << "test " << std::fixed << (float)seg.point0.x << "," << (float)seg.point0.y << " " << (float)seg.point1.x << "," << (float)seg.point1.y << std::endl;
+		std::cout << "test " << std::fixed << (float)seg.point0("x"_f) << "," << (float)seg.point0("y"_f) << " " << (float)seg.point1("x"_f) << "," << (float)seg.point1("y"_f) << std::endl;
 
         if (cmd == "mid") {
             vec2 mid = seg.midpoint();
-            std::cout << "RESULT " << std::fixed << (float)mid.x << " " << (float)mid.y << std::endl;
+            std::cout << "RESULT " << std::fixed << (float)mid("x"_f) << " " << (float)mid("y"_f) << std::endl;
         } else if (cmd == "len") {
             std::cout << "RESULT " << std::fixed << (float)seg.len() << std::endl;
         } else if (cmd == "sqlen") {

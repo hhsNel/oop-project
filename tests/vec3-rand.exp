@@ -47,6 +47,7 @@ proc run_test_vec3 {cmd expected_x expected_y expected_z {quiet 0}} {
             #puts "PASS ($cmd)"
         }
     } else {
+		puts "vec3 rand"
         puts "FAIL ($cmd)"
         puts "\tGot:      $rx $ry $rz"
         puts "\tExpected: $expected_x $expected_y $expected_z"
@@ -66,6 +67,7 @@ proc run_test_scalar {cmd expected {quiet 0}} {
             #puts "PASS ($cmd)"
         }
     } else {
+		puts "vec3 rand"
         puts "FAIL ($cmd)"
         puts "\tGot:      $rx"
         puts "\tExpected: $expected"

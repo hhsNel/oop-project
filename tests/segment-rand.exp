@@ -45,6 +45,7 @@ proc run_test_vec2 {cmd expected_x expected_y {quiet 0}} {
             #puts "PASS ($cmd)"
         }
     } else {
+		puts "segment rand"
         puts "FAIL ($cmd)"
         puts "\tGot:      $rx $ry"
         puts "\tExpected: $expected_x $expected_y"
@@ -64,6 +65,7 @@ proc run_test_scalar {cmd expected {quiet 0}} {
             #puts "PASS ($cmd)"
         }
     } else {
+		puts "segment rand"
         puts "FAIL ($cmd)"
         puts "\tGot:      $rx"
         puts "\tExpected: $expected"

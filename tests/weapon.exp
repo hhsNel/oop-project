@@ -13,6 +13,7 @@ proc run_test {cmd expected} {
     expect -re {RESULT ([^\r\n]+)}
     set result $expect_out(1,string)
     if {$result != $expected} {
+		puts "weapon"
         puts "FAIL ($cmd)"
         puts "\tGot:      $result"
         puts "\tExpected: $expected"
@@ -28,6 +29,7 @@ proc run_test2 {cmd exp1 exp2} {
     expect -re {RESULT ([^\r\n]+)}
     set r2 $expect_out(1,string)
     if {$r1 != $exp1 || $r2 != $exp2} {
+		puts "weapon"
         puts "FAIL ($cmd)"
         puts "\tGot:      $r1 / $r2"
         puts "\tExpected: $exp1 / $exp2"
@@ -73,6 +75,7 @@ set ry $expect_out(1,string)
 expect -re {RESULT ([^\r\n]+)}
 set ra $expect_out(1,string)
 if {![near $rx 5.0] || ![near $ry 10.0] || ![near $ra 1.5707]} {
+	puts "weapon"
     puts "FAIL (pistol_bullet_pos 5.0 10.0 1.5707)"
     puts "\tGot:      $rx $ry $ra"
     puts "\tExpected: ~5.0 ~10.0 ~1.5707"
@@ -121,6 +124,7 @@ set mn $expect_out(1,string)
 expect -re {RESULT ([^\r\n]+)}
 set mx $expect_out(1,string)
 if {![near $mn -0.1309] || ![near $mx 0.1309]} {
+	puts "weapon"
     puts "FAIL (shotgun_spread)"
     puts "\tGot min/max: $mn / $mx"
     puts "\tExpected:    ~-0.1309 / ~0.1309"

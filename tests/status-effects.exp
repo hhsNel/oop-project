@@ -17,6 +17,7 @@ proc run_test {cmd expected} {
     if {$result == $expected} {
         # pass
     } else {
+		puts "status-effects"
         puts "FAIL ($cmd)"
         puts "\tGot:      $result"
         puts "\tExpected: $expected"

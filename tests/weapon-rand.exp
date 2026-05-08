@@ -27,6 +27,7 @@ for {set i 0} {$i < 2000} {incr i} {
     set got_spawned $expect_out(1,string)
 
     if {$got_ammo != $exp_ammo || $got_spawned != $exp_spawned} {
+		puts "weapon rand"
         puts "FAIL (fire_count $shots)"
         puts "\tGot:      ammo=$got_ammo  spawned=$got_spawned"
         puts "\tExpected: ammo=$exp_ammo  spawned=$exp_spawned"
@@ -61,6 +62,7 @@ for {set i 0} {$i < 1000} {incr i} {
     set got $expect_out(1,string)
 
     if {$got != $expected} {
+		puts "weapon rand"
         puts "FAIL (cooldown_check $rate_fmt $dt_fmt)"
         puts "\tGot:      $got"
         puts "\tExpected: $expected  (cooldown=[format "%.4f" $cooldown])"
@@ -81,6 +83,7 @@ for {set i 0} {$i < 500} {incr i} {
     set got $expect_out(1,string)
 
     if {$got != $mag} {
+		puts "weapon rand"
         puts "FAIL (reload_check $mag)"
         puts "\tGot:      $got"
         puts "\tExpected: $mag"
@@ -103,6 +106,7 @@ for {set i 0} {$i < 1000} {incr i} {
     set got $expect_out(1,string)
 
     if {$got != $exp_pellets} {
+		puts "weapon rand"
         puts "FAIL (shotgun_pellet_count $shots)"
         puts "\tGot:      $got"
         puts "\tExpected: $exp_pellets"
@@ -123,6 +127,7 @@ for {set i 0} {$i < 500} {incr i} {
     set got $expect_out(1,string)
 
     if {$got != $n} {
+		puts "weapon rand"
         puts "FAIL (katana_swings $n)"
         puts "\tGot:      $got"
         puts "\tExpected: $n"

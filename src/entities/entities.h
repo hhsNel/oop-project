@@ -19,6 +19,8 @@ namespace world_object {
 
 namespace entities {
 	class monster : public engine::actor {
+	protected:
+
 		std::weak_ptr<engine::actor> target_ptr;
 		float attack_cooldown;
 

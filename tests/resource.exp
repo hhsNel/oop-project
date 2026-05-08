@@ -20,6 +20,7 @@ proc run_test {cmd expected {quiet 0}} {
             #puts "PASS ($cmd)"
         }
     } else {
+		puts "resource tests"
         puts "FAIL ($cmd)"
         puts "\tGot:      $result"
         puts "\tExpected: $expected"
