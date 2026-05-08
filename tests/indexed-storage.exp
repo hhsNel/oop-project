@@ -19,6 +19,7 @@ proc run_test {cmd expected {quiet 0}} {
             #puts "PASS ($cmd)"
         }
     } else {
+		puts "indexed-storage edge"
         puts "FAIL ($cmd)"
         puts "\tGot:      $result"
         puts "\tExpected: $expected"

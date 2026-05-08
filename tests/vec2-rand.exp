@@ -45,6 +45,7 @@ proc run_test {cmd expected_x expected_y {quiet 0}} {
             #puts "PASS ($cmd)"
         }
     } else {
+		puts "vec2 rand"
         puts "FAIL ($cmd)"
         puts "\tGot:      $rx $ry"
         puts "\tExpected: $expected_x $expected_y"

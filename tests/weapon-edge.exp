@@ -13,6 +13,7 @@ proc run_test {cmd expected} {
     expect -re {RESULT ([^\r\n]+)}
     set result $expect_out(1,string)
     if {$result != $expected} {
+		puts "weapon edge"
         puts "FAIL ($cmd)"
         puts "\tGot:      $result"
         puts "\tExpected: $expected"
@@ -28,6 +29,7 @@ proc run_test2 {cmd exp1 exp2} {
     expect -re {RESULT ([^\r\n]+)}
     set r2 $expect_out(1,string)
     if {$r1 != $exp1 || $r2 != $exp2} {
+		puts "weapon edge"
         puts "FAIL ($cmd)"
         puts "\tGot:      $r1 / $r2"
         puts "\tExpected: $exp1 / $exp2"
@@ -75,6 +77,7 @@ send "cooldown_check 1.5 0.6667\r"
 expect -re {RESULT ([^\r\n]+)}
 set got $expect_out(1,string)
 if {$got != "YES"} {
+	puts "weapon edge"
     puts "FAIL (cooldown_check 1.5 0.6667)"
     puts "\tGot:      $got"
     puts "\tExpected: YES"

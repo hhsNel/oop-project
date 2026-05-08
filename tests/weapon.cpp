@@ -148,8 +148,8 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto p = make_pistol(a);
 			p.fire({px, py}, ang);
-			result(a->spawned[0].pos.x);
-			result(a->spawned[0].pos.y);
+			result(a->spawned[0].pos("x"_f));
+			result(a->spawned[0].pos("y"_f));
 			result(a->spawned[0].angle);
 
 		// =====================================================================
