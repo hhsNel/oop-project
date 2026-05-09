@@ -14,7 +14,7 @@ namespace rendering {
 			mode(const struct drm_mode_modeinfo& info);
 			~mode() override = default;
 
-			struct drm_mode_crtc create_crtc_req(std::uint32_t const crtc_id, std::uint32_t const fb_id, std::uint32_t const conn_id) const;
+			struct drm_mode_crtc create_crtc_req(std::uint32_t const crtc_id, std::uint32_t const fb_id, std::uint32_t const *const conn_id) const;
 		};
 	}
 }
