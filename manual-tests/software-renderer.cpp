@@ -50,7 +50,7 @@ void render_frame(math::vec2 cam_pos, float cam_height, float &cam_angle, float 
 	ss << "Avg FPS: " << avg_fps;
 	r2d.draw_text(ss.str().c_str(), 10, 90, 12, 16, 0xffffff);
 	ss.str(""); ss.clear();
-	ss << "Camera: (" << cam_pos.x << ", " << cam_pos.y << ", " << cam_height << ")";
+	ss << "Camera: (" << cam_pos("x"_f) << ", " << cam_pos("y"_f) << ", " << cam_height << ")";
 	r2d.draw_text(ss.str().c_str(), 10, 110, 12, 16, 0xffffff);
 	ss.str(""); ss.clear();
 	ss << "Camera Angle: " << cam_angle << "rad";
@@ -89,8 +89,8 @@ void move_camera(math::vec2 &cam_pos, float &cam_height, float &cam_angle, float
     std::tuple<math::vec2, float, float, float> prev = arr[segment];
     std::tuple<math::vec2, float, float, float> next = arr[segment + 1];
 
-    cam_pos.x  = std::get<0>(prev).x * (1.0f - t) + std::get<0>(next).x * t;
-    cam_pos.y  = std::get<0>(prev).y * (1.0f - t) + std::get<0>(next).y * t;
+    cam_pos("x"_f)  = std::get<0>(prev)("x"_f) * (1.0f - t) + std::get<0>(next)("x"_f) * t;
+    cam_pos("y"_f)  = std::get<0>(prev)("y"_f) * (1.0f - t) + std::get<0>(next)("y"_f) * t;
     cam_height = std::get<1>(prev)   * (1.0f - t) + std::get<1>(next)   * t;
     cam_angle  = std::get<2>(prev)   * (1.0f - t) + std::get<2>(next)   * t;
     fov        = std::get<3>(prev)   * (1.0f - t) + std::get<3>(next)   * t;
