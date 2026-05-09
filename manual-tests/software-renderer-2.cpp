@@ -112,28 +112,20 @@ int main() {
     std::cout << "Starting Software Renderer PoC..." << std::endl;
 
     auto backend = std::make_unique<rendering::drm_kms::backend>();
-    if (backend->is_bad()) {
+    if (backend->bad()) {
         std::cerr << "Failed to initialize DRM/KMS backend." << std::endl;
         return -1;
     }
 
-    auto modes = backend->get_modes();
+    auto modes = (*backend)("modes"_f);
     if (!modes.empty()) {
-        backend->set_mode(std::move(modes[0]));
+        backend->push_mode(std::move(modes[0]));
     }
-
-    rendering::software_renderer renderer;
-    renderer.set_target(backend.get());
 
 	util::resource_loader rl;
     auto tm = std::make_unique<graphics::texture_manager>(graphics::texture_manager::load(rl));
-    renderer.set_texture_manager(tm.get());
 
-	rendering::renderer_2d r2d;
-    r2d.set_target(backend.get());
-    r2d.set_texture_manager(tm.get());
-    const graphics::texture& atlas = tm->flat_tx_by_id(0);
-    r2d.set_font_texture(&atlas);
+	rendering::renderer_2d r2d(*backend.get(), *tm.get(), tm->flat_tx_by_id(0));
 
     geometry::map_data map;
     auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
@@ -230,7 +222,7 @@ int main() {
     auto root_node_id = map.nodes.add(root_node);
     map.root_node_id = root_node_id;
 
-    renderer.set_map(&map);
+    rendering::software_renderer renderer(*static_cast<rendering::rendering_backend *>(backend.get()), *tm.get(), map);
 
     math::vec2 cam_pos(512.0f, 512.0f);
     float cam_height = 128.0f;

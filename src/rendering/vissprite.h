@@ -8,6 +8,7 @@
 
 namespace rendering {
 	class vissprite {
+		/* TODO */
 	public:
 		float depth;
 		int cx1, cx2;

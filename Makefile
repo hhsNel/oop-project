@@ -35,7 +35,7 @@ $(TARGET): $(OBJ) $(RESOBJ)
 $(BUILDDIR)/res/%.o: $(RESDIR)/% $(BUILDDIR)
 	objcopy $(OCFLAGS) $< $@
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR) $(RES_HEADER)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/%.h $(BUILDDIR) $(RES_HEADER)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(RES_HEADER): $(RES)

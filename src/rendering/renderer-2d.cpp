@@ -2,28 +2,14 @@
 
 namespace rendering {
 
-    renderer_2d::renderer_2d() : target(nullptr), tex_manager(nullptr), font_texture(nullptr) {}
-
-    void renderer_2d::set_target(rendering_backend *const tgt) {
-        target = tgt;
-    }
-
-    void renderer_2d::set_texture_manager(graphics::texture_manager const *const tm) {
-        tex_manager = tm;
-    }
-
-    void renderer_2d::set_font_texture(graphics::texture const *const font_tex) {
-        font_texture = font_tex;
-    }
+    renderer_2d::renderer_2d(rendering_backend &tgt, graphics::texture_manager const& tm, graphics::texture const& font_tex) : target(tgt), tex_manager(tm), font_texture(font_tex) {}
 
     void renderer_2d::draw_texture(graphics::texture const& tex, int x, int y, int w, int h) {
-        if (!target || w <= 0 || h <= 0) return;
-
-        int const screen_w = static_cast<int>(target->get_width());
-        int const screen_h = static_cast<int>(target->get_height());
+        int const screen_w = static_cast<int>(target("width"_f));
+        int const screen_h = static_cast<int>(target("height"_f));
         
-        unsigned int const pitch = target->get_pitch() / sizeof(std::uint32_t); 
-        std::uint32_t *__restrict mmio = target->get_mmio();
+        unsigned int const pitch = target("pitch"_f) / sizeof(std::uint32_t); 
+        std::uint32_t *__restrict mmio = target("mmio"_f);
 
         int const start_x = std::max(0, x);
         int const start_y = std::max(0, y);
@@ -49,12 +35,10 @@ namespace rendering {
     }
 
     void renderer_2d::draw_text(std::string_view text, int x, int y, int char_w, int char_h, std::uint32_t const color) {
-        if (!font_texture) return;
-
         int const cols = 16;
         int const rows = 16;
-        int const src_char_w = font_texture->width / cols;
-        int const src_char_h = font_texture->height / rows;
+        int const src_char_w = font_texture.width / cols;
+        int const src_char_h = font_texture.height / rows;
 
         int current_x = x;
         std::uint32_t const MAGENTA_COLORKEY = 0xFFFF00FF;
@@ -72,20 +56,20 @@ namespace rendering {
             
             int const start_x = std::max(0, current_x);
             int const start_y = std::max(0, y);
-            int const end_x   = std::min(static_cast<int>(target->get_width()), current_x + char_w);
-            int const end_y   = std::min(static_cast<int>(target->get_height()), y + char_h);
+            int const end_x   = std::min(static_cast<int>(target("width"_f)), current_x + char_w);
+            int const end_y   = std::min(static_cast<int>(target("height"_f)), y + char_h);
 
-            unsigned int const pitch = target->get_pitch() / sizeof(std::uint32_t);
-            std::uint32_t *__restrict mmio = target->get_mmio();
+            unsigned int const pitch = target("pitch"_f) / sizeof(std::uint32_t);
+            std::uint32_t *__restrict mmio = target("mmio"_f);
 
 			for (int dx = start_x; dx < end_x; ++dx) {
 				std::uint32_t const src_x = grid_x * src_char_w + ((dx - current_x) * src_char_w) / char_w;
 				for (int dy = start_y; dy < end_y; ++dy) {
 					std::uint32_t const src_y = grid_y * src_char_h + ((dy - y) * src_char_h) / char_h;
 
-					std::uint32_t const pixel = font_texture->pixels[src_x * font_texture->height + src_y];
+					std::uint32_t const pixel = font_texture.pixels[src_x * font_texture.height + src_y];
 
-                    if (font_texture->has_transparency && pixel == MAGENTA_COLORKEY) {
+                    if (font_texture.has_transparency && pixel == MAGENTA_COLORKEY) {
                         continue;
                     }
 
@@ -98,10 +82,10 @@ namespace rendering {
     }
 
     void renderer_2d::draw_rect(int x, int y, int w, int h, std::uint32_t color) {
-	auto* fb    = target->get_mmio();
-	unsigned pitch = target->get_pitch() / sizeof(std::uint32_t);
-	unsigned scr_w = target->get_width();
-	unsigned scr_h = target->get_height();
+	auto* fb    = target("mmio"_f);
+	unsigned pitch = target("pitch"_f) / sizeof(std::uint32_t);
+	unsigned scr_w = target("width"_f);
+	unsigned scr_h = target("height"_f);
 	int x1 = std::max(0, x),              y1 = std::max(0, y);
 	int x2 = std::min((int)scr_w, x + w), y2 = std::min((int)scr_h, y + h);
 
