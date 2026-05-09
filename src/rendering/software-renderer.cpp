@@ -54,13 +54,13 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
     /* identify closer and farther nodes and their bounding boxes */
     auto closer_node = is_front ? node.front : node.back;
     auto farther_node = is_front ? node.back : node.front;
-    auto closer_box = is_front ? node.front_box : node.back_box;
+//    auto closer_box = is_front ? node.front_box : node.back_box;
     auto farther_box = is_front ? node.back_box : node.front_box;
 
     /* visit the closer node first */
-    if (is_box_visible(closer_box, frd)) {
+//    if (is_box_visible(closer_box, frd)) {
         render_bsp_node(closer_node, frd);
-    }
+//    }
 
     /* visit the farther node second */
     if (is_box_visible(farther_box, frd)) {
@@ -96,7 +96,7 @@ void software_renderer::project_and_draw_linedef(geometry::linedef const& line, 
         tr_v2("x"_f) = tr_v2("x"_f) + t * (tr_v1("x"_f) - tr_v2("x"_f));
         tr_v2("y"_f) = near_z;
         u2 = u2 + t * (u1 - u2);
-    }
+	}
 
 	/* exact values for tex mapping */
     float proj_x1 = (tr_v1("x"_f) / tr_v1("y"_f)) * frd.fov_scale + frd.half_sw;
