@@ -12,7 +12,6 @@
 namespace rendering {
 	class rendering_backend {
 	protected:
-		bool is_bad;
 		virtual std::vector<std::unique_ptr<rendering_mode const>> obtain_modes() = 0;
 		virtual unsigned int obtain_width() = 0;
 		virtual unsigned int obtain_height() = 0;
