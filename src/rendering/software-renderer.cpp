@@ -96,12 +96,7 @@ void software_renderer::project_and_draw_linedef(geometry::linedef const& line, 
         tr_v2("x"_f) = tr_v2("x"_f) + t * (tr_v1("x"_f) - tr_v2("x"_f));
         tr_v2("y"_f) = near_z;
         u2 = u2 + t * (u1 - u2);
-    } else if (tr_v2("y"_f) < near_z) {
-		float t = (near_z - tr_v1("y"_f)) * inv_dy;
-		tr_v2("x"_f) = tr_v1("x"_f) + t * (tr_v2("x"_f) - tr_v1("x"_f));
-		tr_v2("y"_f) = near_z;
-		u2 = u1 + t * (u2 - u1);
-    }
+	}
 
 	/* exact values for tex mapping */
     float proj_x1 = (tr_v1("x"_f) / tr_v1("y"_f)) * frd.fov_scale + frd.half_sw;
