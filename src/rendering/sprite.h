@@ -6,6 +6,7 @@
 
 namespace rendering {
 	class sprite {
+		/* TODO */
 	public:
 		math::vec2 pos;
 		float z_pos;

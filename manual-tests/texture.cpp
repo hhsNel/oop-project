@@ -11,7 +11,7 @@
 #include "graphics/texture.h"
 
 bool check_backend_state(const std::unique_ptr<rendering::rendering_backend>& backend, const std::string& action) {
-    if (backend->is_bad()) {
+    if (backend->bad()) {
         std::cerr << "error: backend entered a bad state after: " << action << std::endl;
         return false;
     }
@@ -24,12 +24,12 @@ int main(int argc, char **argv) {
     std::unique_ptr<rendering::rendering_backend> backend = 
         std::make_unique<rendering::drm_kms::backend>();
 
-    if (backend->is_bad()) {
+    if (backend->bad()) {
         std::cerr << "error: failed to initialize backend" << std::endl;
         return 1;
     }
 
-    auto modes = backend->get_modes();
+    auto modes = (*backend)("modes"_f);
     if (!check_backend_state(backend, "querying modes")) return 1;
 
     if (modes.empty()) {
@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
     }
 
     std::cout << "setting mode..." << std::endl;
-    backend->set_mode(std::move(modes[0]));
+    backend->push_mode(std::move(modes[0]));
     if (!check_backend_state(backend, "setting mode")) return 1;
 
 	char tx_type = 'w';
@@ -65,10 +65,10 @@ int main(int argc, char **argv) {
     
     std::cout << "loaded wall texture 0 (" << wall_tex->width << "x" << wall_tex->height << ")" << std::endl;
 
-    unsigned int screen_width = backend->get_width();
-    unsigned int screen_height = backend->get_height();
-    unsigned int pitch = backend->get_pitch();
-    std::uint32_t* mmio = backend->get_mmio();
+    unsigned int screen_width = (*backend)("width"_f);
+    unsigned int screen_height = (*backend)("height"_f);
+    unsigned int pitch = (*backend)("pitch"_f);
+    std::uint32_t* mmio = (*backend)("mmio"_f);
 
     if (!check_backend_state(backend, "fetching frame properties")) return 1;
 

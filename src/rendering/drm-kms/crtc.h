@@ -3,19 +3,23 @@
 
 #include <cstdint>
 #include "device-context.h"
-#include "rendering-mode.h"
+#include "mode.h"
 
 namespace rendering {
 	namespace drm_kms {
 		class crtc {
-		protected:
 			const device_context& dev;
+			std::uint32_t crtc_id;
 
 		public:
-			uint32_t crtc_id;
-
 			crtc(const device_context& d, uint32_t id);
-			bool set_config(uint32_t fb_id, uint32_t conn_id, const drm_rendering_mode& mode);
+
+			// Apply a full modesetting config: bind a framebuffer, connector, and mode.
+			bool set_config(uint32_t fb_id, uint32_t conn_id, const mode& m);
+
+			// Issue a non-blocking page flip to the given framebuffer.
+			// Called by framebuffer::flip_onto — crtc_id stays private.
+			bool page_flip(uint32_t fb_id) const;
 		};
 	}
 }
