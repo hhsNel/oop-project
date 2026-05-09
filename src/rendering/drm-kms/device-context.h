@@ -6,14 +6,16 @@
 namespace rendering {
 	namespace drm_kms {
 		class device_context {
-		public:
 			int fd;
+
+		public:
 
 			explicit device_context(const std::string& path);
 			~device_context();
 
 			bool is_valid() const;
 			int ioctl(unsigned long request, void* arg) const;
+			void *mmap(void *addr, size_t len, int prot, int flags, off_t off) const;
 		};
 	}
 }

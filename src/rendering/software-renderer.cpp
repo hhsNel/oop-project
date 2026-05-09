@@ -11,20 +11,8 @@
 
 namespace rendering {
 
-software_renderer::software_renderer() 
-    : target(nullptr), tex_manager(nullptr), current_map(nullptr) {
-}
-
-void software_renderer::set_target(rendering_backend *const tgt) {
-    this->target = tgt;
-}
-
-void software_renderer::set_texture_manager(graphics::texture_manager const *const tm) {
-    this->tex_manager = tm;
-}
-
-void software_renderer::set_map(geometry::map_data const *const map) {
-    this->current_map = map;
+software_renderer::software_renderer(rendering_backend &tgt, graphics::texture_manager const& tm, geometry::map_data const& map) 
+    : target(tgt), tex_manager(tm), current_map(map) {
 }
 
 void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node>::id_t node_id, frame_rendering_data const frd) {
@@ -32,7 +20,7 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
     if (node_id & geometry::bsp_node::leaf_flag) {
         auto subsector_id = node_id & ~geometry::bsp_node::leaf_flag;
 
-        geometry::subsector const& sub = current_map->subsectors[subsector_id];
+        geometry::subsector const& sub = current_map.subsectors[subsector_id];
 
 		/* TODO: not sure if sprites should be queued first ? */
 		for(auto const& sprite : sub.sprites) {
@@ -40,13 +28,13 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
 		}
 
         for (auto const line_id : sub.lines) {
-            project_and_draw_linedef(current_map->linedefs[line_id], frd);
+            project_and_draw_linedef(current_map.linedefs[line_id], frd);
         }
         return;
     }
 
 	/* if not a leaf, then a bsp node */
-    geometry::bsp_node const& node = current_map->nodes[node_id];
+    geometry::bsp_node const& node = current_map.nodes[node_id];
 
 	/* check if camera is in front */
     bool is_front = node.is_pt_front_side(frd.cam_pos);
@@ -114,9 +102,9 @@ void software_renderer::project_and_draw_linedef(geometry::linedef const& line, 
 
 void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const frd) {
 	/* useful stuff */
-    geometry::sidedef const& sd = current_map->sidedefs[line.front];
-    geometry::sector const& s = current_map->sectors[sd.facing_sector];
-    graphics::texture const& mt = tex_manager->wall_tx_by_id(sd.middle_tex); 
+    geometry::sidedef const& sd = current_map.sidedefs[line.front];
+    geometry::sector const& s = current_map.sectors[sd.facing_sector];
+    graphics::texture const& mt = tex_manager.wall_tx_by_id(sd.middle_tex); 
 
 	/* bounds as integers */
     int x1 = static_cast<int>(proj_x1);
@@ -180,12 +168,12 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
 
 void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const frd) {
 	/* useful stuff */
-    geometry::sidedef const& front_sd = current_map->sidedefs[line.front];
-    geometry::sidedef const& back_sd  = current_map->sidedefs[line.back];
-    geometry::sector const& front = current_map->sectors[front_sd.facing_sector];
-    geometry::sector const& back  = current_map->sectors[back_sd.facing_sector];
-    graphics::texture const& ut = tex_manager->wall_tx_by_id(front_sd.upper_tex);
-    graphics::texture const& lt = tex_manager->wall_tx_by_id(front_sd.lower_tex);
+    geometry::sidedef const& front_sd = current_map.sidedefs[line.front];
+    geometry::sidedef const& back_sd  = current_map.sidedefs[line.back];
+    geometry::sector const& front = current_map.sectors[front_sd.facing_sector];
+    geometry::sector const& back  = current_map.sectors[back_sd.facing_sector];
+    graphics::texture const& ut = tex_manager.wall_tx_by_id(front_sd.upper_tex);
+    graphics::texture const& lt = tex_manager.wall_tx_by_id(front_sd.lower_tex);
 	float inv_z1 = 1.0f / z1;
 	float inv_z2 = 1.0f / z2;
 
@@ -314,7 +302,7 @@ void software_renderer::render_visplanes(frame_rendering_data const frd) {
     float dx_sin = frd.inv_fov_scale * frd.sin_cam_angle;
 
     for (auto const& vp : visplanes) {
-        graphics::texture const& tex = tex_manager->wall_tx_by_id(vp.tex_id);
+        graphics::texture const& tex = tex_manager.wall_tx_by_id(vp.tex_id);
         float h = std::abs(frd.cam_height - vp.height);
 
 		/* true y bounds */
@@ -402,7 +390,7 @@ void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame
 	float proj_x = (tr_pos("x"_f) / tr_pos("y"_f)) * frd.fov_scale + frd.half_sw;
 	float scale = frd.fov_scale / tr_pos("y"_f) * s->inherent_scale;
 
-	graphics::texture const& tex = tex_manager->sprite_tx_by_id(s->tex_id);
+	graphics::texture const& tex = tex_manager.sprite_tx_by_id(s->tex_id);
 
 	/* screen bounds */
 	float half_width = (tex.width * scale) / 2.0f;
@@ -436,7 +424,7 @@ void software_renderer::render_vissprites(frame_rendering_data const frd) {
 		});
 
 	for(auto const& vs : vissprites) {
-		graphics::texture const& tex = tex_manager->sprite_tx_by_id(vs.tex_id);
+		graphics::texture const& tex = tex_manager.sprite_tx_by_id(vs.tex_id);
 		float eu_dist_f = euclidian_dist_factor[std::clamp(static_cast<int>(vs.proj_x), 0, static_cast<int>(frd.sw) - 1)];
 		int sprite_light = calculate_light(vs.light_level, vs.depth * eu_dist_f);
 
@@ -580,17 +568,17 @@ __attribute__((always_inline)) inline std::uint32_t software_renderer::apply_lig
 
 void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_height, float cam_angle, float fov) {
 
-    if (current_map && current_map->root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
+    if (current_map.root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
 		/* pre-calculate a bunch of things because calculating them per-pixel or even per-row is too slow */
 		frame_rendering_data frd;
 		frd.cam_pos       = cam_pos;
 		frd.cam_height    = cam_height;
 		frd.cam_angle     = cam_angle;
-		frd.sw            = target->get_width();
-		frd.sh            = target->get_height();
+		frd.sw            = target("width"_f);
+		frd.sh            = target("height"_f);
 		frd.half_sw       = frd.sw / 2.0f;
-		frd.pitch         = target->get_pitch()/sizeof(std::uint32_t);
-		frd.mmio          = target->get_mmio();
+		frd.pitch         = target("pitch"_f)/sizeof(std::uint32_t);
+		frd.mmio          = target("mmio"_f);
 		frd.fov_scale     = frd.half_sw / std::tan(fov/2.0f);
 		frd.inv_fov_scale = 1.0f / frd.fov_scale;
 		frd.cos_cam_angle = std::cos(frd.cam_angle);
@@ -611,7 +599,7 @@ void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_hei
 			}
 		}
 
-        render_bsp_node(current_map->root_node_id, frd);
+        render_bsp_node(current_map.root_node_id, frd);
 
 		render_visplanes(frd);
 		render_vissprites(frd);

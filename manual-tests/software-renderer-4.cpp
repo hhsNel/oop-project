@@ -53,7 +53,7 @@ void render_frame(math::vec2 cam_pos, float cam_height, float &cam_angle, float 
 	ss << "Avg FPS: " << avg_fps;
 	r2d.draw_text(ss.str().c_str(), 10, 90, 12, 16, 0xffffff);
 	ss.str(""); ss.clear();
-	ss << "Camera: (" << cam_pos.x << ", " << cam_pos.y << ", " << cam_height << ")";
+	ss << "Camera: (" << cam_pos("x"_f) << ", " << cam_pos("y"_f) << ", " << cam_height << ")";
 	r2d.draw_text(ss.str().c_str(), 10, 110, 12, 16, 0xffffff);
 	ss.str(""); ss.clear();
 	ss << "Camera Angle: " << cam_angle << "rad";
@@ -104,8 +104,8 @@ void move_camera(math::vec2 &cam_pos, float &cam_height, float &cam_angle, float
     std::tuple<math::vec2, float, float, float> prev = arr[segment];
     std::tuple<math::vec2, float, float, float> next = arr[segment + 1];
 
-    cam_pos.x  = std::get<0>(prev).x * (1.0f - t) + std::get<0>(next).x * t;
-    cam_pos.y  = std::get<0>(prev).y * (1.0f - t) + std::get<0>(next).y * t;
+    cam_pos("x"_f)  = std::get<0>(prev)("x"_f) * (1.0f - t) + std::get<0>(next)("x"_f) * t;
+    cam_pos("y"_f)  = std::get<0>(prev)("y"_f) * (1.0f - t) + std::get<0>(next)("y"_f) * t;
     cam_height = std::get<1>(prev)   * (1.0f - t) + std::get<1>(next)   * t;
     cam_angle  = std::get<2>(prev)   * (1.0f - t) + std::get<2>(next)   * t;
     fov        = std::get<3>(prev)   * (1.0f - t) + std::get<3>(next)   * t;
@@ -115,28 +115,20 @@ int main() {
     std::cout << "Starting Software Renderer PoC..." << std::endl;
 
     auto backend = std::make_unique<rendering::drm_kms::backend>();
-    if (backend->is_bad()) {
+    if (backend->bad()) {
         std::cerr << "Failed to initialize DRM/KMS backend." << std::endl;
         return -1;
     }
 
-    auto modes = backend->get_modes();
+    auto modes = (*backend)("modes"_f);
     if (!modes.empty()) {
-        backend->set_mode(std::move(modes[0]));
+        backend->push_mode(std::move(modes[0]));
     }
-
-    rendering::software_renderer renderer;
-    renderer.set_target(backend.get());
 
 	util::resource_loader rl;
     auto tm = std::make_unique<graphics::texture_manager>(graphics::texture_manager::load(rl));
-    renderer.set_texture_manager(tm.get());
 
-	rendering::renderer_2d r2d;
-    r2d.set_target(backend.get());
-    r2d.set_texture_manager(tm.get());
-    const graphics::texture& atlas = tm->flat_tx_by_id(0);
-    r2d.set_font_texture(&atlas);
+	rendering::renderer_2d r2d(*backend.get(), *tm.get(), tm->flat_tx_by_id(0));
 
     geometry::map_data map;
     auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
@@ -302,7 +294,7 @@ int main() {
     auto root_node_id = map.nodes.add(root_node);
     map.root_node_id = root_node_id;
 
-    renderer.set_map(&map);
+    rendering::software_renderer renderer(*backend.get(), *tm.get(), map);
 
     math::vec2 cam_pos(512.0f, 512.0f);
     float cam_height = 128.0f;

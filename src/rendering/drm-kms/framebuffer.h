@@ -4,25 +4,35 @@
 #include <cstdint>
 #include <cstddef>
 #include "device-context.h"
+#include "mode.h"
 
 namespace rendering {
 	namespace drm_kms {
+		class crtc;
+		class connector;
+		class backend;
+
 		class framebuffer {
-		protected:
 			const device_context& dev;
 			uint32_t handle;
-			bool bad;
 
-		public:
 			uint32_t fb_id;
 			uint32_t* mmio_ptr;
 			size_t size;
 			uint32_t pitch;
 
-			framebuffer(const device_context& d, uint32_t width, uint32_t height);
+		public:
+			framebuffer(const device_context& d, uint32_t width, uint32_t height, bool* const success = nullptr);
 			~framebuffer();
 
-			bool is_bad() const;
+			void copy_from(const uint32_t* src, size_t pixel_count) const;
+
+			bool flip_onto(const crtc& c) const;
+
+			bool apply_config(crtc &c, std::uint32_t const connector_id, const mode& m) const;
+
+			friend connector;
+			friend backend;
 		};
 	}
 }

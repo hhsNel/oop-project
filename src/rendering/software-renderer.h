@@ -14,9 +14,9 @@
 
 namespace rendering {
     class software_renderer {
-        rendering_backend *target;
-        graphics::texture_manager const *tex_manager;
-        geometry::map_data const *current_map;
+        rendering_backend &target;
+        graphics::texture_manager const& tex_manager;
+        geometry::map_data const& current_map;
 
 		static constexpr float near_z = 0.1f;
 		static constexpr float dl_start = 64.0f;
@@ -53,11 +53,7 @@ namespace rendering {
 		__attribute__((always_inline)) inline std::uint32_t apply_light(std::uint32_t const orig, int light);
 
     public:
-        software_renderer();
-
-        void set_target(rendering_backend *const tgt);
-        void set_texture_manager(graphics::texture_manager const *const tm);
-        void set_map(geometry::map_data const *const map);
+        software_renderer(rendering_backend &tgt, graphics::texture_manager const& tm, geometry::map_data const& map);
 
         void render_bsp(math::vec2 const cam_pos, float const cam_height, float cam_angle, float fov); 
     };

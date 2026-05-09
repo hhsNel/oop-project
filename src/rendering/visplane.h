@@ -8,6 +8,7 @@
 
 namespace rendering {
 	class visplane {
+		/* TODO */
 	public:
 		float height;
 		graphics::texture_set::texture_id tex_id;
