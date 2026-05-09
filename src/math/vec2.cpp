@@ -12,7 +12,7 @@ math::vec2::dot_product(vec2 const first, vec2 const second) {
 
 float
 math::vec2::cross_product(vec2 const first, vec2 const second) {
-	return first.x * second.y + first.y * second.x;
+	return first.x * second.y - first.y * second.x;
 }
 
 float
