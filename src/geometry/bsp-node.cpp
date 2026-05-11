@@ -15,10 +15,10 @@ namespace geometry {
 
     std::vector<bsp_node> const bsp_node::load_from_bin(util::resource const& res) {
         std::vector<bsp_node> result;
-        if (!res.begin || res.size == 0) return result;
+        if (!res("beginning"_f) || res("size"_f) == 0) return result;
 
-        size_t count = res.size / sizeof(bin_bsp_node);
-        auto const* data = reinterpret_cast<bin_bsp_node const*>(res.begin);
+        size_t count = res("size"_f) / sizeof(bin_bsp_node);
+        auto const* data = reinterpret_cast<bin_bsp_node const*>(res("beginning"_f));
 
         for (size_t i = 0; i < count; ++i) {
             bsp_node node;

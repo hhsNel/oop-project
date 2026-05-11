@@ -2,16 +2,18 @@
 #define RESOURCE_H
 
 #include <cstddef>
+#include "util/componentized.h"
 
 namespace util {
-    class resource {
-    public:
-        resource(void const* begin_ptr, void const* end_ptr);
+	class resource {
+	public:
 		virtual ~resource() = default;
 
-        void const* begin;
-        void const* end;
-        std::size_t size;
-    };
-}
+//		resource(const resource&)            = delete;
+//		resource& operator=(const resource&) = delete;
 
+		virtual void const* operator()(component_tag<"beginning">) const = 0;
+		virtual void const* operator()(component_tag<"end">) const = 0;
+		virtual std::size_t operator()(component_tag<"size">) const = 0;
+	};
+}

@@ -6,15 +6,15 @@ namespace graphics {
         : rl(resld), texture_sets(std::move(packs)), cur_set(0) {}
 
     texture_manager texture_manager::load(util::resource_loader &resld) {
-        util::resource meta_res = *resld.lookup_resource("meta-texture-sets");
+        util::resource &meta_res = *resld.lookup_resource("meta-texture-sets");
         
         std::vector<texture_set> packs;
 
-        if (!meta_res.begin || meta_res.size == 0) {
+        if (!meta_res("beginning"_f) || meta_res("size"_f) == 0) {
             return texture_manager(resld, packs);
         }
 
-        std::string content(reinterpret_cast<const char*>(meta_res.begin), meta_res.size);
+        std::string content(reinterpret_cast<const char*>(meta_res("beginning"_f)), meta_res("size"_f));
         std::istringstream stream(content);
         std::string line;
         

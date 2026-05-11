@@ -19,13 +19,13 @@ namespace graphics {
     }
 
     std::vector<texture> texture_set::tx_from_meta(util::resource_loader &resld, std::string_view meta_path) {
-        util::resource meta_res = *resld.lookup_resource(meta_path);
+        util::resource &meta_res = *resld.lookup_resource(meta_path);
 
-        if (!meta_res.begin || meta_res.size == 0) {
+        if (!meta_res("beginning"_f) || meta_res("size"_f) == 0) {
             return {};
         }
 
-        std::string content(reinterpret_cast<const char*>(meta_res.begin), meta_res.size);
+        std::string content(reinterpret_cast<const char*>(meta_res("beginning"_f)), meta_res("size"_f));
         std::istringstream stream(content);
         std::string line;
         std::vector<texture> textures;
@@ -39,7 +39,7 @@ namespace graphics {
                 continue;
             }
 
-            util::resource tex_res = *resld.lookup_resource(line);
+            util::resource &tex_res = *resld.lookup_resource(line);
             textures.push_back(texture::load_from_bin(tex_res));
         }
 
@@ -47,13 +47,13 @@ namespace graphics {
     }
 
     texture_set texture_set::load(util::resource_loader &resld, std::string_view pack_meta_path) {
-        util::resource meta_res = *resld.lookup_resource(pack_meta_path);
+        util::resource &meta_res = *resld.lookup_resource(pack_meta_path);
 
-        if (!meta_res.begin || meta_res.size == 0) {
+        if (!meta_res("beginning"_f) || meta_res("size"_f) == 0) {
             return texture_set({}, {}, {});
         }
 
-        std::string content(reinterpret_cast<const char*>(meta_res.begin), meta_res.size);
+        std::string content(reinterpret_cast<const char*>(meta_res("beginning"_f)), meta_res("size"_f));
         std::istringstream stream(content);
         std::string line;
         std::vector<std::string> meta_paths;
@@ -67,7 +67,7 @@ namespace graphics {
             }
         }
 
-        std::vector<texture> walls   = meta_paths.size() > 0 ? tx_from_meta(resld, meta_paths[0]) : std::vector<texture>{};
+        std::vector<texture> walls   = meta_paths.size() > 1 ? tx_from_meta(resld, meta_paths[0]) : std::vector<texture>{};
         std::vector<texture> sprites = meta_paths.size() > 1 ? tx_from_meta(resld, meta_paths[1]) : std::vector<texture>{};
         std::vector<texture> flats   = meta_paths.size() > 2 ? tx_from_meta(resld, meta_paths[2]) : std::vector<texture>{};
 

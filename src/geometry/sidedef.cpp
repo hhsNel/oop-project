@@ -8,8 +8,8 @@ namespace geometry {
 
     std::vector<sidedef> sidedef::load_from_bin(util::resource const& res) {
         std::vector<sidedef> result;
-        size_t count = res.size / sizeof(bin_sidedef);
-        auto const* data = reinterpret_cast<bin_sidedef const*>(res.begin);
+        size_t count = res("size"_f) / sizeof(bin_sidedef);
+        auto const* data = reinterpret_cast<bin_sidedef const*>(res("beginning"_f));
 
         for (size_t i = 0; i < count; ++i) {
             sidedef sd;

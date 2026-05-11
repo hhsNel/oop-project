@@ -7,19 +7,19 @@ namespace graphics {
     texture::texture(std::vector<std::uint32_t> const &t, std::uint32_t const w, std::uint32_t const h, bool const transparent)
         : pixels(std::move(t)), width(w), height(h), has_transparency(transparent) {}
 
-    texture const texture::load_from_bin(util::resource const res) {
-        if (res.size < 12) {
+    texture const texture::load_from_bin(util::resource const &res) {
+        if (res("size"_f) < 12) {
 			std::cerr << "empty texture" << std::endl;
 			/* causes crash when used, INTENTIONAL */
             return texture({}, 0, 0, false);
         }
 
-        const std::uint32_t* data = reinterpret_cast<const std::uint32_t*>(res.begin);
+        const std::uint32_t* data = reinterpret_cast<const std::uint32_t*>(res("beginning"_f));
         std::uint32_t w = data[0];
         std::uint32_t h = data[1];
         bool has_transparency = data[2] != 0;
 
-        const std::uint8_t* byte_data = reinterpret_cast<const std::uint8_t*>(res.begin) + 12;
+        const std::uint8_t* byte_data = reinterpret_cast<const std::uint8_t*>(res("beginning"_f)) + 12;
         
         std::vector<std::uint32_t> pixels;
         pixels.reserve(w * h);
