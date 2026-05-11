@@ -1,19 +1,22 @@
 #pragma once
-#define FILE_RESOURCE_H
+#define BINARY_RESOURCE_H
 
-#include <vector>
 #include "resource.h"
 
 namespace util {
-	class file_resource : public resource {
-		std::vector<std::byte> file_data;
+	class binary_resource : public resource {
+		void const* begin_ptr;
+		void const* end_ptr;
+		std::size_t byte_size;
 
 	public:
-		explicit file_resource(std::vector<std::byte> data);
-		~file_resource() override = default;
+
+		binary_resource(void const* begin, void const* end);
+		~binary_resource() override = default;
 
 		void const* operator()(component_tag<"beginning">) const override;
 		void const* operator()(component_tag<"end">) const override;
 		std::size_t operator()(component_tag<"size">) const override;
 	};
 }
+

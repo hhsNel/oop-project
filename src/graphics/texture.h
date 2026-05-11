@@ -17,6 +17,6 @@ namespace graphics {
 		
 		bool has_transparency; 
 
-		static texture const load_from_bin(util::resource const res);
+		static texture const load_from_bin(util::resource const &res);
 	};
 }

@@ -10,8 +10,8 @@ namespace geometry {
 
     std::vector<subsector> subsector::load_from_bin(util::resource const& res) {
         std::vector<subsector> result;
-        size_t count = res.size / sizeof(bin_subsector);
-        auto const* data = reinterpret_cast<bin_subsector const*>(res.begin);
+        size_t count = res("size"_f) / sizeof(bin_subsector);
+        auto const* data = reinterpret_cast<bin_subsector const*>(res("beginning"_f));
 
         for (size_t i = 0; i < count; ++i) {
             subsector sub;

@@ -17,17 +17,17 @@ int main() {
             std::string resource_name;
             std::cin >> resource_name;
             
-            resource res = *rl.lookup_resource(resource_name);
+            resource &res = *rl.lookup_resource(resource_name);
             
-            std::cout << "RESULT " << res.size << std::endl;
+            std::cout << "RESULT " << res("size"_f) << std::endl;
         } else if (cmd == "dump") {
             std::string resource_name;
             std::cin >> resource_name;
             
-            resource res = *rl.lookup_resource(resource_name);
+            resource &res = *rl.lookup_resource(resource_name);
             
             std::cout << "RESULT ";
-			std::cout.write((char *)res.begin, res.size);
+			std::cout.write((char *)res("beginning"_f), res("size"_f));
 			std::cout << std::endl;
 		} else {
             std::cout << "UNKNOWN_CMD" << std::endl;
