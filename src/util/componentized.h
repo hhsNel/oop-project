@@ -9,6 +9,7 @@
 
 namespace util {
 	struct component_field {};
+	struct ref_component_field {};
 
 	template<std::size_t N>
 	struct fixed_string {
@@ -24,7 +25,7 @@ namespace util {
 
 	template <typename T>
 	class componentized {
-		template <fixed_string field>
+		template <fixed_string field, typename A>
 		consteval static std::meta::info get_tagged_member() {
 			auto ctx = std::meta::access_context::current();
 			auto members = std::meta::nonstatic_data_members_of(^^T, ctx);
@@ -33,7 +34,7 @@ namespace util {
 				if (std::meta::identifier_of(m) == field.view()) {
 					auto attrs = std::meta::annotations_of(m);
 					for (auto attr : attrs) {
-						if (std::meta::type_of(attr) == ^^const component_field) {
+						if (std::meta::type_of(attr) == ^^A) {
 							return m;
 						}
 					}
@@ -44,16 +45,16 @@ namespace util {
 
 	public:
 		template<fixed_string field>
-		requires (get_tagged_member<field>() != std::meta::info{})
+		requires (get_tagged_member<field, const ref_component_field>() != std::meta::info{})
 		auto& operator()(component_tag<field>) {
-			constexpr auto target = get_tagged_member<field>();
+			constexpr auto target = get_tagged_member<field, const ref_component_field>();
 			return static_cast<T *>(this)->[:target:];
 		}
 
 		template<fixed_string field>
-		requires (get_tagged_member<field>() != std::meta::info{})
+		requires (get_tagged_member<field, const component_field>() != std::meta::info{})
 		auto const& operator()(component_tag<field>) const {
-			constexpr auto target = get_tagged_member<field>();
+			constexpr auto target = get_tagged_member<field, const component_field>();
 			return static_cast<const T *>(this)->[:target:];
 		}
 	};

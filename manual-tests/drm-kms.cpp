@@ -8,7 +8,7 @@
 #include "rendering/drm-kms/backend.h"
 
 bool check_backend_state(const std::unique_ptr<rendering::rendering_backend>& backend, const std::string& action) {
-    if (backend->is_bad()) {
+    if (backend->bad()) {
         std::cerr << "error: backend entered a bad state after: " << action << std::endl;
         return false;
     }
@@ -21,12 +21,12 @@ int main() {
     std::unique_ptr<rendering::rendering_backend> backend = 
         std::make_unique<rendering::drm_kms::backend>();
 
-    if (backend->is_bad()) {
+    if (backend->bad()) {
         std::cerr << "error: failed to initialize" << std::endl;
         return 1;
     }
 
-    auto modes = backend->get_modes();
+    auto modes = (*backend)("modes"_f);
     if (!check_backend_state(backend, "querying modes")) return 1;
 
     if (modes.empty()) {
@@ -35,13 +35,13 @@ int main() {
     }
 
     std::cout << "setting mode..." << std::endl;
-    backend->set_mode(std::move(modes[0]));
+    backend->push_mode(std::move(modes[0]));
     if (!check_backend_state(backend, "setting mode")) return 1;
 
-    unsigned int width = backend->get_width();
-    unsigned int height = backend->get_height();
-    unsigned int pitch = backend->get_pitch();
-    std::uint32_t* mmio = backend->get_mmio();
+    unsigned int width = (*backend)("width"_f);
+    unsigned int height = (*backend)("height"_f);
+    unsigned int pitch = (*backend)("pitch"_f);
+    std::uint32_t* mmio = (*backend)("mmio"_f);
 
     if (!check_backend_state(backend, "fetching frame properties")) return 1;
 

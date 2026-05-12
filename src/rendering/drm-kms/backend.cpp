@@ -2,10 +2,11 @@
 #include <drm/drm.h>
 #include <string>
 #include <cstring>
+#include "mode.h"
 
 namespace rendering {
 	namespace drm_kms {
-		backend::backend() : front_buffer_index(0), has_original_state(false) {
+		backend::backend() : is_bad(false), front_buffer_index(0), has_original_state(false) {
 			bool pipeline_found = false;
 
 			for (int i = 0; i < 64; ++i) {
@@ -26,8 +27,8 @@ namespace rendering {
 				std::vector<uint32_t> crtcs(res.count_crtcs);
 
 				res.connector_id_ptr = reinterpret_cast<uint64_t>(connectors.data());
-				res.encoder_id_ptr = reinterpret_cast<uint64_t>(encoders.data());
-				res.crtc_id_ptr = reinterpret_cast<uint64_t>(crtcs.data());
+				res.encoder_id_ptr   = reinterpret_cast<uint64_t>(encoders.data());
+				res.crtc_id_ptr      = reinterpret_cast<uint64_t>(crtcs.data());
 
 				if (dev->ioctl(DRM_IOCTL_MODE_GETRESOURCES, &res) < 0) {
 					continue;
@@ -52,10 +53,10 @@ namespace rendering {
 							old_crtc_req.crtc_id = enc_req.crtc_id;
 
 							if (dev->ioctl(DRM_IOCTL_MODE_GETCRTC, &old_crtc_req) == 0) {
-								original_fb_id = old_crtc_req.fb_id;
+								original_fb_id       = old_crtc_req.fb_id;
 								original_connector_id = conn_id;
-								original_mode = old_crtc_req.mode;
-								has_original_state = true;
+								original_mode        = old_crtc_req.mode;
+								has_original_state   = true;
 							}
 
 							pipeline_found = true;
@@ -64,25 +65,23 @@ namespace rendering {
 					}
 				}
 
-				if (pipeline_found) {
-					break;
-				}
+				if (pipeline_found) break;
 			}
 
 			if (!pipeline_found) {
-				bad = true;
+				is_bad = true;
 			}
 		}
 
 		backend::~backend() {
 			if (has_original_state && active_crtc && dev && dev->is_valid()) {
-				drm_rendering_mode restore_mode(original_mode);
+				mode restore_mode(original_mode);
 				active_crtc->set_config(original_fb_id, original_connector_id, restore_mode);
 			}
 		}
 
-		std::vector<std::unique_ptr<rendering_mode const>> backend::get_modes() {
-			if (is_bad()) return {};
+		std::vector<std::unique_ptr<rendering_mode const>> backend::obtain_modes() {
+			if (bad()) return {};
 
 			auto drm_modes = active_connector->probe_modes();
 			std::vector<std::unique_ptr<rendering_mode const>> modes;
@@ -92,76 +91,67 @@ namespace rendering {
 			return modes;
 		}
 
-		void backend::set_mode(std::unique_ptr<rendering_mode const> mode) {
-			if (is_bad() || !mode) return;
+		void backend::push_mode(std::unique_ptr<rendering_mode const> pushed_mode) {
+			if (bad() || !pushed_mode) return;
 
-			auto* drm_mode = static_cast<const drm_rendering_mode*>(mode.get());
+			auto* drm_mode = static_cast<const mode*>(pushed_mode.get());
 
-			buffers[0] = std::make_unique<framebuffer>(*dev, drm_mode->x_res, drm_mode->y_res);
-			buffers[1] = std::make_unique<framebuffer>(*dev, drm_mode->x_res, drm_mode->y_res);
-
-			if (buffers[0]->is_bad() || buffers[1]->is_bad()) {
-				bad = true;
-				return;
-			}
+			buffers[0] = std::make_unique<framebuffer>(*dev, (*drm_mode)("x_res"_f), (*drm_mode)("y_res"_f));
+			buffers[1] = std::make_unique<framebuffer>(*dev, (*drm_mode)("x_res"_f), (*drm_mode)("y_res"_f));
 
 			front_buffer_index = 0;
 
-			if (!active_crtc->set_config(buffers[front_buffer_index]->fb_id, active_connector->connector_id, *drm_mode)) {
-				bad = true;
+			if (!active_connector->apply_config(*active_crtc, *buffers[front_buffer_index], *drm_mode)) {
+				is_bad = true;
 				return;
 			}
 
-			current_mode.reset(static_cast<const drm_rendering_mode*>(mode.release()));
+			current_mode.reset(static_cast<const mode*>(pushed_mode.release()));
 
 			shadow.resize(buffers[0]->size / sizeof(uint32_t));
 		}
 
-		bool backend::is_bad() const {
-			return bad || !dev->is_valid();
+		bool backend::bad() const {
+			return is_bad || !dev->is_valid();
 		}
 
-		unsigned int backend::get_width() {
-			return current_mode ? current_mode->x_res : 0;
+		unsigned int backend::obtain_width() {
+			return current_mode ? (*current_mode.get())("x_res"_f) : 0;
 		}
 
-		unsigned int backend::get_height() {
-			return current_mode ? current_mode->y_res : 0;
+		unsigned int backend::obtain_height() {
+			return current_mode ? (*current_mode.get())("y_res"_f) : 0;
 		}
 
-		unsigned int backend::get_pitch() {
+		unsigned int backend::obtain_pitch() {
 			if (!buffers[0] || !buffers[1]) return 0;
 			int back_index = 1 - front_buffer_index;
 			return buffers[back_index]->pitch;
 		}
 
-		std::uint32_t *backend::get_mmio() {
-			if(shadow.empty()) return nullptr;
+		std::uint32_t* backend::obtain_mmio() {
+			if (shadow.empty()) return nullptr;
 			return shadow.data();
 		}
 
 		void backend::wait_for_vsync() {
-			if (is_bad() || !active_crtc) return;
+			if (bad() || !active_crtc) return;
 
 			union drm_wait_vblank vbl = {};
-			vbl.request.type = (drm_vblank_seq_type)(_DRM_VBLANK_RELATIVE);
+			vbl.request.type     = (drm_vblank_seq_type)(_DRM_VBLANK_RELATIVE);
 			vbl.request.sequence = 1;
 
 			dev->ioctl(DRM_IOCTL_WAIT_VBLANK, &vbl);
 		}
 
 		void backend::flush() {
-			if (is_bad() || !active_crtc || !buffers[0] || !buffers[1]) return;
+			if (bad() || !active_crtc || !buffers[0] || !buffers[1]) return;
 
 			int back_index = 1 - front_buffer_index;
 
-			std::memcpy(buffers[back_index]->mmio_ptr, shadow.data(), buffers[back_index]->size);
+			buffers[back_index]->copy_from(shadow.data(), shadow.size());
 
-			struct drm_mode_crtc_page_flip flip_req = {};
-			flip_req.crtc_id = active_crtc->crtc_id;
-			flip_req.fb_id = buffers[back_index]->fb_id;
-
-			if (dev->ioctl(DRM_IOCTL_MODE_PAGE_FLIP, &flip_req) == 0) {
+			if (buffers[back_index]->flip_onto(*active_crtc)) {
 				front_buffer_index = back_index;
 			}
 		}

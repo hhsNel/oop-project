@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <drm/drm.h>
+#include <sys/mman.h>
 
 namespace rendering {
 	namespace drm_kms {
@@ -27,6 +28,16 @@ namespace rendering {
 
 		int device_context::ioctl(unsigned long request, void* arg) const {
 			return ::ioctl(fd, request, arg);
+		}
+
+		void *device_context::mmap(void *addr, size_t len, int prot, int flags, off_t off) const {
+			void *memory = ::mmap(addr, len, prot, flags, fd, off);
+
+			if(memory == MAP_FAILED) {
+				memory = nullptr;
+			}
+
+			return memory;
 		}
 	}
 }
