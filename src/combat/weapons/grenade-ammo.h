@@ -1,10 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <utility>
 #include "ammunition.h"
 #include "geometry/map-data.h"
 #include "engine/actor.h"
-#include "util/componentized.h"
 
 namespace combat {
     namespace weapons {
@@ -15,9 +15,11 @@ namespace combat {
         // Explosion deals damage with linear falloff over explosion_radius.
         //
         // Usage:
-        //   - populate `targets` with living actors before each frame
+        //   - populate targets with populate_targets() before each frame
         //   - weapon::update(dt) automatically calls grenade_ammunition::update(dt)
-        class grenade_ammunition : public ammunition, public util::componentized<grenade_ammunition> {
+        // Usunieto componentized — targets i active ustawiane/zarzadzane wewnetrznie,
+        // populate_targets() jako metoda domenowa zamiast eksportu pol.
+        class grenade_ammunition : public ammunition {
         public:
             struct live_grenade {
                 math::vec2 position;
@@ -28,8 +30,8 @@ namespace combat {
             };
 
         private:
-            [[=util::component_field{}]] std::vector<live_grenade> active;   // grenades currently in flight
-            [[=util::component_field{}]] std::vector<engine::actor*> targets; // populated by the game loop each frame
+            std::vector<live_grenade> active;   // grenades currently in flight
+            std::vector<engine::actor*> targets; // populated by the game loop each frame
 
             geometry::map_data* map;
             float fuse_time;
@@ -39,8 +41,9 @@ namespace combat {
 
             void explode(live_grenade const& g);
 
-            friend class util::componentized<grenade_ammunition>;
         public:
+            void populate_targets(std::vector<engine::actor*> t) { targets = std::move(t); }
+
             grenade_ammunition(geometry::map_data* map        = nullptr,
                             float               fuse_time  = 2.0f,
                             float               radius     = 80.0f,

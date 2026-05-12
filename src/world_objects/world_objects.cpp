@@ -28,13 +28,14 @@ void armor_pickup::on_pickup(entities::player& p) {
 
 // ── ammo_pickup ───────────────────────────────────────────────────────────────
 
+/*
+Uzycie metod domenowych accepts_ammo/resupply zamiast componentized
+do identyfikacji broni i uzupelnienia amunicji
+*/
 void ammo_pickup::on_pickup(entities::player& p) {
     for (combat::weapons::weapon* w : p.weapons) {
-        if (!w || (*w)("weapon_id"_f) != weapon_id) continue;
-        (*w)("ammo_count"_f) = std::min(
-            (*w)("ammo_count"_f) + static_cast<int>(amount),
-            (*w)("max_ammo"_f)
-        );
+        if (!w || !w->accepts_ammo(weapon_id)) continue;
+        w->resupply(static_cast<int>(amount));
         break;
     }
     collected = true;

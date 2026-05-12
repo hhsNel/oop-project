@@ -10,9 +10,11 @@ namespace combat { namespace weapons { class weapon; } }
 
     namespace world_object {
 
-        // Abstract base for all collectible world items.
-        // Each frame, the game loop checks in_range(player.position) and calls
-        // on_pickup(player) when the player is close enough.
+        /*
+        Abstract base for all collectible world items.
+        Each frame, the game loop checks in_range(player.position) and calls
+        on_pickup(player) when the player is close enough.
+        */
         class pickup : public engine::entity {
             math::vec2 position;
             float      pickup_radius;
@@ -26,6 +28,12 @@ namespace combat { namespace weapons { class weapon; } }
 
             // Returns true when the player is within pickup_radius.
             bool in_range(math::vec2 player_pos) const;
+
+            /*
+            Returns true after on_pickup() has been called.
+            Metoda domenowa zamiast eksportu pola collected przez componentized
+            */
+            bool is_collected() const { return collected; }
 
             // Apply the pickup effect to the player; sets collected = true.
             virtual void on_pickup(entities::player& p) = 0;
@@ -62,9 +70,11 @@ namespace combat { namespace weapons { class weapon; } }
 
             void on_pickup(entities::player& p) override;
         };
-
-        // Adds a pre-existing weapon to the player's loadout.
-        // The weapon is owned externally (e.g. by the level/game state).
+        
+        /*
+        Adds a pre-existing weapon to the player's loadout.
+        The weapon is owned externally (e.g. by the level/game state).
+        */
         class weapon_pickup : public pickup {
             combat::weapons::weapon* provided_weapon;
         public:

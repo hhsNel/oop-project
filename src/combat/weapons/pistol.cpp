@@ -1,5 +1,7 @@
 #include "pistol.h"
 
+// Bezposredni dostep do pol bazowej klasy weapon (protected) zamiast componentized.
+// componentized sluzy tylko do eksportu na zewnatrz hierarchii klas.
 namespace combat {
 	namespace weapons {
 		pistol::pistol(std::unique_ptr<ammunition> ammo_type, int mag_size, int max, float rate, float dmg)
@@ -7,13 +9,13 @@ namespace combat {
 
 		void pistol::fire(math::vec2 pos, float angle) {
 			if (!can_fire()) return;
-			(*this)("ammo"_f)->spawn_bullet(pos, angle, (*this)("damage"_f));
-			--(*this)("ammo_count"_f);
-			(*this)("last_shot_time"_f) = 1.0f / (*this)("fire_rate"_f);
+			ammo->spawn_bullet(pos, angle, damage);
+			--ammo_count;
+			last_shot_time = 1.0f / fire_rate;
 		}
 
 		void pistol::reload() {
-			(*this)("ammo_count"_f) = (*this)("max_ammo"_f);
+			ammo_count = max_ammo;
 		}
 	}
 }

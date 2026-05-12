@@ -20,17 +20,17 @@ namespace engine {
 		float      movement_speed;
 		faction    team;
 
+		/*
+		Inicjalizacja health_system przez konstruktor zamiast ustawiania pol przez componentized.
+		take_true_damage/take_damage deleguja do metod domenowych health_system.
+		*/
 		actor(float hp, float shield, float move_speed, faction this_team)
-			: renderable_entity(), angle(0.0f), movement_speed(move_speed), team(this_team)
-		{
-			health("max_hp"_f) = hp;
-			health("current_hp"_f) = hp;
-			health("armor"_f) = shield;
-			health("max_armor"_f) = shield;
-		}
+			: renderable_entity(), health(hp, hp, shield, shield),
+			  angle(0.0f), movement_speed(move_speed), team(this_team)
+		{}
 
 		virtual void take_damage(float const dmg) { health.apply_damage(dmg); }
-		virtual void take_true_damage(float const dmg) { health("current_hp"_f) = std::max(0.0f, health("current_hp"_f) - dmg); }
+		virtual void take_true_damage(float const dmg) { health.apply_true_damage(dmg); }
 		virtual void heal(float const amount) { health.apply_heal(amount); }
 		virtual void add_shield(float const amount) { health.apply_shield(amount); }
 
