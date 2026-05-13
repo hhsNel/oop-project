@@ -41,7 +41,6 @@ namespace audio {
 				return false;
 			fmt.sample_rate = rate;
 
-			// Bufor ~100ms, okres ~25ms
 			snd_pcm_uframes_t buffer_size = rate / 10;
 			snd_pcm_uframes_t period_size = rate / 40;
 			snd_pcm_hw_params_set_buffer_size_near(pcm_handle, params, &buffer_size);
@@ -57,7 +56,11 @@ namespace audio {
 			close();
 			fmt = format;
 
-			int err = snd_pcm_open(&pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
+			// Probuj pipewire, potem default — na systemach z PipeWire
+			// "default" moze wskazywac na sprzet z pominieciem serwera dzwieku
+			int err = snd_pcm_open(&pcm_handle, "pipewire", SND_PCM_STREAM_PLAYBACK, 0);
+			if (err < 0)
+				err = snd_pcm_open(&pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
 			if (err < 0) {
 				bad = true;
 				pcm_handle = nullptr;
@@ -83,6 +86,11 @@ namespace audio {
 			return true;
 		}
 
+		void backend::drain() {
+			if (pcm_handle && !bad)
+				snd_pcm_drain(pcm_handle);
+		}
+
 		void backend::close() {
 			if (pcm_handle) {
 				snd_pcm_drain(pcm_handle);
@@ -102,7 +110,6 @@ namespace audio {
 			);
 
 			if (written == -EPIPE) {
-				// Buffer underrun — przywroc strumien
 				snd_pcm_prepare(pcm_handle);
 				written = snd_pcm_writei(
 					pcm_handle,
@@ -122,7 +129,6 @@ namespace audio {
 		void backend::pause() {
 			if (!pcm_handle || bad) return;
 
-			// Nie kazde urzadzenie wspiera hw pause — uzywamy snd_pcm_drop jako fallback
 			if (snd_pcm_pause(pcm_handle, 1) < 0)
 				snd_pcm_drop(pcm_handle);
 

@@ -67,6 +67,16 @@ for tool in g++ objcopy make expect python3; do
 	fi
 done
 
+echo -e "\n${BLUE}Optional Tools:${NC}"
+for optional_tool in pipewire; do
+	echo -en "\t$optional_tool: "
+	if command -v "$optional_tool" &> /dev/null; then
+		echo -e "${GREEN}FOUND${NC} ($(($optional_tool --version 2>/dev/null || $optional_tool -v 2>/dev/null || echo "${YELLOW}version unknown${NC}") | head -n 1))"
+	else 
+		echo -e "${YELLOW}MISSING${NC}"
+	fi
+done
+
 echo -e "\n${BLUE}Compiler:${NC}"
 gcc_version=$(g++ -dumpversion 2>/dev/null | cut -d. -f1)
 
@@ -96,6 +106,45 @@ EOF
 		echo -e "\t${RED}GCC 16 present but doesn't support <meta>${NC}"
 	fi
 	rm -f "$tmp_src" "$tmp_bin"
+fi
+
+echo -e "\n${BLUE}Audio backend:${NC}"
+
+
+echo -en "\tALSA (libasound): "
+if ldconfig -p 2>/dev/null | grep -q libasound || ([ -f /usr/lib/libasound.so ] || [ -f /usr/lib64/libasound.so ] || ls /usr/lib/libasound.so* &>/dev/null); then
+	echo -e "${GREEN}FOUND${NC}"
+else
+	echo -e "${RED}MISSING${NC}"
+fi
+
+echo -en "\tSound cards: "
+if [ -f /proc/asound/cards ]; then
+	card_count=$(grep -c '^\s*[0-9]' /proc/asound/cards)
+	if [ "$card_count" -gt 0 ]; then
+		echo -e "${GREEN}$card_count FOUND${NC}"
+	else
+		echo -e "${RED}NONE${NC}"
+	fi
+else
+	echo -e "${RED}/proc/asound/cards not available${NC}"
+fi
+
+snd_devs=$(ls /dev/snd/pcm* /dev/snd/control* 2>/dev/null)
+if [ -n "$snd_devs" ]; then
+	for dev in $snd_devs; do
+		group=$(stat -c "%G" "$dev")
+		perms=$(stat -c "%A %U:%G" "$dev")
+		echo -en "\t$dev ($perms):\t"
+		if [ -r "$dev" ] && [ -w "$dev" ]; then
+			echo -e "[${GREEN}OK${NC}]"
+		else
+			echo -e "[${RED}NO ACCESS${NC}]"
+			required_groups+=("$group")
+		fi
+	done
+else
+	echo -e "\t${YELLOW}No /dev/snd/ PCM devices found${NC}"
 fi
 
 echo -e "\n${BLUE}Hardcoded objcopy output format:${NC}"
