@@ -52,9 +52,15 @@ namespace util {
 		}
 
 		template<fixed_string field>
-		requires (get_tagged_member<field, const component_field>() != std::meta::info{})
+		requires
+			( (get_tagged_member<field, const component_field>()     != std::meta::info{}) ||
+			  (get_tagged_member<field, const ref_component_field>() != std::meta::info{}) )
 		auto const& operator()(component_tag<field>) const {
-			constexpr auto target = get_tagged_member<field, const component_field>();
+			constexpr auto target = []{
+				auto tgt = get_tagged_member<field, const component_field>();
+				if(tgt != std::meta::info{}) return tgt;
+				return get_tagged_member<field, const ref_component_field>();
+			}();
 			return static_cast<const T *>(this)->[:target:];
 		}
 	};

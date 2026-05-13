@@ -7,8 +7,8 @@ namespace math {
 	class vec3;
 
 	class vec2 : public util::componentized<vec2> {
-		[[=util::ref_component_field{}]] [[=util::component_field{}]] float x;
-		[[=util::ref_component_field{}]] [[=util::component_field{}]] float y;
+		[[=util::ref_component_field{}]] float x;
+		[[=util::ref_component_field{}]] float y;
 
 	public:
 
