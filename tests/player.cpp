@@ -21,8 +21,8 @@ static void result(const std::string& s) {
 template<typename M>
 struct inspect : public M {
 	using M::M;
-	float hp()    const { return this->health("current_hp"_f); }
-	float armor() const { return this->health("armor"_f); }
+	float hp()    const { return this->health.current_hp; }
+	float armor() const { return this->health.armor; }
 	bool  dead()  const { return this->health.is_dead(); }
 };
 
@@ -58,11 +58,11 @@ int main() {
 			auto pistol = make_pistol(a1);
 			auto smg    = make_smg(a2);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p("weapons"_f).push_back(&pistol);
-			p("weapons"_f).push_back(&smg);
+			p.weapons.push_back(&pistol);
+			p.weapons.push_back(&smg);
 			p.switch_weapons(0);
 			p.switch_weapons(1);
-			result(p("current_weapon_index"_f));
+			result(p.current_weapon_index);
 
 		// switch_back — switch to 1 then back to 0 -> current_weapon_index=0
 		} else if (cmd == "switch_back") {
@@ -71,41 +71,41 @@ int main() {
 			auto pistol = make_pistol(a1);
 			auto smg    = make_smg(a2);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p("weapons"_f).push_back(&pistol);
-			p("weapons"_f).push_back(&smg);
+			p.weapons.push_back(&pistol);
+			p.weapons.push_back(&smg);
 			p.switch_weapons(1);
 			p.switch_weapons(0);
-			result(p("current_weapon_index"_f));
+			result(p.current_weapon_index);
 
 		// switch_oob — switch to index beyond end; index unchanged
 		} else if (cmd == "switch_oob") {
 			combat::weapons::bullet_ammunition* a;
 			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			p.switch_weapons(5);
-			result(p("current_weapon_index"_f));
+			result(p.current_weapon_index);
 
 		// switch_neg — switch to negative index; index unchanged
 		} else if (cmd == "switch_neg") {
 			combat::weapons::bullet_ammunition* a;
 			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			p.switch_weapons(-1);
-			result(p("current_weapon_index"_f));
+			result(p.current_weapon_index);
 
 		// shoot_ammo — pistol mag=8, shoot once -> ammo=7
 		} else if (cmd == "shoot_ammo") {
 			combat::weapons::bullet_ammunition* a;
 			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			p.shoot();
-			result(pistol("ammo_count"_f));
+			result(pistol.ammo_count);
 
 		// shoot_no_weapon — no weapon selected, shoot does nothing
 		} else if (cmd == "shoot_no_weapon") {
@@ -118,45 +118,45 @@ int main() {
 			combat::weapons::bullet_ammunition* a;
 			auto pistol = make_pistol(a, 8, 2.0f);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			p.shoot();
 			p.shoot();
-			result(pistol("ammo_count"_f));
+			result(pistol.ammo_count);
 
 		// shoot_after_update — rate=2.0: shoot, update 0.6s, shoot -> ammo=6
 		} else if (cmd == "shoot_after_update") {
 			combat::weapons::bullet_ammunition* a;
 			auto pistol = make_pistol(a, 8, 2.0f);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			p.shoot();
 			p.update(0.6f);
 			p.shoot();
-			result(pistol("ammo_count"_f));
+			result(pistol.ammo_count);
 
 		// reload_current — fire empty (8 shots), reload -> ammo=8
 		} else if (cmd == "reload_current") {
 			combat::weapons::bullet_ammunition* a;
 			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			for (int i = 0; i < 8; ++i) { p.shoot(); p.update(1.0f); }
 			p.reload();
-			result(pistol("ammo_count"_f));
+			result(pistol.ammo_count);
 
 		// can_fire_after_empty — fire empty, can player still shoot? NO
 		} else if (cmd == "can_fire_after_empty") {
 			combat::weapons::bullet_ammunition* a;
 			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			for (int i = 0; i < 8; ++i) { p.shoot(); p.update(1.0f); }
 			p.shoot(); // should do nothing
-			result(pistol("ammo_count"_f));
+			result(pistol.ammo_count);
 
 		// =====================================================================
 		// HEALTH SYSTEM
