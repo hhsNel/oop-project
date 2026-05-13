@@ -8,8 +8,13 @@ jobs:
   check-tasks:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if all checkboxes are completed
-        uses: tzkhan/pr-checklist-action@v1
-        with:
-          checkout_all: true
+      - name: Check for unchecked boxes
+        run: |
+          PR_BODY=$(jq -r .pull_request.body "$GITHUB_EVENT_PATH")
+          if echo "$PR_BODY" | grep -E -q '(-|\*) \[ \]'; then
+            echo "unchecked boxes, exiting"
+            exit 1
+          else
+            echo "no unchecked boxes"
+          fi
 
