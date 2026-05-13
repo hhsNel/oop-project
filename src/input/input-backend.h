@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
 namespace input {
 	enum class key {
@@ -32,5 +33,14 @@ namespace input {
 		virtual bool is_bad() const;
 
 		static key to_key(char c);
+
+		// Zwraca wektor bool'i odpowiadajacych stanom klawiszy z wektora wejsciowego
+		// true — klawisz wcisniety, false — nie wcisniety
+		std::vector<bool> are_keys_down(std::vector<key> const& keys) const {
+			std::vector<bool> result;
+			for (key k : keys)
+				result.push_back(is_key_down(k));
+			return result;
+		}
 	};
 }
