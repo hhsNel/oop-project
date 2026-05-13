@@ -7,14 +7,14 @@ MANUALTESTDIR = manual-tests
 
 TARGET = isekai-doom
 SRC = $(foreach MODULE, $(MODULES), $(wildcard $(SRCDIR)/$(MODULE)/*.cpp))
-RES = $(wildcard $(RESDIR)/*)
+RES = $(shell find $(RESDIR) -type f)
 RES_HEADER = $(SRCDIR)/res.h
 TEST_SRCS = $(wildcard $(TESTDIR)/*.cpp)
 TEST_EXPS = $(wildcard $(TESTDIR)/*.exp)
 MANUAL_TESTS = $(wildcard $(MANUALTESTDIR)/*.cpp)
 
 OBJ = $(SRC:$(SRCDIR)/%.cpp=$(BUILDDIR)/%.o)
-RESOBJ = $(RES:$(RESDIR)/%=$(BUILDDIR)/res/%.o)
+RESOBJ = $(RES:$(RESDIR)/%=$(BUILDDIR)/$(RESDIR)/%.o)
 TEST_BINS = $(TEST_SRCS:.cpp=.out)
 MANUAL_TEST_BINS = $(MANUAL_TESTS:.cpp=.out)
 
@@ -56,7 +56,7 @@ manual-tests/%.out: manual-tests/%.cpp $(filter-out src/main.o, $(OBJ)) $(RESOBJ
 manual-check: $(MANUAL_TEST_BINS)
 
 $(BUILDDIR):
-	mkdir -p $(BUILDDIR)/res $(foreach MODULE, $(MODULES), $(BUILDDIR)/$(MODULE))
+	mkdir -p $(foreach RESMOD, $(shell find $(RESDIR) -type d), $(BUILDDIR)/$(RESMOD)) $(foreach MODULE, $(MODULES), $(BUILDDIR)/$(MODULE))
 
 clean:
 	rm -rf $(BUILDDIR)

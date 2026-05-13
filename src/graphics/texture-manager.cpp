@@ -6,9 +6,14 @@ namespace graphics {
         : rl(resld), texture_sets(std::move(packs)), cur_set(0) {}
 
     texture_manager texture_manager::load(util::resource_loader &resld) {
-        util::resource &meta_res = *resld.lookup_resource("meta-texture-sets");
-        
         std::vector<texture_set> packs;
+
+        auto r = resld.lookup_resource("meta-texture-sets");
+        if (!r) {
+            return texture_manager(resld, packs);
+        }
+
+        util::resource &meta_res = *r;
 
         if (!meta_res("beginning"_f) || meta_res("size"_f) == 0) {
             return texture_manager(resld, packs);
