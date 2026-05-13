@@ -1,5 +1,5 @@
 SRCDIR = src
-MODULES = math geometry assets engine combat combat/weapons rendering util input rendering/drm-kms entities world_objects
+MODULES = math geometry assets engine combat combat/weapons rendering util input rendering/drm-kms entities world_objects audio audio/alsa
 BUILDDIR = build
 RESDIR = res
 TESTDIR = tests
@@ -25,7 +25,7 @@ CXXFLAGS = $(CFLAGS) -std=c++26 -freflection
 OCFLAGS += -I binary -O elf64-x86-64 --add-section .note.GNU-stack=/dev/null --set-section-flags .note.GNU-stack=noload,readonly
 RES_EXPORT_FLAGS = $(foreach RESFILE, $(RES), -Wl,--export-dynamic-symbol=_binary_$(shell echo '$(RESFILE)' | sed 's/[^a-zA-Z0-9]/_/g')_start -Wl,--export-dynamic-symbol=_binary_$(shell echo '$(RESFILE)' | sed 's/[^a-zA-Z0-9]/_/g')_end)
 #LDFLAGS += -pie $(RES_EXPORT_FLAGS) -Wl,-z,relro,-z,now -flto=auto
-LDFLAGS += -pie $(RES_EXPORT_FLAGS) -Wl,-z,relro,-z,now
+LDFLAGS += -pie $(RES_EXPORT_FLAGS) -Wl,-z,relro,-z,now -lasound
 
 all: $(TARGET)
 
