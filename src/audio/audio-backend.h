@@ -12,8 +12,7 @@ namespace audio {
 		unsigned int channels;
 		unsigned int bits_per_sample;
 	};
-
-	// Abstrakcyjny backend audio — konkretna implementacja w audio::alsa::backend
+	
 	class audio_backend {
 	protected:
 		bool bad;
@@ -27,20 +26,13 @@ namespace audio {
 
 		// Zamyka urzadzenie audio
 		virtual void close() = 0;
-
-		// Zapisuje surowe probki PCM do urzadzenia
-		// data — bufor z probkami, frames — liczba ramek (1 ramka = channels * sample)
-		// Zwraca liczbe zapisanych ramek
 		virtual long write(void const* data, unsigned long frames) = 0;
+		// Czeka az bufor sie oprozni (odtworzy caly dzwiek)
+		virtual void drain() = 0;
 
-		// Wstrzymuje/wznawia odtwarzanie
 		virtual void pause() = 0;
 		virtual void resume() = 0;
-
-		// Zwraca aktualny format audio
 		virtual audio_format current_format() const = 0;
-
-		// Sprawdza czy backend jest w stanie blednym
 		virtual bool is_bad() const;
 	};
 }

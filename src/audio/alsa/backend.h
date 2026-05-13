@@ -11,10 +11,8 @@ namespace audio {
 			audio_format fmt;
 			bool paused;
 
-			// Konwertuje bits_per_sample na format ALSA
 			snd_pcm_format_t to_alsa_format(unsigned int bits) const;
 
-			// Konfiguruje parametry urzadzenia PCM
 			bool configure_hw_params();
 
 		public:
@@ -24,6 +22,7 @@ namespace audio {
 			bool open(audio_format const& format) override;
 			void close() override;
 			long write(void const* data, unsigned long frames) override;
+			void drain() override;
 			void pause() override;
 			void resume() override;
 			audio_format current_format() const override;
