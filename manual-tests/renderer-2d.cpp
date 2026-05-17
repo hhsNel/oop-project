@@ -10,8 +10,8 @@
 
 #include "rendering/drm-kms/backend.h"
 #include "rendering/renderer-2d.h"
-#include "graphics/texture-manager.h"
-#include "graphics/texture.h"
+#include "assets/texture-manager.h"
+#include "assets/texture.h"
 #include "util/resource-loader.h"
 
 bool check_backend_state(const std::unique_ptr<rendering::rendering_backend>& backend, const std::string& action) {
@@ -47,7 +47,7 @@ int main() {
 
     std::cout << "loading textures..." << std::endl;
 	util::resource_loader rl;
-    auto tex_mgr = graphics::texture_manager::load(rl);
+    auto tex_mgr = assets::texture_manager::load(rl);
 
 	rendering::renderer_2d r2d(*backend.get(), tex_mgr, tex_mgr.flat_tx_by_id(0));
 

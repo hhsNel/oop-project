@@ -1,12 +1,12 @@
 #include "texture-manager.h"
 #include <sstream>
 
-namespace graphics {
-    texture_manager::texture_manager(util::resource_loader &resld, std::vector<texture_set> packs)
-        : rl(resld), texture_sets(std::move(packs)), cur_set(0) {}
+namespace assets {
+    texture_manager::texture_manager(util::resource_loader &resld, std::vector<asset_pack> packs)
+        : rl(resld), asset_packs(std::move(packs)), cur_set(0) {}
 
     texture_manager texture_manager::load(util::resource_loader &resld) {
-        std::vector<texture_set> packs;
+        std::vector<asset_pack> packs;
 
         auto r = resld.lookup_resource("meta-texture-sets");
         if (!r) {
@@ -32,7 +32,7 @@ namespace graphics {
                 continue;
             }
                 
-			packs.push_back(texture_set::load(resld, line));
+			packs.push_back(asset_pack::load(resld, line));
         }
 
         return texture_manager(resld, std::move(packs));
@@ -40,19 +40,19 @@ namespace graphics {
 
 	void texture_manager::cycle_set() {
 		++cur_set;
-		cur_set %= texture_sets.size();
+		cur_set %= asset_packs.size();
 	}
 
-	texture const& texture_manager::wall_tx_by_id(texture_set::texture_id const id) const {
-		return texture_sets[cur_set].wall_tx_by_id(id);
+	texture const& texture_manager::wall_tx_by_id(asset_pack::texture_id const id) const {
+		return asset_packs[cur_set].wall_tx_by_id(id);
 	}
 
-	texture const& texture_manager::sprite_tx_by_id(texture_set::texture_id const id) const {
-		return texture_sets[cur_set].sprite_tx_by_id(id);
+	texture const& texture_manager::sprite_tx_by_id(asset_pack::texture_id const id) const {
+		return asset_packs[cur_set].sprite_tx_by_id(id);
 	}
 
-	texture const& texture_manager::flat_tx_by_id(texture_set::texture_id const id) const {
-		return texture_sets[cur_set].flat_tx_by_id(id);
+	texture const& texture_manager::flat_tx_by_id(asset_pack::texture_id const id) const {
+		return asset_packs[cur_set].flat_tx_by_id(id);
 	}
 }
 
