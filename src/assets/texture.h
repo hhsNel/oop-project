@@ -7,7 +7,7 @@
 
 #include "util/resource.h"
 
-namespace graphics {
+namespace assets {
 	class texture {
 		texture(std::vector<std::uint32_t> const &t, std::uint32_t const w, std::uint32_t const h, bool const transparent = false);
 

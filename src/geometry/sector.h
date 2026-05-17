@@ -1,7 +1,7 @@
 #pragma once
 #define SECTOR_H
 
-#include "graphics/texture-manager.h"
+#include "assets/texture-manager.h"
 #include "util/resource.h"
 #include <vector>
 #include <cstdint>
@@ -11,8 +11,8 @@ namespace geometry {
     public:
         float floor_height;
         float ceiling_height;
-        graphics::texture_set::texture_id floor_tex;
-        graphics::texture_set::texture_id ceiling_tex;
+        assets::asset_pack::texture_id floor_tex;
+        assets::asset_pack::texture_id ceiling_tex;
 		std::uint8_t light_level;
 
         static std::vector<sector> load_from_bin(util::resource const& res);
