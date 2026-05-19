@@ -29,6 +29,7 @@ namespace input {
 		virtual void update() = 0;
 		virtual bool is_key_down(key k) const = 0;
 		virtual mouse_state get_mouse_state() const = 0;
+		virtual void reset_mouse_state() = 0;
 		virtual bool is_bad() const;
 
 		static key to_key(char c);

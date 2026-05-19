@@ -4,7 +4,7 @@ namespace rendering {
 
     renderer_2d::renderer_2d(rendering_backend &tgt, assets::texture_manager const& tm, assets::texture const& font_tex) : target(tgt), tex_manager(tm), font_texture(font_tex) {}
 
-    void renderer_2d::draw_texture(assets::texture const& tex, int x, int y, int w, int h) {
+    void renderer_2d::draw_texture(assets::texture const& tex, int x, int y, int w, int h) const {
         int const screen_w = static_cast<int>(target("width"_f));
         int const screen_h = static_cast<int>(target("height"_f));
         
@@ -34,7 +34,7 @@ namespace rendering {
         }
     }
 
-    void renderer_2d::draw_text(std::string_view text, int x, int y, int char_w, int char_h, std::uint32_t const color) {
+    void renderer_2d::draw_text(std::string_view text, int x, int y, int char_w, int char_h, std::uint32_t const color) const {
         int const cols = 16;
         int const rows = 16;
         int const src_char_w = font_texture.width / cols;
@@ -81,33 +81,33 @@ namespace rendering {
         }
     }
 
-    void renderer_2d::draw_rect(int x, int y, int w, int h, std::uint32_t color) {
-	auto* fb    = target("mmio"_f);
-	unsigned pitch = target("pitch"_f) / sizeof(std::uint32_t);
-	unsigned scr_w = target("width"_f);
-	unsigned scr_h = target("height"_f);
-	int x1 = std::max(0, x),              y1 = std::max(0, y);
-	int x2 = std::min((int)scr_w, x + w), y2 = std::min((int)scr_h, y + h);
+    void renderer_2d::draw_rect(int x, int y, int w, int h, std::uint32_t color) const {
+		auto* fb    = target("mmio"_f);
+		unsigned pitch = target("pitch"_f) / sizeof(std::uint32_t);
+		unsigned scr_w = target("width"_f);
+		unsigned scr_h = target("height"_f);
+		int x1 = std::max(0, x),              y1 = std::max(0, y);
+		int x2 = std::min((int)scr_w, x + w), y2 = std::min((int)scr_h, y + h);
 
-	std::uint32_t alpha = (color >> 24) & 0xFF;
-	if (alpha == 0xFF) {
-	    for (int row = y1; row < y2; ++row)
-		for (int col = x1; col < x2; ++col)
-		    fb[row * pitch + col] = color;
-	} else {
-	    std::uint32_t inv = 255 - alpha;
-	    std::uint32_t sr = (color >> 16) & 0xFF;
-	    std::uint32_t sg = (color >>  8) & 0xFF;
-	    std::uint32_t sb = (color      ) & 0xFF;
-	    for (int row = y1; row < y2; ++row) {
-		for (int col = x1; col < x2; ++col) {
-		    std::uint32_t dst = fb[row * pitch + col];
-		    std::uint32_t r = (sr * alpha + ((dst >> 16) & 0xFF) * inv) / 255;
-		    std::uint32_t g = (sg * alpha + ((dst >>  8) & 0xFF) * inv) / 255;
-		    std::uint32_t b = (sb * alpha + ((dst      ) & 0xFF) * inv) / 255;
-		    fb[row * pitch + col] = (0xFF << 24) | (r << 16) | (g << 8) | b;
+		std::uint32_t alpha = (color >> 24) & 0xFF;
+		if (alpha == 0xFF) {
+			for (int row = y1; row < y2; ++row)
+			for (int col = x1; col < x2; ++col)
+				fb[row * pitch + col] = color;
+		} else {
+			std::uint32_t inv = 255 - alpha;
+			std::uint32_t sr = (color >> 16) & 0xFF;
+			std::uint32_t sg = (color >>  8) & 0xFF;
+			std::uint32_t sb = (color      ) & 0xFF;
+			for (int row = y1; row < y2; ++row) {
+			for (int col = x1; col < x2; ++col) {
+				std::uint32_t dst = fb[row * pitch + col];
+				std::uint32_t r = (sr * alpha + ((dst >> 16) & 0xFF) * inv) / 255;
+				std::uint32_t g = (sg * alpha + ((dst >>  8) & 0xFF) * inv) / 255;
+				std::uint32_t b = (sb * alpha + ((dst      ) & 0xFF) * inv) / 255;
+				fb[row * pitch + col] = (0xFF << 24) | (r << 16) | (g << 8) | b;
+			}
+			}
 		}
-	    }
-	}
     }
 }
