@@ -17,10 +17,10 @@ namespace rendering {
     public:
         renderer_2d(rendering_backend &tgt, assets::texture_manager const& tm, assets::texture const& font_tex);
 
-        void draw_texture(assets::texture const& tex, int x, int y, int w, int h);
+        void draw_texture(assets::texture const& tex, int x, int y, int w, int h) const;
         
-        void draw_text(std::string_view text, int x, int y, int char_w, int char_h, std::uint32_t const color);
+        void draw_text(std::string_view text, int x, int y, int char_w, int char_h, std::uint32_t const color) const;
 
-		void draw_rect(int x, int y, int w, int h, std::uint32_t color);
+		void draw_rect(int x, int y, int w, int h, std::uint32_t color) const;
     };
 }
