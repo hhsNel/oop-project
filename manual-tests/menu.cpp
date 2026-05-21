@@ -60,15 +60,7 @@ int main() {
 
     assets::menu &main_menu = tex_mgr.menu_by_id(0);
 
-    main_menu.selective_formatter("{name}", [&](std::string_view tmpl) {
-        return replace_token(tmpl, "{name}", player_name);
-    });
-
-    main_menu.selective_formatter("{score}", [&](std::string_view tmpl) {
-        return replace_token(tmpl, "{score}", std::to_string(score));
-    });
-
-    main_menu.selective_formatter("{name}{score}", [&](std::string_view tmpl) {
+    main_menu.selective_formatter("{name}|{score}", [&](std::string_view tmpl) {
         std::string s = replace_token(tmpl, "{name}",  player_name);
         return          replace_token(s,    "{score}", std::to_string(score));
     });
