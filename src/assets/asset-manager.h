@@ -1,5 +1,5 @@
 #pragma once
-#define TEXTURE_MANAGER_H
+#define ASSET_MANAGER_H
 
 #include <vector>
 #include <string>

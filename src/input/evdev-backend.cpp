@@ -165,6 +165,7 @@ namespace input {
 
 		void backend::reset_mouse_state() {
 			mouse.x = mouse.y = 0;
+			mouse.left = mouse.right = mouse.middle = false;
 		}
 
 	}

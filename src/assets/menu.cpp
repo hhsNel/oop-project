@@ -18,9 +18,9 @@ namespace assets {
 		std::string content(reinterpret_cast<const char *>(res("beginning"_f)), res("size"_f));
 		std::istringstream stream(content);
 
-		std::size_t bg_tx_idx;
+		int bg_tx_idx;
 		stream >> bg_tx_idx;
-		texture const *bg_tx = (bg_tx_idx != static_cast<std::size_t>(-1)) ? &ui_tx[bg_tx_idx] : nullptr;
+		texture const *bg_tx = (bg_tx_idx >= 0) ? &ui_tx[bg_tx_idx] : nullptr;
 
 		std::vector<menu_element> els;
 		std::string el_res_name;

@@ -30,7 +30,7 @@ namespace assets {
 
 		int f;
 		float bx, by, ex, ey;
-		std::size_t bg_tx_idx;
+		int bg_tx_idx;
 		int cw, ch;
 		int r, g, b;
 		std::string tmpl;
@@ -38,7 +38,7 @@ namespace assets {
 		stream >> f >> bx >> by >> ex >> ey >> bg_tx_idx
 		       >> cw >> ch >> r >> g >> b;
 
-		texture const *bg_tx = (bg_tx_idx != static_cast<std::size_t>(-1)) ? &ui_tx[bg_tx_idx] : nullptr;
+		texture const *bg_tx = (bg_tx_idx >= 0) ? &ui_tx[bg_tx_idx] : nullptr;
 
 		stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		std::getline(stream, tmpl);

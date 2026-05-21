@@ -19,26 +19,16 @@ namespace assets {
 		std::vector<texture>      sprite_textures;
 		std::vector<texture>      flat_textures;
 		std::vector<texture>      ui_textures;
-		std::vector<menu_element> menu_elements;
 		std::vector<menu>         menus;
 
-		asset_pack(
-			std::vector<texture>      walls,
-			std::vector<texture>      sprites,
-			std::vector<texture>      flats,
-			std::vector<texture>      ui,
-			std::vector<menu_element> menu_elems,
-			std::vector<menu>         ms
-		);
+		asset_pack(std::vector<texture> walls, std::vector<texture> sprites, std::vector<texture> flats, std::vector<texture> ui, std::vector<menu> ms);
 
 		static std::vector<texture>      tx_from_meta(util::resource_loader &resld, std::string_view meta_path);
-		static std::vector<menu_element> menu_elems_from_meta(util::resource_loader &resld, std::string_view meta_path, std::vector<texture> const& ui_tx);
 		static std::vector<menu>         menus_from_meta(util::resource_loader &resld, std::string_view meta_path, std::vector<texture> const& ui_tx);
 		static std::unordered_map<std::string, std::string> parse_meta_keys(std::string const& content);
 
 	public:
 		typedef std::uint32_t texture_id;
-		typedef std::uint32_t element_id;
 		typedef std::uint32_t menu_id;
 
 		static asset_pack load(util::resource_loader &resld, std::string_view pack_meta_path);
