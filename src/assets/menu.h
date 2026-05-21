@@ -7,9 +7,12 @@
 #include "util/resource-loader.h"
 #include "texture.h"
 #include "menu-element.h"
-#include "rendering/renderer-2d.h"
-#include "rendering/rendering-backend.h"
 #include "input/input-backend.h"
+
+namespace rendering {
+	class rendering_backend;
+	class renderer_2d;
+}
 
 namespace assets {
 	class menu {
@@ -17,14 +20,12 @@ namespace assets {
 
 		std::vector<menu_element> elements;
 		texture const *const bg;
-		texture const *const cursor; // always ui_tx[0]
+		texture const *const cursor;
 
 	public:
 
 		static menu const load_from_bin(util::resource_loader &resld, util::resource const &res, std::vector<texture> const &ui_tx);
 
-		// Runs the menu loop. Draws the menu each frame, returns the function id
-		// of the clicked element, or -1 if ESC was pressed.
 		int display(rendering::renderer_2d const& r2d, rendering::rendering_backend &rb, input::input_backend *in) const;
 	};
 }

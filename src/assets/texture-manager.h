@@ -1,14 +1,19 @@
 #pragma once
-#ifndef TEXTURE_MANAGER_H
 #define TEXTURE_MANAGER_H
 
-#include <unordered_map>
+#include <vector>
 #include <string>
 #include <string_view>
 
 #include "util/resource.h"
 #include "util/resource-loader.h"
 #include "asset-pack.h"
+#include "input/input-backend.h"
+
+namespace rendering {
+	class renderer_2d;
+	class rendering_backend;
+}
 
 namespace assets {
 	class texture_manager {
@@ -17,6 +22,7 @@ namespace assets {
 		unsigned int cur_set;
 
 		texture_manager(util::resource_loader &resld, std::vector<asset_pack> packs);
+
 	public:
 		static texture_manager load(util::resource_loader &resld);
 
@@ -25,7 +31,9 @@ namespace assets {
 		texture const& wall_tx_by_id(asset_pack::texture_id const id) const;
 		texture const& sprite_tx_by_id(asset_pack::texture_id const id) const;
 		texture const& flat_tx_by_id(asset_pack::texture_id const id) const;
+		texture const& ui_tx_by_id(asset_pack::texture_id const id) const;
+
+		int display_menu(asset_pack::menu_id const id, rendering::renderer_2d const& r2d, rendering::rendering_backend &rb, input::input_backend *in) const;
 	};
 }
 
-#endif
