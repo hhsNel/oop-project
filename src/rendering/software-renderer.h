@@ -4,7 +4,7 @@
 #include "rendering-backend.h"
 #include "visplane.h"
 #include "vissprite.h"
-#include "assets/texture-manager.h"
+#include "assets/asset-manager.h"
 #include "geometry/linedef.h"
 #include "geometry/bsp-node.h"
 #include "geometry/map-data.h"
@@ -15,7 +15,7 @@
 namespace rendering {
     class software_renderer {
         rendering_backend &target;
-        assets::texture_manager const& tex_manager;
+        assets::asset_manager const& tex_manager;
         geometry::map_data const& current_map;
 
 		static constexpr float near_z = 0.1f;
@@ -53,7 +53,7 @@ namespace rendering {
 		__attribute__((always_inline)) inline std::uint32_t apply_light(std::uint32_t const orig, int light);
 
     public:
-        software_renderer(rendering_backend &tgt, assets::texture_manager const& tm, geometry::map_data const& map);
+        software_renderer(rendering_backend &tgt, assets::asset_manager const& tm, geometry::map_data const& map);
 
         void render_bsp(math::vec2 const cam_pos, float const cam_height, float cam_angle, float fov); 
     };

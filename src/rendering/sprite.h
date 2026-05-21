@@ -2,7 +2,7 @@
 #define SPRITE_H
 
 #include "math/vec2.h"
-#include "assets/texture-manager.h"
+#include "assets/asset-manager.h"
 
 namespace rendering {
 	class sprite {

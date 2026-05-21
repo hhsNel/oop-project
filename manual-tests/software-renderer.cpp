@@ -111,7 +111,7 @@ int main() {
     }
 
 	util::resource_loader rl;
-    auto tm = std::make_unique<assets::texture_manager>(assets::texture_manager::load(rl));
+    auto tm = std::make_unique<assets::asset_manager>(assets::asset_manager::load(rl));
 
 	rendering::renderer_2d r2d(*backend.get(), *tm.get(), tm->flat_tx_by_id(0));
 

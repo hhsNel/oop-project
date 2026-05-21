@@ -16,15 +16,15 @@ namespace rendering {
 }
 
 namespace assets {
-	class texture_manager {
+	class asset_manager {
 		util::resource_loader &rl;
 		std::vector<asset_pack> asset_packs;
 		unsigned int cur_set;
 
-		texture_manager(util::resource_loader &resld, std::vector<asset_pack> packs);
+		asset_manager(util::resource_loader &resld, std::vector<asset_pack> packs);
 
 	public:
-		static texture_manager load(util::resource_loader &resld);
+		static asset_manager load(util::resource_loader &resld);
 
 		void cycle_set();
 

@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "assets/texture-manager.h"
+#include "assets/asset-manager.h"
 
 namespace rendering {
 	class visplane {
