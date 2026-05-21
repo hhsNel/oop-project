@@ -5,14 +5,8 @@
 
 namespace assets {
 
-    asset_pack::asset_pack(
-        std::vector<texture>      walls,
-        std::vector<texture>      sprites,
-        std::vector<texture>      flats,
-        std::vector<texture>      ui,
-        std::vector<menu_element> menu_elems,
-        std::vector<menu>         ms
-    ) : wall_textures(std::move(walls)),
+    asset_pack::asset_pack(std::vector<texture> walls, std::vector<texture> sprites, std::vector<texture> flats, std::vector<texture> ui, std::vector<menu_element> menu_elems, std::vector<menu> ms) :
+		wall_textures(std::move(walls)),
         sprite_textures(std::move(sprites)),
         flat_textures(std::move(flats)),
         ui_textures(std::move(ui)),
@@ -35,11 +29,7 @@ namespace assets {
         return ui_textures.at(id);
     }
 
-    menu_element const& asset_pack::menu_elem_by_id(element_id const id) const {
-        return menu_elements.at(id);
-    }
-
-    menu const& asset_pack::menu_by_id(menu_id const id) const {
+    menu &asset_pack::menu_by_id(menu_id const id) {
         return menus.at(id);
     }
 

@@ -47,8 +47,7 @@ namespace assets {
 		texture      const& sprite_tx_by_id(texture_id const id) const;
 		texture      const& flat_tx_by_id(texture_id const id) const;
 		texture      const& ui_tx_by_id(texture_id const id) const;
-		menu_element const& menu_elem_by_id(element_id const id) const;
-		menu         const& menu_by_id(menu_id const id) const;
+		menu              & menu_by_id(menu_id const id);
 	};
 }
 

@@ -58,6 +58,9 @@ int main(int argc, char **argv) {
 	case 's':
 		wall_tex = &tex_mgr.sprite_tx_by_id(id);
 		break;
+	case 'u':
+		wall_tex = &tex_mgr.ui_tx_by_id(id);
+		break;
 	default:
 		wall_tex = &tex_mgr.wall_tx_by_id(id);
 		break;

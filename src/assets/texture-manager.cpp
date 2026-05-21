@@ -64,12 +64,16 @@ namespace assets {
         return asset_packs[cur_set].ui_tx_by_id(id);
     }
 
+    menu &texture_manager::menu_by_id(asset_pack::menu_id const id) {
+        return asset_packs[cur_set].menu_by_id(id);
+    }
+
     int texture_manager::display_menu(
         asset_pack::menu_id          const id,
         rendering::renderer_2d       const& r2d,
         rendering::rendering_backend &rb,
         input::input_backend         *in
-    ) const {
+    ) {
         return asset_packs[cur_set].menu_by_id(id).display(r2d, rb, in);
     }
 }

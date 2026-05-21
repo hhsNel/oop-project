@@ -32,8 +32,9 @@ namespace assets {
 		texture const& sprite_tx_by_id(asset_pack::texture_id const id) const;
 		texture const& flat_tx_by_id(asset_pack::texture_id const id) const;
 		texture const& ui_tx_by_id(asset_pack::texture_id const id) const;
+		menu &menu_by_id(asset_pack::menu_id const id);
 
-		int display_menu(asset_pack::menu_id const id, rendering::renderer_2d const& r2d, rendering::rendering_backend &rb, input::input_backend *in) const;
+		int display_menu(asset_pack::menu_id const id, rendering::renderer_2d const& r2d, rendering::rendering_backend &rb, input::input_backend *in);
 	};
 }
 
