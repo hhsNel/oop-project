@@ -2,7 +2,7 @@
 #define SPRITE_H
 
 #include "math/vec2.h"
-#include "assets/asset-manager.h"
+#include "assets/ids.h"
 
 namespace rendering {
 	class sprite {
@@ -10,10 +10,10 @@ namespace rendering {
 	public:
 		math::vec2 pos;
 		float z_pos;
-		assets::asset_pack::texture_id tex_id;
+		assets::texture_id tex_id;
 		float inherent_scale;
 
-		sprite(math::vec2 const p, float const z, assets::asset_pack::texture_id const tex, float const is);
+		sprite(math::vec2 const p, float const z, assets::texture_id const tex, float const is);
 		sprite();
 		virtual ~sprite() = default;
 	};
