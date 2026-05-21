@@ -8,8 +8,8 @@ namespace geometry {
 
     std::vector<linedef> linedef::load_from_bin(util::resource const& res) {
         std::vector<linedef> result;
-        size_t count = res.size / sizeof(bin_linedef);
-        auto const* data = reinterpret_cast<bin_linedef const*>(res.begin);
+        size_t count = res("size"_f) / sizeof(bin_linedef);
+        auto const* data = reinterpret_cast<bin_linedef const*>(res("beginning"_f));
 
         for (size_t i = 0; i < count; ++i) {
             linedef ld;

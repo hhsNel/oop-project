@@ -5,3 +5,4 @@ tests/*.out
 manual-tests/*.out
 gmon.out
 .vscode
+perf.data

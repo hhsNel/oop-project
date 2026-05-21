@@ -6,28 +6,22 @@ resdir="$2"
 
 cat > "$output" << 'EOF'
 #pragma once
-#define RES_H
-
-#ifdef __cplusplus
+namespace res_symbols {
 extern "C" {
-#endif
-
 EOF
 
-for file in "$resdir"/*; do
-	if [ -f "$file" ]; then
-		name=$(basename "$file" | sed 's/[^a-zA-Z0-9]/_/g')
-		cat >> "$output" << EOF
-extern unsigned char const _binary_res_${name}_start[];
-extern unsigned char const _binary_res_${name}_end[];
+find "$resdir" -type f | while read -r file; do
+    rel_path=$(echo "$file" | sed "s|^$resdir/||")
+    name=$(echo "$rel_path" | sed 's/[^a-zA-Z0-9]/_/g')
+
+    cat >> "$output" << EOF
+    extern unsigned char const _binary_res_${name}_start[];
+    extern unsigned char const _binary_res_${name}_end[];
 EOF
-	fi
 done
 
 cat >> "$output" << 'EOF'
-
-#ifdef __cplusplus
 }
-#endif
+}
 EOF
 
