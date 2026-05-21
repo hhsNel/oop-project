@@ -68,7 +68,7 @@ int main() {
     std::cout << "displaying main menu..." << std::endl;
     std::cout << "click an element or press ESC to exit" << std::endl;
 
-    int result = main_menu.display(r2d, *backend, in.get());
+    int result = tex_mgr.display_menu(0, r2d, *backend.get(), *in.get());
 
     if (result == -1) {
         std::cout << "menu cancelled (ESC)" << std::endl;

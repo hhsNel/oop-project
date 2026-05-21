@@ -4,20 +4,20 @@
 #include <cstdint>
 #include <vector>
 
-#include "assets/asset-manager.h"
+#include "assets/ids.h"
 
 namespace rendering {
 	class visplane {
 		/* TODO */
 	public:
 		float height;
-		assets::asset_pack::texture_id tex_id;
+		assets::texture_id tex_id;
 		std::uint8_t light_level;
 
 		int min_x, max_x;
 		std::vector<int> top, bottom;
 
-		visplane(int const x, unsigned int const sw, float const h, assets::asset_pack::texture_id const tid, std::uint8_t const light);
+		visplane(int const x, unsigned int const sw, float const h, assets::texture_id const tid, std::uint8_t const light);
 	};
 }
 

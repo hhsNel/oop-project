@@ -258,7 +258,7 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
     }
 }
 
-void software_renderer::add_visplane(int x, int y_start, int y_end, float flat_height, assets::asset_pack::texture_id tex_id, std::uint8_t const sector_light_level, frame_rendering_data const frd) {
+void software_renderer::add_visplane(int x, int y_start, int y_end, float flat_height, assets::texture_id tex_id, std::uint8_t const sector_light_level, frame_rendering_data const frd) {
     if (y_start >= y_end) return;
 
     visplane* target_vp = nullptr;
@@ -302,7 +302,7 @@ void software_renderer::render_visplanes(frame_rendering_data const frd) {
     float dx_sin = frd.inv_fov_scale * frd.sin_cam_angle;
 
     for (auto const& vp : visplanes) {
-        assets::texture const& tex = tex_manager.wall_tx_by_id(vp.tex_id);
+        assets::texture const& tex = tex_manager.flat_tx_by_id(vp.tex_id);
         float h = std::abs(frd.cam_height - vp.height);
 
 		/* true y bounds */
