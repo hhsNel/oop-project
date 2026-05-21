@@ -109,10 +109,7 @@ int main() {
     util::resource_loader rl;
     auto tex_mgr = graphics::texture_manager::load(rl);
 
-    rendering::renderer_2d r2d;
-    r2d.set_target(r_back.get());
-    r2d.set_texture_manager(&tex_mgr);
-    r2d.set_font_texture(&tex_mgr.flat_tx_by_id(0));  // flat-font-atlas.btx (16×16 ASCII grid)
+    rendering::renderer_2d r2d(*r_back, tex_mgr, tex_mgr.flat_tx_by_id(0));
 
     // ── Layout ───────────────────────────────────────────────────────────────
     const int HUD_H = 210;

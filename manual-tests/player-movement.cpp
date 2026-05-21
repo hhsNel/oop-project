@@ -36,24 +36,21 @@ static std::string fmt2(float v) {
 int main() {
     // ── Rendering backend ────────────────────────────────────────────────────
     auto r_back = std::make_unique<rendering::drm_kms::backend>();
-    if (r_back->is_bad()) { std::cerr << "error: DRM/KMS init failed\n"; return 1; }
+    if (r_back->bad()) { std::cerr << "error: DRM/KMS init failed\n"; return 1; }
 
-    auto modes = r_back->get_modes();
+    auto modes = (*r_back)("modes"_f);
     if (modes.empty()) { std::cerr << "error: no display modes\n"; return 1; }
-    r_back->set_mode(std::move(modes[0]));
-    if (r_back->is_bad()) { std::cerr << "error: set_mode failed\n"; return 1; }
+    r_back->push_mode(std::move(modes[0]));
+    if (r_back->bad()) { std::cerr << "error: set_mode failed\n"; return 1; }
 
-    const int SW = static_cast<int>(r_back->get_width());
-    const int SH = static_cast<int>(r_back->get_height());
+    const int SW = static_cast<int>((*r_back)("width"_f));
+    const int SH = static_cast<int>((*r_back)("height"_f));
 
     // ── Resources ────────────────────────────────────────────────────────────
     util::resource_loader rl;
     auto tex_mgr = graphics::texture_manager::load(rl);
 
-    rendering::renderer_2d r2d;
-    r2d.set_target(r_back.get());
-    r2d.set_texture_manager(&tex_mgr);
-    r2d.set_font_texture(&tex_mgr.flat_tx_by_id(0));
+    rendering::renderer_2d r2d(*r_back, tex_mgr, tex_mgr.flat_tx_by_id(0));
 
     // ── Input ────────────────────────────────────────────────────────────────
     auto i_back = std::make_unique<input::evdev::backend>();
@@ -135,14 +132,14 @@ int main() {
         // Player is always at (CX, CY); everything else is offset from there.
         auto world_to_screen = [&](float wx, float wy) -> std::pair<int, int> {
             return {
-                static_cast<int>(CX + (wx - p.pos.x) * SCALE),
-                static_cast<int>(CY + (wy - p.pos.y) * SCALE)
+                static_cast<int>(CX + (wx - p.pos("x"_f)) * SCALE),
+                static_cast<int>(CY + (wy - p.pos("y"_f)) * SCALE)
             };
         };
 
         // ── RENDER ────────────────────────────────────────────────────────────
-        std::memset(r_back->get_mmio(), 0,
-                    static_cast<std::size_t>(r_back->get_height()) * r_back->get_pitch());
+        std::memset((*r_back)("mmio"_f), 0,
+                    static_cast<std::size_t>((*r_back)("height"_f)) * (*r_back)("pitch"_f));
 
         // Background
         r2d.draw_rect(0, 0, SW, VIEW_H, C_BG);
@@ -151,23 +148,23 @@ int main() {
         {
             float visible_units_x = (SW / 2.0f) / SCALE + 1.0f;
             float visible_units_y = (VIEW_H / 2.0f) / SCALE + 1.0f;
-            int grid_x0 = static_cast<int>(std::floor(p.pos.x - visible_units_x));
-            int grid_x1 = static_cast<int>(std::ceil (p.pos.x + visible_units_x));
-            int grid_y0 = static_cast<int>(std::floor(p.pos.y - visible_units_y));
-            int grid_y1 = static_cast<int>(std::ceil (p.pos.y + visible_units_y));
+            int grid_x0 = static_cast<int>(std::floor(p.pos("x"_f) - visible_units_x));
+            int grid_x1 = static_cast<int>(std::ceil (p.pos("x"_f) + visible_units_x));
+            int grid_y0 = static_cast<int>(std::floor(p.pos("y"_f) - visible_units_y));
+            int grid_y1 = static_cast<int>(std::ceil (p.pos("y"_f) + visible_units_y));
 
             for (int gx = grid_x0; gx <= grid_x1; ++gx) {
-                int sx     = static_cast<int>(CX + (gx - p.pos.x) * SCALE);
-                int sy_top = static_cast<int>(CY + (grid_y0 - p.pos.y) * SCALE);
-                int sy_bot = static_cast<int>(CY + (grid_y1 - p.pos.y) * SCALE);
+                int sx     = static_cast<int>(CX + (gx - p.pos("x"_f)) * SCALE);
+                int sy_top = static_cast<int>(CY + (grid_y0 - p.pos("y"_f)) * SCALE);
+                int sy_bot = static_cast<int>(CY + (grid_y1 - p.pos("y"_f)) * SCALE);
                 std::uint32_t col = (gx % 5 == 0) ? C_AXIS : C_GRID;
                 draw_line(static_cast<float>(sx), static_cast<float>(sy_top),
                           static_cast<float>(sx), static_cast<float>(sy_bot), col);
             }
             for (int gy = grid_y0; gy <= grid_y1; ++gy) {
-                int sx_l = static_cast<int>(CX + (grid_x0 - p.pos.x) * SCALE);
-                int sx_r = static_cast<int>(CX + (grid_x1 - p.pos.x) * SCALE);
-                int sy   = static_cast<int>(CY + (gy    - p.pos.y) * SCALE);
+                int sx_l = static_cast<int>(CX + (grid_x0 - p.pos("x"_f)) * SCALE);
+                int sx_r = static_cast<int>(CX + (grid_x1 - p.pos("x"_f)) * SCALE);
+                int sy   = static_cast<int>(CY + (gy    - p.pos("y"_f)) * SCALE);
                 std::uint32_t col = (gy % 5 == 0) ? C_AXIS : C_GRID;
                 draw_line(static_cast<float>(sx_l), static_cast<float>(sy),
                           static_cast<float>(sx_r), static_cast<float>(sy), col);
@@ -197,7 +194,7 @@ int main() {
         r2d.draw_rect(0, VIEW_H, SW, 1, 0xFF334433);
 
         float deg = p.angle * (180.0f / std::numbers::pi_v<float>);
-        r2d.draw_text("POS:  x=" + fmt2(p.pos.x) + "  y=" + fmt2(p.pos.y),
+        r2d.draw_text("POS:  x=" + fmt2(p.pos("x"_f)) + "  y=" + fmt2(p.pos("y"_f)),
                       16, VIEW_H + 10, 13, 20, TW);
         r2d.draw_text("ANG:  " + fmt2(p.angle) + " rad  (" + fmt2(deg) + " deg)",
                       16, VIEW_H + 34, 13, 20, TW);

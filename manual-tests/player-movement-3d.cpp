@@ -106,15 +106,15 @@ static geometry::map_data build_room() {
 int main() {
     // ── Rendering backend ────────────────────────────────────────────────────
     auto r_back = std::make_unique<rendering::drm_kms::backend>();
-    if (r_back->is_bad()) { std::cerr << "error: DRM/KMS init failed\n"; return 1; }
+    if (r_back->bad()) { std::cerr << "error: DRM/KMS init failed\n"; return 1; }
 
-    auto modes = r_back->get_modes();
+    auto modes = (*r_back)("modes"_f);
     if (modes.empty()) { std::cerr << "error: no display modes\n"; return 1; }
-    r_back->set_mode(std::move(modes[0]));
-    if (r_back->is_bad()) { std::cerr << "error: set_mode failed\n"; return 1; }
+    r_back->push_mode(std::move(modes[0]));
+    if (r_back->bad()) { std::cerr << "error: set_mode failed\n"; return 1; }
 
-    const int SW = static_cast<int>(r_back->get_width());
-    const int SH = static_cast<int>(r_back->get_height());
+    const int SW = static_cast<int>((*r_back)("width"_f));
+    const int SH = static_cast<int>((*r_back)("height"_f));
 
     // ── Resources ────────────────────────────────────────────────────────────
     util::resource_loader rl;
@@ -123,16 +123,10 @@ int main() {
     // ── 3D renderer ──────────────────────────────────────────────────────────
     auto room_map = build_room();
 
-    rendering::software_renderer r3d;
-    r3d.set_target(r_back.get());
-    r3d.set_texture_manager(&tex_mgr);
-    r3d.set_map(&room_map);
+    rendering::software_renderer r3d(*r_back, tex_mgr, room_map);
 
     // ── 2D overlay (info strip) ───────────────────────────────────────────────
-    rendering::renderer_2d r2d;
-    r2d.set_target(r_back.get());
-    r2d.set_texture_manager(&tex_mgr);
-    r2d.set_font_texture(&tex_mgr.flat_tx_by_id(0));  // font atlas
+    rendering::renderer_2d r2d(*r_back, tex_mgr, tex_mgr.flat_tx_by_id(0));
 
     // ── Input ────────────────────────────────────────────────────────────────
     auto i_back = std::make_unique<input::evdev::backend>();
@@ -193,8 +187,8 @@ int main() {
         p.update(dt);
 
         // ── RENDER ────────────────────────────────────────────────────────────
-        std::memset(r_back->get_mmio(), 0,
-                    static_cast<std::size_t>(r_back->get_height()) * r_back->get_pitch());
+        std::memset((*r_back)("mmio"_f), 0,
+                    static_cast<std::size_t>((*r_back)("height"_f)) * (*r_back)("pitch"_f));
 
         // 3D scene
         r3d.render_bsp(p.pos, CAM_HEIGHT, p.angle, FOV);
@@ -205,7 +199,7 @@ int main() {
 
         float deg = p.angle * (180.0f / std::numbers::pi_v<float>);
         r2d.draw_text("FPS  " + fmt2(fps)
-                      + "     POS  x=" + fmt2(p.pos.x) + "  y=" + fmt2(p.pos.y)
+                      + "     POS  x=" + fmt2(p.pos("x"_f)) + "  y=" + fmt2(p.pos("y"_f))
                       + "     ANG  " + fmt2(p.angle) + " rad  (" + fmt2(deg) + " deg)",
                       14, INFO_Y + 8, 13, 20, TW);
         r2d.draw_text("W/S: forward/back     A/D: strafe     Mouse: rotate     ESC: exit",
