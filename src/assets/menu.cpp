@@ -1,4 +1,6 @@
 #include "menu.h"
+#include "rendering/renderer-2d.h"
+#include "rendering/rendering-backend.h"
 
 #include <sstream>
 
@@ -88,9 +90,9 @@ namespace assets {
 
 			// Draw the cursor on top of everything (ui_tx[0])
 			if (cursor) {
-				const int cw = static_cast<int>(cursor->width);
-				const int ch = static_cast<int>(cursor->height);
-				r2d.draw_texture(*cursor, ms.x, ms.y, cw, ch);
+//				const int cw = static_cast<int>(cursor->width);
+//				const int ch = static_cast<int>(cursor->height);
+				r2d.draw_texture(*cursor, ms.x, ms.y, 16, 16);
 			}
 
 			// ESC cancels the menu; -1 signals "no selection"
