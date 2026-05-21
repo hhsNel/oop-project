@@ -1,7 +1,7 @@
 #pragma once
 #define SIDEDEF_H
 
-#include "assets/texture-manager.h"
+#include "assets/asset-manager.h"
 #include "util/resource.h"
 #include "util/indexed-storage.h"
 #include <vector>

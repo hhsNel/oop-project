@@ -4,7 +4,7 @@
 
 #include "rendering/drm-kms/backend.h"
 #include "rendering/renderer-2d.h"
-#include "assets/texture-manager.h"
+#include "assets/asset-manager.h"
 #include "util/resource-loader.h"
 #include "input/input-backend.h"
 #include "input/evdev-backend.h"
@@ -49,7 +49,7 @@ int main() {
 
     std::cout << "loading assets..." << std::endl;
     util::resource_loader rl;
-    auto tex_mgr = assets::texture_manager::load(rl);
+    auto tex_mgr = assets::asset_manager::load(rl);
 
     rendering::renderer_2d r2d(*backend.get(), tex_mgr, tex_mgr.flat_tx_by_id(0));
 

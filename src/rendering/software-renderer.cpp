@@ -11,7 +11,7 @@
 
 namespace rendering {
 
-software_renderer::software_renderer(rendering_backend &tgt, assets::texture_manager const& tm, geometry::map_data const& map) 
+software_renderer::software_renderer(rendering_backend &tgt, assets::asset_manager const& tm, geometry::map_data const& map) 
     : target(tgt), tex_manager(tm), current_map(map) {
 }
 

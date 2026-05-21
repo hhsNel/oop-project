@@ -2,7 +2,7 @@
 
 namespace rendering {
 
-    renderer_2d::renderer_2d(rendering_backend &tgt, assets::texture_manager const& tm, assets::texture const& font_tex) : target(tgt), tex_manager(tm), font_texture(font_tex) {}
+    renderer_2d::renderer_2d(rendering_backend &tgt, assets::asset_manager const& tm, assets::texture const& font_tex) : target(tgt), tex_manager(tm), font_texture(font_tex) {}
 
     void renderer_2d::draw_texture(assets::texture const& tex, int x, int y, int w, int h) const {
         int const screen_w = static_cast<int>(target("width"_f));

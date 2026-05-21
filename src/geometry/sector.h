@@ -1,7 +1,7 @@
 #pragma once
 #define SECTOR_H
 
-#include "assets/texture-manager.h"
+#include "assets/asset-manager.h"
 #include "util/resource.h"
 #include <vector>
 #include <cstdint>

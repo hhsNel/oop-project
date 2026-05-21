@@ -2,7 +2,7 @@
 #define RENDERER_2D_H
 
 #include "rendering-backend.h"
-#include "assets/texture-manager.h"
+#include "assets/asset-manager.h"
 #include "assets/texture.h"
 #include <string_view>
 #include <cstdint>
@@ -11,11 +11,11 @@
 namespace rendering {
     class renderer_2d {
         rendering_backend &target;
-        assets::texture_manager const& tex_manager;
+        assets::asset_manager const& tex_manager;
         assets::texture const& font_texture; 
 
     public:
-        renderer_2d(rendering_backend &tgt, assets::texture_manager const& tm, assets::texture const& font_tex);
+        renderer_2d(rendering_backend &tgt, assets::asset_manager const& tm, assets::texture const& font_tex);
 
         void draw_texture(assets::texture const& tex, int x, int y, int w, int h) const;
         
