@@ -2,6 +2,5 @@ wall: cultured-textures/walls/manifest
 sprite: cultured-textures/sprite/manifest
 flat: cultured-textures/flat/manifest
 ui: cultured-textures/ui/manifest
-menu-elements: cultured-textures/menu-elements/manifest
 menus: cultured-textures/menus/manifest
 
