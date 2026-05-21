@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <string>
 
 #include "rendering/drm-kms/backend.h"
 #include "rendering/renderer-2d.h"
@@ -8,7 +9,16 @@
 #include "input/input-backend.h"
 #include "input/evdev-backend.h"
 
-bool check_backend_state(const std::unique_ptr<rendering::rendering_backend>& backend, const std::string& action) {
+static std::string replace_token(std::string_view tmpl, std::string_view token, std::string_view value) {
+    std::string result(tmpl);
+    for (std::size_t pos = 0; (pos = result.find(token, pos)) != std::string::npos;) {
+        result.replace(pos, token.size(), value);
+        pos += value.size();
+    }
+    return result;
+}
+
+static bool check_backend_state(std::unique_ptr<rendering::rendering_backend> const &backend, std::string const &action) {
     if (backend->bad()) {
         std::cerr << "error: backend entered a bad state after: " << action << std::endl;
         return false;
@@ -19,8 +29,7 @@ bool check_backend_state(const std::unique_ptr<rendering::rendering_backend>& ba
 int main() {
     std::cout << "initializing backend..." << std::endl;
 
-    std::unique_ptr<rendering::rendering_backend> backend =
-        std::make_unique<rendering::drm_kms::backend>();
+    std::unique_ptr<rendering::rendering_backend> backend = std::make_unique<rendering::drm_kms::backend>();
 
     if (backend->bad()) {
         std::cerr << "error: failed to initialize backend" << std::endl;
@@ -44,13 +53,30 @@ int main() {
 
     rendering::renderer_2d r2d(*backend.get(), tex_mgr, tex_mgr.flat_tx_by_id(0));
 
-    // input backend drives the menu event loop
     std::unique_ptr<input::input_backend> in = std::make_unique<input::evdev::backend>();
 
-    std::cout << "displaying test menu (menu id 0)..." << std::endl;
+    std::string player_name = "Some runtime player name";
+    int         score       = 420;
+
+    assets::menu &main_menu = tex_mgr.menu_by_id(0);
+
+    main_menu.selective_formatter("{name}", [&](std::string_view tmpl) {
+        return replace_token(tmpl, "{name}", player_name);
+    });
+
+    main_menu.selective_formatter("{score}", [&](std::string_view tmpl) {
+        return replace_token(tmpl, "{score}", std::to_string(score));
+    });
+
+    main_menu.selective_formatter("{name}{score}", [&](std::string_view tmpl) {
+        std::string s = replace_token(tmpl, "{name}",  player_name);
+        return          replace_token(s,    "{score}", std::to_string(score));
+    });
+
+    std::cout << "displaying main menu..." << std::endl;
     std::cout << "click an element or press ESC to exit" << std::endl;
 
-    int result = tex_mgr.display_menu(0, r2d, *backend, in.get());
+    int result = main_menu.display(r2d, *backend, in.get());
 
     if (result == -1) {
         std::cout << "menu cancelled (ESC)" << std::endl;
@@ -60,3 +86,4 @@ int main() {
 
     return 0;
 }
+
