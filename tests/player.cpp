@@ -5,7 +5,7 @@
 #include "entities/entities.h"
 #include "combat/weapons/pistol.h"
 #include "combat/weapons/smg.h"
-#include "combat/weapons/bullet.h"
+#include "combat/weapons/recorded-firing-mode.h"
 
 static void result(float v) {
 	std::cout << "RESULT " << static_cast<int>(v * 100 + 0.5f) / 100.0f << std::endl;
@@ -21,26 +21,26 @@ static void result(const std::string& s) {
 template<typename M>
 struct inspect : public M {
 	using M::M;
-	float hp()    const { return this->health.current_hp; }
-	float armor() const { return this->health.armor; }
+	float hp()    const { return this->health("current_hp"_f); }
+	float armor() const { return this->health("armor"_f); }
 	bool  dead()  const { return this->health.is_dead(); }
 };
 
-// Helpers: build weapons with bullet_ammunition accessible for inspection.
+// Helpers: build weapons with recorded_firing_mode accessible for inspection.
 static combat::weapons::pistol make_pistol(
-	combat::weapons::bullet_ammunition*& out,
+	combat::weapons::recorded_firing_mode*& out,
 	int mag = 8, float rate = 100.0f)
 {
-	auto ammo = std::make_unique<combat::weapons::bullet_ammunition>();
+	auto ammo = std::make_unique<combat::weapons::recorded_firing_mode>();
 	out = ammo.get();
 	return combat::weapons::pistol(std::move(ammo), mag, mag, rate);
 }
 
 static combat::weapons::smg make_smg(
-	combat::weapons::bullet_ammunition*& out,
+	combat::weapons::recorded_firing_mode*& out,
 	int mag = 30, float rate = 100.0f)
 {
-	auto ammo = std::make_unique<combat::weapons::bullet_ammunition>();
+	auto ammo = std::make_unique<combat::weapons::recorded_firing_mode>();
 	out = ammo.get();
 	return combat::weapons::smg(std::move(ammo), mag, mag, rate);
 }
@@ -53,59 +53,59 @@ int main() {
 
 		// switch_index — add pistol+smg, switch to index 1 -> current_weapon_index=1
 		if (cmd == "switch_index") {
-			combat::weapons::bullet_ammunition* a1;
-			combat::weapons::bullet_ammunition* a2;
+			combat::weapons::recorded_firing_mode* a1;
+			combat::weapons::recorded_firing_mode* a2;
 			auto pistol = make_pistol(a1);
 			auto smg    = make_smg(a2);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p.weapons.push_back(&pistol);
-			p.weapons.push_back(&smg);
+			p("weapons"_f).push_back(&pistol);
+			p("weapons"_f).push_back(&smg);
 			p.switch_weapons(0);
 			p.switch_weapons(1);
-			result(p.current_weapon_index);
+			result(p("current_weapon_index"_f));
 
 		// switch_back — switch to 1 then back to 0 -> current_weapon_index=0
 		} else if (cmd == "switch_back") {
-			combat::weapons::bullet_ammunition* a1;
-			combat::weapons::bullet_ammunition* a2;
+			combat::weapons::recorded_firing_mode* a1;
+			combat::weapons::recorded_firing_mode* a2;
 			auto pistol = make_pistol(a1);
 			auto smg    = make_smg(a2);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p.weapons.push_back(&pistol);
-			p.weapons.push_back(&smg);
+			p("weapons"_f).push_back(&pistol);
+			p("weapons"_f).push_back(&smg);
 			p.switch_weapons(1);
 			p.switch_weapons(0);
-			result(p.current_weapon_index);
+			result(p("current_weapon_index"_f));
 
 		// switch_oob — switch to index beyond end; index unchanged
 		} else if (cmd == "switch_oob") {
-			combat::weapons::bullet_ammunition* a;
+			combat::weapons::recorded_firing_mode* a;
 			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p.weapons.push_back(&pistol);
+			p("weapons"_f).push_back(&pistol);
 			p.switch_weapons(0);
 			p.switch_weapons(5);
-			result(p.current_weapon_index);
+			result(p("current_weapon_index"_f));
 
 		// switch_neg — switch to negative index; index unchanged
 		} else if (cmd == "switch_neg") {
-			combat::weapons::bullet_ammunition* a;
+			combat::weapons::recorded_firing_mode* a;
 			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p.weapons.push_back(&pistol);
+			p("weapons"_f).push_back(&pistol);
 			p.switch_weapons(0);
 			p.switch_weapons(-1);
-			result(p.current_weapon_index);
+			result(p("current_weapon_index"_f));
 
 		// shoot_ammo — pistol mag=8, shoot once -> ammo=7
 		} else if (cmd == "shoot_ammo") {
-			combat::weapons::bullet_ammunition* a;
+			combat::weapons::recorded_firing_mode* a;
 			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p.weapons.push_back(&pistol);
+			p("weapons"_f).push_back(&pistol);
 			p.switch_weapons(0);
 			p.shoot();
-			result(pistol.ammo_count);
+			result(pistol("ammo_count"_f));
 
 		// shoot_no_weapon — no weapon selected, shoot does nothing
 		} else if (cmd == "shoot_no_weapon") {
@@ -115,48 +115,48 @@ int main() {
 
 		// shoot_blocked — rate=2.0: shoot twice without update, second shot blocked -> ammo=7
 		} else if (cmd == "shoot_blocked") {
-			combat::weapons::bullet_ammunition* a;
+			combat::weapons::recorded_firing_mode* a;
 			auto pistol = make_pistol(a, 8, 2.0f);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p.weapons.push_back(&pistol);
+			p("weapons"_f).push_back(&pistol);
 			p.switch_weapons(0);
 			p.shoot();
 			p.shoot();
-			result(pistol.ammo_count);
+			result(pistol("ammo_count"_f));
 
 		// shoot_after_update — rate=2.0: shoot, update 0.6s, shoot -> ammo=6
 		} else if (cmd == "shoot_after_update") {
-			combat::weapons::bullet_ammunition* a;
+			combat::weapons::recorded_firing_mode* a;
 			auto pistol = make_pistol(a, 8, 2.0f);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p.weapons.push_back(&pistol);
+			p("weapons"_f).push_back(&pistol);
 			p.switch_weapons(0);
 			p.shoot();
 			p.update(0.6f);
 			p.shoot();
-			result(pistol.ammo_count);
+			result(pistol("ammo_count"_f));
 
 		// reload_current — fire empty (8 shots), reload -> ammo=8
 		} else if (cmd == "reload_current") {
-			combat::weapons::bullet_ammunition* a;
+			combat::weapons::recorded_firing_mode* a;
 			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p.weapons.push_back(&pistol);
+			p("weapons"_f).push_back(&pistol);
 			p.switch_weapons(0);
 			for (int i = 0; i < 8; ++i) { p.shoot(); p.update(1.0f); }
 			p.reload();
-			result(pistol.ammo_count);
+			result(pistol("ammo_count"_f));
 
 		// can_fire_after_empty — fire empty, can player still shoot? NO
 		} else if (cmd == "can_fire_after_empty") {
-			combat::weapons::bullet_ammunition* a;
+			combat::weapons::recorded_firing_mode* a;
 			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
-			p.weapons.push_back(&pistol);
+			p("weapons"_f).push_back(&pistol);
 			p.switch_weapons(0);
 			for (int i = 0; i < 8; ++i) { p.shoot(); p.update(1.0f); }
 			p.shoot(); // should do nothing
-			result(pistol.ammo_count);
+			result(pistol("ammo_count"_f));
 
 		// =====================================================================
 		// HEALTH SYSTEM

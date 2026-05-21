@@ -5,7 +5,7 @@
 #include <memory>
 #include <algorithm>
 
-#include "combat/combat.h"
+#include "combat/status-effect.h"
 #include "util/indexed-storage.h"
 #include "util/componentized.h"
 

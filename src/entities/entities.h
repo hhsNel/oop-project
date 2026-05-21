@@ -6,7 +6,6 @@
 #include <cmath>
 
 #include "engine/actor.h"
-#include "combat/combat.h"
 #include "util/indexed-storage.h"
 #include "engine/entity.h"
 #include "math/vec3.h"
@@ -20,14 +19,16 @@ namespace world_object {
 namespace entities {
 	class monster : public engine::actor, public util::componentized<monster> {
 		[[=util::component_field{}]] std::weak_ptr<engine::actor> target_ptr;
+
+		friend class util::componentized<monster>;
+	protected:
+		// protected — podklasy korzystaja z nich bezposrednio zamiast przez componentized
 		[[=util::component_field{}]] float attack_cooldown;
 		[[=util::component_field{}]] float attack_range;
 		[[=util::component_field{}]] float detection_radius;
 		[[=util::component_field{}]] float attack_damage;
 		[[=util::component_field{}]] float attack_cd_max;
 
-		friend class util::componentized<monster>;
-	protected:
 		bool has_target() const;
 		float dist_to_target() const;
 		math::vec2 dir_to_target() const;
@@ -53,7 +54,7 @@ namespace entities {
 	};
 
 	class player : public engine::actor, public util::componentized<player> {
-		[[=util::component_field{}]] std::vector<combat::weapons::weapon*> weapons;
+		[[=util::ref_component_field{}]] std::vector<combat::weapons::weapon*> weapons;
 		float sensitivity;
 		[[=util::component_field{}]] combat::weapons::weapon* current_weapon;
 		[[=util::component_field{}]] int current_weapon_index;
@@ -73,8 +74,6 @@ namespace entities {
 		void shoot();
 		void reload();
 		void switch_weapons(int index);
-		void use_grenade();
-
 		void take_damage(float dmg) override;
 
 		friend class world_object::ammo_pickup;

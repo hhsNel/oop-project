@@ -1,4 +1,4 @@
-#include "hitscan-ammo.h"
+#include "hitscan-firing-mode.h"
 #include "math/ray2.h"
 #include "geometry/sidedef.h"
 #include <cmath>
@@ -6,21 +6,21 @@
 namespace combat {
     namespace weapons {
 
-        hitscan_ammunition::hitscan_ammunition(geometry::map_data* m, float range, float radius)
+        hitscan_firing_mode::hitscan_firing_mode(geometry::map_data* m, float range, float radius)
             : map(m), max_range(range), hit_radius(radius) {}
 
-        void hitscan_ammunition::spawn_bullet(math::vec2 pos, float angle, float damage) {
+        void hitscan_firing_mode::spawn_bullet(math::vec2 pos, float angle, float damage) {
             math::vec2 dir{std::cos(angle), std::sin(angle)};
             math::ray2 ray{pos, dir};
 
-            // ── Closest solid-wall hit ────────────────────────────────────────────
+            // Najblizsze trafienie w solidna sciane
             float wall_dist = max_range;
 
             if (map) {
                 auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
                 for (auto const& e : map->linedefs) {
                     geometry::linedef const& ld = e.value;
-                    if (ld.back != null_sd) continue;   // two-sided wall = portal, pass through
+                    if (ld.back != null_sd) continue;   // portal — przepuszcza
 
                     math::vec2 hit;
                     float dist = 0.0f, seg_len = 0.0f;
@@ -29,10 +29,7 @@ namespace combat {
                 }
             }
 
-            // ── Closest actor hit (cylinder approximation) ────────────────────────
-            // For each actor project its centre onto the ray; if the perpendicular
-            // distance is within hit_radius and the projection is between the shooter
-            // and the nearest wall, it counts as a hit.
+            // Najblizszy trafiony aktor (aproksymacja cylindrem)
             engine::actor* hit_target = nullptr;
             float          target_dist = wall_dist;
 
@@ -55,4 +52,4 @@ namespace combat {
                 hit_target->take_damage(damage);
         }
     }
-} // namespace engine::combat
+}

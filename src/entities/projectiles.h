@@ -10,12 +10,6 @@ namespace entities {
 		int damage;
 	};
 
-	class grenade_projectile : public projectile {
-	public:
-		float fuse_time;
-		float explosion_radius;
-	};
-
-	class slug_projectile : public projectile {};
+class slug_projectile : public projectile {};
 
 }

@@ -91,6 +91,4 @@ namespace entities {
 		if (angle < 0.0f) angle += 2.0f * std::numbers::pi_v<float>;
 	}
 
-	void player::use_grenade() {}
-
 }

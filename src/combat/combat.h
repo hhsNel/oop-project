@@ -1,20 +1,10 @@
 #pragma once
 
+// Abstrakcje systemu walki — bez konkretnych typow broni.
+// Konkretne bronie: #include "combat/weapons/all-weapons.h"
 #include "status-effect.h"
 #include "burning.h"
 #include "charmed.h"
 #include "slowed.h"
-#include "weapons/ammunition.h"
+#include "weapons/firing-mode.h"
 #include "weapons/weapon.h"
-#include "weapons/bullet.h"
-#include "weapons/pistol.h"
-#include "weapons/smg.h"
-#include "weapons/rifle.h"
-#include "weapons/sniper-rifle.h"
-#include "weapons/plasma-ammo.h"
-#include "weapons/plasma-gun.h"
-#include "weapons/shotgun.h"
-#include "weapons/katana.h"
-#include "weapons/hitscan-ammo.h"
-#include "weapons/grenade-ammo.h"
-#include "weapons/grenade.h"
