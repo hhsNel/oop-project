@@ -80,7 +80,7 @@ namespace rendering {
 			}
 		}
 
-		std::vector<std::unique_ptr<rendering_mode const>> backend::obtain_modes() {
+		std::vector<std::unique_ptr<rendering_mode const>> backend::operator()(util::component_tag<"modes">) {
 			if (bad()) return {};
 
 			auto drm_modes = active_connector->probe_modes();
@@ -115,21 +115,21 @@ namespace rendering {
 			return is_bad || !dev->is_valid();
 		}
 
-		unsigned int backend::obtain_width() {
+		unsigned int backend::operator()(util::component_tag<"width">) {
 			return current_mode ? (*current_mode.get())("x_res"_f) : 0;
 		}
 
-		unsigned int backend::obtain_height() {
+		unsigned int backend::operator()(util::component_tag<"height">) {
 			return current_mode ? (*current_mode.get())("y_res"_f) : 0;
 		}
 
-		unsigned int backend::obtain_pitch() {
+		unsigned int backend::operator()(util::component_tag<"pitch">) {
 			if (!buffers[0] || !buffers[1]) return 0;
 			int back_index = 1 - front_buffer_index;
 			return buffers[back_index]->pitch;
 		}
 
-		std::uint32_t* backend::obtain_mmio() {
+		std::uint32_t* backend::operator()(util::component_tag<"mmio">) {
 			if (shadow.empty()) return nullptr;
 			return shadow.data();
 		}

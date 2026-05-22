@@ -11,33 +11,15 @@
 
 namespace rendering {
 	class rendering_backend {
-	protected:
-		virtual std::vector<std::unique_ptr<rendering_mode const>> obtain_modes() = 0;
-		virtual unsigned int obtain_width() = 0;
-		virtual unsigned int obtain_height() = 0;
-		virtual unsigned int obtain_pitch() = 0;
-		virtual std::uint32_t *obtain_mmio() = 0;
 	public:
-		rendering_backend();
-
-#define _STR(A) #A
-#define STR(A) _STR(A)
-#define _CONCAT(A,B) A##B
-#define CONCAT(A,B) _CONCAT(A,B)
-#define VIRTUAL_EXPOSE(TYPE,MEMBER) \
-	template<util::fixed_string field> \
-	requires (field.view() == STR(MEMBER)) \
-	__attribute__((always_inline)) constexpr inline TYPE operator()(util::component_tag<field>) { \
-		return CONCAT(obtain_,MEMBER)(); \
-	}
 
 		virtual bool bad() const = 0;
-		VIRTUAL_EXPOSE(std::vector<std::unique_ptr<rendering_mode const>>, modes);
+		virtual std::vector<std::unique_ptr<rendering_mode const>> operator()(util::component_tag<"modes">) = 0;
 		virtual void push_mode(std::unique_ptr<rendering_mode const> mode) = 0;
-		VIRTUAL_EXPOSE(unsigned int, width);
-		VIRTUAL_EXPOSE(unsigned int, height);
-		VIRTUAL_EXPOSE(unsigned int, pitch);
-		VIRTUAL_EXPOSE(std::uint32_t *, mmio);
+		virtual unsigned int operator()(util::component_tag<"width">) = 0;
+		virtual unsigned int operator()(util::component_tag<"height">) = 0;
+		virtual unsigned int operator()(util::component_tag<"pitch">) = 0;
+		virtual std::uint32_t *operator()(util::component_tag<"mmio">) = 0;
 		virtual void wait_for_vsync() = 0;
 		virtual void flush() = 0;
 

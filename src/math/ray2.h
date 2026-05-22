@@ -32,3 +32,4 @@ __attribute__((always_inline)) constexpr inline bool
 math::ray2::operator!=(ray2 const other) const {
 	return !(*this == other);
 }
+

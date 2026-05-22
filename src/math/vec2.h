@@ -111,3 +111,4 @@ __attribute__((always_inline)) constexpr inline bool
 math::vec2::operator!=(vec2 const other) const {
 	return !(*this == other);
 }
+
