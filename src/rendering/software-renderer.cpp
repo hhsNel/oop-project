@@ -5,17 +5,18 @@
 #include <vector>
 #include <utility>
 
+#include "lighting.h"
 #include "geometry/sidedef.h"
 #include "geometry/sector.h"
 #include "geometry/subsector.h"
 
 namespace rendering {
 
-software_renderer::software_renderer(rendering_backend &tgt, assets::asset_manager const& tm, geometry::map_data const& map) 
+software_renderer::software_renderer(rendering_backend &tgt, assets::asset_manager const& tm, geometry::map_data const& map)
     : target(tgt), tex_manager(tm), current_map(map) {
 }
 
-void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node>::id_t node_id, frame_rendering_data const frd) {
+void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node>::id_t node_id, frame_rendering_data const& frd) {
 	/* if it's a leaf, then it's a subsector, so we should render the linedefs */
     if (node_id & geometry::bsp_node::leaf_flag) {
         auto subsector_id = node_id & ~geometry::bsp_node::leaf_flag;
@@ -56,7 +57,7 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
     }
 }
 
-void software_renderer::project_and_draw_linedef(geometry::linedef const& line, frame_rendering_data const frd) {
+void software_renderer::project_and_draw_linedef(geometry::linedef const& line, frame_rendering_data const& frd) {
     math::vec2 tr_v1 = line.v1 - frd.cam_pos;
     math::vec2 tr_v2 = line.v2 - frd.cam_pos;
     
@@ -100,7 +101,7 @@ void software_renderer::project_and_draw_linedef(geometry::linedef const& line, 
     }
 }
 
-void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const frd) {
+void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const& frd) {
 	/* useful stuff */
     geometry::sidedef const& sd = current_map.sidedefs[line.front];
     geometry::sector const& s = current_map.sectors[sd.facing_sector];
@@ -130,7 +131,7 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
         unsigned int u = (unsigned int)(u_over_z * depth) % mt.width;
 
 		/* light depends on depth */
-		int column_light = calculate_light(s.light_level, depth * euclidian_dist_factor[x]);
+		int column_light = lighting::calculate(s.light_level, depth * (*frd.euclidian_dist_factor)[x]);
 
 		/* project y onto the screen */
         int top_y = frd.sh/2 - (int)((s.ceiling_height - frd.cam_height) * frd.fov_scale * inv_z);
@@ -157,7 +158,7 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
 
 			/* write the pixel */
             std::uint32_t color = mt.pixels[u * mt.height + v];
-			frd.mmio[x + y * frd.pitch] = apply_light(color, column_light);
+			frd.mmio[x + y * frd.pitch] = lighting::apply(color, column_light);
         }
 
 		/* update clipping */
@@ -166,7 +167,7 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
     }
 }
 
-void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const frd) {
+void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const& frd) {
 	/* useful stuff */
     geometry::sidedef const& front_sd = current_map.sidedefs[line.front];
     geometry::sidedef const& back_sd  = current_map.sidedefs[line.back];
@@ -201,7 +202,7 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
 		unsigned int u_lt = u % lt.width;
 
 		/* light depends on depth */
-		int column_light = calculate_light(front.light_level, depth * euclidian_dist_factor[x]);
+		int column_light = lighting::calculate(front.light_level, depth * (*frd.euclidian_dist_factor)[x]);
 
 		/* project front ceil, front floor, back ceil, back floor onto the screen */
         int c_fc = frd.sh/2 - (int)((front.ceiling_height - frd.cam_height) * frd.fov_scale * inv_z);
@@ -230,7 +231,7 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
 
 				/* write the pixel */
 				std::uint32_t color = ut.pixels[u_ut * ut.height + v];
-                frd.mmio[x + y * frd.pitch] = apply_light(color, column_light);
+                frd.mmio[x + y * frd.pitch] = lighting::apply(color, column_light);
             }
         }
 
@@ -248,7 +249,7 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
 				current_v += v_step;
 
 				std::uint32_t color = lt.pixels[u_lt * lt.height + v];
-                frd.mmio[x + y * frd.pitch] = apply_light(color, column_light);
+                frd.mmio[x + y * frd.pitch] = lighting::apply(color, column_light);
             }
         }
 
@@ -258,7 +259,7 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
     }
 }
 
-void software_renderer::add_visplane(int x, int y_start, int y_end, float flat_height, assets::texture_id tex_id, std::uint8_t const sector_light_level, frame_rendering_data const frd) {
+void software_renderer::add_visplane(int x, int y_start, int y_end, float flat_height, assets::texture_id tex_id, std::uint8_t const sector_light_level, frame_rendering_data const& frd) {
     if (y_start >= y_end) return;
 
     visplane* target_vp = nullptr;
@@ -296,92 +297,13 @@ void software_renderer::add_visplane(int x, int y_start, int y_end, float flat_h
     }
 }
 
-void software_renderer::render_visplanes(frame_rendering_data const frd) {
-	/* optimizations */
-    float dx_cos = frd.inv_fov_scale * frd.cos_cam_angle;
-    float dx_sin = frd.inv_fov_scale * frd.sin_cam_angle;
-
-    for (auto const& vp : visplanes) {
-        assets::texture const& tex = tex_manager.flat_tx_by_id(vp.tex_id);
-        float h = std::abs(frd.cam_height - vp.height);
-
-		/* true y bounds */
-        int min_y = frd.sh, max_y = 0;
-        for (int x = vp.min_x; x <= vp.max_x; ++x) {
-            if (vp.top[x] != -1) {
-                min_y = std::min(min_y, (int)vp.top[x]);
-                max_y = std::max(max_y, (int)vp.bottom[x]);
-            }
-        }
-
-		/* draw loop; line by line */
-        for (int y = min_y; y < max_y; ++y) {
-            int dy = std::abs(y - (int)(frd.sh / 2));
-            if (dy == 0) continue;
-
-			/* constant depth z */
-            float z = (h * frd.fov_scale) / (float)dy;
-			/* because of that, constant light */
-			/* also, no fisheye effect correction on flat lighting bc it would */
-			/* be to expensive to calc lighting per-pixel */
-            int row_light = calculate_light(vp.light_level, z);
-
-			/* steps in world space as fxpt 16.16*/
-            int32_t step_x = (int32_t)(z * dx_cos * 65536.0f);
-            int32_t step_y = (int32_t)(z * dx_sin * 65536.0f);
-
-			/* scan row to find spans */
-            int x = vp.min_x;
-            while (x <= vp.max_x) {
-				/* record span */
-                while (x <= vp.max_x && (vp.top[x] == -1 || y < vp.top[x] || y >= vp.bottom[x])) {
-                    x++;
-                }
-                int span_start = x;
-
-				/* find end of span */
-                while (x <= vp.max_x && (vp.top[x] != -1 && y >= vp.top[x] && y < vp.bottom[x])) {
-                    x++;
-                }
-                int span_end = x;
-
-				/* span ended, draw */
-
-                float px = (float)span_start - frd.half_sw;
-				/* grab world space coords */
-                float world_x_f = z * (px * frd.inv_fov_scale * frd.cos_cam_angle - frd.sin_cam_angle) + frd.cam_pos("x"_f);
-                float world_y_f = z * (px * frd.inv_fov_scale * frd.sin_cam_angle + frd.cos_cam_angle) + frd.cam_pos("y"_f);
-
-				/* once again world coords as fxpt 16.16 to avoid fp math */
-                int32_t fx = (int32_t)(world_x_f * 65536.0f);
-                int32_t fy = (int32_t)(world_y_f * 65536.0f);
-
-				/* current line ptr */
-                uint32_t* dest = &frd.mmio[span_start + y * frd.pitch];
-
-                for (int sx = span_start; sx < span_end; ++sx) {
-					/* texture coords */
-                    int tx = ((fx >> 16) % tex.width);
-                    int ty = ((fy >> 16) % tex.height);
-					/* ensure they are positive (modulo can be negative) */
-                    if (tx < 0) tx += tex.width;
-                    if (ty < 0) ty += tex.height;
-
-					/* write the pixel */
-					std::uint32_t color = tex.pixels[tx * tex.height + ty];
-                    *dest++ = apply_light(color, row_light);
-
-					/* update world coords */
-                    fx += step_x;
-                    fy += step_y;
-                }
-            }
-        }
-    }
+void software_renderer::render_visplanes(frame_rendering_data const& frd) {
+    for (auto const& vp : visplanes)
+        vp.render(tex_manager, frd);
     visplanes.clear();
 }
 
-void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame_rendering_data const frd) {
+void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame_rendering_data const& frd) {
 	math::vec2 tr_pos = s->pos - frd.cam_pos;
 	tr_pos = math::vec2::rotate_with_known_trig(tr_pos, frd.cos_cam_angle, -frd.sin_cam_angle);
 
@@ -418,55 +340,18 @@ void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame
 	vissprites.emplace_back(*s, tr_pos("y"_f), cx1, cx2, proj_x, scale, light, std::move(slice_uc), std::move(slice_lc));
 }
 
-void software_renderer::render_vissprites(frame_rendering_data const frd) {
+void software_renderer::render_vissprites(frame_rendering_data const& frd) {
 	std::sort(vissprites.begin(), vissprites.end(), [](vissprite const& a, vissprite const& b) {
 			return a.depth > b.depth;
 		});
 
-	for(auto const& vs : vissprites) {
-		assets::texture const& tex = tex_manager.sprite_tx_by_id(vs.tex_id);
-		float eu_dist_f = euclidian_dist_factor[std::clamp(static_cast<int>(vs.proj_x), 0, static_cast<int>(frd.sw) - 1)];
-		int sprite_light = calculate_light(vs.light_level, vs.depth * eu_dist_f);
-
-		float scr_y_bot = frd.sh/2.0f - (vs.z_pos - frd.cam_height) * vs.scale;
-		float scr_y_top = scr_y_bot - tex.height * vs.scale;
-
-		float inv_scale = 1.0f / vs.scale;
-		
-		for(int x = vs.cx1; x <= vs.cx2; ++x) {
-			int clip_top = vs.upper_clip[x - vs.cx1];
-			int clip_bot = vs.lower_clip[x - vs.cx1];
-
-			/* occlusion culling */
-			if(clip_bot <= clip_top) continue;
-
-			float draw_top = std::max(static_cast<float>(clip_top), scr_y_top);
-			float draw_bot = std::min(static_cast<float>(clip_bot), scr_y_bot);
-
-			if(draw_bot <= draw_top) continue;
-
-			/* should be correct ??? */
-			int u = static_cast<int>((x - vs.proj_x + (tex.width*vs.scale)/2) * inv_scale);
-			u = std::clamp(u, 0, static_cast<int>(tex.width) - 1);
-
-			float current_v = (draw_top - scr_y_top) * inv_scale;
-
-			for(int y = static_cast<int>(draw_top); y < static_cast<int>(draw_bot); ++y) {
-				int v = static_cast<int>(current_v);
-				current_v += inv_scale;
-
-				std::uint32_t color = tex.pixels[u * tex.height + v];
-				if(color != 0xffff00ff) {
-					frd.mmio[x + y * frd.pitch] = apply_light(color, sprite_light);
-				}
-			}
-		}
-	}
+	for (auto const& vs : vissprites)
+		vs.render(tex_manager, frd);
 
 	vissprites.clear();
 }
 
-bool software_renderer::is_box_visible(geometry::bsp_node::bounding_box const& box, frame_rendering_data const frd) {
+bool software_renderer::is_box_visible(geometry::bsp_node::bounding_box const& box, frame_rendering_data const& frd) {
 	/* if the camera is inside, we def need to render the box */
     if (frd.cam_pos("x"_f) >= box.left   && frd.cam_pos("x"_f) <= box.right &&
         frd.cam_pos("y"_f) >= box.bottom && frd.cam_pos("y"_f) <= box.top) {
@@ -546,26 +431,6 @@ bool software_renderer::is_box_visible(geometry::bsp_node::bounding_box const& b
     return false;
 }
 
-__attribute__((always_inline)) inline int software_renderer::calculate_light(std::uint8_t const sector_light_level, float const depth) {
-	if(depth > dl_start) {
-		int corrected_light = sector_light_level - (depth - dl_start) * dl_density;
-		if(corrected_light < 0) corrected_light = 0;
-		return corrected_light;
-	} else {
-		return sector_light_level;
-	}
-}
-
-__attribute__((always_inline)) inline std::uint32_t software_renderer::apply_light(std::uint32_t const orig, int light) {
-	std::uint32_t swar_rb = orig & 0x00ff00ff;
-	std::uint32_t swar_g  = orig & 0x0000ff00;
-
-	swar_rb = ((swar_rb * light) >> 8) & 0x00ff00ff;
-	swar_g  = ((swar_g  * light) >> 8) & 0x0000ff00;
-
-	return swar_rb | swar_g;
-}
-
 void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_height, float cam_angle, float fov) {
 
     if (current_map.root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
@@ -584,11 +449,8 @@ void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_hei
 		frd.cos_cam_angle = std::cos(frd.cam_angle);
 		frd.sin_cam_angle = std::sin(frd.cam_angle);
 
-		upper_clip.resize(frd.sw);
-		lower_clip.resize(frd.sw);
-
-		for(auto& i : upper_clip) i = 0;
-		for(auto& i : lower_clip) i = frd.sh;
+		upper_clip.assign(frd.sw, 0);
+		lower_clip.assign(frd.sw, frd.sh);
 
 		if (euclidian_dist_factor.size() != frd.sw) {
 			euclidian_dist_factor.resize(frd.sw);
@@ -598,6 +460,7 @@ void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_hei
 				euclidian_dist_factor[x] = std::sqrt(dx * dx + 1.0f);
 			}
 		}
+		frd.euclidian_dist_factor = &euclidian_dist_factor;
 
         render_bsp_node(current_map.root_node_id, frd);
 
@@ -607,4 +470,3 @@ void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_hei
 }
 
 }
-
