@@ -64,8 +64,8 @@ namespace geometry {
 
         auto loaded_nodes = util::indexed_storage<bsp_node>(bsp_node::load_from_bin(nodes_res));
 
-        if (!loaded_nodes.size() == 0) {
-            map.root_node_id = loaded_nodes.size();
+        if (loaded_nodes.size() != 0) {
+            map.root_node_id = loaded_nodes.size() - 1;
         } else {
             map.root_node_id = 0;
         }
