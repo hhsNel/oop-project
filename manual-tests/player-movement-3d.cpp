@@ -21,7 +21,7 @@
 #include <sstream>
 
 #include "util/resource-loader.h"
-#include "graphics/texture-manager.h"
+#include "assets/asset-manager.h"
 #include "entities/entities.h"
 #include "geometry/map-data.h"
 #include "geometry/sector.h"
@@ -118,7 +118,7 @@ int main() {
 
     // ── Resources ────────────────────────────────────────────────────────────
     util::resource_loader rl;
-    auto tex_mgr = graphics::texture_manager::load(rl);
+    auto tex_mgr = assets::asset_manager::load(rl);
 
     // ── 3D renderer ──────────────────────────────────────────────────────────
     auto room_map = build_room();

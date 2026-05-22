@@ -44,7 +44,7 @@
 #include "input/evdev-backend.h"
 #include "rendering/drm-kms/backend.h"
 #include "rendering/renderer-2d.h"
-#include "graphics/texture-manager.h"
+#include "assets/asset-manager.h"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -107,7 +107,7 @@ int main() {
 
     // ── Resources ────────────────────────────────────────────────────────────
     util::resource_loader rl;
-    auto tex_mgr = graphics::texture_manager::load(rl);
+    auto tex_mgr = assets::asset_manager::load(rl);
 
     rendering::renderer_2d r2d(*r_back, tex_mgr, tex_mgr.flat_tx_by_id(0));
 
