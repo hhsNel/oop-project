@@ -11,7 +11,7 @@
 
 namespace rendering {
 
-software_renderer::software_renderer(rendering_backend &tgt, graphics::texture_manager const& tm, geometry::map_data const& map) 
+software_renderer::software_renderer(rendering_backend &tgt, assets::asset_manager const& tm, geometry::map_data const& map) 
     : target(tgt), tex_manager(tm), current_map(map) {
 }
 
@@ -104,7 +104,7 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
 	/* useful stuff */
     geometry::sidedef const& sd = current_map.sidedefs[line.front];
     geometry::sector const& s = current_map.sectors[sd.facing_sector];
-    graphics::texture const& mt = tex_manager.wall_tx_by_id(sd.middle_tex); 
+    assets::texture const& mt = tex_manager.wall_tx_by_id(sd.middle_tex); 
 
 	/* bounds as integers */
     int x1 = static_cast<int>(proj_x1);
@@ -172,8 +172,8 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
     geometry::sidedef const& back_sd  = current_map.sidedefs[line.back];
     geometry::sector const& front = current_map.sectors[front_sd.facing_sector];
     geometry::sector const& back  = current_map.sectors[back_sd.facing_sector];
-    graphics::texture const& ut = tex_manager.wall_tx_by_id(front_sd.upper_tex);
-    graphics::texture const& lt = tex_manager.wall_tx_by_id(front_sd.lower_tex);
+    assets::texture const& ut = tex_manager.wall_tx_by_id(front_sd.upper_tex);
+    assets::texture const& lt = tex_manager.wall_tx_by_id(front_sd.lower_tex);
 	float inv_z1 = 1.0f / z1;
 	float inv_z2 = 1.0f / z2;
 
@@ -258,7 +258,7 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
     }
 }
 
-void software_renderer::add_visplane(int x, int y_start, int y_end, float flat_height, graphics::texture_set::texture_id tex_id, std::uint8_t const sector_light_level, frame_rendering_data const frd) {
+void software_renderer::add_visplane(int x, int y_start, int y_end, float flat_height, assets::texture_id tex_id, std::uint8_t const sector_light_level, frame_rendering_data const frd) {
     if (y_start >= y_end) return;
 
     visplane* target_vp = nullptr;
@@ -302,7 +302,7 @@ void software_renderer::render_visplanes(frame_rendering_data const frd) {
     float dx_sin = frd.inv_fov_scale * frd.sin_cam_angle;
 
     for (auto const& vp : visplanes) {
-        graphics::texture const& tex = tex_manager.wall_tx_by_id(vp.tex_id);
+        assets::texture const& tex = tex_manager.flat_tx_by_id(vp.tex_id);
         float h = std::abs(frd.cam_height - vp.height);
 
 		/* true y bounds */
@@ -390,7 +390,7 @@ void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame
 	float proj_x = (tr_pos("x"_f) / tr_pos("y"_f)) * frd.fov_scale + frd.half_sw;
 	float scale = frd.fov_scale / tr_pos("y"_f) * s->inherent_scale;
 
-	graphics::texture const& tex = tex_manager.sprite_tx_by_id(s->tex_id);
+	assets::texture const& tex = tex_manager.sprite_tx_by_id(s->tex_id);
 
 	/* screen bounds */
 	float half_width = (tex.width * scale) / 2.0f;
@@ -424,7 +424,7 @@ void software_renderer::render_vissprites(frame_rendering_data const frd) {
 		});
 
 	for(auto const& vs : vissprites) {
-		graphics::texture const& tex = tex_manager.sprite_tx_by_id(vs.tex_id);
+		assets::texture const& tex = tex_manager.sprite_tx_by_id(vs.tex_id);
 		float eu_dist_f = euclidian_dist_factor[std::clamp(static_cast<int>(vs.proj_x), 0, static_cast<int>(frd.sw) - 1)];
 		int sprite_light = calculate_light(vs.light_level, vs.depth * eu_dist_f);
 
