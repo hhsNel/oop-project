@@ -11,7 +11,7 @@ namespace util {
     template<typename T>
     class indexed_storage {
     public:
-        using id_t = std::uint32_t;
+		typedef std::uint32_t id_t;
 
         static constexpr id_t nullid = 0;
 

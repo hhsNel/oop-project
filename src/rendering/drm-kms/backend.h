@@ -31,18 +31,17 @@ namespace rendering {
 			struct drm_mode_modeinfo original_mode = {};
 			bool has_original_state = false;
 
-			std::vector<std::unique_ptr<rendering_mode const>> obtain_modes() override;
-			unsigned int obtain_width() override;
-			unsigned int obtain_height() override;
-			unsigned int obtain_pitch() override;
-			std::uint32_t* obtain_mmio() override;
-
 		public:
 			backend();
 			~backend() override;
 
 			bool bad() const override;
+		virtual std::vector<std::unique_ptr<rendering_mode const>> operator()(util::component_tag<"modes">) override;
 			void push_mode(std::unique_ptr<rendering_mode const> pushed_mode) override;
+			unsigned int operator()(util::component_tag<"width">) override;
+			unsigned int operator()(util::component_tag<"height">) override;
+			unsigned int operator()(util::component_tag<"pitch">) override;
+			std::uint32_t *operator()(util::component_tag<"mmio">) override;
 			void wait_for_vsync() override;
 			void flush() override;
 		};
