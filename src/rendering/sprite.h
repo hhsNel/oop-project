@@ -12,6 +12,7 @@ namespace rendering {
 		float z_pos;
 		assets::texture_id tex_id;
 		float inherent_scale;
+		float hit_flash = 0.0f;
 
 		sprite(math::vec2 const p, float const z, assets::texture_id const tex, float const is);
 		sprite();

@@ -56,17 +56,17 @@ static geometry::map_data build_room() {
     geometry::sector sec;
     sec.floor_height   = 0.0f;
     sec.ceiling_height = 256.0f;
-    sec.floor_tex      = 2;   // doom-floor.btx  (flat id 2)
-    sec.ceiling_tex    = 2;   // same for ceiling
+    sec.floor_tex      = 1;   // hud.btx  (flat id 1)
+    sec.ceiling_tex    = 1;   // same for ceiling
     sec.light_level    = 220;
     auto sec_id = map.sectors.add(sec);
 
     // All 4 sidedefs face the same sector; middle_tex uses doom-wall
     geometry::sidedef sd;
     sd.facing_sector = sec_id;
-    sd.upper_tex     = 3;   // doom-wall.btx (wall id 3)
-    sd.middle_tex    = 3;
-    sd.lower_tex     = 3;
+    sd.upper_tex     = 0;   // test.btx (wall id 0)
+    sd.middle_tex    = 0;
+    sd.lower_tex     = 0;
     auto sd0 = map.sidedefs.add(sd);
     auto sd1 = map.sidedefs.add(sd);
     auto sd2 = map.sidedefs.add(sd);

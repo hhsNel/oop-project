@@ -9,6 +9,7 @@ rendering::vissprite::vissprite(sprite const& sprite, float const z, int const c
 	z_pos(sprite.z_pos),
 	tex_id(sprite.tex_id),
 	light_level(light),
+	hit_flash(sprite.hit_flash),
 	upper_clip(uc),
 	lower_clip(lc) { }
 

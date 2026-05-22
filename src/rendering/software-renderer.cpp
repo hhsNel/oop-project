@@ -428,7 +428,8 @@ void software_renderer::render_vissprites(frame_rendering_data const frd) {
 		float eu_dist_f = euclidian_dist_factor[std::clamp(static_cast<int>(vs.proj_x), 0, static_cast<int>(frd.sw) - 1)];
 		int sprite_light = calculate_light(vs.light_level, vs.depth * eu_dist_f);
 
-		float scr_y_bot = frd.sh/2.0f - (vs.z_pos - frd.cam_height) * vs.scale;
+		float pos_scale = frd.fov_scale / vs.depth;
+		float scr_y_bot = frd.sh/2.0f - (vs.z_pos - frd.cam_height) * pos_scale;
 		float scr_y_top = scr_y_bot - tex.height * vs.scale;
 
 		float inv_scale = 1.0f / vs.scale;
@@ -457,7 +458,15 @@ void software_renderer::render_vissprites(frame_rendering_data const frd) {
 
 				std::uint32_t color = tex.pixels[u * tex.height + v];
 				if(color != 0xffff00ff) {
-					frd.mmio[x + y * frd.pitch] = apply_light(color, sprite_light);
+					std::uint32_t lit = apply_light(color, sprite_light);
+					if(vs.hit_flash > 0.0f) {
+						float t = std::min(vs.hit_flash, 1.0f);
+						auto r = static_cast<std::uint8_t>(std::min(255.0f, ((lit >> 16) & 0xFF) * (1.0f - t) + 255.0f * t));
+						auto g = static_cast<std::uint8_t>(((lit >> 8) & 0xFF) * (1.0f - t));
+						auto b = static_cast<std::uint8_t>((lit & 0xFF) * (1.0f - t));
+						lit = (lit & 0xFF000000) | (r << 16) | (g << 8) | b;
+					}
+					frd.mmio[x + y * frd.pitch] = lit;
 				}
 			}
 		}
