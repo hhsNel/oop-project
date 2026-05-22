@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace graphics {
+namespace assets {
 
     texture::texture(std::vector<std::uint32_t> const &t, std::uint32_t const w, std::uint32_t const h, bool const transparent)
         : pixels(std::move(t)), width(w), height(h), has_transparency(transparent) {}
