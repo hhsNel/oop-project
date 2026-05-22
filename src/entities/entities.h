@@ -18,12 +18,10 @@ namespace world_object {
 
 namespace entities {
 	class monster : public engine::actor, public util::componentized<monster> {
-		[[=util::component_field{}]] std::weak_ptr<engine::actor> target_ptr;
+		[[=util::ref_component_field{}]] std::weak_ptr<engine::actor> target_ptr;
 
 		friend class util::componentized<monster>;
 	protected:
-		// protected — podklasy korzystaja z nich bezposrednio zamiast przez componentized
-		[[=util::component_field{}]] float attack_cooldown;
 		[[=util::component_field{}]] float attack_range;
 		[[=util::component_field{}]] float detection_radius;
 		[[=util::component_field{}]] float attack_damage;
@@ -46,8 +44,6 @@ namespace entities {
 			  detection_radius(det_radius),
 			  attack_damage(atk_dmg),
 			  attack_cd_max(atk_cd) {};
-
-		void set_target(std::shared_ptr<engine::actor> t);
 
 		void update(float dt) override;
 		void take_damage(float dmg) override;

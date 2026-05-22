@@ -141,7 +141,7 @@ int main() {
 
 		} else if (cmd == "boss_phases") {
 			entities::monster_boss m;
-			result(m.phases());
+			result(m("phase_count"_f));
 
 		// =====================================================================
 		// HEALTH SYSTEM
@@ -190,7 +190,7 @@ int main() {
 			t->pos = {5.0f, 0.0f};
 			entities::monster_basic m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			m.update(1.0f);
 			result(m.pos("x"_f) > 0.0f ? "YES" : "NO");
 
@@ -200,7 +200,7 @@ int main() {
 			t->pos = {10.0f, 0.0f};
 			entities::monster_basic m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			m.update(1.0f);
 			result(m.pos("x"_f) == 0.0f ? "YES" : "NO");
 
@@ -210,7 +210,7 @@ int main() {
 			t->pos = {5.0f, 0.0f};
 			entities::monster_basic m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			t->take_damage(200.0f);
 			m.update(1.0f);
 			result(m.pos("x"_f) == 0.0f ? "YES" : "NO");
@@ -221,7 +221,7 @@ int main() {
 			t->pos = {3.0f, 0.0f};
 			entities::monster_ranged m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			m.update(1.0f);
 			result(m.pos("x"_f) < 0.0f ? "YES" : "NO");
 
@@ -231,7 +231,7 @@ int main() {
 			t->pos = {12.0f, 0.0f};
 			entities::monster_ranged m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			m.update(1.0f);
 			result(m.pos("x"_f) > 0.0f ? "YES" : "NO");
 
@@ -241,7 +241,7 @@ int main() {
 			t->pos = {5.0f, 0.0f};
 			entities::monster_Maly_Szybki m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			m.update(0.01f); // ustawia is_dashing=true
 			m.update(0.5f);  // pędzi
 			result(m.pos("x"_f) > 0.0f ? "YES" : "NO");
@@ -252,7 +252,7 @@ int main() {
 			t->pos = {0.0f, 0.0f};
 			entities::monster_elite_swift m;
 			m.pos = {5.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			// Pierwszy update: charge_cd=0 -> zaczyna szarze, charge_timer=0.8
 			// Szarza konczy sie po dotarciu lub po charge_timer<=0, ustawia charge_cd=5.0
 			m.update(0.01f); // start charge
@@ -272,7 +272,7 @@ int main() {
 			t->pos = {1.0f, 0.0f};
 			entities::monster_basic m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			m.update(1.0f);
 			result(t->hp());
 
@@ -282,7 +282,7 @@ int main() {
 			t->pos = {1.0f, 0.0f};
 			entities::monster_basic m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			m.update(0.01f); // pierwszy atak
 			m.update(0.01f); // cooldown aktywny
 			result(t->hp());
@@ -293,7 +293,7 @@ int main() {
 			t->pos = {5.0f, 0.0f};
 			entities::monster_sniper m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			m.update(1.0f); // aim_timer=1.0 < shoot_interval=3.0
 			result(t->hp());
 
@@ -303,7 +303,7 @@ int main() {
 			t->pos = {5.0f, 0.0f};
 			entities::monster_sniper m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			// aim_timer starts at 0, shoot_interval=3.0
 			// update(3.1) -> aim_timer=3.1 >= 3.0 -> strzal
 			m.update(3.1f);
@@ -315,7 +315,7 @@ int main() {
 			t->pos = {5.0f, 0.0f};
 			entities::monster_magic m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			// Pierwszy update ustawia is_charging=true, charge_timer rośnie
 			m.update(0.01f);
 			// charge_timer musi osiagnac charge_time=2.0
@@ -332,7 +332,7 @@ int main() {
 			t->pos = {2.0f, 0.0f}; // < melee_threshold=2.5
 			entities::monster_all_rounder m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			m.update(0.01f);
 			result(m("melee_mode"_f) ? "YES" : "NO");
 
@@ -348,7 +348,7 @@ int main() {
 			t->pos = {5.0f, 0.0f}; // w detection_radius=8
 			entities::monster_trapper m;
 			m.pos = {0.0f, 0.0f};
-			m.set_target(t);
+			m("target_ptr"_f) = t;
 			m.update(2.1f);
 			result(m("traps_placed"_f));
 

@@ -25,13 +25,9 @@ namespace combat
 		public:
 			virtual bool can_fire() const;
 			void update(float dt);
-			// Metody domenowe zamiast get/set — dostep zewnetrzny (np. world_objects)
-			// bez uzycia componentized, zgodnie z zasada enkapsulacji
 			bool accepts_ammo(unsigned int ammo_weapon_id) const;
 			void resupply(int amount);
 
-			// Domyslna implementacja — pojedynczy strzal z amunicji.
-			// Podklasy nadpisuja tylko gdy zachowanie jest inne (np. shotgun — spread).
 			virtual void fire(math::vec2 pos, float angle);
 			virtual void reload();
 			virtual ~weapon() = default;

@@ -22,7 +22,6 @@ namespace engine {class actor;}
 
 			friend class util::componentized<health_system>;
 		public:
-		/*Dodanie konstruktora health system*/
 			health_system() : current_hp(0), max_hp(0), armor(0), max_armor(0) {}
 
 			health_system(float hp, float max, float arm, float max_arm)
@@ -49,7 +48,6 @@ namespace engine {class actor;}
 				armor = std::min(max_armor, armor + amount);
 			}
 
-			// Metoda domenowa — obrazenia ignorujace armor, delegowana z actor::take_true_damage
 			void apply_true_damage(float amount)
 			{
 				current_hp = std::max(0.0f, current_hp - amount);

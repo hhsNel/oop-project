@@ -3,9 +3,7 @@
 
 namespace combat
 {
-	// Slowed zmniejsza movement_speed przy nałożeniu i przywraca go po wygaśnięciu.
 	// intensity = procent spowolnienia
-	// tick_interval = 0.0f - efekt nie tickuje, działa wyłącznie przez on_apply/on_expire
 
 
 	void slowed::on_apply(engine::actor& target)

@@ -3,8 +3,6 @@
 
 namespace combat {
 	namespace weapons {
-		// Katana — bron biala, nie zuzywa amunicji.
-		// Nadpisuje can_fire() (brak warunku ammo_count) i fire() (swing_count).
 		class katana : public weapon, public util::componentized<katana> {
 			[[=util::component_field{}]] int swing_count;
 

@@ -69,7 +69,7 @@ int main() {
             inspect<entities::monster_basic> m;
             m.pos ={100.0f, 0.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
             result(m.hp());
 
@@ -81,7 +81,7 @@ int main() {
             inspect<entities::monster_basic> m;
             m.pos ={0.0f, 100.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
             result(m.hp());
 
@@ -93,7 +93,7 @@ int main() {
             inspect<entities::monster_basic> m;
             m.pos ={-100.0f, 0.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
             result(m.hp());
 
@@ -105,7 +105,7 @@ int main() {
             inspect<entities::monster_basic> m;
             m.pos ={600.0f, 0.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, 500.0f);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
             result(m.hp());
 
@@ -117,7 +117,7 @@ int main() {
             inspect<entities::monster_basic> m;
             m.pos ={400.0f, 0.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, 500.0f);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
             result(m.hp());
 
@@ -131,7 +131,7 @@ int main() {
             inspect<entities::monster_basic> m;
             m.pos ={100.0f, 0.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
             result(m.hp());
 
@@ -145,7 +145,7 @@ int main() {
             inspect<entities::monster_basic> m;
             m.pos ={100.0f, 0.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
             result(m.hp());
 
@@ -159,7 +159,7 @@ int main() {
             inspect<entities::monster_basic> m;
             m.pos ={100.0f, 0.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
             result(m.hp());
 
@@ -172,7 +172,7 @@ int main() {
             a.pos ={50.0f,  0.0f};
             b.pos ={100.0f, 0.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->populate_targets({&a, &b});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&a, &b});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
             result(a.hp());
             result(b.hp());
@@ -186,7 +186,7 @@ int main() {
             m.pos ={100.0f, 0.0f};
             m.take_damage(999.0f);  // kill
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f);  // should be skipped
             result(m.hp());
 
@@ -198,7 +198,7 @@ int main() {
             inspect<entities::monster_basic> m;
             m.pos ={0.0f, 100.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, std::numbers::pi_v<float> / 2.0f);
             result(m.hp());
 
@@ -218,7 +218,7 @@ int main() {
             inspect<entities::monster_basic> m;
             m.pos ={100.0f, 0.0f};
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->populate_targets({&m});
+            (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
             fire(ammo.get(), {0.0f, 0.0f}, 0.0f, 7.0f);
             result(m.hp());
         }

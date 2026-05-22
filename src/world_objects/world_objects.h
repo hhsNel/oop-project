@@ -2,6 +2,7 @@
 #define ENGINE_WORLD_OBJECTS_H
 
 #include "engine/entity.h"
+#include "util/componentized.h"
 #include "math/vec2.h"
 
 // Forward declarations
@@ -15,32 +16,25 @@ namespace combat { namespace weapons { class weapon; } }
         Each frame, the game loop checks in_range(player.position) and calls
         on_pickup(player) when the player is close enough.
         */
-        class pickup : public engine::entity {
+        class pickup : public engine::entity, public util::componentized<pickup> {
+            friend class util::componentized<pickup>;
+
             math::vec2 position;
             float      pickup_radius;
         protected:
-            bool       collected;
+            [[=util::component_field{}]] bool collected;
         public:
             pickup(math::vec2 pos, float radius = 20.0f)
                 : position(pos), pickup_radius(radius), collected(false) {}
 
             void update(float /*dt*/) override {}
 
-            // Returns true when the player is within pickup_radius.
             bool in_range(math::vec2 player_pos) const;
 
-            /*
-            Returns true after on_pickup() has been called.
-            Metoda domenowa zamiast eksportu pola collected przez componentized
-            */
-            bool is_collected() const { return collected; }
-
-            // Apply the pickup effect to the player; sets collected = true.
             virtual void on_pickup(entities::player& p) = 0;
             virtual ~pickup() = default;
         };
 
-        // Restores player HP up to their maximum.
         class health_pickup : public pickup {
             float heal_amount;
         public:
@@ -50,7 +44,6 @@ namespace combat { namespace weapons { class weapon; } }
             void on_pickup(entities::player& p) override;
         };
 
-        // Restores player armor/shield up to their maximum.
         class armor_pickup : public pickup {
             float armor_amount;
         public:
@@ -71,10 +64,6 @@ namespace combat { namespace weapons { class weapon; } }
             void on_pickup(entities::player& p) override;
         };
         
-        /*
-        Adds a pre-existing weapon to the player's loadout.
-        The weapon is owned externally (e.g. by the level/game state).
-        */
         class weapon_pickup : public pickup {
             combat::weapons::weapon* provided_weapon;
         public:
