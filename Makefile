@@ -1,5 +1,5 @@
 SRCDIR = src
-MODULES = math geometry graphics engine combat combat/weapons rendering util input rendering/drm-kms entities world_objects
+MODULES = math geometry graphics engine combat combat/weapons rendering util input rendering/drm-kms entities world_objects systems
 BUILDDIR = build
 RESDIR = res
 TESTDIR = tests

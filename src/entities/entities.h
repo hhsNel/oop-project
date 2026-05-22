@@ -22,6 +22,7 @@ namespace entities {
 
 		friend class util::componentized<monster>;
 	protected:
+		[[=util::component_field{}]] float attack_cooldown;
 		[[=util::component_field{}]] float attack_range;
 		[[=util::component_field{}]] float detection_radius;
 		[[=util::component_field{}]] float attack_damage;
