@@ -2,7 +2,7 @@
 
 namespace rendering {
 	namespace drm_kms {
-		mode::mode(const struct drm_mode_modeinfo& info)
+		mode::mode(struct drm_mode_modeinfo const& info)
 			: kernel_mode(info) {}
 
 		struct drm_mode_crtc mode::create_crtc_req(std::uint32_t const crtc_id, std::uint32_t const fb_id, std::uint32_t const *const conn_id) const {

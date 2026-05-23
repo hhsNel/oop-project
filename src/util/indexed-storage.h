@@ -8,205 +8,205 @@
 #include <iterator>
 
 namespace util {
-    template<typename T>
-    class indexed_storage {
-    public:
+	template<typename T>
+	class indexed_storage {
+	public:
 		typedef std::uint32_t id_t;
 
-        static constexpr id_t nullid = 0;
+		static constexpr id_t nullid = 0;
 
-        struct entry {
-            id_t id;
-            T& value;
-        };
-        struct const_entry {
-            id_t id;
-            const T& value;
-        };
+		struct entry {
+			id_t id;
+			T& value;
+		};
+		struct const_entry {
+			id_t id;
+			T const& value;
+		};
 
-        class iterator {
-        private:
-            indexed_storage* storage;
-            size_t index;
-            iterator(indexed_storage* st, size_t idx) : storage(st), index(idx) {}
-            friend class indexed_storage<T>;
-        public:
-            using iterator_category = std::forward_iterator_tag;
-            using value_type        = entry;
-            using difference_type   = std::ptrdiff_t;
-            using pointer           = entry*;
-            using reference         = entry;
+		class iterator {
+		private:
+			indexed_storage* storage;
+			size_t index;
+			iterator(indexed_storage* st, size_t idx) : storage(st), index(idx) {}
+			friend class indexed_storage<T>;
+		public:
+			using iterator_category = std::forward_iterator_tag;
+			using value_type		= entry;
+			using difference_type   = std::ptrdiff_t;
+			using pointer		   = entry*;
+			using reference		 = entry;
 
-            iterator() : storage(nullptr), index(0) {}
+			iterator() : storage(nullptr), index(0) {}
 
-            entry operator*() const {
-                return {storage->lookup[index], storage->objects[index]};
-            }
+			entry operator*() const {
+				return {storage->lookup[index], storage->objects[index]};
+			}
 
-            iterator& operator++() { ++index; return *this; }
-            iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
-            iterator& operator--() { --index; return *this; }
-            iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
+			iterator& operator++() { ++index; return *this; }
+			iterator operator++(int) { iterator tmp = *this; ++(*this); return tmp; }
+			iterator& operator--() { --index; return *this; }
+			iterator operator--(int) { iterator tmp = *this; --(*this); return tmp; }
 
-            bool operator==(const iterator& other) const { return index == other.index; }
-            bool operator!=(const iterator& other) const { return index != other.index; }
-        };
+			bool operator==(iterator const& other) const { return index == other.index; }
+			bool operator!=(iterator const& other) const { return index != other.index; }
+		};
 
-        class const_iterator {
-        private:
-            const indexed_storage* storage;
-            size_t index;
-            const_iterator(const indexed_storage* st, size_t idx) : storage(st), index(idx) {}
-            friend class indexed_storage<T>;
-        public:
-            using iterator_category = std::forward_iterator_tag;
-            using value_type        = const_entry;
-            using difference_type   = std::ptrdiff_t;
-            using pointer           = const_entry*;
-            using reference         = const_entry;
+		class const_iterator {
+		private:
+			indexed_storage const* storage;
+			size_t index;
+			const_iterator(indexed_storage const* st, size_t idx) : storage(st), index(idx) {}
+			friend class indexed_storage<T>;
+		public:
+			using iterator_category = std::forward_iterator_tag;
+			using value_type		= const_entry;
+			using difference_type   = std::ptrdiff_t;
+			using pointer		   = const_entry*;
+			using reference		 = const_entry;
 
-            const_iterator() : storage(nullptr), index(0) {}
+			const_iterator() : storage(nullptr), index(0) {}
 
-            const_entry operator*() const {
-                return {storage->lookup[index], storage->objects[index]};
-            }
+			const_entry operator*() const {
+				return {storage->lookup[index], storage->objects[index]};
+			}
 
-            const_iterator& operator++() { ++index; return *this; }
-            const_iterator operator++(int) { const_iterator tmp = *this; ++(*this); return tmp; }
-            const_iterator& operator--() { --index; return *this; }
-            const_iterator operator--(int) { const_iterator tmp = *this; --(*this); return tmp; }
+			const_iterator& operator++() { ++index; return *this; }
+			const_iterator operator++(int) { const_iterator tmp = *this; ++(*this); return tmp; }
+			const_iterator& operator--() { --index; return *this; }
+			const_iterator operator--(int) { const_iterator tmp = *this; --(*this); return tmp; }
 
-            bool operator==(const const_iterator& other) const { return index == other.index; }
-            bool operator!=(const const_iterator& other) const { return index != other.index; }
-        };
+			bool operator==(const_iterator const& other) const { return index == other.index; }
+			bool operator!=(const_iterator const& other) const { return index != other.index; }
+		};
 
-    protected:
-        std::vector<T> objects;
-        std::vector<id_t> lookup;
-        std::vector<size_t> reverse;
+	protected:
+		std::vector<T> objects;
+		std::vector<id_t> lookup;
+		std::vector<size_t> reverse;
 
-        id_t next_id = 1;
+		id_t next_id = 1;
 
-    private:
-        void init_from_objects() {
-            size_t n = objects.size();
-            lookup.reserve(n);
-            reverse.reserve(n + 1);
+	private:
+		void init_from_objects() {
+			size_t n = objects.size();
+			lookup.reserve(n);
+			reverse.reserve(n + 1);
 
-            reverse.push_back(0);
+			reverse.push_back(0);
 
-            for (size_t i = 0; i < n; ++i) {
-                id_t new_id = next_id++;
-                lookup.push_back(new_id);
-                reverse.push_back(i);
-            }
-        }
+			for (size_t i = 0; i < n; ++i) {
+				id_t new_id = next_id++;
+				lookup.push_back(new_id);
+				reverse.push_back(i);
+			}
+		}
 
-    public:
-        indexed_storage() {
-            reverse.push_back(0);
-        }
+	public:
+		indexed_storage() {
+			reverse.push_back(0);
+		}
 
-        explicit indexed_storage(const std::vector<T>& initial_objects)
-            : objects(initial_objects) {
-            init_from_objects();
-        }
+		explicit indexed_storage(std::vector<T> const& initial_objects)
+			: objects(initial_objects) {
+			init_from_objects();
+		}
 
-        explicit indexed_storage(std::vector<T>&& initial_objects) noexcept
-            : objects(std::move(initial_objects)) {
-            init_from_objects();
-        }
+		explicit indexed_storage(std::vector<T>&& initial_objects) noexcept
+			: objects(std::move(initial_objects)) {
+			init_from_objects();
+		}
 
-        id_t size() const { return static_cast<id_t>(objects.size()); }
+		id_t size() const { return static_cast<id_t>(objects.size()); }
 
-        id_t add(const T& object) {
-            id_t new_id = next_id++;
+		id_t add(T const& object) {
+			id_t new_id = next_id++;
 
-            if (new_id >= reverse.size()) {
-                reverse.resize(new_id + 1, 0);
-            }
+			if (new_id >= reverse.size()) {
+				reverse.resize(new_id + 1, 0);
+			}
 
-            reverse[new_id] = objects.size();
-            objects.push_back(object);
-            lookup.push_back(new_id);
+			reverse[new_id] = objects.size();
+			objects.push_back(object);
+			lookup.push_back(new_id);
 
-            return new_id;
-        }
+			return new_id;
+		}
 
-        id_t add(T&& object) {
-            id_t new_id = next_id++;
+		id_t add(T&& object) {
+			id_t new_id = next_id++;
 
-            if (new_id >= reverse.size()) {
-                reverse.resize(new_id + 1, 0);
-            }
+			if (new_id >= reverse.size()) {
+				reverse.resize(new_id + 1, 0);
+			}
 
-            reverse[new_id] = objects.size();
-            objects.push_back(std::move(object));
-            lookup.push_back(new_id);
+			reverse[new_id] = objects.size();
+			objects.push_back(std::move(object));
+			lookup.push_back(new_id);
 
-            return new_id;
-        }
+			return new_id;
+		}
 
-        void remove(id_t id) {
-            if (id == nullid || id >= reverse.size() || (reverse[id] == 0 && (objects.empty() || lookup[0] != id))) {
-                return;
-            }
+		void remove(id_t id) {
+			if (id == nullid || id >= reverse.size() || (reverse[id] == 0 && (objects.empty() || lookup[0] != id))) {
+				return;
+			}
 
-            size_t index_to_remove = reverse[id];
-            size_t last_index = objects.size() - 1;
+			size_t index_to_remove = reverse[id];
+			size_t last_index = objects.size() - 1;
 
-            if (index_to_remove != last_index) {
-                T& last_obj = objects.back();
-                id_t last_id = lookup.back();
+			if (index_to_remove != last_index) {
+				T& last_obj = objects.back();
+				id_t last_id = lookup.back();
 
-                objects[index_to_remove] = std::move(last_obj);
-                lookup[index_to_remove] = last_id;
+				objects[index_to_remove] = std::move(last_obj);
+				lookup[index_to_remove] = last_id;
 
-                reverse[last_id] = index_to_remove;
-            }
+				reverse[last_id] = index_to_remove;
+			}
 
-            objects.pop_back();
-            lookup.pop_back();
-            reverse[id] = 0;
-        }
+			objects.pop_back();
+			lookup.pop_back();
+			reverse[id] = 0;
+		}
 
-        T& operator[](id_t id) {
-            assert(id != nullid && id < reverse.size() && reverse[id] < objects.size());
-            return objects[reverse[id]];
-        }
+		T& operator[](id_t id) {
+			assert(id != nullid && id < reverse.size() && reverse[id] < objects.size());
+			return objects[reverse[id]];
+		}
 
-        const T& operator[](id_t id) const {
-            assert(id != nullid && id < reverse.size() && reverse[id] < objects.size());
-            return objects[reverse[id]];
-        }
+		T const& operator[](id_t id) const {
+			assert(id != nullid && id < reverse.size() && reverse[id] < objects.size());
+			return objects[reverse[id]];
+		}
 
-        iterator begin() { return iterator(this, 0); }
-        iterator end() { return iterator(this, objects.size()); }
+		iterator begin() { return iterator(this, 0); }
+		iterator end() { return iterator(this, objects.size()); }
 
-        const_iterator begin() const { return const_iterator(this, 0); }
-        const_iterator end() const { return const_iterator(this, objects.size()); }
+		const_iterator begin() const { return const_iterator(this, 0); }
+		const_iterator end() const { return const_iterator(this, objects.size()); }
 
-        const_iterator cbegin() const { return const_iterator(this, 0); }
-        const_iterator cend() const { return const_iterator(this, objects.size()); }
+		const_iterator cbegin() const { return const_iterator(this, 0); }
+		const_iterator cend() const { return const_iterator(this, objects.size()); }
 
-        iterator erase(iterator it) {
-            if (it != end()) {
-                remove((*it).id);
-            }
-            return it;
-        }
+		iterator erase(iterator it) {
+			if (it != end()) {
+				remove((*it).id);
+			}
+			return it;
+		}
 
-        const_iterator erase(const_iterator it) {
-            if (it != cend()) {
-                const_cast<indexed_storage*>(this)->remove((*it).id);
-            }
-            return it;
-        }
+		const_iterator erase(const_iterator it) {
+			if (it != cend()) {
+				const_cast<indexed_storage*>(this)->remove((*it).id);
+			}
+			return it;
+		}
 
-        bool contains(id_t id) const {
-            return id != nullid && id < reverse.size() &&
-                   (reverse[id] != 0 || (!objects.empty() && lookup[0] == id));
-        }
-    };
+		bool contains(id_t id) const {
+			return id != nullid && id < reverse.size() &&
+				   (reverse[id] != 0 || (!objects.empty() && lookup[0] == id));
+		}
+	};
 }
 

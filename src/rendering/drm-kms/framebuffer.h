@@ -13,7 +13,7 @@ namespace rendering {
 		class backend;
 
 		class framebuffer {
-			const device_context& dev;
+			device_context const& dev;
 			uint32_t handle;
 
 			uint32_t fb_id;
@@ -22,14 +22,14 @@ namespace rendering {
 			uint32_t pitch;
 
 		public:
-			framebuffer(const device_context& d, uint32_t width, uint32_t height, bool* const success = nullptr);
+			framebuffer(device_context const& d, uint32_t width, uint32_t height, bool *const success = nullptr);
 			~framebuffer();
 
-			void copy_from(const uint32_t* src, size_t pixel_count) const;
+			void copy_from(uint32_t const* src, size_t pixel_count) const;
 
-			bool flip_onto(const crtc& c) const;
+			bool flip_onto(crtc const& c) const;
 
-			bool apply_config(crtc &c, std::uint32_t const connector_id, const mode& m) const;
+			bool apply_config(crtc &c, std::uint32_t const connector_id, mode const& m) const;
 
 			friend connector;
 			friend backend;

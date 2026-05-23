@@ -11,20 +11,20 @@ namespace rendering {
 }
 
 namespace geometry {
-    class sector;
+	class sector;
 
-    class sidedef {
-        util::indexed_storage<sector>::id_t facing_sector;
-        assets::texture_id upper_tex;
-        assets::texture_id middle_tex;
-        assets::texture_id lower_tex;
+	class sidedef {
+		util::indexed_storage<sector>::id_t facing_sector;
+		assets::texture_id upper_tex;
+		assets::texture_id middle_tex;
+		assets::texture_id lower_tex;
 
-    public:
+	public:
 
-        sidedef(util::indexed_storage<sector>::id_t sector, assets::texture_id ut, assets::texture_id mt, assets::texture_id lt);
+		sidedef(util::indexed_storage<sector>::id_t sector, assets::texture_id ut, assets::texture_id mt, assets::texture_id lt);
 
-        static std::vector<sidedef> load_from_bin(util::resource const& res);
+		static std::vector<sidedef> load_from_bin(util::resource const& res);
 
 		friend rendering::software_renderer;
-    };
+	};
 }

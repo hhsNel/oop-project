@@ -36,7 +36,7 @@ namespace assets {
 		std::string tmpl;
 
 		stream >> f >> bx >> by >> ex >> ey >> bg_tx_idx
-		       >> cw >> ch >> r >> g >> b;
+			   >> cw >> ch >> r >> g >> b;
 
 		stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		std::getline(stream, tmpl);
@@ -53,9 +53,9 @@ namespace assets {
 
 	std::uint32_t menu_element::text_color() const {
 		return (0xFFu << 24)
-		     | (static_cast<std::uint32_t>(col_r) << 16)
-		     | (static_cast<std::uint32_t>(col_g) <<  8)
-		     |  static_cast<std::uint32_t>(col_b);
+			 | (static_cast<std::uint32_t>(col_r) << 16)
+			 | (static_cast<std::uint32_t>(col_g) <<  8)
+			 |  static_cast<std::uint32_t>(col_b);
 	}
 
 	void menu_element::selective_fmt(std::string_view key_filter, std::function<std::string(std::string_view)> fn) {

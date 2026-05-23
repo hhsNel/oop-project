@@ -12,19 +12,19 @@ namespace rendering {
 }
 
 namespace geometry {
-    class sidedef;
+	class sidedef;
 
-    class linedef : public util::componentized<linedef> {
+	class linedef : public util::componentized<linedef> {
 		[[=util::component_field{}]] math::segment seg;
-        
+		
 		util::indexed_storage<sidedef>::id_t front;
-        util::indexed_storage<sidedef>::id_t back;
+		util::indexed_storage<sidedef>::id_t back;
 
-    public:
+	public:
 
 		linedef(math::vec2 const p0, math::vec2 const p1, util::indexed_storage<sidedef>::id_t const f, util::indexed_storage<sidedef>::id_t const b);
 
-        static std::vector<linedef> load_from_bin(util::resource const& res);
+		static std::vector<linedef> load_from_bin(util::resource const& res);
 
 		__attribute__((always_inline)) constexpr inline bool is_wall() const;
 		__attribute__((always_inline)) constexpr inline bool is_portal() const;
@@ -33,7 +33,7 @@ namespace geometry {
 
 		friend util::componentized<linedef>;
 		friend rendering::software_renderer;
-    };
+	};
 }
 
 __attribute__((always_inline)) constexpr inline bool geometry::linedef::is_wall() const {

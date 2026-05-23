@@ -16,16 +16,16 @@
 
 namespace assets {
 	class asset_pack {
-		std::vector<texture>      wall_textures;
-		std::vector<texture>      sprite_textures;
-		std::vector<texture>      flat_textures;
-		std::vector<texture>      ui_textures;
-		std::vector<menu>         menus;
+		std::vector<texture>	  wall_textures;
+		std::vector<texture>	  sprite_textures;
+		std::vector<texture>	  flat_textures;
+		std::vector<texture>	  ui_textures;
+		std::vector<menu>		 menus;
 
 		asset_pack(std::vector<texture> walls, std::vector<texture> sprites, std::vector<texture> flats, std::vector<texture> ui, std::vector<menu> ms);
 
-		static std::vector<texture>      tx_from_meta(util::resource_loader &resld, std::string_view meta_path);
-		static std::vector<menu>         menus_from_meta(util::resource_loader &resld, std::string_view meta_path);
+		static std::vector<texture>	  tx_from_meta(util::resource_loader &resld, std::string_view meta_path);
+		static std::vector<menu>		 menus_from_meta(util::resource_loader &resld, std::string_view meta_path);
 		static std::unordered_map<std::string, std::string> parse_meta_keys(std::string const& content);
 
 	public:

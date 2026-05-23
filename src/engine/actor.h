@@ -16,9 +16,9 @@ namespace engine {
 	protected:
 		systems::health_system health;
 	public:
-		float      angle;
-		float      movement_speed;
-		faction    team;
+		float	  angle;
+		float	  movement_speed;
+		faction	team;
 
 		actor(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float const hp, float const shield, float const move_speed, faction const this_team)
 			: renderable_entity(p, z, tex, is), angle(0.0f), movement_speed(move_speed), team(this_team)
