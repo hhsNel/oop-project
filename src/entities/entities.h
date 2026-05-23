@@ -21,7 +21,7 @@ namespace entities {
 		friend class util::componentized<monster>;
 	protected:
 		[[=util::ref_component_field{}]] std::weak_ptr<engine::actor> target_ptr;
-		[[=util::component_field{}]] float attack_cooldown;
+		float attack_cooldown;
 		[[=util::component_field{}]] float attack_range;
 		[[=util::component_field{}]] float detection_radius;
 		[[=util::component_field{}]] float attack_damage;
