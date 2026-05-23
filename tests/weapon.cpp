@@ -178,6 +178,38 @@ int main() {
 			p.reload();
 			result(p("ammo_count"_f));
 
+		// reload_no_reserve — exhaust all reserve mags, reload fails
+		} else if (cmd == "reload_no_reserve") {
+			combat::weapons::recorded_firing_mode* a;
+			auto p = make_pistol(a);
+			// exhaust all 5 reserve mags
+			for (int m = 0; m < 5; ++m) {
+				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+				p.reload();
+			}
+			// now fire empty again — no reserve mags left
+			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			p.reload();
+			result(p("ammo_count"_f));
+			result(p("reserve_mags"_f));
+
+		// resupply_reload — resupply adds mags, reload uses them
+		} else if (cmd == "resupply_reload") {
+			combat::weapons::recorded_firing_mode* a;
+			auto p = make_pistol(a);
+			// exhaust all reserve mags
+			for (int m = 0; m < 5; ++m) {
+				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+				p.reload();
+			}
+			// empty again
+			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			// resupply 2 mags, reload once
+			p.resupply(2);
+			p.reload();
+			result(p("ammo_count"_f));
+			result(p("reserve_mags"_f));
+
 		// =====================================================================
 		// SMG
 		// =====================================================================

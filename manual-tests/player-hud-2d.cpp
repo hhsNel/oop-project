@@ -60,11 +60,9 @@ struct inspect : public M {
     int   effect_count() const { return static_cast<int>(this->health("active_effects"_f).size()); }
 };
 
-// Reload state and reserve magazines live here (not in the engine weapon class).
 struct weapon_slot {
     std::unique_ptr<combat::weapons::weapon> owned;
     std::string name;
-    int   reserve_mags;
     float reload_timer;
     float reload_duration;
     bool  in_loadout;
@@ -157,32 +155,32 @@ int main() {
     std::vector<weapon_slot> pool;
 
     auto add_slot = [&](auto wptr, const std::string& name,
-                        int reserve, float reload_dur,
+                        float reload_dur,
                         bool melee = false, bool is_auto = false) {
-        pool.push_back({ std::move(wptr), name, reserve, 0.0f, reload_dur,
+        pool.push_back({ std::move(wptr), name, 0.0f, reload_dur,
                          false, melee, is_auto });
     };
 
     { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
       add_slot(std::make_unique<combat::weapons::pistol>(std::move(a)),
-               "Pistol",  5, 1.5f); }
+               "Pistol",  1.5f); }
     { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
       add_slot(std::make_unique<combat::weapons::smg>(std::move(a)),
-               "SMG",     4, 2.5f, false, true); }
+               "SMG",     2.5f, false, true); }
     { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
       add_slot(std::make_unique<combat::weapons::rifle>(std::move(a)),
-               "Rifle",   4, 2.0f, false, true); }
+               "Rifle",   2.0f, false, true); }
     { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
       add_slot(std::make_unique<combat::weapons::shotgun>(std::move(a)),
-               "Shotgun", 4, 3.0f); }
+               "Shotgun", 3.0f); }
     { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
       add_slot(std::make_unique<combat::weapons::sniper_rifle>(std::move(a)),
-               "Sniper",  3, 3.5f); }
+               "Sniper",  3.5f); }
     { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
       add_slot(std::make_unique<combat::weapons::plasma_gun>(std::move(a)),
-               "Plasma",  3, 2.0f); }
+               "Plasma",  2.0f); }
     add_slot(std::make_unique<combat::weapons::katana>(),
-             "Katana", 0, 0.0f, true);
+             "Katana", 0.0f, true);
 
     pool[0].in_loadout = true;  // start with Pistol equipped
 
@@ -292,10 +290,9 @@ int main() {
                 bool r_down = i_back->is_key_down(input::key::r);
                 if (r_down && !prev_r && cur_slot
                     && !cur_slot->is_melee
-                    && cur_slot->reserve_mags > 0
+                    && (*cur_slot->owned)("reserve_mags"_f) > 0
                     && cur_slot->reload_timer <= 0.0f)
                 {
-                    --cur_slot->reserve_mags;
                     cur_slot->reload_timer = cur_slot->reload_duration;
                 }
                 prev_r = r_down;
@@ -463,7 +460,7 @@ int main() {
                         + " / " + std::to_string((*p("current_weapon"_f))("max_ammo"_f)),
                         cx, cy, CW, CH, TW);
                     cy += LS;
-                    r2d.draw_text("MAGS: " + std::to_string(cur_slot->reserve_mags),
+                    r2d.draw_text("MAGS: " + std::to_string((*cur_slot->owned)("reserve_mags"_f)),
                         cx, cy, CW, CH, TW);
                     cy += LS;
                     r2d.draw_rect(cx - PAD, cy - 2, COL_W, CH + 6, C_RELOAD);
@@ -484,7 +481,7 @@ int main() {
                                   cx + 69 + BARW, cy + 2, CW - 2, CH - 4, TW);
                     cy += LS;
 
-                    r2d.draw_text("MAGS: " + std::to_string(cur_slot->reserve_mags),
+                    r2d.draw_text("MAGS: " + std::to_string((*cur_slot->owned)("reserve_mags"_f)),
                                   cx, cy, CW, CH, TW);
                     cy += LS;
 

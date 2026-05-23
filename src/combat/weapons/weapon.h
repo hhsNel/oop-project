@@ -19,6 +19,7 @@ namespace combat
 			std::unique_ptr<firing_mode> ammo;
 			[[=util::component_field{}]] int ammo_count;
 			[[=util::component_field{}]] int max_ammo;
+			[[=util::component_field{}]] int reserve_mags;
 			[[=util::component_field{}]] float fire_rate;
 			[[=util::component_field{}]] float last_shot_time;
 			[[=util::component_field{}]] float damage;
@@ -33,7 +34,7 @@ namespace combat
 			virtual ~weapon() = default;
 
 		protected:
-			weapon(unsigned int id, std::unique_ptr<firing_mode> ammo_type, int max, float rate, float dmg);
+			weapon(unsigned int id, std::unique_ptr<firing_mode> ammo_type, int max, float rate, float dmg, int reserve = 0);
 		};
 	}
 }

@@ -69,6 +69,12 @@ run_test "cooldown_check 1.0"    "YES"
 
 run_test "reload_check" "8"
 
+# reload_no_reserve — all mags exhausted, reload fails: ammo stays 0, reserve stays 0
+run_test2 "reload_no_reserve" "0" "0"
+
+# resupply_reload — resupply 2 mags, reload once: ammo=8, reserve=1
+run_test2 "resupply_reload" "8" "1"
+
 # =====================================================================
 # shotgun_pellet_count — granice liczby strzałów
 # =====================================================================
