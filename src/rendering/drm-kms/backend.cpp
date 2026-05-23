@@ -28,7 +28,7 @@ namespace rendering {
 
 				res.connector_id_ptr = reinterpret_cast<uint64_t>(connectors.data());
 				res.encoder_id_ptr   = reinterpret_cast<uint64_t>(encoders.data());
-				res.crtc_id_ptr      = reinterpret_cast<uint64_t>(crtcs.data());
+				res.crtc_id_ptr	  = reinterpret_cast<uint64_t>(crtcs.data());
 
 				if (dev->ioctl(DRM_IOCTL_MODE_GETRESOURCES, &res) < 0) {
 					continue;
@@ -53,9 +53,9 @@ namespace rendering {
 							old_crtc_req.crtc_id = enc_req.crtc_id;
 
 							if (dev->ioctl(DRM_IOCTL_MODE_GETCRTC, &old_crtc_req) == 0) {
-								original_fb_id       = old_crtc_req.fb_id;
+								original_fb_id	   = old_crtc_req.fb_id;
 								original_connector_id = conn_id;
-								original_mode        = old_crtc_req.mode;
+								original_mode		= old_crtc_req.mode;
 								has_original_state   = true;
 							}
 
@@ -94,7 +94,7 @@ namespace rendering {
 		void backend::push_mode(std::unique_ptr<rendering_mode const> pushed_mode) {
 			if (bad() || !pushed_mode) return;
 
-			auto* drm_mode = static_cast<const mode*>(pushed_mode.get());
+			auto* drm_mode = static_cast<mode const*>(pushed_mode.get());
 
 			buffers[0] = std::make_unique<framebuffer>(*dev, (*drm_mode)("x_res"_f), (*drm_mode)("y_res"_f));
 			buffers[1] = std::make_unique<framebuffer>(*dev, (*drm_mode)("x_res"_f), (*drm_mode)("y_res"_f));
@@ -106,7 +106,7 @@ namespace rendering {
 				return;
 			}
 
-			current_mode.reset(static_cast<const mode*>(pushed_mode.release()));
+			current_mode.reset(static_cast<mode const*>(pushed_mode.release()));
 
 			shadow.resize(buffers[0]->size / sizeof(uint32_t));
 		}
@@ -138,7 +138,7 @@ namespace rendering {
 			if (bad() || !active_crtc) return;
 
 			union drm_wait_vblank vbl = {};
-			vbl.request.type     = (drm_vblank_seq_type)(_DRM_VBLANK_RELATIVE);
+			vbl.request.type	 = (drm_vblank_seq_type)(_DRM_VBLANK_RELATIVE);
 			vbl.request.sequence = 1;
 
 			dev->ioctl(DRM_IOCTL_WAIT_VBLANK, &vbl);

@@ -33,7 +33,7 @@ namespace input {
 			probe_device("/dev/input/mice");
 		}
 
-		void backend::probe_device(std::string const dev_name) {
+		void backend::probe_device(std::string const& dev_name) {
 			int fd = open(dev_name.c_str(), O_RDONLY | O_NONBLOCK);
 			if (fd < 0) return;
 
@@ -89,29 +89,29 @@ namespace input {
 				case key::esc: return KEY_ESC; case key::tab: return KEY_TAB; case key::caps_lock: return KEY_CAPSLOCK;
 				case key::l_shift: return KEY_LEFTSHIFT; case key::l_ctrl: return KEY_LEFTCTRL;
 				case key::l_meta: return KEY_LEFTMETA;   case key::l_alt: return KEY_LEFTALT;
-				case key::space: return KEY_SPACE;       case key::r_alt: return KEY_RIGHTALT;
+				case key::space: return KEY_SPACE;	   case key::r_alt: return KEY_RIGHTALT;
 				case key::r_meta: return KEY_RIGHTMETA;  case key::r_ctrl: return KEY_RIGHTCTRL;
 				case key::r_shift: return KEY_RIGHTSHIFT; case key::enter: return KEY_ENTER;
 				case key::backspace: return KEY_BACKSPACE;
 
 				case key::print_screen: return KEY_PRINT; case key::scroll_lock: return KEY_SCROLLLOCK;
-				case key::pause: return KEY_PAUSE;       case key::insert: return KEY_INSERT;
-				case key::home: return KEY_HOME;         case key::page_up: return KEY_PAGEUP;
-				case key::del: return KEY_DELETE;        case key::end: return KEY_END;
+				case key::pause: return KEY_PAUSE;	   case key::insert: return KEY_INSERT;
+				case key::home: return KEY_HOME;		 case key::page_up: return KEY_PAGEUP;
+				case key::del: return KEY_DELETE;		case key::end: return KEY_END;
 				case key::page_down: return KEY_PAGEDOWN;
-				case key::up: return KEY_UP;             case key::down: return KEY_DOWN;
-				case key::left: return KEY_LEFT;         case key::right: return KEY_RIGHT;
+				case key::up: return KEY_UP;			 case key::down: return KEY_DOWN;
+				case key::left: return KEY_LEFT;		 case key::right: return KEY_RIGHT;
 
-				case key::backtick: return KEY_GRAVE;    case key::hyphen: return KEY_MINUS;
-				case key::equals: return KEY_EQUAL;      case key::open_bracket: return KEY_LEFTBRACE;
+				case key::backtick: return KEY_GRAVE;	case key::hyphen: return KEY_MINUS;
+				case key::equals: return KEY_EQUAL;	  case key::open_bracket: return KEY_LEFTBRACE;
 				case key::close_bracket: return KEY_RIGHTBRACE; case key::backslash: return KEY_BACKSLASH;
 				case key::semicolon: return KEY_SEMICOLON; case key::quote: return KEY_APOSTROPHE;
-				case key::comma: return KEY_COMMA;       case key::period: return KEY_DOT;
+				case key::comma: return KEY_COMMA;	   case key::period: return KEY_DOT;
 				case key::slash: return KEY_SLASH;
 
 				case key::num_lock: return KEY_NUMLOCK;  case key::kp_slash: return KEY_KPSLASH;
 				case key::kp_asterisk: return KEY_KPASTERISK; case key::kp_minus: return KEY_KPMINUS;
-				case key::kp_plus: return KEY_KPPLUS;    case key::kp_enter: return KEY_KPENTER;
+				case key::kp_plus: return KEY_KPPLUS;	case key::kp_enter: return KEY_KPENTER;
 				case key::kp_dot: return KEY_KPDOT;
 				case key::kp0: return KEY_KP0; case key::kp1: return KEY_KP1; case key::kp2: return KEY_KP2;
 				case key::kp3: return KEY_KP3; case key::kp4: return KEY_KP4; case key::kp5: return KEY_KP5;
@@ -130,7 +130,7 @@ namespace input {
 			}
 		}
 
-		void backend::process_event(const struct input_event& ev) {
+		void backend::process_event(struct input_event const& ev) {
 			if (ev.type == EV_KEY && ev.code < KEY_CNT) {
 				key_map[ev.code] = (ev.value > 0);
 				if (ev.code == BTN_LEFT)   mouse.left = (ev.value > 0);

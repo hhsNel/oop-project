@@ -7,7 +7,7 @@
 
 namespace rendering {
 	namespace drm_kms {
-		device_context::device_context(const std::string& path) {
+		device_context::device_context(std::string const& path) {
 			fd = open(path.c_str(), O_RDWR | O_CLOEXEC);
 			
 			if (is_valid()) {

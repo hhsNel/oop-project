@@ -10,7 +10,7 @@ namespace rendering {
 
 		public:
 
-			explicit device_context(const std::string& path);
+			explicit device_context(std::string const& path);
 			~device_context();
 
 			bool is_valid() const;

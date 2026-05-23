@@ -6,7 +6,7 @@
 
 namespace rendering {
 	namespace drm_kms {
-		connector::connector(const device_context& d, uint32_t id, bool* const success)
+		connector::connector(device_context const& d, uint32_t id, bool* const success)
 			: dev(d), connector_id(id), encoder_id(0) {
 
 			struct drm_mode_get_connector conn_req = {};
@@ -38,13 +38,13 @@ namespace rendering {
 			std::vector<uint32_t>  raw_props(conn_req.count_props);
 			std::vector<uint64_t>  raw_prop_values(conn_req.count_props);
 
-			conn_req.modes_ptr       = reinterpret_cast<uint64_t>(raw_modes.data());
-			conn_req.encoders_ptr    = reinterpret_cast<uint64_t>(raw_encoders.data());
-			conn_req.props_ptr       = reinterpret_cast<uint64_t>(raw_props.data());
+			conn_req.modes_ptr	   = reinterpret_cast<uint64_t>(raw_modes.data());
+			conn_req.encoders_ptr	= reinterpret_cast<uint64_t>(raw_encoders.data());
+			conn_req.props_ptr	   = reinterpret_cast<uint64_t>(raw_props.data());
 			conn_req.prop_values_ptr = reinterpret_cast<uint64_t>(raw_prop_values.data());
 
 			if (dev.ioctl(DRM_IOCTL_MODE_GETCONNECTOR, &conn_req) == 0) {
-				for (const auto& raw_mode : raw_modes) {
+				for (auto const& raw_mode : raw_modes) {
 					if (raw_mode.hdisplay && raw_mode.vdisplay) {
 						modes.push_back(std::make_unique<mode>(raw_mode));
 					}
@@ -54,7 +54,7 @@ namespace rendering {
 			return modes;
 		}
 
-		bool connector::apply_config(crtc& c, const framebuffer& fb, const mode& m) const {
+		bool connector::apply_config(crtc& c, framebuffer const& fb, mode const& m) const {
 			return fb.apply_config(c, connector_id, m);
 		}
 	}

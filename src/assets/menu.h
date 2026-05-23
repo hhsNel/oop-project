@@ -30,10 +30,10 @@ namespace assets {
 
 		/* usage: */
 		/* menu.set_formatter_for("{name}", [&](std::string_view tmpl) { */
-		/*     std::string s(tmpl); */
-		/*     for (std::size_t p; (p = s.find("{name}")) != std::string::npos;) */
-		/*         s.replace(p, 7, player_name); */
-		/*     return s; */
+		/*	 std::string s(tmpl); */
+		/*	 for (std::size_t p; (p = s.find("{name}")) != std::string::npos;) */
+		/*		 s.replace(p, 7, player_name); */
+		/*	 return s; */
 		/* }); */
 		void selective_formatter(std::string_view key_filter, std::function<std::string(std::string_view)> fn);
 

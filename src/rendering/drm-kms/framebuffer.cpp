@@ -6,7 +6,7 @@
 
 namespace rendering {
 	namespace drm_kms {
-		framebuffer::framebuffer(const device_context& d, uint32_t width, uint32_t height, bool* const success)
+		framebuffer::framebuffer(device_context const& d, uint32_t width, uint32_t height, bool* const success)
 			: dev(d), handle(0), fb_id(0), mmio_ptr(nullptr), size(0), pitch(0) {
 
 			struct drm_mode_create_dumb create_req = {};
@@ -27,7 +27,7 @@ namespace rendering {
 			fb_req.width  = width;
 			fb_req.height = height;
 			fb_req.pitch  = pitch;
-			fb_req.bpp    = 32;
+			fb_req.bpp	= 32;
 			fb_req.depth  = 24;
 			fb_req.handle = handle;
 
@@ -67,15 +67,15 @@ namespace rendering {
 			}
 		}
 
-		void framebuffer::copy_from(const uint32_t* src, size_t pixel_count) const {
+		void framebuffer::copy_from(uint32_t const* src, size_t pixel_count) const {
 			std::memcpy(mmio_ptr, src, pixel_count * sizeof(uint32_t));
 		}
 
-		bool framebuffer::flip_onto(const crtc& c) const {
+		bool framebuffer::flip_onto(crtc const& c) const {
 			return c.page_flip(fb_id);
 		}
 
-		bool framebuffer::apply_config(crtc &c, std::uint32_t const connector_id, const mode& m) const {
+		bool framebuffer::apply_config(crtc &c, std::uint32_t const connector_id, mode const& m) const {
 			return c.set_config(fb_id, connector_id, m);
 		}
 	}
