@@ -17,14 +17,12 @@ namespace combat {
             float wall_dist = max_range;
 
             if (map) {
-                constexpr auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
                 for (auto const& e : map->linedefs) {
                     geometry::linedef const& ld = e.value;
-                    if (ld.back != null_sd) continue;   // portal — przepuszcza
-
+                    if (!ld.is_wall()) continue;   // portal — przepuszcza
                     math::vec2 hit;
                     float dist = 0.0f, seg_len = 0.0f;
-                    if (ray.intersects({ld.v1, ld.v2}, hit, dist, seg_len) && dist < wall_dist)
+                    if (ray.intersects(ld("seg"_f), hit, dist, seg_len) && dist < wall_dist)
                         wall_dist = dist;
                 }
             }
@@ -36,12 +34,12 @@ namespace combat {
             for (engine::actor* a : targets) {
                 if (!a || a->is_dead()) continue;
 
-                math::vec2 to_actor = a->pos - pos;
+                math::vec2 to_actor = (*a)("pos"_f) - pos;
                 float t = math::vec2::dot_product(to_actor, dir);
                 if (t < 0.0f || t > target_dist) continue;
 
                 math::vec2 closest = pos + dir * t;
-                math::vec2 offset  = a->pos - closest;
+                math::vec2 offset  = (*a)("pos"_f) - closest;
                 if (offset.sqr_len() < hit_radius * hit_radius) {
                     target_dist = t;
                     hit_target  = a;

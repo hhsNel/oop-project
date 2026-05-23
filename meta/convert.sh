@@ -1,3 +1,6 @@
 #!/bin/bash
 
-pandoc --from=gfm --to=pdf opisy.md -o opisy.pdf -V geometry:margin=1in -V papersize:A4
+set -x
+
+pandoc --from=gfm --to=pdf $@ -o out.pdf -V geometry:margin=1in -V papersize:A4
+

@@ -18,6 +18,16 @@ struct inspect : public M {
     float armor() const { return this->health("armor"_f); }
 };
 
+static constexpr math::vec2 ORIGIN{0.0f, 0.0f};
+static constexpr assets::texture_id DUMMY_TEX = 0;
+
+// Factory for test monsters at a given position.
+template<typename M>
+inspect<M> make_at(math::vec2 pos) {
+    inspect<M> m(pos, 0.0f, DUMMY_TEX, 1.0f);
+    return m;
+}
+
 static void result(float v) {
     std::cout << "RESULT " << static_cast<int>(v * 100 + 0.5f) / 100.0f << std::endl;
 }
@@ -36,22 +46,12 @@ fire(combat::weapons::hitscan_firing_mode* ammo,
 
 // Build a solid wall linedef (back = nullid).
 static geometry::linedef solid_wall(math::vec2 a, math::vec2 b) {
-    geometry::linedef ld;
-    ld.v1   = a;
-    ld.v2   = b;
-    ld.front = 1;
-    ld.back  = util::indexed_storage<geometry::sidedef>::nullid;
-    return ld;
+    return geometry::linedef(a, b, 1, util::indexed_storage<geometry::sidedef>::nullid);
 }
 
 // Build a portal linedef (both sides set — passes through).
 static geometry::linedef portal_wall(math::vec2 a, math::vec2 b) {
-    geometry::linedef ld;
-    ld.v1   = a;
-    ld.v2   = b;
-    ld.front = 1;
-    ld.back  = 2;   // non-null → portal, hitscan passes through
-    return ld;
+    return geometry::linedef(a, b, 1, 2);
 }
 
 int main() {
@@ -66,11 +66,10 @@ int main() {
         // Setup: monster_basic (30 HP), from (0,0) east, actor at (100,0), dmg=10
         // Expected: HP = 20
         if (cmd == "hs_direct_hit") {
-            inspect<entities::monster_basic> m;
-            m.pos ={100.0f, 0.0f};
+            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
+            fire(ammo.get(), ORIGIN, 0.0f);
             result(m.hp());
 
         // ── hs_miss_side ─────────────────────────────────────────────────
@@ -78,11 +77,10 @@ int main() {
         // Actor at (0, 100), shoot east. Perpendicular distance >> hit_radius.
         // Expected: HP = 30
         } else if (cmd == "hs_miss_side") {
-            inspect<entities::monster_basic> m;
-            m.pos ={0.0f, 100.0f};
+            auto m = make_at<entities::monster_basic>({0.0f, 100.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
+            fire(ammo.get(), ORIGIN, 0.0f);
             result(m.hp());
 
         // ── hs_miss_behind ───────────────────────────────────────────────
@@ -90,11 +88,10 @@ int main() {
         // Actor at (-100, 0), shoot east.
         // Expected: HP = 30
         } else if (cmd == "hs_miss_behind") {
-            inspect<entities::monster_basic> m;
-            m.pos ={-100.0f, 0.0f};
+            auto m = make_at<entities::monster_basic>({-100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
+            fire(ammo.get(), ORIGIN, 0.0f);
             result(m.hp());
 
         // ── hs_miss_range ────────────────────────────────────────────────
@@ -102,11 +99,10 @@ int main() {
         // Actor at (600, 0), range = 500.
         // Expected: HP = 30
         } else if (cmd == "hs_miss_range") {
-            inspect<entities::monster_basic> m;
-            m.pos ={600.0f, 0.0f};
+            auto m = make_at<entities::monster_basic>({600.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, 500.0f);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
+            fire(ammo.get(), ORIGIN, 0.0f);
             result(m.hp());
 
         // ── hs_hit_in_range ──────────────────────────────────────────────
@@ -114,11 +110,10 @@ int main() {
         // Actor at (400, 0), range = 500.
         // Expected: HP = 20
         } else if (cmd == "hs_hit_in_range") {
-            inspect<entities::monster_basic> m;
-            m.pos ={400.0f, 0.0f};
+            auto m = make_at<entities::monster_basic>({400.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, 500.0f);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
+            fire(ammo.get(), ORIGIN, 0.0f);
             result(m.hp());
 
         // ── hs_wall_blocks ───────────────────────────────────────────────
@@ -128,11 +123,10 @@ int main() {
         } else if (cmd == "hs_wall_blocks") {
             geometry::map_data map;
             map.linedefs.add(solid_wall({50.0f, -50.0f}, {50.0f, 50.0f}));
-            inspect<entities::monster_basic> m;
-            m.pos ={100.0f, 0.0f};
+            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
+            fire(ammo.get(), ORIGIN, 0.0f);
             result(m.hp());
 
         // ── hs_wall_behind_actor ─────────────────────────────────────────
@@ -142,11 +136,10 @@ int main() {
         } else if (cmd == "hs_wall_behind_actor") {
             geometry::map_data map;
             map.linedefs.add(solid_wall({200.0f, -50.0f}, {200.0f, 50.0f}));
-            inspect<entities::monster_basic> m;
-            m.pos ={100.0f, 0.0f};
+            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
+            fire(ammo.get(), ORIGIN, 0.0f);
             result(m.hp());
 
         // ── hs_portal_passes ─────────────────────────────────────────────
@@ -156,11 +149,10 @@ int main() {
         } else if (cmd == "hs_portal_passes") {
             geometry::map_data map;
             map.linedefs.add(portal_wall({50.0f, -50.0f}, {50.0f, 50.0f}));
-            inspect<entities::monster_basic> m;
-            m.pos ={100.0f, 0.0f};
+            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
+            fire(ammo.get(), ORIGIN, 0.0f);
             result(m.hp());
 
         // ── hs_closest_wins ──────────────────────────────────────────────
@@ -168,12 +160,11 @@ int main() {
         // A at (50, 0), B at (100, 0). Shoot east.
         // Expected: A hp=20, B hp=30
         } else if (cmd == "hs_closest_wins") {
-            inspect<entities::monster_basic> a, b;
-            a.pos ={50.0f,  0.0f};
-            b.pos ={100.0f, 0.0f};
+            auto a = make_at<entities::monster_basic>({50.0f,  0.0f});
+            auto b = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&a, &b});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
+            fire(ammo.get(), ORIGIN, 0.0f);
             result(a.hp());
             result(b.hp());
 
@@ -182,12 +173,11 @@ int main() {
         // Kill monster, then fire. HP must stay at 0.
         // Expected: HP = 0
         } else if (cmd == "hs_dead_skipped") {
-            inspect<entities::monster_basic> m;
-            m.pos ={100.0f, 0.0f};
+            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             m.take_damage(999.0f);  // kill
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);  // should be skipped
+            fire(ammo.get(), ORIGIN, 0.0f);  // should be skipped
             result(m.hp());
 
         // ── hs_angle_north ───────────────────────────────────────────────
@@ -195,11 +185,10 @@ int main() {
         // Actor at (0, 100). Shoot at π/2.
         // Expected: HP = 20
         } else if (cmd == "hs_angle_north") {
-            inspect<entities::monster_basic> m;
-            m.pos ={0.0f, 100.0f};
+            auto m = make_at<entities::monster_basic>({0.0f, 100.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, std::numbers::pi_v<float> / 2.0f);
+            fire(ammo.get(), ORIGIN, std::numbers::pi_v<float> / 2.0f);
             result(m.hp());
 
         // ── hs_no_targets ────────────────────────────────────────────────
@@ -207,7 +196,7 @@ int main() {
         // Expected: "OK"
         } else if (cmd == "hs_no_targets") {
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f);
+            fire(ammo.get(), ORIGIN, 0.0f);
             result("OK");
 
         // ── hs_damage_exact ──────────────────────────────────────────────
@@ -215,11 +204,10 @@ int main() {
         // monster_basic has 30 HP. Fire with damage=7 → HP = 23.
         // Expected: HP = 23
         } else if (cmd == "hs_damage_exact") {
-            inspect<entities::monster_basic> m;
-            m.pos ={100.0f, 0.0f};
+            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
             (*ammo)("targets"_f) = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), {0.0f, 0.0f}, 0.0f, 7.0f);
+            fire(ammo.get(), ORIGIN, 0.0f, 7.0f);
             result(m.hp());
         }
     }

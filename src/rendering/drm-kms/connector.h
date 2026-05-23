@@ -13,16 +13,16 @@ namespace rendering {
 		class framebuffer;
 
 		class connector {
-			const device_context& dev;
+			device_context const& dev;
 			uint32_t connector_id;
 			uint32_t encoder_id;
 
 		public:
-			connector(const device_context& d, uint32_t id, bool* const success = nullptr);
+			connector(device_context const& d, uint32_t id, bool* const success = nullptr);
 
 			std::vector<std::unique_ptr<mode const>> probe_modes();
 
-			bool apply_config(crtc& c, const framebuffer& fb, const mode& m) const;
+			bool apply_config(crtc& c, framebuffer const& fb, mode const& m) const;
 		};
 	}
 }

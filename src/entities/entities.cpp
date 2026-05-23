@@ -13,15 +13,17 @@ namespace entities {
 	float monster::dist_to_target() const {
 		auto t = target_ptr.lock();
 		if (!t) return 0.0f;
-		math::vec2 d = t->pos - pos;
+		math::vec2 d = (*t)("pos"_f) - pos;
 		return std::hypot(d("x"_f), d("y"_f));
+
 	}
 
 	math::vec2 monster::dir_to_target() const {
 		auto t = target_ptr.lock();
 		if (!t) return {0.0f, 0.0f};
-		math::vec2 d = t->pos - pos;
+		math::vec2 d = (*t)("pos"_f) - pos;
 		float len = std::hypot(d("x"_f), d("y"_f));
+
 		if (len < 0.0001f) return {0.0f, 0.0f};
 		return d / len;
 	}

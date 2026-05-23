@@ -57,10 +57,13 @@ int main() {
     if (i_back->is_bad()) { std::cerr << "error: input init failed\n"; return 1; }
 
     // ── Player ───────────────────────────────────────────────────────────────
-    entities::player p(100.0f, 50.0f, 4.0f, 1.0f);
-    // start at world origin, facing +X
-    p.pos = {0.0f, 0.0f};
+    entities::player p({0.0f, 0.0f}, 0.0f, 0, 1.0f, 100.0f, 50.0f, 4.0f, 1.0f);
     p.angle    = 0.0f;
+
+    // Helper to access pos through the correct componentized base
+    auto ppos = [&]() -> auto& {
+        return static_cast<util::componentized<rendering::sprite>&>(p)("pos"_f);
+    };
 
     // ── Layout ───────────────────────────────────────────────────────────────
     // Top-down view fills most of the screen; info strip at the bottom.
@@ -132,8 +135,8 @@ int main() {
         // Player is always at (CX, CY); everything else is offset from there.
         auto world_to_screen = [&](float wx, float wy) -> std::pair<int, int> {
             return {
-                static_cast<int>(CX + (wx - p.pos("x"_f)) * SCALE),
-                static_cast<int>(CY + (wy - p.pos("y"_f)) * SCALE)
+                static_cast<int>(CX + (wx - ppos()("x"_f)) * SCALE),
+                static_cast<int>(CY + (wy - ppos()("y"_f)) * SCALE)
             };
         };
 
@@ -148,23 +151,23 @@ int main() {
         {
             float visible_units_x = (SW / 2.0f) / SCALE + 1.0f;
             float visible_units_y = (VIEW_H / 2.0f) / SCALE + 1.0f;
-            int grid_x0 = static_cast<int>(std::floor(p.pos("x"_f) - visible_units_x));
-            int grid_x1 = static_cast<int>(std::ceil (p.pos("x"_f) + visible_units_x));
-            int grid_y0 = static_cast<int>(std::floor(p.pos("y"_f) - visible_units_y));
-            int grid_y1 = static_cast<int>(std::ceil (p.pos("y"_f) + visible_units_y));
+            int grid_x0 = static_cast<int>(std::floor(ppos()("x"_f) - visible_units_x));
+            int grid_x1 = static_cast<int>(std::ceil (ppos()("x"_f) + visible_units_x));
+            int grid_y0 = static_cast<int>(std::floor(ppos()("y"_f) - visible_units_y));
+            int grid_y1 = static_cast<int>(std::ceil (ppos()("y"_f) + visible_units_y));
 
             for (int gx = grid_x0; gx <= grid_x1; ++gx) {
-                int sx     = static_cast<int>(CX + (gx - p.pos("x"_f)) * SCALE);
-                int sy_top = static_cast<int>(CY + (grid_y0 - p.pos("y"_f)) * SCALE);
-                int sy_bot = static_cast<int>(CY + (grid_y1 - p.pos("y"_f)) * SCALE);
+                int sx     = static_cast<int>(CX + (gx - ppos()("x"_f)) * SCALE);
+                int sy_top = static_cast<int>(CY + (grid_y0 - ppos()("y"_f)) * SCALE);
+                int sy_bot = static_cast<int>(CY + (grid_y1 - ppos()("y"_f)) * SCALE);
                 std::uint32_t col = (gx % 5 == 0) ? C_AXIS : C_GRID;
                 draw_line(static_cast<float>(sx), static_cast<float>(sy_top),
                           static_cast<float>(sx), static_cast<float>(sy_bot), col);
             }
             for (int gy = grid_y0; gy <= grid_y1; ++gy) {
-                int sx_l = static_cast<int>(CX + (grid_x0 - p.pos("x"_f)) * SCALE);
-                int sx_r = static_cast<int>(CX + (grid_x1 - p.pos("x"_f)) * SCALE);
-                int sy   = static_cast<int>(CY + (gy    - p.pos("y"_f)) * SCALE);
+                int sx_l = static_cast<int>(CX + (grid_x0 - ppos()("x"_f)) * SCALE);
+                int sx_r = static_cast<int>(CX + (grid_x1 - ppos()("x"_f)) * SCALE);
+                int sy   = static_cast<int>(CY + (gy    - ppos()("y"_f)) * SCALE);
                 std::uint32_t col = (gy % 5 == 0) ? C_AXIS : C_GRID;
                 draw_line(static_cast<float>(sx_l), static_cast<float>(sy),
                           static_cast<float>(sx_r), static_cast<float>(sy), col);
@@ -194,7 +197,7 @@ int main() {
         r2d.draw_rect(0, VIEW_H, SW, 1, 0xFF334433);
 
         float deg = p.angle * (180.0f / std::numbers::pi_v<float>);
-        r2d.draw_text("POS:  x=" + fmt2(p.pos("x"_f)) + "  y=" + fmt2(p.pos("y"_f)),
+        r2d.draw_text("POS:  x=" + fmt2(ppos()("x"_f)) + "  y=" + fmt2(ppos()("y"_f)),
                       16, VIEW_H + 10, 13, 20, TW);
         r2d.draw_text("ANG:  " + fmt2(p.angle) + " rad  (" + fmt2(deg) + " deg)",
                       16, VIEW_H + 34, 13, 20, TW);

@@ -53,50 +53,29 @@ static geometry::map_data build_room() {
     geometry::map_data map;
 
     // Sector: floor=0, ceiling=256, doom-floor texture, full brightness
-    geometry::sector sec;
-    sec.floor_height   = 0.0f;
-    sec.ceiling_height = 256.0f;
-    sec.floor_tex      = 2;   // doom-floor.btx  (flat id 2)
-    sec.ceiling_tex    = 2;   // same for ceiling
-    sec.light_level    = 220;
-    auto sec_id = map.sectors.add(sec);
+    auto sec_id = map.sectors.add(geometry::sector(0.0f, 256.0f, 2, 2, 220));
 
-    // All 4 sidedefs face the same sector; middle_tex uses doom-wall
-    geometry::sidedef sd;
-    sd.facing_sector = sec_id;
-    sd.upper_tex     = 3;   // doom-wall.btx (wall id 3)
-    sd.middle_tex    = 3;
-    sd.lower_tex     = 3;
-    auto sd0 = map.sidedefs.add(sd);
-    auto sd1 = map.sidedefs.add(sd);
-    auto sd2 = map.sidedefs.add(sd);
-    auto sd3 = map.sidedefs.add(sd);
+    // All 4 sidedefs face the same sector; middle_tex uses doom-wall (id 3)
+    auto sd0 = map.sidedefs.add(geometry::sidedef(sec_id, 3, 3, 3));
+    auto sd1 = map.sidedefs.add(geometry::sidedef(sec_id, 3, 3, 3));
+    auto sd2 = map.sidedefs.add(geometry::sidedef(sec_id, 3, 3, 3));
+    auto sd3 = map.sidedefs.add(geometry::sidedef(sec_id, 3, 3, 3));
 
     auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
 
     // 4 linedefs – counterclockwise order keeps front side facing inward
-    geometry::linedef ld;
-    ld.back = null_sd;
-
-    ld.v1 = {0.0f,   0.0f};   ld.v2 = {0.0f,   512.0f}; ld.front = sd0;
-    auto id0 = map.linedefs.add(ld);
-
-    ld.v1 = {0.0f,   512.0f}; ld.v2 = {512.0f, 512.0f}; ld.front = sd1;
-    auto id1 = map.linedefs.add(ld);
-
-    ld.v1 = {512.0f, 512.0f}; ld.v2 = {512.0f, 0.0f};   ld.front = sd2;
-    auto id2 = map.linedefs.add(ld);
-
-    ld.v1 = {512.0f, 0.0f};   ld.v2 = {0.0f,   0.0f};   ld.front = sd3;
-    auto id3 = map.linedefs.add(ld);
+    auto id0 = map.linedefs.add(geometry::linedef({0.0f,   0.0f},   {0.0f,   512.0f}, sd0, null_sd));
+    auto id1 = map.linedefs.add(geometry::linedef({0.0f,   512.0f}, {512.0f, 512.0f}, sd1, null_sd));
+    auto id2 = map.linedefs.add(geometry::linedef({512.0f, 512.0f}, {512.0f, 0.0f},   sd2, null_sd));
+    auto id3 = map.linedefs.add(geometry::linedef({512.0f, 0.0f},   {0.0f,   0.0f},   sd3, null_sd));
 
     // Single subsector (convex room = one BSP leaf)
-    geometry::subsector ss;
-    ss.lines = {id0, id1, id2, id3};
-    auto ss_id = map.subsectors.add(std::move(ss));
+    auto ss_id = map.subsectors.add(geometry::subsector(
+        {id0, id1, id2, id3}, {}));
 
     // Root is directly the leaf (no internal BSP nodes needed)
-    map.root_node_id = geometry::bsp_node::leaf_flag | ss_id;
+    // Use is_leaf/get_id convention: set high bit to mark as leaf
+    map.root_node_id = (1u << (sizeof(decltype(map.root_node_id)) * 8 - 1)) | ss_id;
 
     return map;
 }
@@ -133,8 +112,7 @@ int main() {
     if (i_back->is_bad()) { std::cerr << "error: input init failed\n"; return 1; }
 
     // ── Player ───────────────────────────────────────────────────────────────
-    entities::player p(100.0f, 50.0f, 120.0f, 1.0f);
-    p.pos = {256.0f, 256.0f};   // center of room
+    entities::player p({256.0f, 256.0f}, 0.0f, 0, 1.0f, 100.0f, 50.0f, 120.0f, 1.0f);
     p.angle    = 0.0f;               // facing +X
 
     const float CAM_HEIGHT  = 120.0f;   // eye height (floor=0, ceil=256)
@@ -191,7 +169,7 @@ int main() {
                     static_cast<std::size_t>((*r_back)("height"_f)) * (*r_back)("pitch"_f));
 
         // 3D scene
-        r3d.render_bsp(p.pos, CAM_HEIGHT, p.angle, FOV);
+        r3d.render_bsp(static_cast<util::componentized<rendering::sprite>&>(p)("pos"_f), CAM_HEIGHT, p.angle, FOV);
 
         // Info strip at bottom
         r2d.draw_rect(0, INFO_Y, SW, INFO_H, 0xDD0A0A0A);
@@ -199,7 +177,7 @@ int main() {
 
         float deg = p.angle * (180.0f / std::numbers::pi_v<float>);
         r2d.draw_text("FPS  " + fmt2(fps)
-                      + "     POS  x=" + fmt2(p.pos("x"_f)) + "  y=" + fmt2(p.pos("y"_f))
+                      + "     POS  x=" + fmt2(static_cast<util::componentized<rendering::sprite>&>(p)("pos"_f)("x"_f)) + "  y=" + fmt2(static_cast<util::componentized<rendering::sprite>&>(p)("pos"_f)("y"_f))
                       + "     ANG  " + fmt2(p.angle) + " rad  (" + fmt2(deg) + " deg)",
                       14, INFO_Y + 8, 13, 20, TW);
         r2d.draw_text("W/S: forward/back     A/D: strafe     Mouse: rotate     ESC: exit",

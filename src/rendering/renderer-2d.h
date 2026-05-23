@@ -9,18 +9,18 @@
 #include <algorithm>
 
 namespace rendering {
-    class renderer_2d {
-        rendering_backend &target;
-        assets::asset_manager const& tex_manager;
-        assets::texture const& font_texture; 
+	class renderer_2d {
+		rendering_backend &target;
+		assets::asset_manager const& tex_manager;
+		assets::texture const& font_texture; 
 
-    public:
-        renderer_2d(rendering_backend &tgt, assets::asset_manager const& tm, assets::texture const& font_tex);
+	public:
+		renderer_2d(rendering_backend &tgt, assets::asset_manager const& tm, assets::texture const& font_tex);
 
-        void draw_texture(assets::texture const& tex, int x, int y, int w, int h) const;
-        
-        void draw_text(std::string_view text, int x, int y, int char_w, int char_h, std::uint32_t const color) const;
+		void draw_texture(assets::texture const& tex, int x, int y, int w, int h) const;
+		
+		void draw_text(std::string_view text, int x, int y, int char_w, int char_h, std::uint32_t const color) const;
 
 		void draw_rect(int x, int y, int w, int h, std::uint32_t color) const;
-    };
+	};
 }

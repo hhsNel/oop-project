@@ -41,15 +41,15 @@ namespace util {
 		template <std::size_t N>
 		static consteval info_array<N> get_res_members_array();
 
-		constexpr const resource* get_by_symbol_reflection(std::string_view symbol_name) const;
+		constexpr resource const* get_by_symbol_reflection(std::string_view symbol_name) const;
 #endif
 
 	public:
 		resource_loader()  = default;
 		~resource_loader() = default;
 
-		resource_loader(const resource_loader&)            = delete;
-		resource_loader& operator=(const resource_loader&) = delete;
+		resource_loader(resource_loader const&)			= delete;
+		resource_loader& operator=(resource_loader const&) = delete;
 
 		constexpr resource* lookup_resource(std::string_view resource_name);
 	};
@@ -98,7 +98,7 @@ namespace util {
 		return arr;
 	}
 
-	constexpr const resource* resource_loader::get_by_symbol_reflection(std::string_view symbol_name) const {
+	constexpr resource const* resource_loader::get_by_symbol_reflection(std::string_view symbol_name) const {
 		if consteval {
 #if __has_include(<meta>)
 			static constexpr std::size_t num_members = count_res_members();
@@ -110,8 +110,8 @@ namespace util {
 			std::string end_name(symbol_name.substr(0, symbol_name.size() - 6));
 			end_name += "_end";
 
-			const unsigned char* begin_sym = nullptr;
-			const unsigned char* end_sym   = nullptr;
+			unsigned char const* begin_sym = nullptr;
+			unsigned char const* end_sym   = nullptr;
 
 			/* TODO: work around a gcc 16.1.1 20260430 bug */
 #pragma GCC diagnostic push

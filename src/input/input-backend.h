@@ -35,3 +35,4 @@ namespace input {
 		static key to_key(char c);
 	};
 }
+

@@ -28,6 +28,10 @@ namespace {
 	};
 }
 
+// Disambiguate componentized operator() for player fields
+template<typename T>
+auto& as_player(T& p) { return static_cast<util::componentized<entities::player>&>(p); }
+
 template<typename M>
 struct inspect : public M {
 	using M::M;
@@ -97,16 +101,16 @@ int main() {
 	pool[0].in_loadout = true;  // start with pistol
 
 	// ---- player ----
-	inspect<entities::player> p(100.0f, 50.0f, 2.0f, 1.0f);
+	inspect<entities::player> p({0.0f, 0.0f}, 0.0f, 0, 1.0f, 100.0f, 50.0f, 2.0f, 1.0f);
 
 	auto rebuild_loadout = [&]() {
-		auto* preserve = p("current_weapon"_f);
-		p("weapons"_f).clear();
+		auto* preserve = as_player(p)("current_weapon"_f);
+		as_player(p)("weapons"_f).clear();
 		for (auto& s : pool)
-			if (s.in_loadout) p("weapons"_f).push_back(s.owned.get());
-		if (!p("weapons"_f).empty()) {
-			for (int i = 0; i < (int)p("weapons"_f).size(); ++i) {
-				if (p("weapons"_f)[i] == preserve) { p.switch_weapons(i); return; }
+			if (s.in_loadout) as_player(p)("weapons"_f).push_back(s.owned.get());
+		if (!as_player(p)("weapons"_f).empty()) {
+			for (int i = 0; i < (int)as_player(p)("weapons"_f).size(); ++i) {
+				if (as_player(p)("weapons"_f)[i] == preserve) { p.switch_weapons(i); return; }
 			}
 			p.switch_weapons(0);
 		}
@@ -174,7 +178,7 @@ int main() {
 			}
 		}
 
-		weapon_slot* cur_slot = find_slot(pool, p("current_weapon"_f));
+		weapon_slot* cur_slot = find_slot(pool, as_player(p)("current_weapon"_f));
 
 		if (game_over) {
 			if (edge(input::key::v, prev_v))
@@ -187,7 +191,7 @@ int main() {
 					if (down && !prev_num[i]) p.switch_weapons(i - 1);
 					prev_num[i] = down;
 				}
-				cur_slot = find_slot(pool, p("current_weapon"_f));
+				cur_slot = find_slot(pool, as_player(p)("current_weapon"_f));
 			}
 
 			// Shoot — auto weapons fire while LMB held, semi on press edge
@@ -221,9 +225,9 @@ int main() {
 
 			// Remove current weapon from loadout
 			bool minus_down = backend->is_key_down(input::key::hyphen);
-			if (minus_down && !prev_minus && p("current_weapon"_f))
+			if (minus_down && !prev_minus && as_player(p)("current_weapon"_f))
 				for (auto& s : pool)
-					if (s.in_loadout && s.owned.get() == p("current_weapon"_f)) {
+					if (s.in_loadout && s.owned.get() == as_player(p)("current_weapon"_f)) {
 						s.in_loadout = false; rebuild_loadout(); break;
 					}
 			prev_minus = minus_down;
@@ -273,7 +277,7 @@ int main() {
 		p.update(dt);  // ticks status effects regardless of alive state
 
 		// ---- render HUD ----
-		cur_slot = find_slot(pool, p("current_weapon"_f));
+		cur_slot = find_slot(pool, as_player(p)("current_weapon"_f));
 		std::cout << "\033[H";
 
 		std::cout << (game_over ? "=== GAME  OVER  ===" : "=== PLAYER STATUS ===") << "\033[K\n";
@@ -291,12 +295,12 @@ int main() {
 
 		std::cout << "\033[K\n";
 
-		if (p("current_weapon"_f) && cur_slot) {
-			auto* cw = p("current_weapon"_f);
+		if (as_player(p)("current_weapon"_f) && cur_slot) {
+			auto* cw = as_player(p)("current_weapon"_f);
 			std::cout << "Weapon: " << cur_slot->name
 			          << (cur_slot->is_auto ? " [AUTO]" : "")
-			          << "  (slot " << (p("current_weapon_index"_f) + 1)
-			          << " / " << p("weapons"_f).size() << ")\033[K\n";
+			          << "  (slot " << (as_player(p)("current_weapon_index"_f) + 1)
+			          << " / " << as_player(p)("weapons"_f).size() << ")\033[K\n";
 
 			// Status line (reload / cooldown / ready)
 			std::string status;
@@ -343,15 +347,15 @@ int main() {
 		}
 
 		std::cout << "\033[K\nLoadout:";
-		for (int i = 0; i < (int)p("weapons"_f).size(); ++i) {
-			bool active = (p("current_weapon"_f) && i == p("current_weapon_index"_f));
+		for (int i = 0; i < (int)as_player(p)("weapons"_f).size(); ++i) {
+			bool active = (as_player(p)("current_weapon"_f) && i == as_player(p)("current_weapon_index"_f));
 			std::string n;
 			for (auto& s : pool)
-				if (s.in_loadout && s.owned.get() == p("weapons"_f)[i]) { n = s.name; break; }
+				if (s.in_loadout && s.owned.get() == as_player(p)("weapons"_f)[i]) { n = s.name; break; }
 			std::cout << "  " << (i + 1) << ":"
 			          << (active ? "[" : "") << n << (active ? "]" : "");
 		}
-		if (p("weapons"_f).empty()) std::cout << "  (empty)";
+		if (as_player(p)("weapons"_f).empty()) std::cout << "  (empty)";
 		std::cout << "\033[K\n";
 
 		std::cout << "\033[K\n";

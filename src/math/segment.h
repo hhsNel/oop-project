@@ -2,11 +2,13 @@
 #define SEGMENT_H
 
 #include "vec2.h"
+#include "util/componentized.h"
 
 namespace math {
-	class segment {
+	class segment : public util::componentized<segment> {
+		[[=util::component_field{}]] vec2 point0, point1;
+
 	public:
-		vec2 point0, point1;
 
 		constexpr segment(vec2 const p0, vec2 const p1);
 
@@ -17,6 +19,8 @@ namespace math {
 		constexpr vec2 const midpoint() const;
 		float len() const;
 		float sqr_len() const;
+
+		friend util::componentized<segment>;
 	};
 }
 

@@ -13,9 +13,10 @@ namespace entities {
 		float spawn_timer;
 
 	public:
-		monster_spawner() : monster(100.0f, 20.0f, 0.0f, 0.0f, 15.0f),
-		    max_spawns(5), current_spawns(0),
-		    spawn_interval(5.0f), spawn_timer(0.0f) {}
+		monster_spawner(math::vec2 const p, float const z, assets::texture_id const tex, float const is)
+			: monster(p, z, tex, is, 100.0f, 20.0f, 0.0f, 0.0f, 15.0f),
+			  max_spawns(5), current_spawns(0),
+			  spawn_interval(5.0f), spawn_timer(0.0f) {}
 		void update(float dt) override;
 	};
 

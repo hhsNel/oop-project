@@ -14,7 +14,7 @@ namespace util {
 	template<std::size_t N>
 	struct fixed_string {
 		char data[N];
-		consteval fixed_string(const char (&s)[N]) {
+		consteval fixed_string(char const (&s)[N]) {
 			for (std::size_t i = 0; i < N; ++i) data[i] = s[i];
 		}
 		consteval std::string_view view() const { return {data, N - 1}; }
@@ -45,23 +45,23 @@ namespace util {
 
 	public:
 		template<fixed_string field>
-		requires (get_tagged_member<field, const ref_component_field>() != std::meta::info{})
+		requires (get_tagged_member<field, ref_component_field const>() != std::meta::info{})
 		auto& operator()(component_tag<field>) {
-			constexpr auto target = get_tagged_member<field, const ref_component_field>();
+			constexpr auto target = get_tagged_member<field, ref_component_field const>();
 			return static_cast<T *>(this)->[:target:];
 		}
 
 		template<fixed_string field>
 		requires
-			( (get_tagged_member<field, const component_field>()     != std::meta::info{}) ||
-			  (get_tagged_member<field, const ref_component_field>() != std::meta::info{}) )
+			( (get_tagged_member<field, component_field const>()	 != std::meta::info{}) ||
+			  (get_tagged_member<field, ref_component_field const>() != std::meta::info{}) )
 		auto const& operator()(component_tag<field>) const {
 			constexpr auto target = []{
-				auto tgt = get_tagged_member<field, const component_field>();
+				auto tgt = get_tagged_member<field, component_field const>();
 				if(tgt != std::meta::info{}) return tgt;
-				return get_tagged_member<field, const ref_component_field>();
+				return get_tagged_member<field, ref_component_field const>();
 			}();
-			return static_cast<const T *>(this)->[:target:];
+			return static_cast<T const *>(this)->[:target:];
 		}
 	};
 

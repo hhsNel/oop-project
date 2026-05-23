@@ -1,8 +1,2 @@
-test: engine
-test: geometry
-test: graphics
-test: rendering
-test: util - indexed_storage
-
-write: geometry
+geometry
 

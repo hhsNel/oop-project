@@ -5,13 +5,13 @@
 
 namespace rendering {
 	class rendering_mode : public util::componentized<rendering_mode> {
-	protected:
-		[[=util::component_field{}]] unsigned int x_res;
-		[[=util::component_field{}]] unsigned int y_res;
-		[[=util::component_field{}]] unsigned int refresh_hz;
-		[[=util::component_field{}]] bool has_vsync;
 	public:
 		virtual ~rendering_mode() = default;
+
+		virtual unsigned int operator()(util::component_tag<"x_res">) const = 0;
+		virtual unsigned int operator()(util::component_tag<"y_res">) const = 0;
+		virtual unsigned int operator()(util::component_tag<"refresh_hz">) const = 0;
+		virtual bool operator()(util::component_tag<"has_vsync">) const = 0;
 
 		friend util::componentized<rendering_mode>;
 	};

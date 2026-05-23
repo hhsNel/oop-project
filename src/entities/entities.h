@@ -36,8 +36,8 @@ namespace entities {
 	
 	public:
 
-		monster(float hp, float shield, float move_speed, float atk_range, float det_radius, float atk_dmg = 10.0f, float atk_cd = 1.0f)
-			: engine::actor(hp, shield, move_speed, engine::faction::enemy),
+		monster(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float atk_range, float det_radius, float atk_dmg = 10.0f, float atk_cd = 1.0f)
+			: engine::actor(p, z, tex, is, hp, shield, move_speed, engine::faction::enemy),
 			  attack_cooldown(0.0f),
 			  attack_range(atk_range),
 			  detection_radius(det_radius),
@@ -56,8 +56,8 @@ namespace entities {
 		friend class util::componentized<player>;
 	public:
 
-		player(float hp, float shield, float move_speed, float sens)
-			: engine::actor(hp, shield, move_speed, engine::faction::player),
+		player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens)
+			: engine::actor(p, z, tex, is, hp, shield, move_speed, engine::faction::player),
 			  sensitivity(sens),
 			  current_weapon(nullptr),
 			  current_weapon_index(0) {}
