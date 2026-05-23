@@ -35,6 +35,5 @@ namespace combat {
 
             using util::componentized<projectile_firing_mode>::operator();
         };
-
     }
 }
