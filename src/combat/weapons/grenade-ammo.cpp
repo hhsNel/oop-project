@@ -82,7 +82,7 @@ namespace combat {
         void grenade_ammunition::explode(live_grenade const& g) {
             for (engine::actor* a : targets) {
                 if (!a || a->is_dead()) continue;
-                math::vec2 offset = a->pos - g.position;
+                math::vec2 offset = (*a)("pos"_f) - g.position;
                 float dist = offset.len();
                 if (dist >= g.explosion_radius) continue;
                 // Linear falloff: full damage at centre, zero at edge

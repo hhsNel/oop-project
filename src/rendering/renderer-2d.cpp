@@ -19,13 +19,13 @@ namespace rendering {
         std::uint32_t const MAGENTA_COLORKEY = 0xFFFF00FF; 
 
 		for (int dx = start_x; dx < end_x; ++dx) {
-			std::uint32_t const src_x = ((dx - x) * tex.width) / w;
+			std::uint32_t const src_x = ((dx - x) * tex("width"_f)) / w;
 			for (int dy = start_y; dy < end_y; ++dy) {
-				std::uint32_t const src_y = ((dy - y) * tex.height) / h;
+				std::uint32_t const src_y = ((dy - y) * tex("height"_f)) / h;
 
-				std::uint32_t const pixel = tex.pixels[src_x * tex.height + src_y];
+				std::uint32_t const pixel = tex("pixels"_f)[src_x * tex("height"_f) + src_y];
 
-                if (tex.has_transparency && pixel == MAGENTA_COLORKEY) {
+                if (tex("has_transparency"_f) && pixel == MAGENTA_COLORKEY) {
                     continue; 
                 }
 
@@ -37,8 +37,8 @@ namespace rendering {
     void renderer_2d::draw_text(std::string_view text, int x, int y, int char_w, int char_h, std::uint32_t const color) const {
         int const cols = 16;
         int const rows = 16;
-        int const src_char_w = font_texture.width / cols;
-        int const src_char_h = font_texture.height / rows;
+        int const src_char_w = font_texture("width"_f) / cols;
+        int const src_char_h = font_texture("height"_f) / rows;
 
         int current_x = x;
         std::uint32_t const MAGENTA_COLORKEY = 0xFFFF00FF;
@@ -67,9 +67,9 @@ namespace rendering {
 				for (int dy = start_y; dy < end_y; ++dy) {
 					std::uint32_t const src_y = grid_y * src_char_h + ((dy - y) * src_char_h) / char_h;
 
-					std::uint32_t const pixel = font_texture.pixels[src_x * font_texture.height + src_y];
+					std::uint32_t const pixel = font_texture("pixels"_f)[src_x * font_texture("height"_f) + src_y];
 
-                    if (font_texture.has_transparency && pixel == MAGENTA_COLORKEY) {
+                    if (font_texture("has_transparency"_f) && pixel == MAGENTA_COLORKEY) {
                         continue;
                     }
 

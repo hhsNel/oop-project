@@ -66,8 +66,8 @@ namespace assets {
 				}
 			}
 
-			const int cw = static_cast<int>(ui_tx[0].width);
-			const int ch = static_cast<int>(ui_tx[0].height);
+			const int cw = static_cast<int>(ui_tx[0]("width"_f));
+			const int ch = static_cast<int>(ui_tx[0]("height"_f));
 			r2d.draw_texture(ui_tx[0], ms.x, ms.y, cw, ch);
 
 			if (in.is_key_down(input::key::esc)) {

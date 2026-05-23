@@ -80,14 +80,14 @@ void rendering::visplane::render(assets::asset_manager const& tex_manager, frame
 
             for (int sx = span_start; sx < span_end; ++sx) {
 				/* texture coords */
-                int tx = ((fx >> 16) % tex.width);
-                int ty = ((fy >> 16) % tex.height);
+                int tx = ((fx >> 16) % tex("width"_f));
+                int ty = ((fy >> 16) % tex("height"_f));
 				/* ensure they are positive (modulo can be negative) */
-                if (tx < 0) tx += tex.width;
-                if (ty < 0) ty += tex.height;
+                if (tx < 0) tx += tex("width"_f);
+                if (ty < 0) ty += tex("height"_f);
 
 				/* write the pixel */
-				std::uint32_t color = tex.pixels[tx * tex.height + ty];
+				std::uint32_t color = tex("pixels"_f)[tx * tex("height"_f) + ty];
                 *dest++ = lighting::apply(color, row_light);
 
 				/* update world coords */

@@ -26,11 +26,11 @@ namespace geometry {
     void map_data::move_to(rendering::sprite* spr, math::vec2 const& new_pos) {
         if (!spr) return;
 
-        auto old_sub_id = get_subsector_id(spr->pos);
+        auto old_sub_id = get_subsector_id((*spr)("pos"_f));
         auto new_sub_id = get_subsector_id(new_pos);
 
         if (old_sub_id == new_sub_id) {
-            spr->pos = new_pos;
+            (*spr)("pos"_f) = new_pos;
             return;
         }
 
@@ -46,11 +46,11 @@ namespace geometry {
             std::unique_ptr<rendering::sprite> moved_spr = std::move(*it);
             old_sub.sprites.erase(it);
             
-            moved_spr->pos = new_pos;
+            (*moved_spr)("pos"_f) = new_pos;
             
             new_sub.sprites.push_back(std::move(moved_spr));
         } else {
-            spr->pos = new_pos;
+            (*spr)("pos"_f) = new_pos;
         }
     }
 

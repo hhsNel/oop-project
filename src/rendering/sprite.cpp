@@ -6,9 +6,3 @@ rendering::sprite::sprite(math::vec2 const p, float const z, assets::texture_id 
 	tex_id(tex),
 	inherent_scale(is) { }
 
-rendering::sprite::sprite() :
-	pos(math::vec2(0.0f, 0.0f)),
-	z_pos(0.0f),
-	tex_id(-1),
-	inherent_scale(0.0f) { }
-
