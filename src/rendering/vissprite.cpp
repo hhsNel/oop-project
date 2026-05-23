@@ -23,7 +23,7 @@ void rendering::vissprite::render(assets::asset_manager const& tex_manager, fram
 	int sprite_light = lighting::calculate(light_level, depth * eu_dist_f);
 
 	float scr_y_bot = frd.sh/2.0f - (z_pos - frd.cam_height) * scale;
-	float scr_y_top = scr_y_bot - tex.height * scale;
+	float scr_y_top = scr_y_bot - tex("height"_f) * scale;
 
 	float inv_scale = 1.0f / scale;
 	
@@ -40,8 +40,8 @@ void rendering::vissprite::render(assets::asset_manager const& tex_manager, fram
 		if(draw_bot <= draw_top) continue;
 
 		/* should be correct ??? */
-		int u = static_cast<int>((x - proj_x + (tex.width*scale)/2) * inv_scale);
-		u = std::clamp(u, 0, static_cast<int>(tex.width) - 1);
+		int u = static_cast<int>((x - proj_x + (tex("width"_f)*scale)/2) * inv_scale);
+		u = std::clamp(u, 0, static_cast<int>(tex("width"_f)) - 1);
 
 		float current_v = (draw_top - scr_y_top) * inv_scale;
 
@@ -49,7 +49,7 @@ void rendering::vissprite::render(assets::asset_manager const& tex_manager, fram
 			int v = static_cast<int>(current_v);
 			current_v += inv_scale;
 
-			std::uint32_t color = tex.pixels[u * tex.height + v];
+			std::uint32_t color = tex("pixels"_f)[u * tex("height"_f) + v];
 			if(color != 0xffff00ff) {
 				frd.mmio[x + y * frd.pitch] = lighting::apply(color, sprite_light);
 			}

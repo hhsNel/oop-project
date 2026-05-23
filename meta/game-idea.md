@@ -19,7 +19,7 @@ Projekt ma na celu stworzenie w pełni funkcjonalnej, minimalistycznej gry typu 
 ## Opis funkcjonalny
 
 ### Ogólna koncepcja rozgrywki
-Gracz wciela się w przeniesionego do innego swiata mieszkanca Japonii. Jego celem jest pokonanie armii krola demonow atakujacego krolestwo Aliud Regnum Mundi. Zadaniem jest przetrwanie i eliminacja wszystkich demonow oraz ich krola. Gracz może poruszać się, strzelać, zmieniać broń i rzucać granaty.
+Gracz wciela się w przeniesionego do innego swiata mieszkanca Japonii. Jego celem jest pokonanie armii krola demonow atakujacego krolestwo Aliud Regnum Mundi. Zadaniem jest przetrwanie i eliminacja wszystkich demonow oraz ich krola. Gracz może poruszać się, strzelać i zmieniać broń.
 
 ### System potworów
 Wszystkie potwory dziedziczą po wspólnej klasie abstrakcyjnej. Dzięki polimorfizmowi każdy typ zachowuje się inaczej, ale jest traktowany przez silnik gry w identyczny sposób.
@@ -50,7 +50,6 @@ Gracz może nosić wiele broni, zaimplementowanych polimorfizmem.
 - **Plasma gun** - strzela dużymi, powolnymi pociskami energetycznymi
 - **Shotgun** - strzela wiązką śrutu (kilka pocisków naraz)
 - **Katana** - broń biała, nie zużywa amunicji
-- **Granaty** - rzucane, eksplodują po krótkim czasie
 
 ### System pocisków
 Wszystkie pociski dziedziczą po klasie abstrakcyjnej `Projectile`

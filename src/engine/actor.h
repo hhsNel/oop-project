@@ -12,7 +12,7 @@ namespace engine {
 		neutral
 	};
 
-	class actor : virtual public renderable_entity {
+	class actor : public renderable_entity {
 	protected:
 		systems::health_system health;
 	public:
@@ -20,8 +20,8 @@ namespace engine {
 		float      movement_speed;
 		faction    team;
 
-		actor(float hp, float shield, float move_speed, faction this_team)
-			: renderable_entity(), angle(0.0f), movement_speed(move_speed), team(this_team)
+		actor(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float const hp, float const shield, float const move_speed, faction const this_team)
+			: renderable_entity(p, z, tex, is), angle(0.0f), movement_speed(move_speed), team(this_team)
 		{
 			health.max_hp = hp;
 			health.current_hp = hp;

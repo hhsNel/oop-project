@@ -88,7 +88,7 @@ namespace util {
         id_t next_id = 1;
 
     private:
-        void init_froobjects() {
+        void init_from_objects() {
             size_t n = objects.size();
             lookup.reserve(n);
             reverse.reserve(n + 1);
@@ -109,12 +109,12 @@ namespace util {
 
         explicit indexed_storage(const std::vector<T>& initial_objects)
             : objects(initial_objects) {
-            init_froobjects();
+            init_from_objects();
         }
 
         explicit indexed_storage(std::vector<T>&& initial_objects) noexcept
             : objects(std::move(initial_objects)) {
-            init_froobjects();
+            init_from_objects();
         }
 
         id_t size() const { return static_cast<id_t>(objects.size()); }

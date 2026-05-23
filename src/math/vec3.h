@@ -6,9 +6,9 @@
 
 namespace math {
 	class vec3 : public util::componentized<vec3> {
-		[[=util::component_field{}]] float x;
-		[[=util::component_field{}]] float y;
-		[[=util::component_field{}]] float z;
+		[[=util::ref_component_field{}]] float x;
+		[[=util::ref_component_field{}]] float y;
+		[[=util::ref_component_field{}]] float z;
 	public:
 
 		constexpr inline vec3(float const X = 0, float const Y = 0, float const Z = 0);

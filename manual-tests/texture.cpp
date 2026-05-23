@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 		break;
 	}
     
-    std::cout << "loaded wall texture 0 (" << wall_tex->width << "x" << wall_tex->height << ")" << std::endl;
+    std::cout << "loaded wall texture 0 (" << (*wall_tex)("width"_f) << "x" << (*wall_tex)("height"_f) << ")" << std::endl;
 
     unsigned int screen_width = (*backend)("width"_f);
     unsigned int screen_height = (*backend)("height"_f);
@@ -91,14 +91,14 @@ int main(int argc, char **argv) {
         }
     }
 
-    unsigned int draw_width = std::min(screen_width, wall_tex->width);
-    unsigned int draw_height = std::min(screen_height, wall_tex->height);
+    unsigned int draw_width = std::min(screen_width, (*wall_tex)("width"_f));
+    unsigned int draw_height = std::min(screen_height, (*wall_tex)("height"_f));
 
 	for (unsigned int x = 0; x < draw_width; ++x) {
 		for (unsigned int y = 0; y < draw_height; ++y) {
-            std::uint32_t pixel_color = wall_tex->pixels[y + x * wall_tex->height];
+            std::uint32_t pixel_color = (*wall_tex)("pixels"_f)[y + x * (*wall_tex)("height"_f)];
             
-            if (!wall_tex->has_transparency || pixel_color != 0xFFFF00FF) {
+            if (!(*wall_tex)("has_transparency"_f) || pixel_color != 0xFFFF00FF) {
                 mmio[y * pixels_per_row + x] = pixel_color;
             }
         }

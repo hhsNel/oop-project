@@ -39,12 +39,12 @@ namespace combat {
             for (engine::actor* a : targets) {
                 if (!a || a->is_dead()) continue;
 
-                math::vec2 to_actor = a->pos - pos;
+                math::vec2 to_actor = (*a)("pos"_f) - pos;
                 float t = math::vec2::dot_product(to_actor, dir);
                 if (t < 0.0f || t > target_dist) continue;
 
                 math::vec2 closest = pos + dir * t;
-                math::vec2 offset  = a->pos - closest;
+                math::vec2 offset  = (*a)("pos"_f) - closest;
                 if (offset.sqr_len() < hit_radius * hit_radius) {
                     target_dist = t;
                     hit_target  = a;

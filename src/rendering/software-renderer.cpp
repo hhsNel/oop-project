@@ -133,7 +133,7 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
         
 		/* texture u coord */
         float u_over_z = (1.0f - t) * u1 * inv_z1 + t * u2 * inv_z2;
-        unsigned int u = (unsigned int)(u_over_z * depth) % mt.width;
+        unsigned int u = (unsigned int)(u_over_z * depth) % mt("width"_f);
 
 		/* light depends on depth */
 		int column_light = lighting::calculate(s.light_level, depth * (*frd.euclidian_dist_factor)[x]);
@@ -152,7 +152,7 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
         add_visplane(x, cropped_bot_y, lower_clip[x], s.floor_height, s.floor_tex, s.light_level, frd);
 
 		/* v scales linearly so pre-calculate step to avoid div */
-		float v_step = (float)mt.height / (float)(bot_y - top_y);
+		float v_step = (float)mt("height"_f) / (float)(bot_y - top_y);
 		float current_v = (float)(cropped_top_y - top_y) * v_step;
 
 		/* draw loop */
@@ -162,7 +162,7 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
 			current_v += v_step;
 
 			/* write the pixel */
-            std::uint32_t color = mt.pixels[u * mt.height + v];
+            std::uint32_t color = mt("pixels"_f)[u * mt("height"_f) + v];
 			frd.mmio[x + y * frd.pitch] = lighting::apply(color, column_light);
         }
 
@@ -203,8 +203,8 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
 		/* texture u coord */
         float u_over_z = (1.0f - t) * u1 * inv_z1 + t * u2 * inv_z2;
         unsigned int u = (unsigned int)(u_over_z * depth);
-		unsigned int u_ut = u % ut.width;
-		unsigned int u_lt = u % lt.width;
+		unsigned int u_ut = u % ut("width"_f);
+		unsigned int u_lt = u % lt("width"_f);
 
 		/* light depends on depth */
 		int column_light = lighting::calculate(front.light_level, depth * (*frd.euclidian_dist_factor)[x]);
@@ -226,7 +226,7 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
             int draw_bot = std::min(c_bc, lower_clip[x]);
 
 			/* v scales linearly so pre-calculate step to avoid div */
-			float v_step = (float)ut.height / (float)(c_bc - c_fc);
+			float v_step = (float)ut("height"_f) / (float)(c_bc - c_fc);
 			float current_v = (float)(draw_top - c_fc) * v_step;
 
             for (int y = draw_top; y < draw_bot; ++y) {
@@ -235,7 +235,7 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
 				current_v += v_step;
 
 				/* write the pixel */
-				std::uint32_t color = ut.pixels[u_ut * ut.height + v];
+				std::uint32_t color = ut("pixels"_f)[u_ut * ut("height"_f) + v];
                 frd.mmio[x + y * frd.pitch] = lighting::apply(color, column_light);
             }
         }
@@ -246,14 +246,14 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
             int draw_bot = std::min(c_ff, lower_clip[x]);
 
 			/* v scales linearly so pre-calculate step to avoid div */
-			float v_step = (float)lt.height / (float)(c_ff - c_bf);
+			float v_step = (float)lt("height"_f) / (float)(c_ff - c_bf);
 			float current_v = (float)(draw_top - c_bf) * v_step;
 
             for (int y = draw_top; y < draw_bot; ++y) {
 				unsigned int v = static_cast<unsigned int>(current_v);
 				current_v += v_step;
 
-				std::uint32_t color = lt.pixels[u_lt * lt.height + v];
+				std::uint32_t color = lt("pixels"_f)[u_lt * lt("height"_f) + v];
                 frd.mmio[x + y * frd.pitch] = lighting::apply(color, column_light);
             }
         }
@@ -309,7 +309,7 @@ void software_renderer::render_visplanes(frame_rendering_data const& frd) {
 }
 
 void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame_rendering_data const& frd) {
-	math::vec2 tr_pos = s->pos - frd.cam_pos;
+	math::vec2 tr_pos = (*s)("pos"_f) - frd.cam_pos;
 	tr_pos = math::vec2::rotate_with_known_trig(tr_pos, frd.cos_cam_angle, -frd.sin_cam_angle);
 
 	if(tr_pos("y"_f) <= near_z) return;
@@ -320,7 +320,7 @@ void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame
 	assets::texture const& tex = tex_manager.sprite_tx_by_id(s->tex_id);
 
 	/* screen bounds */
-	float half_width = (tex.width * scale) / 2.0f;
+	float half_width = (tex("width"_f) * scale) / 2.0f;
 	int x1 = static_cast<int>(proj_x - half_width);
 	int x2 = static_cast<int>(proj_x + half_width);
 

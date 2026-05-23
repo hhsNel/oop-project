@@ -1,8 +1,6 @@
-test: engine
-test: geometry
-test: graphics
-test: rendering
-test: util - indexed_storage
-
-write: geometry
+geometry
+rendering::sprite
+rendering::rendering_mode
+rendering::visplane
+rendering::vissprite
 
