@@ -1,5 +1,4 @@
 #pragma once
-#define ENGINE_WORLD_OBJECTS_H
 
 #include "engine/entity.h"
 #include "util/componentized.h"
@@ -28,7 +27,7 @@ namespace combat { namespace weapons { class weapon; enum class ammo_type : unsi
 
             void update(float /*dt*/) override {}
 
-            bool in_range(math::vec2 player_pos) const;
+            [[nodiscard]] bool in_range(math::vec2 player_pos) const;
 
             virtual void on_pickup(entities::player& p) = 0;
             virtual ~pickup() = default;

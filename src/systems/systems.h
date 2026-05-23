@@ -1,5 +1,4 @@
-#ifndef ENGINE_SYSTEMS_H
-#define ENGINE_SYSTEMS_H
+#pragma once
 
 #include <vector>
 #include <memory>
@@ -34,8 +33,6 @@ namespace engine {class actor;}
 			void add_effect(std::unique_ptr<combat::status_effect> effect, engine::actor& owner);
 			void process_effects(float dt, engine::actor& owner);
 		public:
-			bool is_dead() const { return current_hp <= 0.0f; }
+			[[nodiscard]] bool is_dead() const { return current_hp <= 0.0f; }
 		};
 	}
-
-#endif

@@ -1,5 +1,4 @@
 #pragma once
-#define SLOWED_H
 
 #include "status-effect.h"
 

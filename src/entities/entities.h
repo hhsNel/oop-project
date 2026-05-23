@@ -1,5 +1,4 @@
 #pragma once
-#define ENGINE_ENTITIES_H
 
 #include <vector>
 #include <memory>

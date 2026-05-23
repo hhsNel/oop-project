@@ -1,5 +1,4 @@
 #pragma once
-#define STATUS_EFFECT_H
 
 #include <memory>
 
@@ -25,7 +24,7 @@ namespace combat
 		virtual ~status_effect() = default;
 
 		bool update(float dt);
-		bool is_expired() const {return duration <= 0.0f;}
+		[[nodiscard]] bool is_expired() const {return duration <= 0.0f;}
 	};
 }
 

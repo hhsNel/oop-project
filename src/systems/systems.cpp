@@ -45,11 +45,8 @@ namespace systems {
 			}
 		}
 
-		active_effects.erase(
-			std::remove_if(active_effects.begin(), active_effects.end(),
-				[](const auto& e) { return e->is_expired(); }),
-			active_effects.end()
-		);
+		std::erase_if(active_effects,
+			[](const auto& e) { return e->is_expired(); });
 	}
 
 }

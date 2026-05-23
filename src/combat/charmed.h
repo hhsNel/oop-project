@@ -1,5 +1,4 @@
 #pragma once
-#define CHARMED_H
 
 #include "status-effect.h"
 

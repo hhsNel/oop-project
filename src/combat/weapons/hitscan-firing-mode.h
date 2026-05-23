@@ -13,7 +13,7 @@ namespace combat {
         // Rzuca promien z pozycji strzalu, zatrzymuje sie na najblizszej solidnej scianie,
         // i zadaje obrazenia najblizszemu aktorowi trafionemu przed ta sciana.
         // Uzycie: ustaw cele przez ("targets"_f) = {...} przed kazdym fire().
-        class hitscan_firing_mode : public firing_mode, public util::componentized<hitscan_firing_mode> {
+        class hitscan_firing_mode final : public firing_mode, public util::componentized<hitscan_firing_mode> {
             friend class util::componentized<hitscan_firing_mode>;
 
             geometry::map_data* map;

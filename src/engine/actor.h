@@ -1,5 +1,4 @@
 #pragma once
-#define ACTOR_H
 
 #include "renderable-entity.h"
 #include "systems/systems.h"
@@ -28,7 +27,7 @@ namespace engine {
 		virtual void add_shield(float const amount);
 		virtual void add_effect(std::unique_ptr<combat::status_effect> effect);
 
-		bool is_dead() const { return health.is_dead(); }
+		[[nodiscard]] bool is_dead() const { return health.is_dead(); }
 
 		virtual void update(float dt) override;
 	};

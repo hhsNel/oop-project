@@ -14,14 +14,14 @@ namespace entities {
 		auto t = target_ptr.lock();
 		if (!t) return 0.0f;
 		math::vec2 d = t->pos - pos;
-		return std::sqrt(d("x"_f) * d("x"_f) + d("y"_f) * d("y"_f));
+		return std::hypot(d("x"_f), d("y"_f));
 	}
 
 	math::vec2 monster::dir_to_target() const {
 		auto t = target_ptr.lock();
 		if (!t) return {0.0f, 0.0f};
 		math::vec2 d = t->pos - pos;
-		float len = std::sqrt(d("x"_f) * d("x"_f) + d("y"_f) * d("y"_f));
+		float len = std::hypot(d("x"_f), d("y"_f));
 		if (len < 0.0001f) return {0.0f, 0.0f};
 		return d / len;
 	}
