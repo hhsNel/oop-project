@@ -210,11 +210,7 @@ int main() {
     geometry::subsector ss_south;
     ss_south.lines = {ld_w_s, ld_s_s, ld_e_s, ld_p_s};
     
-    auto spr0 = std::make_unique<rendering::sprite>();
-    spr0->pos = { 128.0f, 256.0f };
-	spr0->z_pos = -256.0f;
-    spr0->tex_id = 0;
-	spr0->inherent_scale = 0.25;
+    auto spr0 = std::make_unique<rendering::sprite>( math::vec2(128.0f,256.0f), -256.0f, 0, 0.25 );
     ss_south.sprites.push_back(std::move(spr0));
     
     auto ss_south_id = map.subsectors.add(std::move(ss_south));
@@ -238,11 +234,7 @@ int main() {
     geometry::subsector ss2;
     ss2.lines = {ld1_r2, ld4, ld5, ld6};
 
-    auto spr1 = std::make_unique<rendering::sprite>();
-    spr1->pos = { 768.0f, 1536.0f };
-	spr1->z_pos = -256.0f;
-    spr1->tex_id = 1;
-	spr1->inherent_scale = 0.25;
+    auto spr1 = std::make_unique<rendering::sprite>( math::vec2(768.0f,1536.0f), -256.0f, 1, 0.25 );
     ss2.sprites.push_back(std::move(spr1));
 
     auto ss2_id = map.subsectors.add(std::move(ss2));
