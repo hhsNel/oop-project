@@ -14,7 +14,6 @@ namespace combat {
 
 		void weapon::update(float dt) {
 			last_shot_time = std::max(0.0f, last_shot_time - dt);
-			if (ammo) ammo->update(dt);
 		}
 
 		bool weapon::accepts_ammo(ammo_type type) const {
