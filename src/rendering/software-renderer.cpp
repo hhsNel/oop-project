@@ -147,9 +147,9 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
         int cropped_bot_y = std::min(bot_y, lower_clip[x]);
 
 		/* draw ceiling from upper clip to wall top */
-        add_visplane(x, upper_clip[x], cropped_top_y, s.ceiling_height, s.ceiling_tex, s.light_level, frd);
+		visplane::add_column(visplanes, x, upper_clip[x], cropped_top_y, frd.sw, s.ceiling_height, s.ceiling_tex, s.light_level);
 		/* draw floor from wall bottom to lower clip */
-        add_visplane(x, cropped_bot_y, lower_clip[x], s.floor_height, s.floor_tex, s.light_level, frd);
+		visplane::add_column(visplanes, x, cropped_bot_y, lower_clip[x], frd.sw, s.floor_height, s.floor_tex, s.light_level);
 
 		/* v scales linearly so pre-calculate step to avoid div */
 		float v_step = (float)mt("height"_f) / (float)(bot_y - top_y);
@@ -216,9 +216,9 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
         int c_bf = frd.sh/2 - (int)((back.floor_height - frd.cam_height) * frd.fov_scale * inv_z);
 
 		/* draw ceiling from upper clip to wall top */
-		add_visplane(x, upper_clip[x], std::max(c_fc, upper_clip[x]), front.ceiling_height, front.ceiling_tex, front.light_level, frd);
+		visplane::add_column(visplanes, x, upper_clip[x], std::max(c_fc, upper_clip[x]), frd.sw, front.ceiling_height, front.ceiling_tex, front.light_level);
 		/* draw floor from wall bottom to lower clip */
-		add_visplane(x, std::min(c_ff, lower_clip[x]), lower_clip[x], front.floor_height, front.floor_tex, front.light_level, frd);
+		visplane::add_column(visplanes, x, std::min(c_ff, lower_clip[x]), lower_clip[x], frd.sw, front.floor_height, front.floor_tex, front.light_level);
 
 		/* draw loop if the front ceil has lower y than the back ceil (is higher) */
         if (c_fc < c_bc) {
@@ -261,44 +261,6 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
 		/* update clipping */
 		upper_clip[x] = std::max(upper_clip[x], std::max(c_fc, c_bc));
         lower_clip[x] = std::min(lower_clip[x], std::min(c_ff, c_bf));
-    }
-}
-
-void software_renderer::add_visplane(int x, int y_start, int y_end, float flat_height, assets::texture_id tex_id, std::uint8_t const sector_light_level, frame_rendering_data const& frd) {
-    if (y_start >= y_end) return;
-
-    visplane* target_vp = nullptr;
-
-	/* try to find matching visplane */
-    for (auto& vp : visplanes) {
-        if (vp.height == flat_height && vp.tex_id == tex_id && vp.light_level == sector_light_level) {
-            /* can merge if column empty or touches existing column */
-            if (vp.top[x] == -1) {
-                target_vp = &vp;
-                break;
-            } else if (y_start <= vp.bottom[x] && y_end >= vp.top[x]) {
-                target_vp = &vp;
-                break;
-            }
-        }
-    }
-
-	/* if none found, create a new visplane */
-    if (!target_vp) {
-        visplanes.emplace_back(x, frd.sw, flat_height, tex_id, sector_light_level);
-        target_vp = &visplanes.back();
-    }
-
-    /* update the visplane bounds */
-    target_vp->min_x = std::min(target_vp->min_x, x);
-    target_vp->max_x = std::max(target_vp->max_x, x);
-
-    if (target_vp->top[x] == -1) {
-        target_vp->top[x] = y_start;
-        target_vp->bottom[x] = y_end;
-    } else {
-        target_vp->top[x] = std::min(target_vp->top[x], y_start);
-        target_vp->bottom[x] = std::max(target_vp->bottom[x], y_end);
     }
 }
 

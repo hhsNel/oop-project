@@ -2,18 +2,54 @@
 
 #include <cmath>
 #include <algorithm>
+#include <climits>
 
 #include "lighting.h"
 #include "frd.h"
 
-rendering::visplane::visplane(int const x, unsigned int const sw, float const h, assets::texture_id const tid, std::uint8_t const light) :
-	height(h),
-	tex_id(tid),
-	light_level(light),
-	min_x(x),
-	max_x(x) {
-	top.assign(sw, -1);
-	bottom.assign(sw, -1);
+rendering::visplane::visplane(unsigned int const sw, float const h, assets::texture_id const tid, std::uint8_t const light) :
+    height(h),
+    tex_id(tid),
+    light_level(light),
+    min_x(INT_MAX),
+    max_x(INT_MIN) {
+    top.assign(sw, -1);
+    bottom.assign(sw, -1);
+}
+
+void rendering::visplane::add_column(std::vector<visplane>& pool, int x, int y_start, int y_end, unsigned int sw, float flat_height, assets::texture_id tex_id, std::uint8_t light_level) {
+    if (y_start >= y_end) return;
+
+    visplane* target_vp = nullptr;
+
+	/* try to find matching visplane */
+    for (auto& vp : pool) {
+        if (vp.height != flat_height || vp.tex_id != tex_id || vp.light_level != light_level)
+            continue;
+		/* can merge if column empty or touches existing column */
+        if (vp.top[x] == -1 || (y_start <= vp.bottom[x] && y_end >= vp.top[x])) {
+            target_vp = &vp;
+            break;
+        }
+    }
+
+	/* if none found, create a new visplane */
+    if (!target_vp) {
+        pool.emplace_back(sw, flat_height, tex_id, light_level);
+        target_vp = &pool.back();
+    }
+
+    /* update the visplane bounds */
+    target_vp->min_x = std::min(target_vp->min_x, x);
+    target_vp->max_x = std::max(target_vp->max_x, x);
+
+    if (target_vp->top[x] == -1) {
+        target_vp->top[x] = y_start;
+        target_vp->bottom[x] = y_end;
+    } else {
+        target_vp->top[x]    = std::min(target_vp->top[x],    y_start);
+        target_vp->bottom[x] = std::max(target_vp->bottom[x], y_end);
+    }
 }
 
 void rendering::visplane::render(assets::asset_manager const& tex_manager, frame_rendering_data const& frd) const {
