@@ -1,5 +1,4 @@
 geometry
-rendering::sprite
 rendering::rendering_mode
 rendering::visplane
 rendering::vissprite
