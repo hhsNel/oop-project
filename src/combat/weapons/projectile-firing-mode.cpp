@@ -1,5 +1,5 @@
 #include "projectile-firing-mode.h"
-#include "entities/projectiles.h"
+#include "entities/projectile.h"
 #include "geometry/map-data.h"
 
 namespace combat {

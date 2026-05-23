@@ -31,7 +31,7 @@ namespace combat {
             projectile_firing_mode(geometry::map_data* m, factory_fn fn);
 
             void spawn_bullet(math::vec2 pos, float angle, float damage) override;
-            void update(float dt) override;
+            void update(float dt);
 
             using util::componentized<projectile_firing_mode>::operator();
         };

@@ -1,4 +1,5 @@
-#include "projectiles.h"
+#include "plasma-projectile.h"
+#include "slug-projectile.h"
 #include "geometry/map-data.h"
 #include "geometry/linedef.h"
 #include "geometry/sidedef.h"

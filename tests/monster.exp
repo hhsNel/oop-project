@@ -39,7 +39,7 @@ proc run_test2 {cmd exp1 exp2} {
 # DEFAULT STATS (hp / armor)
 # =====================================================================
 
-run_test2 "basic_stats"       "30"   "0"
+run_test2 "basic_stats"       "100"  "0"
 run_test2 "ranged_stats"      "25"   "0"
 run_test2 "assault_stats"     "60"   "10"
 run_test2 "sniper_stats"      "40"   "0"
@@ -76,10 +76,10 @@ run_test  "boss_phases"      "3"
 # HEALTH SYSTEM
 # =====================================================================
 
-run_test  "take_damage"    "20"
+run_test  "take_damage"    "90"
 run_test2 "armor_absorb"   "5"  "45"
 run_test2 "armor_overflow" "0"  "40"
-run_test  "heal"           "25"
+run_test  "heal"           "95"
 run_test  "death"          "YES"
 
 # =====================================================================

@@ -42,7 +42,8 @@
 #include "combat/weapons/hitscan-firing-mode.h"
 #include "combat/weapons/projectile-firing-mode.h"
 #include "combat/weapons/plasma-gun.h"
-#include "entities/projectiles.h"
+#include "entities/plasma-projectile.h"
+#include "entities/slug-projectile.h"
 #include "combat/burning.h"
 #include "geometry/map-data.h"
 #include "geometry/sector.h"
@@ -637,6 +638,9 @@ int main() {
         p.update(dt);
         if (p.hp() < hp_before)
             damage_flash_timer = FLASH_DURATION;
+
+        for (auto* pm : proj_modes)
+            pm->update(dt);
 
         if (!monster.dead())
             monster.update(dt);
