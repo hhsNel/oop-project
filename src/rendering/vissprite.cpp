@@ -17,6 +17,12 @@ rendering::vissprite::vissprite(sprite const& sprite, float const z, int const c
 	upper_clip(uc),
 	lower_clip(lc) { }
 
+void rendering::vissprite::pa_sort(std::vector<vissprite> &vec) {
+	std::sort(vec.begin(), vec.end(), [](vissprite const& a, vissprite const& b) {
+			return a.depth > b.depth;
+		});
+}
+
 void rendering::vissprite::render(assets::asset_manager const& tex_manager, frame_rendering_data const& frd) const {
 	assets::texture const& tex = tex_manager.sprite_tx_by_id(tex_id);
 	float eu_dist_f = (*frd.euclidian_dist_factor)[std::clamp(static_cast<int>(proj_x), 0, static_cast<int>(frd.sw) - 1)];

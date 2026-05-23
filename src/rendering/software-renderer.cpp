@@ -308,9 +308,7 @@ void software_renderer::add_vissprite(sprite *const s, std::uint8_t light, frame
 }
 
 void software_renderer::render_vissprites(frame_rendering_data const& frd) {
-	std::sort(vissprites.begin(), vissprites.end(), [](vissprite const& a, vissprite const& b) {
-			return a.depth > b.depth;
-		});
+	vissprite::pa_sort(vissprites);
 
 	for (auto const& vs : vissprites)
 		vs.render(tex_manager, frd);
