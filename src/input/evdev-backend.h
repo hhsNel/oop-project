@@ -23,7 +23,7 @@ namespace input {
 
 			uint16_t map_to_native(key k) const;
 			void probe_devices();
-			void probe_device(std::string const dev_name);
+			void probe_device(std::string const& dev_name);
 			void process_event(struct input_event const& ev);
 
 		public:
