@@ -132,58 +132,27 @@ int main() {
 
 	/* SECTORS */
 	/* room 1 */
-    geometry::sector sector1;
-    sector1.floor_height = 0.0f;
-    sector1.ceiling_height = 256.0f;
-    sector1.light_level = 192;
-	sector1.floor_tex = 0;
-	sector1.ceiling_tex = 0;
-    auto s1_id = map.sectors.add(sector1);
+    auto s1_id = map.sectors.add(geometry::sector(0.0f, 256.0f, 0, 0, 192));
 
 	/* room 2 */
-    geometry::sector sector2;
-    sector2.floor_height = 32.0f;
-    sector2.ceiling_height = 224.0f;
-    sector2.light_level = 255; 
-	sector2.floor_tex = 1;
-	sector2.ceiling_tex = 1;
-    auto s2_id = map.sectors.add(sector2);
+    auto s2_id = map.sectors.add(geometry::sector(32.0f, 224.0f, 1, 1, 255));
 
 	/* SIDEDEFS */
 	/* walls, room 1 */
-    geometry::sidedef sd_r1_solid;
-    sd_r1_solid.facing_sector = s1_id;
-    sd_r1_solid.middle_tex = 0;
-    auto sd_r1_solid_id = map.sidedefs.add(sd_r1_solid);
+    auto sd_r1_solid_id = map.sidedefs.add(geometry::sidedef(s1_id, -1, 0, -1));
 
 	/* walls, room 2 */
-    geometry::sidedef sd_r2_solid;
-    sd_r2_solid.facing_sector = s2_id;
-    sd_r2_solid.middle_tex = 1;
-    auto sd_r2_solid_id = map.sidedefs.add(sd_r2_solid);
+    auto sd_r2_solid_id = map.sidedefs.add(geometry::sidedef(s2_id, -1, 1, -1));
 
 	/* portal, room 1 */
-    geometry::sidedef sd_portal_front;
-    sd_portal_front.facing_sector = s1_id;
-    sd_portal_front.upper_tex = 0;
-    sd_portal_front.lower_tex = 0;
-    auto sd_portal_front_id = map.sidedefs.add(sd_portal_front);
+    auto sd_portal_front_id = map.sidedefs.add(geometry::sidedef(s1_id, 0, -1, 0));
 
 	/* portal, room 2 */
-    geometry::sidedef sd_portal_back;
-    sd_portal_back.facing_sector = s2_id;
-    sd_portal_back.upper_tex = 1;
-    sd_portal_back.lower_tex = 1;
-    auto sd_portal_back_id = map.sidedefs.add(sd_portal_back);
+    auto sd_portal_back_id = map.sidedefs.add(geometry::sidedef(s2_id, 1, -1, 1));
 
-    auto add_line = [&](float x1, float y1, float x2, float y2, auto f, auto b) {
-        geometry::linedef ld;
-        ld.v1 = {x1, y1};
-        ld.v2 = {x2, y2};
-        ld.front = f;
-        ld.back = b;
-        return map.linedefs.add(ld);
-    };
+	auto add_line = [&](float x1, float y1, float x2, float y2, auto f, auto b) {
+		return map.linedefs.add(geometry::linedef({x1, y1}, {x2, y2}, f, b));
+	};
 
 	/* LINEDEFS */
 	/* room 1 */
@@ -200,24 +169,21 @@ int main() {
     auto ld1_r2 = add_line(1024.0f, 1024.0f, 0.0f, 1024.0f, sd_portal_back_id, sd_portal_front_id);
 
 	/* SUBSECTORS */
-    geometry::subsector ss1;
-    ss1.lines = {ld0, ld1, ld2, ld3};
+    geometry::subsector ss1({ld0, ld1, ld2, ld3}, {});
     auto ss1_id = map.subsectors.add(std::move(ss1));
 
-    geometry::subsector ss2;
-    ss2.lines = {ld1_r2, ld4, ld5, ld6};
+    geometry::subsector ss2({ld1_r2, ld4, ld5, ld6}, {});
     auto ss2_id = map.subsectors.add(std::move(ss2));
 
 	/* BSP TREE */
-    geometry::bsp_node root_node;
-    root_node.pl_coord = {0.0f, 1024.0f};
-    root_node.pl_dir = {1024.0f, 0.0f};
-
-    root_node.front_box = {1024.0f, 0.0f, 0.0f, 1024.0f};
-    root_node.back_box = {2048.0f, 1024.0f, 0.0f, 1024.0f};
-
-    root_node.front = geometry::bsp_node::leaf_flag | ss1_id;
-    root_node.back = geometry::bsp_node::leaf_flag | ss2_id;
+    geometry::bsp_node root_node(
+        {0.0f, 1024.0f},
+        {1024.0f, 0.0f},
+        geometry::bsp_node::bounding_box{1024.0f, 0.0f, 0.0f, 1024.0f},
+        geometry::bsp_node::bounding_box{2048.0f, 1024.0f, 0.0f, 1024.0f},
+        0x80000000 | ss1_id,
+        0x80000000 | ss2_id
+    );
 
     auto root_node_id = map.nodes.add(root_node);
     map.root_node_id = root_node_id;

@@ -17,14 +17,13 @@ namespace combat {
             float wall_dist = max_range;
 
             if (map) {
-                auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
                 for (auto const& e : map->linedefs) {
                     geometry::linedef const& ld = e.value;
-                    if (ld.back != null_sd) continue;   // two-sided wall = portal, pass through
+                    if (ld.is_portal()) continue;   // two-sided wall = portal, pass through
 
                     math::vec2 hit;
                     float dist = 0.0f, seg_len = 0.0f;
-                    if (ray.intersects({ld.v1, ld.v2}, hit, dist, seg_len) && dist < wall_dist)
+                    if (ray.intersects(ld("seg"_f), hit, dist, seg_len) && dist < wall_dist)
                         wall_dist = dist;
                 }
             }

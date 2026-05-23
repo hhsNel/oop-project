@@ -7,8 +7,8 @@ math::ray2 const math::ray2::rotate(ray2 const ray, float const angle) {
 bool math::ray2::intersects(segment const seg, vec2 &hit_point, float &distance, float &seg_len) const {
 	vec2 p = end;
 	vec2 r = direction;
-	vec2 q = seg.point0;
-	vec2 s = seg.point1 - seg.point0;
+	vec2 q = seg("point0"_f);
+	vec2 s = seg("point1"_f) - seg("point0"_f);
 
 	float r_cross_s = math::vec2::cross_product(r, s);
 	float q_minus_p_cross_r = math::vec2::cross_product(q - p, r);

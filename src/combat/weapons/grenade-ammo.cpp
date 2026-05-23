@@ -20,8 +20,6 @@ namespace combat {
         }
 
         void grenade_ammunition::update(float dt) {
-            auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
-
             for (auto it = active.begin(); it != active.end(); ) {
                 live_grenade& g = *it;
 
@@ -45,15 +43,15 @@ namespace combat {
 
                     for (auto const& e : map->linedefs) {
                         geometry::linedef const& ld = e.value;
-                        if (ld.back != null_sd) continue;   // portals don't block
+                        if (ld.is_portal()) continue;   // portals don't block
 
                         math::vec2 hit;
                         float dist = 0.0f, seg_len = 0.0f;
-                        if (!ray.intersects({ld.v1, ld.v2}, hit, dist, seg_len)) continue;
+                        if (!ray.intersects(ld("seg"_f), hit, dist, seg_len)) continue;
                         if (dist >= min_dist) continue;
 
                         // Compute inward-facing wall normal
-                        math::vec2 wall_dir = (ld.v2 - ld.v1).normalized();
+                        math::vec2 wall_dir = ld.dir();
                         math::vec2 n        = wall_dir.perpendicular();
                         if (math::vec2::dot_product(n, g.velocity) > 0.0f) n = -n;
 

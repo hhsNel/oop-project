@@ -117,18 +117,9 @@ int main() {
 
     geometry::map_data room_map;
 
-    geometry::sector room_sector;
-    room_sector.floor_height = 0;
-    room_sector.ceiling_height = 256;
-    room_sector.light_level = 255;
-	room_sector.floor_tex = 0;
-	room_sector.ceiling_tex = 0;
-    auto sector_id = room_map.sectors.add(room_sector);
+    auto sector_id = room_map.sectors.add(geometry::sector(0.0f, 256.0f, 0, 0, 255));
 
-    geometry::sidedef room_sidedef;
-    room_sidedef.facing_sector = sector_id;
-    room_sidedef.middle_tex = 0;
-    auto sidedef_id = room_map.sidedefs.add(room_sidedef);
+    auto sidedef_id = room_map.sidedefs.add(geometry::sidedef(sector_id, -1, 0, -1));
 
     math::vec2 corners[4] = {
         {0,    0},
@@ -139,20 +130,18 @@ int main() {
 
     std::vector<util::indexed_storage<geometry::linedef>::id_t> line_ids;
     for (int i = 0; i < 4; ++i) {
-        geometry::linedef ld;
-        ld.v1 = corners[i];
-        ld.v2 = corners[(i + 1) % 4];
-        ld.front = sidedef_id;
-        ld.back = util::indexed_storage<geometry::sidedef>::nullid;
-
-        line_ids.push_back(room_map.linedefs.add(ld));
+        line_ids.push_back(room_map.linedefs.add(geometry::linedef(
+            corners[i], 
+            corners[(i + 1) % 4], 
+            sidedef_id, 
+            util::indexed_storage<geometry::sidedef>::nullid
+        )));
     }
 
-    geometry::subsector room_subsector;
-    room_subsector.lines = line_ids;
+    geometry::subsector room_subsector(std::move(line_ids), {});
     auto subsector_id = room_map.subsectors.add(std::move(room_subsector));
 
-    room_map.root_node_id = geometry::bsp_node::leaf_flag | subsector_id;
+    room_map.root_node_id = 0x80000000 | subsector_id;
 
     rendering::software_renderer renderer(*backend.get(), *tm.get(), room_map);
 

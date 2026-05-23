@@ -133,57 +133,23 @@ int main() {
     geometry::map_data map;
     auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
 
-    geometry::sector sector1;
-    sector1.floor_height = 0.0f;
-    sector1.ceiling_height = 256.0f;
-    sector1.light_level = 192;
-	sector1.floor_tex = 0;
-	sector1.ceiling_tex = 0;
-    auto s1_id = map.sectors.add(sector1);
+    auto s1_id = map.sectors.add(geometry::sector(0.0f, 256.0f, 0, 0, 192));
 
-    geometry::sector sector2;
-    sector2.floor_height = 32.0f;
-    sector2.ceiling_height = 224.0f;
-    sector2.light_level = 255; 
-	sector2.floor_tex = 1;
-	sector2.ceiling_tex = 1;
-    auto s2_id = map.sectors.add(sector2);
+    auto s2_id = map.sectors.add(geometry::sector(32.0f, 224.0f, 1, 1, 255));
 
-    geometry::sidedef sd_r1_solid;
-    sd_r1_solid.facing_sector = s1_id;
-    sd_r1_solid.middle_tex = 0;
-    auto sd_r1_solid_id = map.sidedefs.add(sd_r1_solid);
+    auto sd_r1_solid_id = map.sidedefs.add(geometry::sidedef(s1_id, -1, 0, -1));
 
-    geometry::sidedef sd_r2_solid;
-    sd_r2_solid.facing_sector = s2_id;
-    sd_r2_solid.middle_tex = 1;
-    auto sd_r2_solid_id = map.sidedefs.add(sd_r2_solid);
+    auto sd_r2_solid_id = map.sidedefs.add(geometry::sidedef(s2_id, -1, 1, -1));
 
-    geometry::sidedef sd_portal_front;
-    sd_portal_front.facing_sector = s1_id;
-    sd_portal_front.upper_tex = 0;
-    sd_portal_front.lower_tex = 0;
-    auto sd_portal_front_id = map.sidedefs.add(sd_portal_front);
+    auto sd_portal_front_id = map.sidedefs.add(geometry::sidedef(s1_id, 0, -1, 0));
 
-    geometry::sidedef sd_portal_back;
-    sd_portal_back.facing_sector = s2_id;
-    sd_portal_back.upper_tex = 1;
-    sd_portal_back.lower_tex = 1;
-    auto sd_portal_back_id = map.sidedefs.add(sd_portal_back);
+    auto sd_portal_back_id = map.sidedefs.add(geometry::sidedef(s2_id, 1, -1, 1));
 
-    geometry::sidedef sd_pillar;
-    sd_pillar.facing_sector = s1_id;
-    sd_pillar.middle_tex = 2;
-    auto sd_pillar_id = map.sidedefs.add(sd_pillar);
+    auto sd_pillar_id = map.sidedefs.add(geometry::sidedef(s1_id, -1, 2, -1));
 
-    auto add_line = [&](float x1, float y1, float x2, float y2, auto f, auto b) {
-        geometry::linedef ld;
-        ld.v1 = {x1, y1};
-        ld.v2 = {x2, y2};
-        ld.front = f;
-        ld.back = b;
-        return map.linedefs.add(ld);
-    };
+	auto add_line = [&](float x1, float y1, float x2, float y2, auto f, auto b) {
+		return map.linedefs.add(geometry::linedef({x1, y1}, {x2, y2}, f, b));
+	};
 
     auto ld_w_s = add_line(0.0f, 0.0f, 0.0f, 448.0f, sd_r1_solid_id, null_sd);
     auto ld_w_w = add_line(0.0f, 448.0f, 0.0f, 576.0f, sd_r1_solid_id, null_sd);
@@ -207,81 +173,75 @@ int main() {
     auto ld6 = add_line(0.0f, 1024.0f, 0.0f, 2048.0f, sd_r2_solid_id, null_sd);       
     auto ld1_r2 = add_line(1024.0f, 1024.0f, 0.0f, 1024.0f, sd_portal_back_id, sd_portal_front_id);
 
-    geometry::subsector ss_south;
-    ss_south.lines = {ld_w_s, ld_s_s, ld_e_s, ld_p_s};
-    
-    auto spr0 = std::make_unique<rendering::sprite>( math::vec2(128.0f,256.0f), -256.0f, 0, 0.25 );
-    ss_south.sprites.push_back(std::move(spr0));
-    
+    geometry::subsector ss_south({ld_w_s, ld_s_s, ld_e_s, ld_p_s}, {});
+    ss_south.add_sprite(std::make_unique<rendering::sprite>(math::vec2(128.0f, 256.0f), -256.0f, 0, 0.25));
     auto ss_south_id = map.subsectors.add(std::move(ss_south));
 
-    geometry::subsector ss_north;
-    ss_north.lines = {ld_w_n, ld_n_n, ld_e_n, ld_p_n};
+    geometry::subsector ss_north({ld_w_n, ld_n_n, ld_e_n, ld_p_n}, {});
     auto ss_north_id = map.subsectors.add(std::move(ss_north));
 
-    geometry::subsector ss_west;
-    ss_west.lines = {ld_w_w, ld_p_w};
+    geometry::subsector ss_west({ld_w_w, ld_p_w}, {});
     auto ss_west_id = map.subsectors.add(std::move(ss_west));
 
-    geometry::subsector ss_east;
-    ss_east.lines = {ld_e_e, ld_p_e};
+    geometry::subsector ss_east({ld_e_e, ld_p_e}, {});
     auto ss_east_id = map.subsectors.add(std::move(ss_east));
 
-    geometry::subsector ss_pillar;
-    ss_pillar.lines = {};
+    geometry::subsector ss_pillar({}, {});
     auto ss_pillar_id = map.subsectors.add(std::move(ss_pillar));
 
-    geometry::subsector ss2;
-    ss2.lines = {ld1_r2, ld4, ld5, ld6};
-
-    auto spr1 = std::make_unique<rendering::sprite>( math::vec2(768.0f,1536.0f), -256.0f, 1, 0.25 );
-    ss2.sprites.push_back(std::move(spr1));
-
+    geometry::subsector ss2({ld1_r2, ld4, ld5, ld6}, {});
+    ss2.add_sprite(std::make_unique<rendering::sprite>(math::vec2(768.0f, 1536.0f), -256.0f, 1, 0.25));
     auto ss2_id = map.subsectors.add(std::move(ss2));
 
-    geometry::bsp_node n_east_west;
-    n_east_west.pl_coord = {576.0f, 0.0f};
-    n_east_west.pl_dir = {0.0f, 1024.0f};
-    n_east_west.front_box = {576.0f, 448.0f, 576.0f, 1024.0f};
-    n_east_west.back_box  = {576.0f, 448.0f, 448.0f, 576.0f};
-    n_east_west.front = geometry::bsp_node::leaf_flag | ss_east_id;
-    n_east_west.back = geometry::bsp_node::leaf_flag | ss_pillar_id;
+    /* BSP TREE */
+    geometry::bsp_node n_east_west(
+        {576.0f, 0.0f},
+        {0.0f, 1024.0f},
+        geometry::bsp_node::bounding_box{576.0f, 448.0f, 576.0f, 1024.0f},
+        geometry::bsp_node::bounding_box{576.0f, 448.0f, 448.0f, 576.0f},
+        0x80000000 | ss_east_id,
+        0x80000000 | ss_pillar_id
+    );
     auto n_east_west_id = map.nodes.add(n_east_west);
 
-    geometry::bsp_node n_west_center;
-    n_west_center.pl_coord = {448.0f, 0.0f};
-    n_west_center.pl_dir = {0.0f, 1024.0f};
-    n_west_center.front_box = {576.0f, 448.0f, 448.0f, 1024.0f};
-    n_west_center.back_box  = {576.0f, 448.0f, 0.0f, 448.0f};
-    n_west_center.front = n_east_west_id;
-    n_west_center.back = geometry::bsp_node::leaf_flag | ss_west_id;
+    geometry::bsp_node n_west_center(
+        {448.0f, 0.0f},
+        {0.0f, 1024.0f},
+        geometry::bsp_node::bounding_box{576.0f, 448.0f, 448.0f, 1024.0f},
+        geometry::bsp_node::bounding_box{576.0f, 448.0f, 0.0f, 448.0f},
+        n_east_west_id,
+        0x80000000 | ss_west_id
+    );
     auto n_west_center_id = map.nodes.add(n_west_center);
 
-    geometry::bsp_node n_north_split;
-    n_north_split.pl_coord = {0.0f, 576.0f};
-    n_north_split.pl_dir = {1024.0f, 0.0f};
-    n_north_split.front_box = {576.0f, 448.0f, 0.0f, 1024.0f};
-    n_north_split.back_box  = {1024.0f, 576.0f, 0.0f, 1024.0f};
-    n_north_split.front = n_west_center_id;
-    n_north_split.back = geometry::bsp_node::leaf_flag | ss_north_id;
+    geometry::bsp_node n_north_split(
+        {0.0f, 576.0f},
+        {1024.0f, 0.0f},
+        geometry::bsp_node::bounding_box{576.0f, 448.0f, 0.0f, 1024.0f},
+        geometry::bsp_node::bounding_box{1024.0f, 576.0f, 0.0f, 1024.0f},
+        n_west_center_id,
+        0x80000000 | ss_north_id
+    );
     auto n_north_split_id = map.nodes.add(n_north_split);
 
-    geometry::bsp_node n_south_split;
-    n_south_split.pl_coord = {0.0f, 448.0f};
-    n_south_split.pl_dir = {1024.0f, 0.0f};
-    n_south_split.front_box = {448.0f, 0.0f, 0.0f, 1024.0f};
-    n_south_split.back_box  = {1024.0f, 448.0f, 0.0f, 1024.0f};
-    n_south_split.front = geometry::bsp_node::leaf_flag | ss_south_id;
-    n_south_split.back = n_north_split_id;
+    geometry::bsp_node n_south_split(
+        {0.0f, 448.0f},
+        {1024.0f, 0.0f},
+        geometry::bsp_node::bounding_box{448.0f, 0.0f, 0.0f, 1024.0f},
+        geometry::bsp_node::bounding_box{1024.0f, 448.0f, 0.0f, 1024.0f},
+        0x80000000 | ss_south_id,
+        n_north_split_id
+    );
     auto n_south_split_id = map.nodes.add(n_south_split);
 
-    geometry::bsp_node root_node;
-    root_node.pl_coord = {0.0f, 1024.0f};
-    root_node.pl_dir = {1024.0f, 0.0f};
-    root_node.front_box = {1024.0f, 0.0f, 0.0f, 1024.0f};
-    root_node.back_box  = {2048.0f, 1024.0f, 0.0f, 1024.0f};
-    root_node.front = n_south_split_id;
-    root_node.back = geometry::bsp_node::leaf_flag | ss2_id;
+    geometry::bsp_node root_node(
+        {0.0f, 1024.0f},
+        {1024.0f, 0.0f},
+        geometry::bsp_node::bounding_box{1024.0f, 0.0f, 0.0f, 1024.0f},
+        geometry::bsp_node::bounding_box{2048.0f, 1024.0f, 0.0f, 1024.0f},
+        n_south_split_id,
+        0x80000000 | ss2_id
+    );
 
     auto root_node_id = map.nodes.add(root_node);
     map.root_node_id = root_node_id;
