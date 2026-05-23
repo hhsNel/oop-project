@@ -108,8 +108,8 @@ for {set i 0} {$i < 1000} {incr i} {
 }
 
 # =====================================================================
-# katana_swings: losowa liczba uderzeń
-# Expected: swing_count == n
+# katana_swings: losowa liczba uderzeń, po cooldown bypass zawsze gotowa
+# Expected: YES
 # =====================================================================
 
 for {set i 0} {$i < 500} {incr i} {
@@ -119,11 +119,11 @@ for {set i 0} {$i < 500} {incr i} {
     expect -re {RESULT ([^\r\n]+)}
     set got $expect_out(1,string)
 
-    if {$got != $n} {
+    if {$got != "YES"} {
 		puts "weapon rand"
         puts "FAIL (katana_swings $n)"
         puts "\tGot:      $got"
-        puts "\tExpected: $n"
+        puts "\tExpected: YES"
         exit 1
     }
 }

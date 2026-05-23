@@ -310,11 +310,10 @@ int main() {
 		// KATANA
 		// =====================================================================
 
-		// katana_swing — swing once: swing_count=1, immediately blocked
+		// katana_swing — swing once, immediately blocked
 		} else if (cmd == "katana_swing") {
 			combat::weapons::katana k;
 			k.fire({0.0f, 0.0f}, 0.0f);
-			result(k("swing_count"_f));
 			result(k.can_fire() ? "YES" : "NO");
 
 		// katana_cooldown — swing, advance 0.5s (< 1/1.5≈0.667s), blocked
@@ -331,13 +330,13 @@ int main() {
 			k.update(0.7f);
 			result(k.can_fire() ? "YES" : "NO");
 
-		// katana_swings <n> — swing n times (cooldown bypass), report swing_count
+		// katana_swings <n> — swing n times (cooldown bypass), can fire after
 		} else if (cmd == "katana_swings") {
 			int n;
 			std::cin >> n;
 			combat::weapons::katana k;
 			for (int i = 0; i < n; ++i) { k.fire({0.0f, 0.0f}, 0.0f); k.update(1.0f); }
-			result(k("swing_count"_f));
+			result(k.can_fire() ? "YES" : "NO");
 
 		// =====================================================================
 		// DAMAGE

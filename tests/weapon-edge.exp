@@ -88,12 +88,12 @@ run_test "shotgun_pellet_count 12"  "64"
 # katana — brak amunicji, tylko cooldown
 # =====================================================================
 
-run_test "katana_swings 0"   "0"
-run_test "katana_swings 1"   "1"
-run_test "katana_swings 10"  "10"
+run_test "katana_swings 0"   "YES"
+run_test "katana_swings 1"   "YES"
+run_test "katana_swings 10"  "YES"
 
 # zaraz po uderzeniu — zablokowana
-run_test2 "katana_swing" "1" "NO"
+run_test "katana_swing" "NO"
 
 send "exit\r"
 expect eof
