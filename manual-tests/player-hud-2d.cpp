@@ -40,16 +40,17 @@
 #include "combat/weapons/firing-mode.h"
 #include "combat/burning.h"
 
-namespace {
-	struct noop_firing_mode : combat::weapons::firing_mode {
-		void spawn_bullet(math::vec2, float, float) override {}
-	};
-}
 #include "input/input-backend.h"
 #include "input/evdev-backend.h"
 #include "rendering/drm-kms/backend.h"
 #include "rendering/renderer-2d.h"
 #include "assets/asset-manager.h"
+
+namespace {
+	struct noop_firing_mode : combat::weapons::firing_mode {
+		void spawn_bullet(math::vec2, float, float) override {}
+	};
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

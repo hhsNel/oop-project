@@ -3,9 +3,6 @@
 
 namespace combat
 {
-	// intensity = procent spowolnienia
-
-
 	void slowed::on_apply(engine::actor& target)
 	{
 		float slow_factor = 1.0f - (intensity / 100.0f);

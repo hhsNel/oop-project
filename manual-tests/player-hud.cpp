@@ -19,13 +19,14 @@
 #include "combat/weapons/firing-mode.h"
 #include "combat/burning.h"
 
+#include "input/input-backend.h"
+#include "input/evdev-backend.h"
+
 namespace {
 	struct noop_firing_mode : combat::weapons::firing_mode {
 		void spawn_bullet(math::vec2, float, float) override {}
 	};
 }
-#include "input/input-backend.h"
-#include "input/evdev-backend.h"
 
 template<typename M>
 struct inspect : public M {
@@ -33,6 +34,7 @@ struct inspect : public M {
 	float hp()          const { return this->health("current_hp"_f); }
 	float max_hp()      const { return this->health("max_hp"_f); }
 	float armor()       const { return this->health("armor"_f); }
+	float max_armor()   const { return this->health("max_armor"_f); }
 	bool  dead()        const { return this->health.is_dead(); }
 	int   effect_count() const { return static_cast<int>(this->health("active_effects"_f).size()); }
 };
