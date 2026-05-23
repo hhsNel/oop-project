@@ -8,10 +8,24 @@
 #include "combat/weapons/rifle.h"
 #include "combat/weapons/sniper-rifle.h"
 #include "combat/weapons/plasma-gun.h"
-#include "combat/weapons/recorded-firing-mode.h"
 #include "combat/weapons/shotgun.h"
 #include "combat/weapons/katana.h"
-#include "combat/weapons/recorded-firing-mode.h"
+#include "combat/weapons/firing-mode.h"
+#include "util/componentized.h"
+
+namespace combat { namespace weapons {
+	class recorded_firing_mode : public firing_mode, public util::componentized<recorded_firing_mode> {
+		friend class util::componentized<recorded_firing_mode>;
+	public:
+		struct shot_record { math::vec2 pos; float angle; float damage; };
+	private:
+		[[=util::component_field{}]] std::vector<shot_record> spawned;
+	public:
+		void spawn_bullet(math::vec2 pos, float angle, float damage) override {
+			spawned.push_back({pos, angle, damage});
+		}
+	};
+}}
 
 static void result(float v) {
 	std::cout << "RESULT " << static_cast<int>(v * 100 + 0.5f) / 100.0f << std::endl;

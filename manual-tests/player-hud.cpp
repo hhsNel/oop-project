@@ -16,8 +16,14 @@
 #include "combat/weapons/sniper-rifle.h"
 #include "combat/weapons/plasma-gun.h"
 #include "combat/weapons/katana.h"
-#include "combat/weapons/recorded-firing-mode.h"
+#include "combat/weapons/firing-mode.h"
 #include "combat/burning.h"
+
+namespace {
+	struct noop_firing_mode : combat::weapons::firing_mode {
+		void spawn_bullet(math::vec2, float, float) override {}
+	};
+}
 #include "input/input-backend.h"
 #include "input/evdev-backend.h"
 
@@ -71,17 +77,17 @@ int main() {
 		                 0.0f, reload_dur, false, false, is_auto });
 	};
 
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+	{ auto a = std::make_unique<noop_firing_mode>();
 	  add_bullet(std::make_unique<combat::weapons::pistol>(std::move(a)),      "Pistol",     1.5f);       }
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+	{ auto a = std::make_unique<noop_firing_mode>();
 	  add_bullet(std::make_unique<combat::weapons::smg>(std::move(a)),         "SMG",        2.5f, true); }
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+	{ auto a = std::make_unique<noop_firing_mode>();
 	  add_bullet(std::make_unique<combat::weapons::rifle>(std::move(a)),       "Rifle",      2.0f, true); }
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+	{ auto a = std::make_unique<noop_firing_mode>();
 	  add_bullet(std::make_unique<combat::weapons::shotgun>(std::move(a)),     "Shotgun",    3.0f);       }
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+	{ auto a = std::make_unique<noop_firing_mode>();
 	  add_bullet(std::make_unique<combat::weapons::sniper_rifle>(std::move(a)),"Sniper",     3.5f);       }
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+	{ auto a = std::make_unique<noop_firing_mode>();
 	  add_bullet(std::make_unique<combat::weapons::plasma_gun>(std::move(a)),  "Plasma Gun", 2.0f);       }
 	pool.push_back({ std::make_unique<combat::weapons::katana>(),
 	                 "Katana", 0.0f, 0.0f, false, true, false });

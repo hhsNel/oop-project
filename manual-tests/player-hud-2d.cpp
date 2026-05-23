@@ -37,9 +37,14 @@
 #include "combat/weapons/sniper-rifle.h"
 #include "combat/weapons/plasma-gun.h"
 #include "combat/weapons/katana.h"
-#include "combat/weapons/recorded-firing-mode.h"
-#include "combat/weapons/recorded-firing-mode.h"
+#include "combat/weapons/firing-mode.h"
 #include "combat/burning.h"
+
+namespace {
+	struct noop_firing_mode : combat::weapons::firing_mode {
+		void spawn_bullet(math::vec2, float, float) override {}
+	};
+}
 #include "input/input-backend.h"
 #include "input/evdev-backend.h"
 #include "rendering/drm-kms/backend.h"
@@ -161,22 +166,22 @@ int main() {
                          false, melee, is_auto });
     };
 
-    { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+    { auto a = std::make_unique<noop_firing_mode>();
       add_slot(std::make_unique<combat::weapons::pistol>(std::move(a)),
                "Pistol",  1.5f); }
-    { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+    { auto a = std::make_unique<noop_firing_mode>();
       add_slot(std::make_unique<combat::weapons::smg>(std::move(a)),
                "SMG",     2.5f, false, true); }
-    { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+    { auto a = std::make_unique<noop_firing_mode>();
       add_slot(std::make_unique<combat::weapons::rifle>(std::move(a)),
                "Rifle",   2.0f, false, true); }
-    { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+    { auto a = std::make_unique<noop_firing_mode>();
       add_slot(std::make_unique<combat::weapons::shotgun>(std::move(a)),
                "Shotgun", 3.0f); }
-    { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+    { auto a = std::make_unique<noop_firing_mode>();
       add_slot(std::make_unique<combat::weapons::sniper_rifle>(std::move(a)),
                "Sniper",  3.5f); }
-    { auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
+    { auto a = std::make_unique<noop_firing_mode>();
       add_slot(std::make_unique<combat::weapons::plasma_gun>(std::move(a)),
                "Plasma",  2.0f); }
     add_slot(std::make_unique<combat::weapons::katana>(),
