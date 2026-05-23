@@ -12,7 +12,7 @@
 class test_actor : public engine::actor {
 public:
 	test_actor(float hp, float shield, float speed)
-		: actor(hp, shield, speed, engine::faction::enemy) {}
+		: actor(math::vec2(), 0, 0, 0, hp, shield, speed, engine::faction::enemy) {}
  
 	void update(float dt) override {
 		engine::actor::update(dt);
