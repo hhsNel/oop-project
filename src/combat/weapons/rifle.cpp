@@ -2,7 +2,7 @@
 
 namespace combat {
 	namespace weapons {
-		rifle::rifle(std::unique_ptr<firing_mode> ammo_type, int mag_size, int max, float rate, float dmg)
-			: weapon(0, std::move(ammo_type), mag_size, max, rate, dmg) {}
+		rifle::rifle(std::unique_ptr<firing_mode> ammo_type)
+			: weapon(0, std::move(ammo_type), 20, 3.0f, 35.0f) {}
 	}
 }

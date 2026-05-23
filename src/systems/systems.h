@@ -22,10 +22,8 @@ namespace engine {class actor;}
 
 			friend class util::componentized<health_system>;
 		public:
-			health_system() : current_hp(0), max_hp(0), armor(0), max_armor(0) {}
-
-			health_system(float hp, float max, float arm, float max_arm)
-				: current_hp(hp), max_hp(max), armor(arm), max_armor(max_arm) {}
+			health_system();
+			health_system(float hp, float max, float arm, float max_arm);
 
 			void apply_damage(float amount);
 			void apply_heal(float amount);

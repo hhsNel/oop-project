@@ -4,8 +4,8 @@
 namespace combat {
 	namespace weapons {
 
-		weapon::weapon(unsigned int id, std::unique_ptr<firing_mode> ammo_type, int mag, int max, float rate, float dmg)
-			: weapon_id(id), ammo(std::move(ammo_type)), ammo_count(mag),
+		weapon::weapon(unsigned int id, std::unique_ptr<firing_mode> ammo_type, int max, float rate, float dmg)
+			: weapon_id(id), ammo(std::move(ammo_type)), ammo_count(max),
 			  max_ammo(max), fire_rate(rate), last_shot_time(0.0f), damage(dmg) {}
 
 		bool weapon::can_fire() const {

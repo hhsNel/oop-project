@@ -15,8 +15,8 @@ namespace combat
 		protected:
 		/*zmiana z private na protected by przywrocic widocznosc do podklas
 			aby nie korzystaly z componentized ktore powinno byc wykorzystane jedynie do eksportu na zewnatrz hierarchi klasy*/
-			[[=util::component_field{}]] unsigned int weapon_id;
-			[[=util::component_field{}]] std::unique_ptr<firing_mode> ammo;
+			unsigned int weapon_id;
+			std::unique_ptr<firing_mode> ammo;
 			[[=util::component_field{}]] int ammo_count;
 			[[=util::component_field{}]] int max_ammo;
 			[[=util::component_field{}]] float fire_rate;
@@ -33,7 +33,7 @@ namespace combat
 			virtual ~weapon() = default;
 
 		protected:
-			weapon(unsigned int id, std::unique_ptr<firing_mode> ammo_type, int mag, int max, float rate, float dmg);
+			weapon(unsigned int id, std::unique_ptr<firing_mode> ammo_type, int max, float rate, float dmg);
 		};
 	}
 }

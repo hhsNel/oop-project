@@ -18,10 +18,9 @@ namespace world_object {
 
 namespace entities {
 	class monster : public engine::actor, public util::componentized<monster> {
-		[[=util::ref_component_field{}]] std::weak_ptr<engine::actor> target_ptr;
-
 		friend class util::componentized<monster>;
 	protected:
+		[[=util::ref_component_field{}]] std::weak_ptr<engine::actor> target_ptr;
 		[[=util::component_field{}]] float attack_cooldown;
 		[[=util::component_field{}]] float attack_range;
 		[[=util::component_field{}]] float detection_radius;
@@ -47,7 +46,6 @@ namespace entities {
 			  attack_cd_max(atk_cd) {};
 
 		void update(float dt) override;
-		void take_damage(float dmg) override;
 	};
 
 	class player : public engine::actor, public util::componentized<player> {
@@ -71,7 +69,6 @@ namespace entities {
 		void shoot();
 		void reload();
 		void switch_weapons(int index);
-		void take_damage(float dmg) override;
 
 		friend class world_object::ammo_pickup;
 		friend class world_object::weapon_pickup;

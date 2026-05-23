@@ -28,21 +28,19 @@ struct inspect : public M {
 
 // Helpers: build weapons with recorded_firing_mode accessible for inspection.
 static combat::weapons::pistol make_pistol(
-	combat::weapons::recorded_firing_mode*& out,
-	int mag = 8, float rate = 100.0f)
+	combat::weapons::recorded_firing_mode*& out)
 {
 	auto ammo = std::make_unique<combat::weapons::recorded_firing_mode>();
 	out = ammo.get();
-	return combat::weapons::pistol(std::move(ammo), mag, mag, rate);
+	return combat::weapons::pistol(std::move(ammo));
 }
 
 static combat::weapons::smg make_smg(
-	combat::weapons::recorded_firing_mode*& out,
-	int mag = 30, float rate = 100.0f)
+	combat::weapons::recorded_firing_mode*& out)
 {
 	auto ammo = std::make_unique<combat::weapons::recorded_firing_mode>();
 	out = ammo.get();
-	return combat::weapons::smg(std::move(ammo), mag, mag, rate);
+	return combat::weapons::smg(std::move(ammo));
 }
 
 int main() {
@@ -116,7 +114,7 @@ int main() {
 		// shoot_blocked — rate=2.0: shoot twice without update, second shot blocked -> ammo=7
 		} else if (cmd == "shoot_blocked") {
 			combat::weapons::recorded_firing_mode* a;
-			auto pistol = make_pistol(a, 8, 2.0f);
+			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
 			p("weapons"_f).push_back(&pistol);
 			p.switch_weapons(0);
@@ -127,7 +125,7 @@ int main() {
 		// shoot_after_update — rate=2.0: shoot, update 0.6s, shoot -> ammo=6
 		} else if (cmd == "shoot_after_update") {
 			combat::weapons::recorded_firing_mode* a;
-			auto pistol = make_pistol(a, 8, 2.0f);
+			auto pistol = make_pistol(a);
 			entities::player p(100.0f, 0.0f, 2.0f, 1.0f);
 			p("weapons"_f).push_back(&pistol);
 			p.switch_weapons(0);
