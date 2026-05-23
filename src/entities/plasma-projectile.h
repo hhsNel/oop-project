@@ -47,5 +47,5 @@ namespace entities {
         slug_projectile(math::vec2 start, float angle, float dmg,
                         geometry::map_data* m, std::vector<engine::actor*>* tgts);
     };
-
 }
+

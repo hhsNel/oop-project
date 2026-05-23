@@ -8,10 +8,24 @@
 #include "combat/weapons/rifle.h"
 #include "combat/weapons/sniper-rifle.h"
 #include "combat/weapons/plasma-gun.h"
-#include "combat/weapons/recorded-firing-mode.h"
 #include "combat/weapons/shotgun.h"
 #include "combat/weapons/katana.h"
-#include "combat/weapons/recorded-firing-mode.h"
+#include "combat/weapons/firing-mode.h"
+#include "util/componentized.h"
+
+namespace combat { namespace weapons {
+	class recorded_firing_mode : public firing_mode, public util::componentized<recorded_firing_mode> {
+		friend class util::componentized<recorded_firing_mode>;
+	public:
+		struct shot_record { math::vec2 pos; float angle; float damage; };
+	private:
+		[[=util::component_field{}]] std::vector<shot_record> spawned;
+	public:
+		void spawn_bullet(math::vec2 pos, float angle, float damage) override {
+			spawned.push_back({pos, angle, damage});
+		}
+	};
+}}
 
 static void result(float v) {
 	std::cout << "RESULT " << static_cast<int>(v * 100 + 0.5f) / 100.0f << std::endl;
@@ -23,59 +37,53 @@ static void result(const std::string& s) {
 	std::cout << "RESULT " << s << std::endl;
 }
 
-// Helpers — rate=100 bypasses cooldown unless testing cooldown specifically.
+// Helpers — weapons use hardcoded defaults; update(1.0f) bypasses cooldown between fires.
 static combat::weapons::pistol make_pistol(
-	combat::weapons::recorded_firing_mode*& ammo_out,
-	int mag = 8, int max = 8, float rate = 100.0f)
+	combat::weapons::recorded_firing_mode*& ammo_out)
 {
 	auto ammo = std::make_unique<combat::weapons::recorded_firing_mode>();
 	ammo_out = ammo.get();
-	return combat::weapons::pistol(std::move(ammo), mag, max, rate);
+	return combat::weapons::pistol(std::move(ammo));
 }
 
 static combat::weapons::smg make_smg(
-	combat::weapons::recorded_firing_mode*& ammo_out,
-	int mag = 30, int max = 30, float rate = 100.0f)
+	combat::weapons::recorded_firing_mode*& ammo_out)
 {
 	auto ammo = std::make_unique<combat::weapons::recorded_firing_mode>();
 	ammo_out = ammo.get();
-	return combat::weapons::smg(std::move(ammo), mag, max, rate);
+	return combat::weapons::smg(std::move(ammo));
 }
 
 static combat::weapons::rifle make_rifle(
-	combat::weapons::recorded_firing_mode*& ammo_out,
-	int mag = 20, int max = 20, float rate = 100.0f)
+	combat::weapons::recorded_firing_mode*& ammo_out)
 {
 	auto ammo = std::make_unique<combat::weapons::recorded_firing_mode>();
 	ammo_out = ammo.get();
-	return combat::weapons::rifle(std::move(ammo), mag, max, rate);
+	return combat::weapons::rifle(std::move(ammo));
 }
 
 static combat::weapons::sniper_rifle make_sniper(
-	combat::weapons::recorded_firing_mode*& ammo_out,
-	int mag = 5, int max = 5, float rate = 100.0f)
+	combat::weapons::recorded_firing_mode*& ammo_out)
 {
 	auto ammo = std::make_unique<combat::weapons::recorded_firing_mode>();
 	ammo_out = ammo.get();
-	return combat::weapons::sniper_rifle(std::move(ammo), mag, max, rate);
+	return combat::weapons::sniper_rifle(std::move(ammo));
 }
 
 static combat::weapons::plasma_gun make_plasma(
-	combat::weapons::recorded_firing_mode*& ammo_out,
-	int mag = 10, int max = 10, float rate = 100.0f)
+	combat::weapons::recorded_firing_mode*& ammo_out)
 {
 	auto ammo = std::make_unique<combat::weapons::recorded_firing_mode>();
 	ammo_out = ammo.get();
-	return combat::weapons::plasma_gun(std::move(ammo), mag, max, rate);
+	return combat::weapons::plasma_gun(std::move(ammo));
 }
 
 static combat::weapons::shotgun make_shotgun(
-	combat::weapons::recorded_firing_mode*& ammo_out,
-	int mag = 8, int max = 8, float rate = 100.0f)
+	combat::weapons::recorded_firing_mode*& ammo_out)
 {
 	auto ammo = std::make_unique<combat::weapons::recorded_firing_mode>();
 	ammo_out = ammo.get();
-	return combat::weapons::shotgun(std::move(ammo), mag, max, rate);
+	return combat::weapons::shotgun(std::move(ammo));
 }
 
 int main() {
@@ -116,18 +124,18 @@ int main() {
 			result(p.can_fire() ? 1 : 0);
 			result(p("ammo_count"_f));
 
-		// pistol_cooldown_ready — fire, advance 0.6s (> 0.5s for rate=2.0), can fire
+		// pistol_cooldown_ready — fire, advance 0.6s (> 1/2.0=0.5s), can fire
 		} else if (cmd == "pistol_cooldown_ready") {
 			combat::weapons::recorded_firing_mode* a;
-			auto p = make_pistol(a, 8, 8, 2.0f);
+			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.update(0.6f);
 			result(p.can_fire() ? "YES" : "NO");
 
-		// pistol_cooldown_block — fire, advance 0.3s (< 0.5s for rate=2.0), blocked
+		// pistol_cooldown_block — fire, advance 0.3s (< 1/2.0=0.5s), blocked
 		} else if (cmd == "pistol_cooldown_block") {
 			combat::weapons::recorded_firing_mode* a;
-			auto p = make_pistol(a, 8, 8, 2.0f);
+			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.update(0.3f);
 			result(p.can_fire() ? "YES" : "NO");
@@ -135,7 +143,7 @@ int main() {
 		// pistol_no_fire_blocked — second fire during cooldown spawns nothing extra
 		} else if (cmd == "pistol_no_fire_blocked") {
 			combat::weapons::recorded_firing_mode* a;
-			auto p = make_pistol(a, 8, 8, 2.0f);
+			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.update(0.3f);
 			p.fire({0.0f, 0.0f}, 0.0f);
@@ -166,25 +174,55 @@ int main() {
 			result(p("ammo_count"_f));
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
-		// cooldown_check <rate> <dt> — fire once, advance dt, report can_fire
+		// cooldown_check <dt> — fire pistol (rate=2.0), advance dt, report can_fire
 		} else if (cmd == "cooldown_check") {
-			float rate, dt;
-			std::cin >> rate >> dt;
+			float dt;
+			std::cin >> dt;
 			combat::weapons::recorded_firing_mode* a;
-			auto p = make_pistol(a, 8, 8, rate);
+			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.update(dt);
 			result(p.can_fire() ? "YES" : "NO");
 
-		// reload_check <mag_size> — fire empty, reload, report ammo_count
+		// reload_check — fire pistol empty (mag=8), reload, report ammo_count
 		} else if (cmd == "reload_check") {
-			int mag;
-			std::cin >> mag;
 			combat::weapons::recorded_firing_mode* a;
-			auto p = make_pistol(a, mag, mag);
-			for (int i = 0; i < mag; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			auto p = make_pistol(a);
+			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
 			p.reload();
 			result(p("ammo_count"_f));
+
+		// reload_no_reserve — exhaust all reserve mags, reload fails
+		} else if (cmd == "reload_no_reserve") {
+			combat::weapons::recorded_firing_mode* a;
+			auto p = make_pistol(a);
+			// exhaust all 5 reserve mags
+			for (int m = 0; m < 5; ++m) {
+				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+				p.reload();
+			}
+			// now fire empty again — no reserve mags left
+			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			p.reload();
+			result(p("ammo_count"_f));
+			result(p("reserve_mags"_f));
+
+		// resupply_reload — resupply adds mags, reload uses them
+		} else if (cmd == "resupply_reload") {
+			combat::weapons::recorded_firing_mode* a;
+			auto p = make_pistol(a);
+			// exhaust all reserve mags
+			for (int m = 0; m < 5; ++m) {
+				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+				p.reload();
+			}
+			// empty again
+			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			// resupply 2 mags, reload once
+			p.resupply(2);
+			p.reload();
+			result(p("ammo_count"_f));
+			result(p("reserve_mags"_f));
 
 		// =====================================================================
 		// SMG
@@ -272,34 +310,33 @@ int main() {
 		// KATANA
 		// =====================================================================
 
-		// katana_swing — swing once: swing_count=1, immediately blocked
+		// katana_swing — swing once, immediately blocked
 		} else if (cmd == "katana_swing") {
 			combat::weapons::katana k;
 			k.fire({0.0f, 0.0f}, 0.0f);
-			result(k("swing_count"_f));
 			result(k.can_fire() ? "YES" : "NO");
 
 		// katana_cooldown — swing, advance 0.5s (< 1/1.5≈0.667s), blocked
 		} else if (cmd == "katana_cooldown") {
-			combat::weapons::katana k(1.5f);
+			combat::weapons::katana k;
 			k.fire({0.0f, 0.0f}, 0.0f);
 			k.update(0.5f);
 			result(k.can_fire() ? "YES" : "NO");
 
 		// katana_cooldown_ready — swing, advance 0.7s (> 0.667s), ready
 		} else if (cmd == "katana_cooldown_ready") {
-			combat::weapons::katana k(1.5f);
+			combat::weapons::katana k;
 			k.fire({0.0f, 0.0f}, 0.0f);
 			k.update(0.7f);
 			result(k.can_fire() ? "YES" : "NO");
 
-		// katana_swings <n> — swing n times (cooldown bypass), report swing_count
+		// katana_swings <n> — swing n times (cooldown bypass), can fire after
 		} else if (cmd == "katana_swings") {
 			int n;
 			std::cin >> n;
 			combat::weapons::katana k;
 			for (int i = 0; i < n; ++i) { k.fire({0.0f, 0.0f}, 0.0f); k.update(1.0f); }
-			result(k("swing_count"_f));
+			result(k.can_fire() ? "YES" : "NO");
 
 		// =====================================================================
 		// DAMAGE

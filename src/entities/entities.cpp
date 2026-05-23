@@ -50,14 +50,10 @@ namespace entities {
 		if (attack_cooldown > 0.0f) attack_cooldown -= dt;
 	}
 
-	void monster::take_damage(float dmg) { actor::take_damage(dmg); }
-
 	void player::update(float dt) {
 		actor::update(dt);
-		if (current_weapon) current_weapon->update(dt);
+		for (auto* w : weapons) if (w) w->update(dt);
 	}
-
-	void player::take_damage(float dmg) { actor::take_damage(dmg); }
 
 	void player::switch_weapons(int index) {
 		if (index < 0 || index >= static_cast<int>(weapons.size())) return;
@@ -67,7 +63,7 @@ namespace entities {
 
 	void player::shoot() {
 		if (current_weapon && current_weapon->can_fire())
-			current_weapon->fire({0.0f, 0.0f}, 0.0f);
+			current_weapon->fire(pos, angle);
 	}
 
 	void player::reload() {
@@ -77,9 +73,10 @@ namespace entities {
 	void player::move(math::vec3 direction) {
 		float ca = std::cos(angle);
 		float sa = std::sin(angle);
-		// forward = {ca, sa},  right = {sa, -ca}
-		pos("x"_f) += (direction("y"_f) * ca + direction("x"_f) * sa) * movement_speed;
-		pos("y"_f) += (direction("y"_f) * sa - direction("x"_f) * ca) * movement_speed;
+		pos += math::vec2{
+			(direction("y"_f) * ca + direction("x"_f) * sa) * movement_speed,
+			(direction("y"_f) * sa - direction("x"_f) * ca) * movement_speed
+		};
 	}
 
 	void player::rotate(float yaw, float /*pitch*/) {

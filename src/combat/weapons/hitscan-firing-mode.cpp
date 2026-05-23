@@ -17,7 +17,7 @@ namespace combat {
             float wall_dist = max_range;
 
             if (map) {
-                auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
+                constexpr auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
                 for (auto const& e : map->linedefs) {
                     geometry::linedef const& ld = e.value;
                     if (ld.back != null_sd) continue;   // portal — przepuszcza

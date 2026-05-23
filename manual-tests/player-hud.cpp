@@ -16,8 +16,14 @@
 #include "combat/weapons/sniper-rifle.h"
 #include "combat/weapons/plasma-gun.h"
 #include "combat/weapons/katana.h"
-#include "combat/weapons/recorded-firing-mode.h"
+#include "combat/weapons/firing-mode.h"
 #include "combat/burning.h"
+
+namespace {
+	struct noop_firing_mode : combat::weapons::firing_mode {
+		void spawn_bullet(math::vec2, float, float) override {}
+	};
+}
 #include "input/input-backend.h"
 #include "input/evdev-backend.h"
 
@@ -34,7 +40,6 @@ struct inspect : public M {
 struct weapon_slot {
 	std::unique_ptr<combat::weapons::weapon> owned;
 	std::string name;
-	int   reserve_mags;
 	float reload_timer;
 	float reload_duration;
 	bool  in_loadout;
@@ -67,25 +72,25 @@ int main() {
 	std::vector<weapon_slot> pool;
 
 	auto add_bullet = [&](auto wptr, const std::string& name,
-	                       int reserve, float reload_dur, bool is_auto = false) {
+	                       float reload_dur, bool is_auto = false) {
 		pool.push_back({ std::move(wptr), name,
-		                 reserve, 0.0f, reload_dur, false, false, is_auto });
+		                 0.0f, reload_dur, false, false, is_auto });
 	};
 
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::pistol>(std::move(a)),      "Pistol",     5, 1.5f);       }
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::smg>(std::move(a)),         "SMG",        4, 2.5f, true); }
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::rifle>(std::move(a)),       "Rifle",      4, 2.0f, true); }
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::shotgun>(std::move(a)),     "Shotgun",    4, 3.0f);       }
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::sniper_rifle>(std::move(a)),"Sniper",     3, 3.5f);       }
-	{ auto a = std::make_unique<combat::weapons::recorded_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::plasma_gun>(std::move(a)),  "Plasma Gun", 3, 2.0f);       }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_bullet(std::make_unique<combat::weapons::pistol>(std::move(a)),      "Pistol",     1.5f);       }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_bullet(std::make_unique<combat::weapons::smg>(std::move(a)),         "SMG",        2.5f, true); }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_bullet(std::make_unique<combat::weapons::rifle>(std::move(a)),       "Rifle",      2.0f, true); }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_bullet(std::make_unique<combat::weapons::shotgun>(std::move(a)),     "Shotgun",    3.0f);       }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_bullet(std::make_unique<combat::weapons::sniper_rifle>(std::move(a)),"Sniper",     3.5f);       }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_bullet(std::make_unique<combat::weapons::plasma_gun>(std::move(a)),  "Plasma Gun", 2.0f);       }
 	pool.push_back({ std::make_unique<combat::weapons::katana>(),
-	                 "Katana", 0, 0.0f, 0.0f, false, true, false });
+	                 "Katana", 0.0f, 0.0f, false, true, false });
 
 	pool[0].in_loadout = true;  // start with pistol
 
@@ -198,10 +203,9 @@ int main() {
 			bool r_down = backend->is_key_down(input::key::r);
 			if (r_down && !prev_r && cur_slot
 			    && !cur_slot->is_melee
-			    && cur_slot->reserve_mags > 0
+			    && (*cur_slot->owned)("reserve_mags"_f) > 0
 			    && cur_slot->reload_timer <= 0.0f)
 			{
-				--cur_slot->reserve_mags;
 				cur_slot->reload_timer = cur_slot->reload_duration;
 			}
 			prev_r = r_down;
@@ -300,7 +304,7 @@ int main() {
 				    << cur_slot->reload_timer << "s";
 				status = oss.str();
 			} else if (!cur_slot->is_melee && (*cw)("ammo_count"_f) == 0
-			           && cur_slot->reserve_mags > 0) {
+			           && (*cw)("reserve_mags"_f) > 0) {
 				status = "[press R to reload]";
 			} else if (!cur_slot->is_auto) {
 				float lst    = (*cw)("last_shot_time"_f);
@@ -326,7 +330,7 @@ int main() {
 				          << "  " << hbar((*cw)("ammo_count"_f),
 				                          (*cw)("max_ammo"_f), 15)
 				          << "\033[K\n";
-				std::cout << "Mags:   " << cur_slot->reserve_mags << " remaining\033[K\n";
+				std::cout << "Mags:   " << (*cw)("reserve_mags"_f) << " remaining\033[K\n";
 			}
 			std::cout << "        " << status << "\033[K\n";
 		} else {
