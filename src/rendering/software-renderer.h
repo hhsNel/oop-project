@@ -29,7 +29,7 @@ namespace rendering {
         std::vector<float> euclidian_dist_factor;
 
         void render_bsp_node(util::indexed_storage<geometry::bsp_node>::id_t node_id, frame_rendering_data const& frd);
-        void project_and_draw_linedef(geometry::linedef const& line, frame_rendering_data const& frd);
+        void project_and_draw_linedef(geometry::linedef line, frame_rendering_data const& frd);
         void draw_solid_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const& frd);
         void draw_portal_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const& frd);
         void render_visplanes(frame_rendering_data const& frd);

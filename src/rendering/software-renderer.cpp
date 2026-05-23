@@ -18,8 +18,8 @@ software_renderer::software_renderer(rendering_backend &tgt, assets::asset_manag
 
 void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node>::id_t node_id, frame_rendering_data const& frd) {
 	/* if it's a leaf, then it's a subsector, so we should render the linedefs */
-    if (node_id & geometry::bsp_node::leaf_flag) {
-        auto subsector_id = node_id & ~geometry::bsp_node::leaf_flag;
+    if (geometry::bsp_node::is_leaf(node_id)) {
+        auto subsector_id = geometry::bsp_node::get_id(node_id);
 
         geometry::subsector const& sub = current_map.subsectors[subsector_id];
 
@@ -62,9 +62,9 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
     }
 }
 
-void software_renderer::project_and_draw_linedef(geometry::linedef const& line, frame_rendering_data const& frd) {
-    math::vec2 tr_v1 = line.v1 - frd.cam_pos;
-    math::vec2 tr_v2 = line.v2 - frd.cam_pos;
+void software_renderer::project_and_draw_linedef(geometry::linedef line, frame_rendering_data const& frd) {
+    math::vec2 tr_v1 = line("seg"_f)("point0"_f) - frd.cam_pos;
+    math::vec2 tr_v2 = line("seg"_f)("point1"_f) - frd.cam_pos;
     
     tr_v1 = math::vec2::rotate_with_known_trig(tr_v1, frd.cos_cam_angle, -frd.sin_cam_angle);
     tr_v2 = math::vec2::rotate_with_known_trig(tr_v2, frd.cos_cam_angle, -frd.sin_cam_angle);
@@ -73,7 +73,7 @@ void software_renderer::project_and_draw_linedef(geometry::linedef const& line, 
 
 	/* u coordinates for textures */
     float u1 = 0.0f;
-    float u2 = (line.v1 - line.v2).len();
+    float u2 = line.len();
 
 	/* return if behind camera */
     if (tr_v1("y"_f) <= near_z && tr_v2("y"_f) <= near_z) return;
@@ -96,10 +96,22 @@ void software_renderer::project_and_draw_linedef(geometry::linedef const& line, 
     float proj_x1 = (tr_v1("x"_f) / tr_v1("y"_f)) * frd.fov_scale + frd.half_sw;
     float proj_x2 = (tr_v2("x"_f) / tr_v2("y"_f)) * frd.fov_scale + frd.half_sw;
 
-	/* cull back face (wall facing opposite side */
-    if (proj_x1 >= proj_x2) return;
+	/* handle back-face viewing */
+    if (proj_x1 > proj_x2) {
+		/* cull back face (wall facing opposite side) */
+        if (line.is_wall()) {
+            return;
+        }
 
-	if (line.back == util::indexed_storage<geometry::sidedef>::nullid) {
+		/* swap everything */
+//        std::swap(proj_x1, proj_x2);
+//        std::swap(z1, z2);
+//        std::swap(u1, u2);
+//        std::swap(line.front, line.back);
+		/* TODO: CRITICAL */
+    }
+
+	if (line.is_wall()) {
         draw_solid_wall_span(proj_x1, proj_x2, tr_v1("y"_f), tr_v2("y"_f), u1, u2, line, frd);
     } else {
         draw_portal_wall_span(proj_x1, proj_x2, tr_v1("y"_f), tr_v2("y"_f), u1, u2, line, frd);

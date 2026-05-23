@@ -16,7 +16,7 @@ int main() {
         std::cin >> x1 >> y1 >> x2 >> y2;
         segment seg(vec2(x1, y1), vec2(x2, y2));
 
-		std::cout << "test " << std::fixed << (float)seg.point0("x"_f) << "," << (float)seg.point0("y"_f) << " " << (float)seg.point1("x"_f) << "," << (float)seg.point1("y"_f) << std::endl;
+		std::cout << "test " << std::fixed << (float)seg("point0"_f)("x"_f) << "," << (float)seg("point0"_f)("y"_f) << " " << (float)seg("point1"_f)("x"_f) << "," << (float)seg("point1"_f)("y"_f) << std::endl;
 
         if (cmd == "mid") {
             vec2 mid = seg.midpoint();

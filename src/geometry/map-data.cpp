@@ -37,21 +37,14 @@ namespace geometry {
         auto& old_sub = subsectors[old_sub_id];
         auto& new_sub = subsectors[new_sub_id];
 
-        auto it = std::find_if(old_sub.sprites.begin(), old_sub.sprites.end(),
-            [spr](std::unique_ptr<rendering::sprite> const& p) {
-                return p.get() == spr;
-            });
+		auto owned = old_sub.remove_sprite(spr);
 
-        if (it != old_sub.sprites.end()) {
-            std::unique_ptr<rendering::sprite> moved_spr = std::move(*it);
-            old_sub.sprites.erase(it);
-            
-            (*moved_spr)("pos"_f) = new_pos;
-            
-            new_sub.sprites.push_back(std::move(moved_spr));
-        } else {
-            (*spr)("pos"_f) = new_pos;
-        }
+		if (owned) {
+			(*owned)("pos"_f) = new_pos;
+			new_sub.add_sprite(std::move(owned));
+		} else {
+			(*spr)("pos"_f) = new_pos;
+		}
     }
 
 	map_data map_data::load_from_bin(util::resource const& sectors_res, util::resource const& sidedefs_res, util::resource const& linedefs_res, util::resource const& subsectors_res, util::resource const& nodes_res) {
