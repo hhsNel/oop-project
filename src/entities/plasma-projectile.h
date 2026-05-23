@@ -10,6 +10,4 @@ namespace entities {
 		int damage;
 	};
 
-class slug_projectile : public projectile {};
-
 }
