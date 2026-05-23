@@ -5,6 +5,7 @@
 
 #include "math/vec2.h"
 #include "firing-mode.h"
+#include "ammo-type.h"
 #include "util/componentized.h"
 
 namespace combat
@@ -15,7 +16,7 @@ namespace combat
 		protected:
 		/*zmiana z private na protected by przywrocic widocznosc do podklas
 			aby nie korzystaly z componentized ktore powinno byc wykorzystane jedynie do eksportu na zewnatrz hierarchi klasy*/
-			unsigned int weapon_id;
+			ammo_type accepted_ammo;
 			std::unique_ptr<firing_mode> ammo;
 			[[=util::component_field{}]] int ammo_count;
 			[[=util::component_field{}]] int max_ammo;
@@ -26,7 +27,7 @@ namespace combat
 		public:
 			virtual bool can_fire() const;
 			void update(float dt);
-			bool accepts_ammo(unsigned int ammo_weapon_id) const;
+			bool accepts_ammo(ammo_type type) const;
 			void resupply(int amount);
 
 			virtual void fire(math::vec2 pos, float angle);
@@ -34,7 +35,7 @@ namespace combat
 			virtual ~weapon() = default;
 
 		protected:
-			weapon(unsigned int id, std::unique_ptr<firing_mode> ammo_type, int max, float rate, float dmg, int reserve = 0);
+			weapon(ammo_type type, std::unique_ptr<firing_mode> firing, int max, float rate, float dmg, int reserve = 0);
 		};
 	}
 }

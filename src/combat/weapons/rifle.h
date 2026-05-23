@@ -5,7 +5,7 @@ namespace combat {
 	namespace weapons {
 		class rifle : public weapon {
 		public:
-			explicit rifle(std::unique_ptr<firing_mode> ammo_type);
+			explicit rifle(std::unique_ptr<firing_mode> firing);
 		};
 	}
 }

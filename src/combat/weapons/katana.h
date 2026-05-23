@@ -12,7 +12,7 @@ namespace combat {
 			using util::componentized<weapon>::operator();
 
 			katana();
-			explicit katana(std::unique_ptr<firing_mode> ammo_type);
+			explicit katana(std::unique_ptr<firing_mode> firing);
 
 			bool can_fire() const override;
 			void fire(math::vec2 pos, float angle) override;

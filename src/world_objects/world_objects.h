@@ -7,7 +7,7 @@
 
 // Forward declarations
 namespace entities { class player; }
-namespace combat { namespace weapons { class weapon; } }
+namespace combat { namespace weapons { class weapon; enum class ammo_type : unsigned int; } }
 
     namespace world_object {
 
@@ -48,12 +48,12 @@ namespace combat { namespace weapons { class weapon; } }
             void on_pickup(entities::player& p) override;
         };
 
-        // Adds ammo to the player's weapon matching weapon_id.
+        // Adds reserve magazines to the player's weapon matching ammo_type.
         class ammo_pickup : public pickup {
-            unsigned int weapon_id;
-            unsigned int amount;
+            combat::weapons::ammo_type type;
+            int amount;
         public:
-            ammo_pickup(math::vec2 pos, unsigned int wid, unsigned int amt, float radius = 20.0f);
+            ammo_pickup(math::vec2 pos, combat::weapons::ammo_type type, int amt, float radius = 20.0f);
             void on_pickup(entities::player& p) override;
         };
 
