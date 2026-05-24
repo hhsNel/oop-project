@@ -21,13 +21,9 @@ namespace audio {
 		audio_backend();
 		virtual ~audio_backend() = default;
 
-		// Otwiera urzadzenie audio z podanym formatem
 		virtual bool open(audio_format const& fmt) = 0;
-
-		// Zamyka urzadzenie audio
 		virtual void close() = 0;
 		virtual long write(void const* data, unsigned long frames) = 0;
-		// Czeka az bufor sie oprozni (odtworzy caly dzwiek)
 		virtual void drain() = 0;
 
 		virtual void pause() = 0;

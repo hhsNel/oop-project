@@ -56,9 +56,9 @@ namespace audio {
 			close();
 			fmt = format;
 
-			// Probuj pipewire, potem default — na systemach z PipeWire
-			// "default" moze wskazywac na sprzet z pominieciem serwera dzwieku
-			int err = snd_pcm_open(&pcm_handle, "pipewire", SND_PCM_STREAM_PLAYBACK, 0);
+			int err = snd_pcm_open(&pcm_handle, "pulse", SND_PCM_STREAM_PLAYBACK, 0);
+			if (err < 0)
+				err = snd_pcm_open(&pcm_handle, "pipewire", SND_PCM_STREAM_PLAYBACK, 0);
 			if (err < 0)
 				err = snd_pcm_open(&pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
 			if (err < 0) {
