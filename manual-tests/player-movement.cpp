@@ -19,7 +19,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include "entities/entities.h"
+#include "entities/player.h"
 #include "util/resource-loader.h"
 #include "assets/asset-manager.h"
 #include "input/input-backend.h"

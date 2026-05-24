@@ -1,5 +1,5 @@
 #include "weapon-pickup.h"
-#include "entities/entities.h"
+#include "entities/player.h"
 #include "combat/weapons/weapon.h"
 
 namespace world_object {

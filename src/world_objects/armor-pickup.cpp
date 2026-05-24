@@ -1,5 +1,5 @@
 #include "armor-pickup.h"
-#include "entities/entities.h"
+#include "entities/player.h"
 
 namespace world_object {
 

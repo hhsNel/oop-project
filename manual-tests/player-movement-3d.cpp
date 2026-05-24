@@ -22,7 +22,7 @@
 
 #include "util/resource-loader.h"
 #include "assets/asset-manager.h"
-#include "entities/entities.h"
+#include "entities/player.h"
 #include "geometry/map-data.h"
 #include "geometry/sector.h"
 #include "geometry/sidedef.h"

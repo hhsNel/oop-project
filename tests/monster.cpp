@@ -2,6 +2,7 @@
 #include <string>
 
 #include "entities/monsters.h"
+#include "entities/player.h"
 
 static constexpr math::vec2 ORIGIN{0.0f, 0.0f};
 static constexpr assets::texture_id DUMMY_TEX = 0;

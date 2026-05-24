@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entities/entities.h"
+#include "entities/monster.h"
 
 namespace entities {
 

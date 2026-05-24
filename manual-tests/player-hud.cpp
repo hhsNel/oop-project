@@ -8,7 +8,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "entities/entities.h"
+#include "entities/player.h"
 #include "combat/weapons/pistol.h"
 #include "combat/weapons/smg.h"
 #include "combat/weapons/rifle.h"
