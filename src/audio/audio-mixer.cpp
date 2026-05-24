@@ -22,7 +22,7 @@ namespace audio {
 	}
 
 	void audio_mixer::step(unsigned long frames_to_mix) {
-		if (target.is_bad()) return;
+		if (target.bad()) return;
 
 		unsigned int const channels = mix_format.channels;
 		unsigned long const total_samples = frames_to_mix * channels;
