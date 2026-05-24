@@ -1,10 +1,11 @@
 #pragma once
 
 #include <vector>
-#include <utility>
 #include "firing-mode.h"
 #include "geometry/map-data.h"
 #include "engine/actor.h"
+
+int main();
 
 namespace combat {
     namespace weapons {
@@ -15,10 +16,11 @@ namespace combat {
             geometry::map_data const* map;
             float               max_range;
             float               hit_radius;   // promien cylindra kolizji aktora (jednostki mapy)
-
-        public:
             std::vector<engine::actor*> targets;
 
+            friend int ::main();
+
+        public:
             hitscan_firing_mode(geometry::map_data const* map,
                             float range  = 8192.0f,
                             float radius = 16.0f);

@@ -2,12 +2,15 @@
 
 #include "entities/monster.h"
 
+int main();
+
 namespace entities {
 
 	class monster_sniper : public monster {
-	protected:
 		float shoot_interval;
 		float aim_timer;
+
+		friend int ::main();
 
 	public:
 		monster_sniper(math::vec2 const p, float const z)

@@ -3,6 +3,10 @@
 #include "renderable-entity.h"
 #include "systems/health_systems.h"
 
+int main();
+
+namespace combat { class charmed; class slowed; }
+
 namespace engine {
 
 	enum class faction {
@@ -14,11 +18,15 @@ namespace engine {
 	class actor : public renderable_entity {
 	protected:
 		systems::health_system health;
-	public:
 		float	  angle;
 		float	  movement_speed;
-		faction	team;
+		faction	  team;
 
+		friend class combat::charmed;
+		friend class combat::slowed;
+		friend int ::main();
+
+	public:
 		actor(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float const hp, float const shield, float const move_speed, faction const this_team)
 			: renderable_entity(p, z, tex, is), health(hp, hp, shield, shield), angle(0.0f), movement_speed(move_speed), team(this_team)
 		{}

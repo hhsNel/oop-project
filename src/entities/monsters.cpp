@@ -1,6 +1,5 @@
 #include "entities/monsters.h"
 #include <cmath>
-#include <algorithm>
 
 namespace entities {
 

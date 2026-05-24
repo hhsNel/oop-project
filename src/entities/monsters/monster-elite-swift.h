@@ -2,17 +2,19 @@
 
 #include "entities/monster.h"
 
+int main();
+
 namespace entities {
 
 	class monster_elite_swift : public monster {
-	protected:
 		float charge_speed;
-	private:
 		bool  is_charging;
 		float charge_timer;
 		float charge_cd;
 		float circle_angle;
 		float circle_radius;
+
+		friend int ::main();
 
 	public:
 		monster_elite_swift(math::vec2 const p, float const z)

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "math/vec2.h"
 
 namespace engine {class actor;}

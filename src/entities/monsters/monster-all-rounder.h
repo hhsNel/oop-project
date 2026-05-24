@@ -2,13 +2,15 @@
 
 #include "entities/monster.h"
 
+int main();
+
 namespace entities {
 
 	class monster_all_rounder : public monster {
-	protected:
 		bool  melee_mode;
-	private:
 		float melee_threshold;
+
+		friend int ::main();
 
 	public:
 		monster_all_rounder(math::vec2 const p, float const z)

@@ -16,40 +16,6 @@ struct inspect : public M {
 	bool  dead()  const { return this->health.is_dead(); }
 };
 
-// Per-type test wrappers — promote protected fields to public for assertions.
-struct test_assault : inspect<entities::monster_assault> {
-	using inspect::inspect;
-	using entities::monster_assault::burst_size;
-	using entities::monster_assault::burst_interval;
-};
-struct test_sniper : inspect<entities::monster_sniper> {
-	using inspect::inspect;
-	using entities::monster_sniper::shoot_interval;
-};
-struct test_trapper : inspect<entities::monster_trapper> {
-	using inspect::inspect;
-	using entities::monster_trapper::max_traps;
-	using entities::monster_trapper::traps_placed;
-};
-struct test_spawner : inspect<entities::monster_spawner> {
-	using inspect::inspect;
-	using entities::monster_spawner::max_spawns;
-	using entities::monster_spawner::current_spawns;
-	using entities::monster_spawner::spawn_interval;
-};
-struct test_elite_swift : inspect<entities::monster_elite_swift> {
-	using inspect::inspect;
-	using entities::monster_elite_swift::charge_speed;
-};
-struct test_boss : inspect<entities::monster_boss> {
-	using inspect::inspect;
-	using entities::monster_boss::phase_count;
-};
-struct test_all_rounder : inspect<entities::monster_all_rounder> {
-	using inspect::inspect;
-	using entities::monster_all_rounder::melee_mode;
-};
-
 // Disambiguate componentized operator() for sprite (pos)
 template<typename T>
 auto& as_sprite(T& m) { return static_cast<util::componentized<rendering::sprite>&>(m); }
@@ -58,11 +24,6 @@ auto& as_sprite(T& m) { return static_cast<util::componentized<rendering::sprite
 template<typename M>
 inspect<M> make_m(math::vec2 pos = ORIGIN) {
 	return inspect<M>(pos, 0.0f);
-}
-
-template<typename W>
-W make_w(math::vec2 pos = ORIGIN) {
-	return W(pos, 0.0f);
 }
 
 static auto make_player(math::vec2 pos = ORIGIN) {
@@ -175,29 +136,29 @@ int main() {
 		// =====================================================================
 
 		} else if (cmd == "assault_burst") {
-			auto m = make_w<test_assault>();
+			auto m = make_m<entities::monster_assault>();
 			result(m.burst_size);
 			result(m.burst_interval);
 
 		} else if (cmd == "sniper_interval") {
-			auto m = make_w<test_sniper>();
+			auto m = make_m<entities::monster_sniper>();
 			result(m.shoot_interval);
 
 		} else if (cmd == "trapper_traps") {
-			auto m = make_w<test_trapper>();
+			auto m = make_m<entities::monster_trapper>();
 			result(m.max_traps);
 
 		} else if (cmd == "spawner_fields") {
-			auto m = make_w<test_spawner>();
+			auto m = make_m<entities::monster_spawner>();
 			result(m.max_spawns);
 			result(m.spawn_interval);
 
 		} else if (cmd == "elite_swift_charge") {
-			auto m = make_w<test_elite_swift>();
+			auto m = make_m<entities::monster_elite_swift>();
 			result(m.charge_speed);
 
 		} else if (cmd == "boss_phases") {
-			auto m = make_w<test_boss>();
+			auto m = make_m<entities::monster_boss>();
 			result(m.phase_count);
 
 		// =====================================================================
@@ -362,21 +323,21 @@ int main() {
 		// all_rounder przechodzi w tryb melee gdy cel jest blisko
 		} else if (cmd == "all_rounder_melee") {
 			auto t = make_player({2.0f, 0.0f});
-			auto m = make_w<test_all_rounder>();
+			auto m = make_m<entities::monster_all_rounder>();
 			m.target_ptr = t;
 			m.update(0.01f);
 			result(m.melee_mode ? "YES" : "NO");
 
 		// spawner co spawn_interval=5s tworzy nowego potwora
 		} else if (cmd == "spawner_spawns") {
-			auto m = make_w<test_spawner>();
+			auto m = make_m<entities::monster_spawner>();
 			m.update(5.1f);
 			result(m.current_spawns);
 
 		// trapper po trap_interval=2s rozstawia pułapkę
 		} else if (cmd == "trapper_places_trap") {
 			auto t = make_player({5.0f, 0.0f});
-			auto m = make_w<test_trapper>();
+			auto m = make_m<entities::monster_trapper>();
 			m.target_ptr = t;
 			m.update(2.1f);
 			result(m.traps_placed);

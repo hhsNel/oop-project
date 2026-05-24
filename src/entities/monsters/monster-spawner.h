@@ -2,15 +2,17 @@
 
 #include "entities/monster.h"
 
+int main();
+
 namespace entities {
 
 	class monster_spawner : public monster {
-	protected:
 		int   max_spawns;
 		int   current_spawns;
 		float spawn_interval;
-	private:
 		float spawn_timer;
+
+		friend int ::main();
 
 	public:
 		monster_spawner(math::vec2 const p, float const z)

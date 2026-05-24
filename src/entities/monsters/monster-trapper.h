@@ -2,17 +2,19 @@
 
 #include "entities/monster.h"
 
+int main();
+
 namespace entities {
 
 	class monster_trapper : public monster {
-	protected:
 		int   max_traps;
 		int   traps_placed;
-	private:
 		float trap_timer;
 		float trap_interval;
 		float wander_timer;
 		float wander_sign;
+
+		friend int ::main();
 
 	public:
 		monster_trapper(math::vec2 const p, float const z)
