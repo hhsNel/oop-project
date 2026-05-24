@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "util/componentized.h"
+
 namespace audio {
 
 	struct audio_format {
@@ -14,11 +16,7 @@ namespace audio {
 	};
 	
 	class audio_backend {
-	protected:
-		bool bad;
-
 	public:
-		audio_backend();
 		virtual ~audio_backend() = default;
 
 		virtual bool open(audio_format const& fmt) = 0;
@@ -28,7 +26,7 @@ namespace audio {
 
 		virtual void pause() = 0;
 		virtual void resume() = 0;
-		virtual audio_format current_format() const = 0;
-		virtual bool is_bad() const;
+		virtual audio_format operator()(util::component_tag<"current_format">) const = 0;
+		virtual bool bad() const = 0;
 	};
 }

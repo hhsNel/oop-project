@@ -7,6 +7,8 @@ namespace audio {
 	namespace alsa {
 		class backend : public audio::audio_backend {
 		private:
+			bool is_bad;
+
 			snd_pcm_t* pcm_handle;
 			audio_format fmt;
 			bool paused;
@@ -25,7 +27,8 @@ namespace audio {
 			void drain() override;
 			void pause() override;
 			void resume() override;
-			audio_format current_format() const override;
+			audio_format operator()(util::component_tag<"current_format">) const override;
+			bool bad() const override;
 		};
 	}
 }

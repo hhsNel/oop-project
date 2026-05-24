@@ -40,7 +40,7 @@ int main() {
 	std::unique_ptr<audio::audio_backend> backend =
 		std::make_unique<audio::alsa::backend>();
 
-	if (backend->is_bad()) {
+	if (backend->bad()) {
 		std::cerr << "FAIL (backend w stanie blednym po konstrukcji)" << std::endl;
 		return 1;
 	}
@@ -60,7 +60,7 @@ int main() {
 	std::cout << "OK" << std::endl;
 
 	// 3. Sprawdzenie wynegocjowanego formatu
-	audio::audio_format actual = backend->current_format();
+	audio::audio_format actual = (*backend)("current_format"_f);
 	std::cout << "[3] wynegocjowany format: "
 	          << actual.sample_rate << " Hz, "
 	          << actual.channels << " ch, "
@@ -89,7 +89,7 @@ int main() {
 	// 7. Test pause/resume
 	std::cout << "[7] pause()... ";
 	backend->pause();
-	if (backend->is_bad()) {
+	if (backend->bad()) {
 		std::cerr << "FAIL" << std::endl;
 		return 1;
 	}
@@ -97,7 +97,7 @@ int main() {
 
 	std::cout << "[8] resume()... ";
 	backend->resume();
-	if (backend->is_bad()) {
+	if (backend->bad()) {
 		std::cerr << "FAIL" << std::endl;
 		return 1;
 	}
@@ -109,8 +109,8 @@ int main() {
 	std::cout << "OK" << std::endl;
 
 	// 10. Stan po zamknieciu
-	std::cout << "[10] is_bad() po close: "
-	          << (backend->is_bad() ? "FAIL (bad=true)" : "OK (bad=false)")
+	std::cout << "[10] bad() po close: "
+	          << (backend->bad() ? "FAIL (bad=true)" : "OK (bad=false)")
 	          << std::endl;
 
 	std::cout << "\n=== wszystkie testy przeszly ===" << std::endl;

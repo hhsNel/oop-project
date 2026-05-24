@@ -3,8 +3,11 @@
 namespace audio {
 	namespace alsa {
 
-		backend::backend()
-			: pcm_handle(nullptr), fmt{44100, 2, 16}, paused(false) {}
+		backend::backend() :
+			is_bad(false),
+			pcm_handle(nullptr),
+			fmt{44100, 2, 16},
+			paused(false) {}
 
 		backend::~backend() {
 			close();
@@ -62,7 +65,7 @@ namespace audio {
 			if (err < 0)
 				err = snd_pcm_open(&pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, 0);
 			if (err < 0) {
-				bad = true;
+				is_bad = true;
 				pcm_handle = nullptr;
 				return false;
 			}
@@ -70,24 +73,24 @@ namespace audio {
 			if (!configure_hw_params()) {
 				snd_pcm_close(pcm_handle);
 				pcm_handle = nullptr;
-				bad = true;
+				is_bad = true;
 				return false;
 			}
 
 			if (snd_pcm_prepare(pcm_handle) < 0) {
 				snd_pcm_close(pcm_handle);
 				pcm_handle = nullptr;
-				bad = true;
+				is_bad = true;
 				return false;
 			}
 
-			bad = false;
+			is_bad = false;
 			paused = false;
 			return true;
 		}
 
 		void backend::drain() {
-			if (pcm_handle && !bad)
+			if (pcm_handle && !is_bad)
 				snd_pcm_drain(pcm_handle);
 		}
 
@@ -101,7 +104,7 @@ namespace audio {
 		}
 
 		long backend::write(void const* data, unsigned long frames) {
-			if (!pcm_handle || bad || paused) return -1;
+			if (!pcm_handle || is_bad || paused) return -1;
 
 			snd_pcm_sframes_t written = snd_pcm_writei(
 				pcm_handle,
@@ -119,7 +122,7 @@ namespace audio {
 			}
 
 			if (written < 0) {
-				bad = true;
+				is_bad = true;
 				return -1;
 			}
 
@@ -127,7 +130,7 @@ namespace audio {
 		}
 
 		void backend::pause() {
-			if (!pcm_handle || bad) return;
+			if (!pcm_handle || is_bad) return;
 
 			if (snd_pcm_pause(pcm_handle, 1) < 0)
 				snd_pcm_drop(pcm_handle);
@@ -136,7 +139,7 @@ namespace audio {
 		}
 
 		void backend::resume() {
-			if (!pcm_handle || bad) return;
+			if (!pcm_handle || is_bad) return;
 
 			if (snd_pcm_pause(pcm_handle, 0) < 0)
 				snd_pcm_prepare(pcm_handle);
@@ -144,8 +147,12 @@ namespace audio {
 			paused = false;
 		}
 
-		audio_format backend::current_format() const {
+		audio_format backend::operator()(util::component_tag<"current_format">) const {
 			return fmt;
+		}
+
+		bool backend::bad() const {
+			return is_bad;
 		}
 	}
 }
