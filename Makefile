@@ -30,19 +30,19 @@ LDFLAGS += -pie $(RES_EXPORT_FLAGS) -Wl,-z,relro,-z,now -lasound
 all: $(TARGET)
 
 $(TARGET): $(OBJ) $(RESOBJ)
-	$(CXX) $(LDFLAGS) -o $(TARGET) $(OBJ) $(RESOBJ)
+	$(CXX) -o $(TARGET) $(OBJ) $(RESOBJ) $(LDFLAGS)
 
 $(BUILDDIR)/res/%.o: $(RESDIR)/% $(BUILDDIR)
 	objcopy $(OCFLAGS) $< $@
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/%.h $(BUILDDIR) $(RES_HEADER)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(RES_HEADER): $(RES)
 	./tools/generate-resources.sh $@ $(RESDIR)
 
 tests/%.out: tests/%.cpp $(filter-out src/main.o, $(OBJ)) $(RESOBJ)
-	$(CXX) $(LDFLAGS) $(CXXFLAGS) $^ -o $@
+	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
 check: $(TEST_BINS)
 	@for script in $(TEST_EXPS); do \
@@ -51,7 +51,7 @@ check: $(TEST_BINS)
 	@echo ALL TESTS PASS
 
 manual-tests/%.out: manual-tests/%.cpp $(filter-out src/main.o, $(OBJ)) $(RESOBJ)
-	$(CXX) $(LDFLAGS) $(CXXFLAGS) $^ -o $@
+	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
 manual-check: $(MANUAL_TEST_BINS)
 
