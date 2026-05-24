@@ -5,12 +5,13 @@
 
 namespace assets {
 
-	asset_pack::asset_pack(std::vector<texture> walls, std::vector<texture> sprites, std::vector<texture> flats, std::vector<texture> ui, std::vector<menu> ms) :
+	asset_pack::asset_pack(std::vector<texture> walls, std::vector<texture> sprites, std::vector<texture> flats, std::vector<texture> ui, std::vector<menu> ms, std::vector<audio_clip> clips) :
 		wall_textures(std::move(walls)),
 		sprite_textures(std::move(sprites)),
 		flat_textures(std::move(flats)),
 		ui_textures(std::move(ui)),
-		menus(std::move(ms)) {}
+		menus(std::move(ms)),
+		audio_clips(std::move(clips)) {}
 
 	texture const& asset_pack::wall_tx_by_id(texture_id const id) const {
 		return wall_textures.at(id);
@@ -30,6 +31,10 @@ namespace assets {
 
 	menu &asset_pack::menu_by_id(menu_id const id) {
 		return menus.at(id);
+	}
+
+	audio_clip const& asset_pack::audio_clip_by_id(audio_clip_id const id) const {
+		return audio_clips.at(id);
 	}
 
 	std::vector<texture> asset_pack::tx_from_meta(util::resource_loader &resld, std::string_view meta_path) {
@@ -100,6 +105,29 @@ namespace assets {
 		return result;
 	}
 
+	std::vector<audio_clip> asset_pack::clips_from_meta(util::resource_loader &resld, std::string_view meta_path) {
+		auto r = resld.lookup_resource(meta_path);
+		if (!r) return {};
+
+		util::resource &meta_res = *r;
+		if (!meta_res("beginning"_f) || meta_res("size"_f) == 0) return {};
+
+		std::string content(reinterpret_cast<const char*>(meta_res("beginning"_f)), meta_res("size"_f));
+		std::istringstream stream(content);
+		std::string line;
+		std::vector<audio_clip> clips;
+
+		while (std::getline(stream, line)) {
+			if (!line.empty() && line.back() == '\r') line.pop_back();
+			if (line.empty()) continue;
+
+			auto cr = resld.lookup_resource(line);
+			if (cr) clips.push_back(audio_clip::load_from_bin(*cr));
+		}
+
+		return clips;
+	}
+
 	std::unordered_map<std::string, std::string> asset_pack::parse_meta_keys(std::string const& content) {
 		std::unordered_map<std::string, std::string> keys;
 		std::istringstream stream(content);
@@ -118,12 +146,12 @@ namespace assets {
 				continue;
 			}
 
-			std::string key   = line.substr(0, colon);
+			std::string key = line.substr(0, colon);
 			std::string value = line.substr(colon + 1);
 
 			auto trim = [](std::string &s) {
 				std::size_t start = s.find_first_not_of(" \t");
-				std::size_t end   = s.find_last_not_of(" \t");
+				std::size_t end = s.find_last_not_of(" \t");
 				s = (start == std::string::npos) ? "" : s.substr(start, end - start + 1);
 			};
 			trim(key);
@@ -140,28 +168,26 @@ namespace assets {
 	asset_pack asset_pack::load(util::resource_loader &resld, std::string_view pack_meta_path) {
 		auto r = resld.lookup_resource(pack_meta_path);
 		if (!r) {
-			return asset_pack({}, {}, {}, {}, {});
+			return asset_pack({}, {}, {}, {}, {}, {});
 		}
 
 		util::resource &meta_res = *r;
 
 		if (!meta_res("beginning"_f) || meta_res("size"_f) == 0) {
-			return asset_pack({}, {}, {}, {}, {});
+			return asset_pack({}, {}, {}, {}, {}, {});
 		}
 
 		std::string content(reinterpret_cast<const char*>(meta_res("beginning"_f)), meta_res("size"_f));
 		auto keys = parse_meta_keys(content);
 
-		std::vector<texture> walls   = keys.count("wall")   ? tx_from_meta(resld, keys.at("wall"))	 : std::vector<texture>{};
-		std::vector<texture> sprites = keys.count("sprite") ? tx_from_meta(resld, keys.at("sprite"))   : std::vector<texture>{};
-		std::vector<texture> flats   = keys.count("flat")   ? tx_from_meta(resld, keys.at("flat"))	 : std::vector<texture>{};
-		std::vector<texture> ui	  = keys.count("ui")	 ? tx_from_meta(resld, keys.at("ui"))	   : std::vector<texture>{};
-		std::vector<menu>	menus   = keys.count("menus")  ? menus_from_meta(resld, keys.at("menus")) : std::vector<menu>{};
+		std::vector<texture> walls = keys.count("wall") ? tx_from_meta(resld, keys.at("wall")) : std::vector<texture>{};
+		std::vector<texture> sprites = keys.count("sprite") ? tx_from_meta(resld, keys.at("sprite")) : std::vector<texture>{};
+		std::vector<texture> flats = keys.count("flat") ? tx_from_meta(resld, keys.at("flat")) : std::vector<texture>{};
+		std::vector<texture> ui = keys.count("ui") ? tx_from_meta(resld, keys.at("ui")) : std::vector<texture>{};
+		std::vector<menu> menus = keys.count("menus") ? menus_from_meta(resld, keys.at("menus")) : std::vector<menu>{};
+		std::vector<audio_clip> clips = keys.count("audio") ? clips_from_meta(resld, keys.at("audio")) : std::vector<audio_clip>{};
 
-		return asset_pack(
-			std::move(walls), std::move(sprites), std::move(flats),
-			std::move(ui), std::move(menus)
-		);
+		return asset_pack(std::move(walls), std::move(sprites), std::move(flats), std::move(ui), std::move(menus), std::move(clips));
 	}
 
 	int asset_pack::display_menu(menu_id const id, rendering::renderer_2d const& r2d, rendering::rendering_backend &rb, input::input_backend &in) {

@@ -68,6 +68,10 @@ namespace assets {
 		return asset_packs[cur_set].menu_by_id(id);
 	}
 
+	audio_clip const& asset_manager::audio_clip_by_id(audio_clip_id const id) const {
+		return asset_packs[cur_set].audio_clip_by_id(id);
+	}
+
 	int asset_manager::display_menu(menu_id const id, rendering::renderer_2d const& r2d, rendering::rendering_backend &rb, input::input_backend &in) {
 		return asset_packs[cur_set].display_menu(id, r2d, rb, in);
 	}

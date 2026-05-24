@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+
+import argparse
+import struct
+import wave
+import sys
+
+def audio_to_blob(input_path, output_path):
+    try:
+        with wave.open(input_path, 'rb') as wav_file:
+            channels = wav_file.getnchannels()
+            sample_width = wav_file.getsampwidth()
+            sample_rate = wav_file.getframerate()
+            frames = wav_file.getnframes()
+            
+            bits_per_sample = sample_width * 8
+            
+            pcm_data = wav_file.readframes(frames)
+            
+        with open(output_path, 'wb') as f:
+            f.write(struct.pack('<III', sample_rate, channels, bits_per_sample))
+            
+            f.write(pcm_data)
+            
+        print(f"Successfully baked audio to {output_path}")
+        print(f"Format Details: {sample_rate}Hz, {channels} Channels, {bits_per_sample}-bit")
+        
+    except wave.Error as e:
+        print(f"WAV Error: {e}. Make sure the input is a standard, uncompressed WAV file.")
+    except Exception as e:
+        print(f"Error: {e}")
+
+def blob_to_audio(input_path, output_path):
+    try:
+        with open(input_path, 'rb') as f:
+            header = f.read(12)
+            if len(header) < 12:
+                print("Error: File too small to contain a valid header.")
+                return
+                
+            sample_rate, channels, bits_per_sample = struct.unpack('<III', header)
+            
+            pcm_data = f.read()
+            
+        with wave.open(output_path, 'wb') as wav_file:
+            wav_file.setnchannels(channels)
+            wav_file.setsampwidth(bits_per_sample // 8)
+            wav_file.setframerate(sample_rate)
+            wav_file.writeframes(pcm_data)
+            
+        print(f"Successfully extracted audio back to {output_path}")
+        print(f"Restored Format Details: {sample_rate}Hz, {channels} Channels, {bits_per_sample}-bit")
+        
+    except Exception as e:
+        print(f"Error: {e}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Game Engine Audio Baker")
+    parser.add_argument("input", help="Input file path (.wav for baking, .bk for extracting)")
+    parser.add_argument("output", help="Output file path (.bk for baking, .wav for extracting)")
+    parser.add_argument("-r", "--reverse", action="store_true", help="Convert baked blob back to a .wav file")
+    
+    args = parser.parse_args()
+    
+    if args.reverse:
+        blob_to_audio(args.input, args.output)
+    else:
+        audio_to_blob(args.input, args.output)
