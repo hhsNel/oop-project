@@ -5,24 +5,24 @@
 #include "math/vec2.h"
 #include "firing-mode.h"
 #include "ammo-type.h"
-#include "util/componentized.h"
+
+int main();
 
 namespace combat
 {
 	namespace weapons {
-		class weapon : public util::componentized<weapon> {
-			friend class util::componentized<weapon>;
+		class weapon {
 		protected:
-		/*zmiana z private na protected by przywrocic widocznosc do podklas
-			aby nie korzystaly z componentized ktore powinno byc wykorzystane jedynie do eksportu na zewnatrz hierarchi klasy*/
 			ammo_type accepted_ammo;
 			std::unique_ptr<firing_mode> ammo;
-			[[=util::component_field{}]] int ammo_count;
-			[[=util::component_field{}]] int max_ammo;
-			[[=util::component_field{}]] int reserve_mags;
-			[[=util::component_field{}]] float fire_rate;
-			[[=util::component_field{}]] float last_shot_time;
-			[[=util::component_field{}]] float damage;
+			int ammo_count;
+			int max_ammo;
+			int reserve_mags;
+			float fire_rate;
+			float last_shot_time;
+			float damage;
+
+			friend int ::main();
 		public:
 			virtual bool can_fire() const;
 			void tick(float dt);

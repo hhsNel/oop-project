@@ -54,10 +54,6 @@ namespace {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-// Disambiguate componentized operator() for player fields
-template<typename T>
-auto& as_player(T& p) { return static_cast<util::componentized<entities::player>&>(p); }
-
 // Exposes health fields via componentized operator() — bez lamia enkapsulacji.
 template<typename M>
 struct inspect : public M {
@@ -199,13 +195,13 @@ int main() {
 
     // Rebuilds p.weapons from pool.in_loadout flags; preserves current weapon.
     auto rebuild_loadout = [&]() {
-        auto* prev = as_player(p)("current_weapon"_f);
-        as_player(p)("weapons"_f).clear();
+        auto* prev = p.current_weapon;
+        p.weapons.clear();
         for (auto& s : pool)
-            if (s.in_loadout) as_player(p)("weapons"_f).push_back(s.owned.get());
-        if (!as_player(p)("weapons"_f).empty()) {
-            for (int i = 0; i < static_cast<int>(as_player(p)("weapons"_f).size()); ++i)
-                if (as_player(p)("weapons"_f)[i] == prev) { p.switch_weapons(i); return; }
+            if (s.in_loadout) p.weapons.push_back(s.owned.get());
+        if (!p.weapons.empty()) {
+            for (int i = 0; i < static_cast<int>(p.weapons.size()); ++i)
+                if (p.weapons[i] == prev) { p.switch_weapons(i); return; }
             p.switch_weapons(0);
         }
     };
@@ -261,7 +257,7 @@ int main() {
         if (i_back->is_bad()) break;
 
         bool game_over = p.dead();
-        weapon_slot* cur_slot = find_slot(pool, as_player(p)("current_weapon"_f));
+        weapon_slot* cur_slot = find_slot(pool, p.current_weapon);
 
         // ESC: cancel active command, or exit
         if (i_back->is_key_down(input::key::esc)) {
@@ -282,7 +278,7 @@ int main() {
                     if (down && !prev_num[i]) p.switch_weapons(i - 1);
                     prev_num[i] = down;
                 }
-                cur_slot = find_slot(pool, as_player(p)("current_weapon"_f));
+                cur_slot = find_slot(pool, p.current_weapon);
             }
 
             // LMB: shoot (auto = held, semi = edge)
@@ -300,7 +296,7 @@ int main() {
                 bool r_down = i_back->is_key_down(input::key::r);
                 if (r_down && !prev_r && cur_slot
                     && !cur_slot->is_melee
-                    && (*cur_slot->owned)("reserve_mags"_f) > 0
+                    && cur_slot->owned->reserve_mags > 0
                     && cur_slot->reload_timer <= 0.0f)
                 {
                     cur_slot->reload_timer = cur_slot->reload_duration;
@@ -320,9 +316,9 @@ int main() {
             // -: remove current weapon from loadout
             {
                 bool minus_down = i_back->is_key_down(input::key::hyphen);
-                if (minus_down && !prev_minus && as_player(p)("current_weapon"_f))
+                if (minus_down && !prev_minus && p.current_weapon)
                     for (auto& s : pool)
-                        if (s.in_loadout && s.owned.get() == as_player(p)("current_weapon"_f)) {
+                        if (s.in_loadout && s.owned.get() == p.current_weapon) {
                             s.in_loadout = false; rebuild_loadout(); break;
                         }
                 prev_minus = minus_down;
@@ -375,7 +371,7 @@ int main() {
         if (p.hp() < hp_before)           // status effects (np. burning) zadaly obrazenia
             damage_flash_timer = FLASH_DURATION;
 
-        cur_slot = find_slot(pool, as_player(p)("current_weapon"_f));
+        cur_slot = find_slot(pool, p.current_weapon);
         if (damage_flash_timer > 0.0f)
             damage_flash_timer -= dt;
 
@@ -440,14 +436,14 @@ int main() {
             int cx = COL_W + PAD;
             int cy = HUD_Y + VPAD;
 
-            if (!as_player(p)("current_weapon"_f) || !cur_slot) {
+            if (!p.current_weapon || !cur_slot) {
                 r2d.draw_text("Weapon: (none)", cx, cy, CW, CH, TW);
             } else {
                 // Weapon name + auto tag + slot index
                 std::string wname = cur_slot->name
                     + (cur_slot->is_auto ? " [AUTO]" : "")
-                    + "  " + std::to_string(as_player(p)("current_weapon_index"_f) + 1)
-                    + "/" + std::to_string(static_cast<int>(as_player(p)("weapons"_f).size()));
+                    + "  " + std::to_string(p.current_weapon_index + 1)
+                    + "/" + std::to_string(static_cast<int>(p.weapons.size()));
                 r2d.draw_text(wname, cx, cy, CW, CH, TW);
                 cy += LS;
 
@@ -455,9 +451,9 @@ int main() {
                     // Melee weapon: no ammo, show swing cooldown bar
                     r2d.draw_text("AMMO: ---- (melee)", cx, cy, CW, CH, TW);
                     cy += LS;
-                    float lst = (*as_player(p)("current_weapon"_f))("last_shot_time"_f);
-                    float mcd = (*as_player(p)("current_weapon"_f))("fire_rate"_f) > 0.0f
-                              ? 1.0f / (*as_player(p)("current_weapon"_f))("fire_rate"_f) : 1.0f;
+                    float lst = p.current_weapon->last_shot_time;
+                    float mcd = p.current_weapon->fire_rate > 0.0f
+                              ? 1.0f / p.current_weapon->fire_rate : 1.0f;
                     r2d.draw_text("SWING CD:", cx, cy + 2, CW, CH - 4, TW);
                     draw_bar(cx + 120, cy, BARW, BH, mcd - std::min(lst, mcd), mcd, C_CD);
                     r2d.draw_text(lst > 0.005f ? fmt1(lst) + "s" : "Ready",
@@ -466,11 +462,11 @@ int main() {
                 } else if (cur_slot->reload_timer > 0.0f) {
                     // Weapon is reloading: show ammo state and reload progress bar
                     r2d.draw_text("AMMO: "
-                        + std::to_string((*as_player(p)("current_weapon"_f))("ammo_count"_f))
-                        + " / " + std::to_string((*as_player(p)("current_weapon"_f))("max_ammo"_f)),
+                        + std::to_string(p.current_weapon->ammo_count)
+                        + " / " + std::to_string(p.current_weapon->max_ammo),
                         cx, cy, CW, CH, TW);
                     cy += LS;
-                    r2d.draw_text("MAGS: " + std::to_string((*cur_slot->owned)("reserve_mags"_f)),
+                    r2d.draw_text("MAGS: " + std::to_string(cur_slot->owned->reserve_mags),
                         cx, cy, CW, CH, TW);
                     cy += LS;
                     r2d.draw_rect(cx - PAD, cy - 2, COL_W, CH + 6, C_RELOAD);
@@ -484,22 +480,22 @@ int main() {
                     // Normal state: ammo bar + reserve mags + cooldown bar
                     r2d.draw_text("AMMO:", cx, cy + 2, CW, CH - 4, TW);
                     draw_bar(cx + 65, cy, BARW, BH,
-                             static_cast<float>((*as_player(p)("current_weapon"_f))("ammo_count"_f)),
-                             static_cast<float>((*as_player(p)("current_weapon"_f))("max_ammo"_f)), C_AMMO);
-                    r2d.draw_text(std::to_string((*as_player(p)("current_weapon"_f))("ammo_count"_f))
-                                  + "/" + std::to_string((*as_player(p)("current_weapon"_f))("max_ammo"_f)),
+                             static_cast<float>(p.current_weapon->ammo_count),
+                             static_cast<float>(p.current_weapon->max_ammo), C_AMMO);
+                    r2d.draw_text(std::to_string(p.current_weapon->ammo_count)
+                                  + "/" + std::to_string(p.current_weapon->max_ammo),
                                   cx + 69 + BARW, cy + 2, CW - 2, CH - 4, TW);
                     cy += LS;
 
-                    r2d.draw_text("MAGS: " + std::to_string((*cur_slot->owned)("reserve_mags"_f)),
+                    r2d.draw_text("MAGS: " + std::to_string(cur_slot->owned->reserve_mags),
                                   cx, cy, CW, CH, TW);
                     cy += LS;
 
                     // Shot cooldown bar (semi-auto only; auto weapons fire as fast as allowed)
                     if (!cur_slot->is_auto) {
-                        float lst = (*as_player(p)("current_weapon"_f))("last_shot_time"_f);
-                        float mcd = (*as_player(p)("current_weapon"_f))("fire_rate"_f) > 0.0f
-                                  ? 1.0f / (*as_player(p)("current_weapon"_f))("fire_rate"_f) : 1.0f;
+                        float lst = p.current_weapon->last_shot_time;
+                        float mcd = p.current_weapon->fire_rate > 0.0f
+                                  ? 1.0f / p.current_weapon->fire_rate : 1.0f;
                         r2d.draw_text("SHOT CD:", cx, cy + 2, CW, CH - 4, TW);
                         draw_bar(cx + 100, cy, BARW, BH,
                                  mcd - std::min(lst, mcd), mcd, C_CD);
@@ -524,11 +520,11 @@ int main() {
             cy += LS;
 
             int slot_n = 0;
-            for (int i = 0; i < static_cast<int>(as_player(p)("weapons"_f).size()); ++i) {
-                bool active = (i == as_player(p)("current_weapon_index"_f));
+            for (int i = 0; i < static_cast<int>(p.weapons.size()); ++i) {
+                bool active = (i == p.current_weapon_index);
                 std::string slot_name;
                 for (auto& s : pool)
-                    if (s.in_loadout && s.owned.get() == as_player(p)("weapons"_f)[i])
+                    if (s.in_loadout && s.owned.get() == p.weapons[i])
                         { slot_name = s.name; break; }
                 if (slot_name.size() > 8) slot_name = slot_name.substr(0, 8);
 

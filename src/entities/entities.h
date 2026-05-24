@@ -10,21 +10,24 @@
 #include "math/vec3.h"
 #include "combat/weapons/weapon.h"
 
+int main();
+
 namespace world_object {
 	class ammo_pickup;
 	class weapon_pickup;
 }
 
 namespace entities {
-	class monster : public engine::actor, public util::componentized<monster> {
-		friend class util::componentized<monster>;
+	class monster : public engine::actor {
 	protected:
-		[[=util::ref_component_field{}]] std::weak_ptr<engine::actor> target_ptr;
+		std::weak_ptr<engine::actor> target_ptr;
 		float attack_cooldown;
-		[[=util::component_field{}]] float attack_range;
-		[[=util::component_field{}]] float detection_radius;
-		[[=util::component_field{}]] float attack_damage;
-		[[=util::component_field{}]] float attack_cd_max;
+		float attack_range;
+		float detection_radius;
+		float attack_damage;
+		float attack_cd_max;
+
+		friend int ::main();
 
 		bool has_target() const;
 		float dist_to_target() const;
@@ -47,13 +50,13 @@ namespace entities {
 		void update(float dt) override;
 	};
 
-	class player : public engine::actor, public util::componentized<player> {
-		[[=util::ref_component_field{}]] std::vector<combat::weapons::weapon*> weapons;
+	class player : public engine::actor {
+		std::vector<combat::weapons::weapon*> weapons;
 		float sensitivity;
-		[[=util::component_field{}]] combat::weapons::weapon* current_weapon;
-		[[=util::component_field{}]] int current_weapon_index;
+		combat::weapons::weapon* current_weapon;
+		int current_weapon_index;
 
-		friend class util::componentized<player>;
+		friend int ::main();
 	public:
 
 		player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens)

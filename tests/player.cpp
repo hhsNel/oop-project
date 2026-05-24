@@ -35,9 +35,6 @@ struct inspect : public M {
 	bool  dead()  const { return this->health.is_dead(); }
 };
 
-// Disambiguate componentized operator() for player fields
-template<typename T>
-auto& as_player(T& p) { return static_cast<util::componentized<entities::player>&>(p); }
 
 static combat::weapons::pistol make_pistol() {
 	return combat::weapons::pistol(std::make_unique<noop_firing_mode>());
@@ -62,49 +59,49 @@ int main() {
 			auto pistol = make_pistol();
 			auto smg    = make_smg();
 			auto p = make_p();
-			as_player(p)("weapons"_f).push_back(&pistol);
-			as_player(p)("weapons"_f).push_back(&smg);
+			p.weapons.push_back(&pistol);
+			p.weapons.push_back(&smg);
 			p.switch_weapons(0);
 			p.switch_weapons(1);
-			result(as_player(p)("current_weapon_index"_f));
+			result(p.current_weapon_index);
 
 		// switch_back — switch to 1 then back to 0 -> current_weapon_index=0
 		} else if (cmd == "switch_back") {
 			auto pistol = make_pistol();
 			auto smg    = make_smg();
 			auto p = make_p();
-			as_player(p)("weapons"_f).push_back(&pistol);
-			as_player(p)("weapons"_f).push_back(&smg);
+			p.weapons.push_back(&pistol);
+			p.weapons.push_back(&smg);
 			p.switch_weapons(1);
 			p.switch_weapons(0);
-			result(as_player(p)("current_weapon_index"_f));
+			result(p.current_weapon_index);
 
 		// switch_oob — switch to index beyond end; index unchanged
 		} else if (cmd == "switch_oob") {
 			auto pistol = make_pistol();
 			auto p = make_p();
-			as_player(p)("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			p.switch_weapons(5);
-			result(as_player(p)("current_weapon_index"_f));
+			result(p.current_weapon_index);
 
 		// switch_neg — switch to negative index; index unchanged
 		} else if (cmd == "switch_neg") {
 			auto pistol = make_pistol();
 			auto p = make_p();
-			as_player(p)("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			p.switch_weapons(-1);
-			result(as_player(p)("current_weapon_index"_f));
+			result(p.current_weapon_index);
 
 		// shoot_ammo — pistol mag=8, shoot once -> ammo=7
 		} else if (cmd == "shoot_ammo") {
 			auto pistol = make_pistol();
 			auto p = make_p();
-			as_player(p)("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			p.shoot();
-			result(pistol("ammo_count"_f));
+			result(pistol.ammo_count);
 
 		// shoot_no_weapon — no weapon selected, shoot does nothing
 		} else if (cmd == "shoot_no_weapon") {
@@ -116,42 +113,42 @@ int main() {
 		} else if (cmd == "shoot_blocked") {
 			auto pistol = make_pistol();
 			auto p = make_p();
-			as_player(p)("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			p.shoot();
 			p.shoot();
-			result(pistol("ammo_count"_f));
+			result(pistol.ammo_count);
 
 		// shoot_after_update — rate=2.0: shoot, update 0.6s, shoot -> ammo=6
 		} else if (cmd == "shoot_after_update") {
 			auto pistol = make_pistol();
 			auto p = make_p();
-			as_player(p)("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			p.shoot();
 			p.update(0.6f);
 			p.shoot();
-			result(pistol("ammo_count"_f));
+			result(pistol.ammo_count);
 
 		// reload_current — fire empty (8 shots), reload -> ammo=8
 		} else if (cmd == "reload_current") {
 			auto pistol = make_pistol();
 			auto p = make_p();
-			as_player(p)("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			for (int i = 0; i < 8; ++i) { p.shoot(); p.update(1.0f); }
 			p.reload();
-			result(pistol("ammo_count"_f));
+			result(pistol.ammo_count);
 
 		// can_fire_after_empty — fire empty, can player still shoot? NO
 		} else if (cmd == "can_fire_after_empty") {
 			auto pistol = make_pistol();
 			auto p = make_p();
-			as_player(p)("weapons"_f).push_back(&pistol);
+			p.weapons.push_back(&pistol);
 			p.switch_weapons(0);
 			for (int i = 0; i < 8; ++i) { p.shoot(); p.update(1.0f); }
 			p.shoot(); // should do nothing
-			result(pistol("ammo_count"_f));
+			result(pistol.ammo_count);
 
 		// =====================================================================
 		// HEALTH SYSTEM

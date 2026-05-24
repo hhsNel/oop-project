@@ -97,7 +97,7 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
-			result(p("ammo_count"_f));
+			result(p.ammo_count);
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// pistol_empty — fire full magazine (with cooldown bypass), can_fire() = false
@@ -122,7 +122,7 @@ int main() {
 			p.tick(1.0f);
 			p.reload();
 			result(p.can_fire() ? 1 : 0);
-			result(p("ammo_count"_f));
+			result(p.ammo_count);
 
 		// pistol_cooldown_ready — fire, advance 0.6s (> 1/2.0=0.5s), can fire
 		} else if (cmd == "pistol_cooldown_ready") {
@@ -171,7 +171,7 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
 			for (int i = 0; i < shots; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
-			result(p("ammo_count"_f));
+			result(p.ammo_count);
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// cooldown_check <dt> — fire pistol (rate=2.0), advance dt, report can_fire
@@ -190,7 +190,7 @@ int main() {
 			auto p = make_pistol(a);
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			p.reload();
-			result(p("ammo_count"_f));
+			result(p.ammo_count);
 
 		// reload_no_reserve — exhaust all reserve mags, reload fails
 		} else if (cmd == "reload_no_reserve") {
@@ -204,8 +204,8 @@ int main() {
 			// now fire empty again — no reserve mags left
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			p.reload();
-			result(p("ammo_count"_f));
-			result(p("reserve_mags"_f));
+			result(p.ammo_count);
+			result(p.reserve_mags);
 
 		// resupply_reload — resupply adds mags, reload uses them
 		} else if (cmd == "resupply_reload") {
@@ -221,8 +221,8 @@ int main() {
 			// resupply 2 mags, reload once
 			p.resupply(2);
 			p.reload();
-			result(p("ammo_count"_f));
-			result(p("reserve_mags"_f));
+			result(p.ammo_count);
+			result(p.reserve_mags);
 
 		// =====================================================================
 		// SMG
@@ -233,7 +233,7 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto s = make_smg(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
-			result(s("ammo_count"_f));
+			result(s.ammo_count);
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// =====================================================================
@@ -245,7 +245,7 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto r = make_rifle(a);
 			r.fire({0.0f, 0.0f}, 0.0f);
-			result(r("ammo_count"_f));
+			result(r.ammo_count);
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// =====================================================================
@@ -257,7 +257,7 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto s = make_sniper(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
-			result(s("ammo_count"_f));
+			result(s.ammo_count);
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// =====================================================================
@@ -269,7 +269,7 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_plasma(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
-			result(p("ammo_count"_f));
+			result(p.ammo_count);
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// =====================================================================
@@ -281,7 +281,7 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto s = make_shotgun(a);
 			s.fire({0.0f, 0.0f}, 0.0f);
-			result(s("ammo_count"_f));
+			result(s.ammo_count);
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// shotgun_spread — fire at angle 0, report min and max pellet angles
@@ -379,7 +379,7 @@ int main() {
 				result((*a)("spawned"_f)[0].damage); // damage per pellet
 			} else if (w == "katana") {
 				combat::weapons::katana k;
-				result(k("damage"_f));
+				result(k.damage);
 			} else {
 				result("UNKNOWN");
 			}

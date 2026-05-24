@@ -28,10 +28,6 @@ namespace {
 	};
 }
 
-// Disambiguate componentized operator() for player fields
-template<typename T>
-auto& as_player(T& p) { return static_cast<util::componentized<entities::player>&>(p); }
-
 template<typename M>
 struct inspect : public M {
 	using M::M;
@@ -104,13 +100,13 @@ int main() {
 	inspect<entities::player> p({0.0f, 0.0f}, 0.0f, 0, 1.0f, 100.0f, 50.0f, 2.0f, 1.0f);
 
 	auto rebuild_loadout = [&]() {
-		auto* preserve = as_player(p)("current_weapon"_f);
-		as_player(p)("weapons"_f).clear();
+		auto* preserve = p.current_weapon;
+		p.weapons.clear();
 		for (auto& s : pool)
-			if (s.in_loadout) as_player(p)("weapons"_f).push_back(s.owned.get());
-		if (!as_player(p)("weapons"_f).empty()) {
-			for (int i = 0; i < (int)as_player(p)("weapons"_f).size(); ++i) {
-				if (as_player(p)("weapons"_f)[i] == preserve) { p.switch_weapons(i); return; }
+			if (s.in_loadout) p.weapons.push_back(s.owned.get());
+		if (!p.weapons.empty()) {
+			for (int i = 0; i < (int)p.weapons.size(); ++i) {
+				if (p.weapons[i] == preserve) { p.switch_weapons(i); return; }
 			}
 			p.switch_weapons(0);
 		}
@@ -178,7 +174,7 @@ int main() {
 			}
 		}
 
-		weapon_slot* cur_slot = find_slot(pool, as_player(p)("current_weapon"_f));
+		weapon_slot* cur_slot = find_slot(pool, p.current_weapon);
 
 		if (game_over) {
 			if (edge(input::key::v, prev_v))
@@ -191,7 +187,7 @@ int main() {
 					if (down && !prev_num[i]) p.switch_weapons(i - 1);
 					prev_num[i] = down;
 				}
-				cur_slot = find_slot(pool, as_player(p)("current_weapon"_f));
+				cur_slot = find_slot(pool, p.current_weapon);
 			}
 
 			// Shoot — auto weapons fire while LMB held, semi on press edge
@@ -209,7 +205,7 @@ int main() {
 			bool r_down = backend->is_key_down(input::key::r);
 			if (r_down && !prev_r && cur_slot
 			    && !cur_slot->is_melee
-			    && (*cur_slot->owned)("reserve_mags"_f) > 0
+			    && cur_slot->owned->reserve_mags > 0
 			    && cur_slot->reload_timer <= 0.0f)
 			{
 				cur_slot->reload_timer = cur_slot->reload_duration;
@@ -225,9 +221,9 @@ int main() {
 
 			// Remove current weapon from loadout
 			bool minus_down = backend->is_key_down(input::key::hyphen);
-			if (minus_down && !prev_minus && as_player(p)("current_weapon"_f))
+			if (minus_down && !prev_minus && p.current_weapon)
 				for (auto& s : pool)
-					if (s.in_loadout && s.owned.get() == as_player(p)("current_weapon"_f)) {
+					if (s.in_loadout && s.owned.get() == p.current_weapon) {
 						s.in_loadout = false; rebuild_loadout(); break;
 					}
 			prev_minus = minus_down;
@@ -277,7 +273,7 @@ int main() {
 		p.update(dt);  // ticks status effects regardless of alive state
 
 		// ---- render HUD ----
-		cur_slot = find_slot(pool, as_player(p)("current_weapon"_f));
+		cur_slot = find_slot(pool, p.current_weapon);
 		std::cout << "\033[H";
 
 		std::cout << (game_over ? "=== GAME  OVER  ===" : "=== PLAYER STATUS ===") << "\033[K\n";
@@ -295,12 +291,12 @@ int main() {
 
 		std::cout << "\033[K\n";
 
-		if (as_player(p)("current_weapon"_f) && cur_slot) {
-			auto* cw = as_player(p)("current_weapon"_f);
+		if (p.current_weapon && cur_slot) {
+			auto* cw = p.current_weapon;
 			std::cout << "Weapon: " << cur_slot->name
 			          << (cur_slot->is_auto ? " [AUTO]" : "")
-			          << "  (slot " << (as_player(p)("current_weapon_index"_f) + 1)
-			          << " / " << as_player(p)("weapons"_f).size() << ")\033[K\n";
+			          << "  (slot " << (p.current_weapon_index + 1)
+			          << " / " << p.weapons.size() << ")\033[K\n";
 
 			// Status line (reload / cooldown / ready)
 			std::string status;
@@ -309,12 +305,12 @@ int main() {
 				oss << "RELOADING... " << std::fixed << std::setprecision(1)
 				    << cur_slot->reload_timer << "s";
 				status = oss.str();
-			} else if (!cur_slot->is_melee && (*cw)("ammo_count"_f) == 0
-			           && (*cw)("reserve_mags"_f) > 0) {
+			} else if (!cur_slot->is_melee && cw->ammo_count == 0
+			           && cw->reserve_mags > 0) {
 				status = "[press R to reload]";
 			} else if (!cur_slot->is_auto) {
-				float lst    = (*cw)("last_shot_time"_f);
-				float max_cd = 1.0f / (*cw)("fire_rate"_f);
+				float lst    = cw->last_shot_time;
+				float max_cd = 1.0f / cw->fire_rate;
 				if (lst > 0.005f) {
 					std::ostringstream oss;
 					oss << (cur_slot->is_melee ? "Next swing: " : "Next shot:  ")
@@ -331,12 +327,12 @@ int main() {
 				std::cout << "Mags:   ---\033[K\n";
 			} else {
 				std::cout << "Ammo:   "
-				          << (*cw)("ammo_count"_f)
-				          << " / " << (*cw)("max_ammo"_f)
-				          << "  " << hbar((*cw)("ammo_count"_f),
-				                          (*cw)("max_ammo"_f), 15)
+				          << cw->ammo_count
+				          << " / " << cw->max_ammo
+				          << "  " << hbar(cw->ammo_count,
+				                          cw->max_ammo, 15)
 				          << "\033[K\n";
-				std::cout << "Mags:   " << (*cw)("reserve_mags"_f) << " remaining\033[K\n";
+				std::cout << "Mags:   " << cw->reserve_mags << " remaining\033[K\n";
 			}
 			std::cout << "        " << status << "\033[K\n";
 		} else {
@@ -347,15 +343,15 @@ int main() {
 		}
 
 		std::cout << "\033[K\nLoadout:";
-		for (int i = 0; i < (int)as_player(p)("weapons"_f).size(); ++i) {
-			bool active = (as_player(p)("current_weapon"_f) && i == as_player(p)("current_weapon_index"_f));
+		for (int i = 0; i < (int)p.weapons.size(); ++i) {
+			bool active = (p.current_weapon && i == p.current_weapon_index);
 			std::string n;
 			for (auto& s : pool)
-				if (s.in_loadout && s.owned.get() == as_player(p)("weapons"_f)[i]) { n = s.name; break; }
+				if (s.in_loadout && s.owned.get() == p.weapons[i]) { n = s.name; break; }
 			std::cout << "  " << (i + 1) << ":"
 			          << (active ? "[" : "") << n << (active ? "]" : "");
 		}
-		if (as_player(p)("weapons"_f).empty()) std::cout << "  (empty)";
+		if (p.weapons.empty()) std::cout << "  (empty)";
 		std::cout << "\033[K\n";
 
 		std::cout << "\033[K\n";
