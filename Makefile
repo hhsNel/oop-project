@@ -41,7 +41,7 @@ $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR) $(RES_HEADER)
 $(RES_HEADER): $(RES)
 	./tools/generate-resources.sh $@ $(RESDIR)
 
-tests/%.out: tests/%.cpp $(filter-out src/main.o, $(OBJ)) $(RESOBJ)
+tests/%.out: tests/%.cpp $(filter-out $(BUILDDIR)/main.o, $(OBJ)) $(RESOBJ)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
 check: $(TEST_BINS)
@@ -50,7 +50,7 @@ check: $(TEST_BINS)
 	done
 	@echo ALL TESTS PASS
 
-manual-tests/%.out: manual-tests/%.cpp $(filter-out src/main.o, $(OBJ)) $(RESOBJ)
+manual-tests/%.out: manual-tests/%.cpp $(filter-out $(BUILDDIR)/main.o, $(OBJ)) $(RESOBJ)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
 manual-check: $(MANUAL_TEST_BINS)
