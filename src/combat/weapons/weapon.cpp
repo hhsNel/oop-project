@@ -4,8 +4,8 @@
 namespace combat {
 	namespace weapons {
 
-		weapon::weapon(ammo_type type, std::unique_ptr<firing_mode> firing, int max, float rate, float dmg, int reserve)
-			: accepted_ammo(type), ammo(std::move(firing)), ammo_count(max),
+		weapon::weapon(std::unique_ptr<firing_mode> firing, int max, float rate, float dmg, int reserve)
+			: ammo(std::move(firing)), ammo_count(max),
 			  max_ammo(max), reserve_mags(reserve), fire_rate(rate), last_shot_time(0.0f), damage(dmg) {}
 
 		bool weapon::can_fire() const {
@@ -14,10 +14,6 @@ namespace combat {
 
 		void weapon::tick(float dt) {
 			last_shot_time = std::max(0.0f, last_shot_time - dt);
-		}
-
-		bool weapon::accepts_ammo(ammo_type type) const {
-			return accepted_ammo == type;
 		}
 
 		void weapon::resupply(int mags) {

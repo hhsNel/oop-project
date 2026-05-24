@@ -9,7 +9,7 @@
 int main();
 
 namespace world_object {
-	class ammo_pickup;
+	template<typename> class ammo_pickup;
 	class weapon_pickup;
 }
 
@@ -36,7 +36,7 @@ namespace entities {
 		void reload();
 		void switch_weapons(int index);
 
-		friend class world_object::ammo_pickup;
+		template<typename> friend class world_object::ammo_pickup;
 		friend class world_object::weapon_pickup;
 	};
 }
