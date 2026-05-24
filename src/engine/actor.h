@@ -34,7 +34,7 @@ namespace engine {
 		virtual void add_shield(float const amount);
 		virtual void add_effect(std::unique_ptr<combat::status_effect> effect);
 
-		[[nodiscard]] bool is_dead() const { return health.is_dead(); }
+		bool is_dead() const { return health.is_dead(); }
 
 		virtual void update(float dt) override;
 	};
