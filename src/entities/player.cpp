@@ -34,7 +34,7 @@ namespace entities {
 		pos += move_dir * movement_speed;
 	}
 
-	void player::rotate(float yaw, float /*pitch*/) {
+	void player::rotate(float yaw) {
 		angle += yaw * sensitivity;
 		// keep angle in [0, 2π)
 		angle = std::fmod(angle, 2.0f * std::numbers::pi_v<float>);

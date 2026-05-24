@@ -11,7 +11,7 @@ namespace combat {
         // Hitscan — natychmiastowy strzal rozwiazywany raycastem.
         // Rzuca promien z pozycji strzalu, zatrzymuje sie na najblizszej solidnej scianie,
         // i zadaje obrazenia najblizszemu aktorowi trafionemu przed ta sciana.
-        class hitscan_firing_mode final : public firing_mode {
+        class hitscan_firing_mode : public firing_mode {
             geometry::map_data* map;
             float               max_range;
             float               hit_radius;   // promien cylindra kolizji aktora (jednostki mapy)
