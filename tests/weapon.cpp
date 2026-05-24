@@ -104,22 +104,22 @@ int main() {
 		} else if (cmd == "pistol_empty") {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
-			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			result(p.can_fire() ? 1 : 0);
 
 		// pistol_overshoot — fire more than magazine, check spawned count capped at 8
 		} else if (cmd == "pistol_overshoot") {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
-			for (int i = 0; i < 12; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			for (int i = 0; i < 12; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// pistol_reload — fire empty, reload: can_fire() = true, ammo_count = 8
 		} else if (cmd == "pistol_reload") {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
-			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
-			p.update(1.0f);
+			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
+			p.tick(1.0f);
 			p.reload();
 			result(p.can_fire() ? 1 : 0);
 			result(p("ammo_count"_f));
@@ -129,7 +129,7 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
-			p.update(0.6f);
+			p.tick(0.6f);
 			result(p.can_fire() ? "YES" : "NO");
 
 		// pistol_cooldown_block — fire, advance 0.3s (< 1/2.0=0.5s), blocked
@@ -137,7 +137,7 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
-			p.update(0.3f);
+			p.tick(0.3f);
 			result(p.can_fire() ? "YES" : "NO");
 
 		// pistol_no_fire_blocked — second fire during cooldown spawns nothing extra
@@ -145,7 +145,7 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
-			p.update(0.3f);
+			p.tick(0.3f);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
@@ -170,7 +170,7 @@ int main() {
 			std::cin >> shots;
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
-			for (int i = 0; i < shots; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			for (int i = 0; i < shots; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			result(p("ammo_count"_f));
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
@@ -181,14 +181,14 @@ int main() {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
 			p.fire({0.0f, 0.0f}, 0.0f);
-			p.update(dt);
+			p.tick(dt);
 			result(p.can_fire() ? "YES" : "NO");
 
 		// reload_check — fire pistol empty (mag=8), reload, report ammo_count
 		} else if (cmd == "reload_check") {
 			combat::weapons::recorded_firing_mode* a;
 			auto p = make_pistol(a);
-			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			p.reload();
 			result(p("ammo_count"_f));
 
@@ -198,11 +198,11 @@ int main() {
 			auto p = make_pistol(a);
 			// exhaust all 5 reserve mags
 			for (int m = 0; m < 5; ++m) {
-				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 				p.reload();
 			}
 			// now fire empty again — no reserve mags left
-			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			p.reload();
 			result(p("ammo_count"_f));
 			result(p("reserve_mags"_f));
@@ -213,11 +213,11 @@ int main() {
 			auto p = make_pistol(a);
 			// exhaust all reserve mags
 			for (int m = 0; m < 5; ++m) {
-				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 				p.reload();
 			}
 			// empty again
-			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.update(1.0f); }
+			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			// resupply 2 mags, reload once
 			p.resupply(2);
 			p.reload();
@@ -303,7 +303,7 @@ int main() {
 			std::cin >> shots;
 			combat::weapons::recorded_firing_mode* a;
 			auto s = make_shotgun(a);
-			for (int i = 0; i < shots; ++i) { s.fire({0.0f, 0.0f}, 0.0f); s.update(1.0f); }
+			for (int i = 0; i < shots; ++i) { s.fire({0.0f, 0.0f}, 0.0f); s.tick(1.0f); }
 			result(static_cast<int>((*a)("spawned"_f).size()));
 
 		// =====================================================================
@@ -320,14 +320,14 @@ int main() {
 		} else if (cmd == "katana_cooldown") {
 			combat::weapons::katana k;
 			k.fire({0.0f, 0.0f}, 0.0f);
-			k.update(0.5f);
+			k.tick(0.5f);
 			result(k.can_fire() ? "YES" : "NO");
 
 		// katana_cooldown_ready — swing, advance 0.7s (> 0.667s), ready
 		} else if (cmd == "katana_cooldown_ready") {
 			combat::weapons::katana k;
 			k.fire({0.0f, 0.0f}, 0.0f);
-			k.update(0.7f);
+			k.tick(0.7f);
 			result(k.can_fire() ? "YES" : "NO");
 
 		// katana_swings <n> — swing n times (cooldown bypass), can fire after
@@ -335,7 +335,7 @@ int main() {
 			int n;
 			std::cin >> n;
 			combat::weapons::katana k;
-			for (int i = 0; i < n; ++i) { k.fire({0.0f, 0.0f}, 0.0f); k.update(1.0f); }
+			for (int i = 0; i < n; ++i) { k.fire({0.0f, 0.0f}, 0.0f); k.tick(1.0f); }
 			result(k.can_fire() ? "YES" : "NO");
 
 		// =====================================================================

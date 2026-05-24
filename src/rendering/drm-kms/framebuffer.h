@@ -1,5 +1,4 @@
 #pragma once
-#define DRM_KMS_FRAMEBUFFER_H
 
 #include <cstdint>
 #include <cstddef>

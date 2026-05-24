@@ -1,4 +1,4 @@
-#include "systems.h"
+#include "health_systems.h"
 #include <algorithm>
 
 namespace systems {
@@ -36,7 +36,7 @@ namespace systems {
 
 	void health_system::process_effects(float dt, engine::actor& owner) {
 		for (auto& effect : active_effects) {
-			bool should_tick = !effect->update(dt);
+			bool should_tick = !effect->tick(dt);
 			if (should_tick) {
 				effect->affect(owner);
 			}

@@ -2,9 +2,6 @@
 
 namespace combat {
 	namespace weapons {
-		katana::katana()
-			: weapon(ammo_type::none, nullptr, 0, 1.5f, 50.0f) {}
-
 		katana::katana(std::unique_ptr<firing_mode> fm)
 			: weapon(ammo_type::none, std::move(fm), 0, 1.5f, 50.0f) {}
 

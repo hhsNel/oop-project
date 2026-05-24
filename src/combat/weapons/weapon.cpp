@@ -12,7 +12,7 @@ namespace combat {
 			return ammo_count > 0 && last_shot_time <= 0.0f;
 		}
 
-		void weapon::update(float dt) {
+		void weapon::tick(float dt) {
 			last_shot_time = std::max(0.0f, last_shot_time - dt);
 		}
 

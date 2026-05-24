@@ -15,8 +15,8 @@ namespace entities {
 		float wander_sign;
 
 	public:
-		monster_trapper(math::vec2 const p, float const z, assets::texture_id const tex, float const is)
-			: monster(p, z, tex, is, 45.0f, 15.0f, 3.0f, 3.0f, 8.0f, 15.0f),
+		monster_trapper(math::vec2 const p, float const z)
+			: monster(p, z, 0, 1.0f, 45.0f, 15.0f, 3.0f, 3.0f, 8.0f, 15.0f),
 			  max_traps(3), traps_placed(0),
 			  trap_timer(0.0f), trap_interval(2.0f),
 			  wander_timer(0.0f), wander_sign(1.0f) {}

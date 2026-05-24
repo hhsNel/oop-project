@@ -60,7 +60,7 @@ int main() {
 		} else if (cmd == "burning_expires") {
 			test_actor a(100.0f, 0.0f, 1.0f);
 			auto b = std::make_unique<combat::burning>(1.0f, 5);
-			b->update(1.1f); // przekraczamy duration
+			b->tick(1.1f); // przekraczamy duration
 			result(b->is_expired() ? "YES" : "NO");
  
 		// burning_via_actor — efekt nałożony przez add_effect tickuje przez update()
@@ -220,7 +220,7 @@ int main() {
 			float duration, dt;
 			std::cin >> duration >> dt;
 			auto b = std::make_unique<combat::burning>(duration, 1);
-			b->update(dt);
+			b->tick(dt);
 			result(b->is_expired() ? "YES" : "NO");
 
 		} else if (cmd == "exit") {

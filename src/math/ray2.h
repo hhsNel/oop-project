@@ -1,5 +1,4 @@
 #pragma once
-#define RAY2_H
 
 #include "vec2.h"
 #include "segment.h"

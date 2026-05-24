@@ -1,6 +1,4 @@
 #pragma once
-#define VEC2_H
-
 #include "util/componentized.h"
 
 namespace math {

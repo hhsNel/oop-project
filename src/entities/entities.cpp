@@ -14,15 +14,14 @@ namespace entities {
 		auto t = target_ptr.lock();
 		if (!t) return 0.0f;
 		math::vec2 d = (*t)("pos"_f) - pos;
-		return std::hypot(d("x"_f), d("y"_f));
-
+		return d.len();
 	}
 
 	math::vec2 monster::dir_to_target() const {
 		auto t = target_ptr.lock();
 		if (!t) return {0.0f, 0.0f};
 		math::vec2 d = (*t)("pos"_f) - pos;
-		float len = std::hypot(d("x"_f), d("y"_f));
+		float len = d.len();
 
 		if (len < 0.0001f) return {0.0f, 0.0f};
 		return d / len;
@@ -54,7 +53,7 @@ namespace entities {
 
 	void player::update(float dt) {
 		actor::update(dt);
-		for (auto* w : weapons) if (w) w->update(dt);
+		for (auto* w : weapons) if (w) w->tick(dt);
 	}
 
 	void player::switch_weapons(int index) {
@@ -75,10 +74,11 @@ namespace entities {
 	void player::move(math::vec3 direction) {
 		float ca = std::cos(angle);
 		float sa = std::sin(angle);
-		pos += math::vec2{
-			(direction("y"_f) * ca + direction("x"_f) * sa) * movement_speed,
-			(direction("y"_f) * sa - direction("x"_f) * ca) * movement_speed
+		math::vec2 move_dir{
+			direction("y"_f) * ca + direction("x"_f) * sa,
+			direction("y"_f) * sa - direction("x"_f) * ca
 		};
+		pos += move_dir * movement_speed;
 	}
 
 	void player::rotate(float yaw, float /*pitch*/) {

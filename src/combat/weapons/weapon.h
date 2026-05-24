@@ -24,9 +24,9 @@ namespace combat
 			[[=util::component_field{}]] float last_shot_time;
 			[[=util::component_field{}]] float damage;
 		public:
-			[[nodiscard]] virtual bool can_fire() const;
-			void update(float dt);
-			[[nodiscard]] bool accepts_ammo(ammo_type type) const;
+			virtual bool can_fire() const;
+			void tick(float dt);
+			bool accepts_ammo(ammo_type type) const;
 			void resupply(int amount);
 
 			virtual void fire(math::vec2 pos, float angle);

@@ -2,7 +2,7 @@
 
 namespace combat {
 
-	bool status_effect::update(float dt) {
+	bool status_effect::tick(float dt) {
 		duration -= dt;
 		if (tick_interval <= 0.0f) return true; // non-ticking effect — affect() never fires
 

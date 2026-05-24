@@ -1,5 +1,4 @@
 #pragma once
-#define DRM_KMS_RENDERING_MODE_H
 
 #include <drm/drm.h>
 #include "rendering/rendering-mode.h"

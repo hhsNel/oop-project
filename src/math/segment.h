@@ -1,5 +1,4 @@
 #pragma once
-#define SEGMENT_H
 
 #include "vec2.h"
 #include "util/componentized.h"

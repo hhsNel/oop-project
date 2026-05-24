@@ -23,8 +23,8 @@ namespace combat
 		virtual void affect(engine::actor&) {}
 		virtual ~status_effect() = default;
 
-		bool update(float dt);
-		[[nodiscard]] bool is_expired() const {return duration <= 0.0f;}
+		bool tick(float dt);
+		bool is_expired() const {return duration <= 0.0f;}
 	};
 }
 

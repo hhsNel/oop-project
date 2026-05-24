@@ -3,7 +3,7 @@
 
 namespace combat {
 	namespace weapons {
-		class pistol final : public weapon {
+		class pistol : public weapon {
 		public:
 			explicit pistol(std::unique_ptr<firing_mode> firing);
 		};

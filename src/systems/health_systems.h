@@ -33,6 +33,6 @@ namespace engine {class actor;}
 			void add_effect(std::unique_ptr<combat::status_effect> effect, engine::actor& owner);
 			void process_effects(float dt, engine::actor& owner);
 		public:
-			[[nodiscard]] bool is_dead() const { return current_hp <= 0.0f; }
+			bool is_dead() const { return current_hp <= 0.0f; }
 		};
 	}

@@ -1,5 +1,4 @@
 #pragma once
-#define ASSET_MANAGER_H
 
 #include <vector>
 #include <string>

@@ -60,12 +60,12 @@ auto& as_sprite(T& m) { return static_cast<util::componentized<rendering::sprite
 // Factory helpers
 template<typename M>
 inspect<M> make_m(math::vec2 pos = ORIGIN) {
-	return inspect<M>(pos, 0.0f, DUMMY_TEX, 1.0f);
+	return inspect<M>(pos, 0.0f);
 }
 
 template<typename W>
 W make_w(math::vec2 pos = ORIGIN) {
-	return W(pos, 0.0f, DUMMY_TEX, 1.0f);
+	return W(pos, 0.0f);
 }
 
 static auto make_player(math::vec2 pos = ORIGIN) {
