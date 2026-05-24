@@ -1,0 +1,7 @@
+wall: kp-textures/walls/manifest
+sprite: kp-textures/sprite/manifest
+flat: kp-textures/flat/manifest
+ui: kp-textures/ui/manifest
+menus: kp-textures/menus/manifest
+audio: kp-textures/audio/manifest
+
