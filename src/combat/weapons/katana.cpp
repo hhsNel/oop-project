@@ -9,9 +9,9 @@ namespace combat {
 			return last_shot_time <= 0.0f;
 		}
 
-		void katana::fire(math::vec2 pos, float angle) {
+		void katana::fire(math::vec2 pos, float angle, std::span<engine::actor*> targets) {
 			if (!can_fire()) return;
-			if (ammo) ammo->spawn_bullet(pos, angle, damage);
+			if (ammo) ammo->spawn_bullet(pos, angle, damage, targets);
 			last_shot_time = 1.0f / fire_rate;
 		}
 

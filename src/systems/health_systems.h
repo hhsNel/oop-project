@@ -10,29 +10,28 @@
 
 namespace engine {class actor;}
 
-	namespace systems {
-		class health_system : public util::componentized<health_system> {
-			[[=util::component_field{}]] float current_hp;
-			[[=util::component_field{}]] float max_hp;
-			[[=util::component_field{}]] float armor;
-			[[=util::component_field{}]] float max_armor;
+namespace systems {
+	class health_system : public util::componentized<health_system> {
+		[[=util::component_field{}]] float current_hp;
+		[[=util::component_field{}]] float max_hp;
+		[[=util::component_field{}]] float armor;
+		[[=util::component_field{}]] float max_armor;
 
-			[[=util::component_field{}]] std::vector<std::unique_ptr<combat::status_effect>> active_effects;
+		[[=util::component_field{}]] std::vector<std::unique_ptr<combat::status_effect>> active_effects;
 
-			friend class util::componentized<health_system>;
+		friend class util::componentized<health_system>;
 
-		public:
-			health_system();
-			health_system(float hp, float max, float arm, float max_arm);
+	public:
+		health_system(float hp, float max, float arm, float max_arm);
 
-			void apply_damage(float amount);
-			void apply_heal(float amount);
-			void apply_shield(float amount);
-			void apply_true_damage(float amount);
+		void apply_damage(float amount);
+		void apply_heal(float amount);
+		void apply_shield(float amount);
+		void apply_true_damage(float amount);
 
-			void add_effect(std::unique_ptr<combat::status_effect> effect, engine::actor& owner);
-			void process_effects(float dt, engine::actor& owner);
+		void add_effect(std::unique_ptr<combat::status_effect> effect, engine::actor& owner);
+		void process_effects(float dt, engine::actor& owner);
 
-			bool is_dead() const { return current_hp <= 0.0f; }
-		};
-	}
+		bool is_dead() const { return current_hp <= 0.0f; }
+	};
+}

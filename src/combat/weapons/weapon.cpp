@@ -20,9 +20,9 @@ namespace combat {
 			reserve_mags += mags;
 		}
 
-		void weapon::fire(math::vec2 pos, float angle) {
+		void weapon::fire(math::vec2 pos, float angle, std::span<engine::actor*> targets) {
 			if (!can_fire()) return;
-			ammo->spawn_bullet(pos, angle, damage);
+			ammo->spawn_bullet(pos, angle, damage, targets);
 			--ammo_count;
 			last_shot_time = 1.0f / fire_rate;
 		}

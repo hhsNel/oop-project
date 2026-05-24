@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "engine/actor.h"
 
 int main();
@@ -9,7 +7,7 @@ int main();
 namespace entities {
 	class monster : public engine::actor {
 	protected:
-		std::weak_ptr<engine::actor> target_ptr;
+		engine::actor* target_ptr = nullptr;
 		float attack_cooldown;
 		float attack_range;
 		float detection_radius;

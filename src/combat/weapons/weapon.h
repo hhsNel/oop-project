@@ -26,7 +26,7 @@ namespace combat
 			void tick(float dt);
 			void resupply(int amount);
 
-			virtual void fire(math::vec2 pos, float angle);
+			virtual void fire(math::vec2 pos, float angle, std::span<engine::actor*> targets = {});
 			virtual void reload();
 			virtual ~weapon() = default;
 

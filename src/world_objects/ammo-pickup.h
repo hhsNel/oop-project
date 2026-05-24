@@ -2,7 +2,6 @@
 
 #include "pickup.h"
 #include "entities/player.h"
-#include "combat/weapons/weapon.h"
 
 namespace world_object {
 
@@ -14,14 +13,8 @@ namespace world_object {
 			: pickup(pos, radius), amount(amt) {}
 
 		void on_pickup(entities::player& p) override {
-			for (combat::weapons::weapon* w : p.weapons) {
-				if (!w) continue;
-				if (dynamic_cast<WeaponT*>(w)) {
-					w->resupply(amount);
-					collected = true;
-					return;
-				}
-			}
+			if (p.resupply<WeaponT>(amount))
+				collected = true;
 		}
 	};
 

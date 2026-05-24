@@ -4,21 +4,18 @@
 namespace entities {
 
 	bool monster::has_target() const {
-		auto t = target_ptr.lock();
-		return t && !t->is_dead();
+		return target_ptr && !target_ptr->is_dead();
 	}
 
 	float monster::dist_to_target() const {
-		auto t = target_ptr.lock();
-		if (!t) return 0.0f;
-		math::vec2 d = (*t)("pos"_f) - pos;
+		if (!target_ptr) return 0.0f;
+		math::vec2 d = (*target_ptr)("pos"_f) - pos;
 		return d.len();
 	}
 
 	math::vec2 monster::dir_to_target() const {
-		auto t = target_ptr.lock();
-		if (!t) return {0.0f, 0.0f};
-		math::vec2 d = (*t)("pos"_f) - pos;
+		if (!target_ptr) return {0.0f, 0.0f};
+		math::vec2 d = (*target_ptr)("pos"_f) - pos;
 		return d.normalized();
 	}
 
@@ -36,8 +33,7 @@ namespace entities {
 	}
 
 	void monster::melee_attack(float damage) {
-		auto t = target_ptr.lock();
-		if (t) t->take_damage(damage);
+		if (target_ptr) target_ptr->take_damage(damage);
 	}
 
 	void monster::update(float dt) {

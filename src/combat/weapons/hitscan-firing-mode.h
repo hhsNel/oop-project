@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include "firing-mode.h"
 #include "geometry/map-data.h"
 #include "engine/actor.h"
@@ -16,7 +15,6 @@ namespace combat {
             geometry::map_data const* map;
             float               max_range;
             float               hit_radius;   // promien cylindra kolizji aktora (jednostki mapy)
-            std::vector<engine::actor*> targets;
 
             friend int ::main();
 
@@ -25,7 +23,8 @@ namespace combat {
                             float range  = 8192.0f,
                             float radius = 16.0f);
 
-            void spawn_bullet(math::vec2 pos, float angle, float damage) override;
+            void spawn_bullet(math::vec2 pos, float angle, float damage,
+                              std::span<engine::actor*> targets = {}) override;
         };
     }
 }

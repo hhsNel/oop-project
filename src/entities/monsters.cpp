@@ -334,10 +334,9 @@ void monster_elite_swift::update(float dt) {
 
     // Kręci się wokół gracza
     circle_angle += movement_speed * dt;
-    auto t = target_ptr.lock();
-    if (t) {
-        pos("x"_f) = (*t)("pos"_f)("x"_f) + std::cos(circle_angle) * circle_radius;
-        pos("y"_f) = (*t)("pos"_f)("y"_f) + std::sin(circle_angle) * circle_radius;
+    if (target_ptr) {
+        pos("x"_f) = (*target_ptr)("pos"_f)("x"_f) + std::cos(circle_angle) * circle_radius;
+        pos("y"_f) = (*target_ptr)("pos"_f)("y"_f) + std::sin(circle_angle) * circle_radius;
     }
 
     // Strzela będąc w zasięgu

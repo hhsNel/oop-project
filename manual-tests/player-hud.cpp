@@ -6,7 +6,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 #include "entities/player.h"
 #include "combat/weapons/pistol.h"
@@ -24,7 +23,7 @@
 
 namespace {
 	struct noop_firing_mode : combat::weapons::firing_mode {
-		void spawn_bullet(math::vec2, float, float) override {}
+		void spawn_bullet(math::vec2, float, float, std::span<engine::actor*>) override {}
 	};
 }
 
@@ -40,7 +39,7 @@ struct inspect : public M {
 };
 
 struct weapon_slot {
-	std::unique_ptr<combat::weapons::weapon> owned;
+	combat::weapons::weapon* ref;   // non-owning, for identification
 	std::string name;
 	float reload_timer;
 	float reload_duration;
@@ -63,53 +62,68 @@ static weapon_slot* find_slot(std::vector<weapon_slot>& pool,
 {
 	if (!cur) return nullptr;
 	for (auto& s : pool)
-		if (s.owned.get() == cur) return &s;
+		if (s.ref == cur) return &s;
 	return nullptr;
 }
 
 int main() {
 	std::cout << "\033[2J\033[H\033[?25l" << std::flush;
 
-	// ---- weapon pool ----
-	std::vector<weapon_slot> pool;
-
-	auto add_bullet = [&](auto wptr, const std::string& name,
-	                       float reload_dur, bool is_auto = false) {
-		pool.push_back({ std::move(wptr), name,
-		                 0.0f, reload_dur, false, false, is_auto });
-	};
-
-	{ auto a = std::make_unique<noop_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::pistol>(std::move(a)),      "Pistol",     1.5f);       }
-	{ auto a = std::make_unique<noop_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::smg>(std::move(a)),         "SMG",        2.5f, true); }
-	{ auto a = std::make_unique<noop_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::rifle>(std::move(a)),       "Rifle",      2.0f, true); }
-	{ auto a = std::make_unique<noop_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::shotgun>(std::move(a)),     "Shotgun",    3.0f);       }
-	{ auto a = std::make_unique<noop_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::sniper_rifle>(std::move(a)),"Sniper",     3.5f);       }
-	{ auto a = std::make_unique<noop_firing_mode>();
-	  add_bullet(std::make_unique<combat::weapons::plasma_gun>(std::move(a)),  "Plasma Gun", 2.0f);       }
-	pool.push_back({ std::make_unique<combat::weapons::katana>(),
-	                 "Katana", 0.0f, 0.0f, false, true, false });
-
-	pool[0].in_loadout = true;  // start with pistol
-
 	// ---- player ----
 	inspect<entities::player> p({0.0f, 0.0f}, 0.0f, 0, 1.0f, 100.0f, 50.0f, 2.0f, 1.0f);
 
-	auto rebuild_loadout = [&]() {
-		auto* preserve = p.current_weapon;
-		p.weapons.clear();
-		for (auto& s : pool)
-			if (s.in_loadout) p.weapons.push_back(s.owned.get());
-		if (!p.weapons.empty()) {
-			for (int i = 0; i < (int)p.weapons.size(); ++i) {
-				if (p.weapons[i] == preserve) { p.switch_weapons(i); return; }
-			}
-			p.switch_weapons(0);
+	// ---- weapon pool (metadata) ----
+	std::vector<weapon_slot> pool;
+
+	auto add_weapon = [&](auto wptr, const std::string& name,
+	                       float reload_dur, bool melee = false, bool is_auto = false) {
+		p.weapons.push_back(std::move(wptr));
+		pool.push_back({ &*p.weapons.back(), name,
+		                 0.0f, reload_dur, false, melee, is_auto });
+	};
+
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_weapon(std::make_unique<combat::weapons::pistol>(std::move(a)),      "Pistol",     1.5f);       }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_weapon(std::make_unique<combat::weapons::smg>(std::move(a)),         "SMG",        2.5f, false, true); }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_weapon(std::make_unique<combat::weapons::rifle>(std::move(a)),       "Rifle",      2.0f, false, true); }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_weapon(std::make_unique<combat::weapons::shotgun>(std::move(a)),     "Shotgun",    3.0f);       }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_weapon(std::make_unique<combat::weapons::sniper_rifle>(std::move(a)),"Sniper",     3.5f);       }
+	{ auto a = std::make_unique<noop_firing_mode>();
+	  add_weapon(std::make_unique<combat::weapons::plasma_gun>(std::move(a)),  "Plasma Gun", 2.0f);       }
+	add_weapon(std::make_unique<combat::weapons::katana>(),
+	           "Katana", 0.0f, true);
+
+	pool[0].in_loadout = true;  // start with pistol
+
+	// Helper: get raw pointer to current weapon
+	auto cur_wp = [&]() -> combat::weapons::weapon* {
+		if (p.current_weapon_index < 0 || p.current_weapon_index >= (int)p.weapons.size())
+			return nullptr;
+		return &*p.weapons[p.current_weapon_index];
+	};
+
+	// Helper: get indices (into p.weapons) of in-loadout weapons, in pool order
+	auto loadout_indices = [&]() -> std::vector<int> {
+		std::vector<int> result;
+		for (auto& s : pool) {
+			if (!s.in_loadout) continue;
+			for (int i = 0; i < (int)p.weapons.size(); ++i)
+				if (&*p.weapons[i] == s.ref) { result.push_back(i); break; }
 		}
+		return result;
+	};
+
+	// Select the right weapon after loadout change
+	auto rebuild_loadout = [&]() {
+		auto li = loadout_indices();
+		if (li.empty()) { p.current_weapon_index = -1; return; }
+		for (int idx : li)
+			if (idx == p.current_weapon_index) return;
+		p.switch_weapons(li[0]);
 	};
 	rebuild_loadout();
 
@@ -138,7 +152,7 @@ int main() {
 	bool prev_v     = false;
 	bool prev_enter = false;
 	bool prev_bs    = false;
-	bool prev_num[10] = {};   // index 0=n0 .. 9=n9
+	bool prev_num[10] = {};
 
 	const input::key numkeys[10] = {
 		input::key::n0, input::key::n1, input::key::n2, input::key::n3, input::key::n4,
@@ -174,7 +188,7 @@ int main() {
 			}
 		}
 
-		weapon_slot* cur_slot = find_slot(pool, p.current_weapon);
+		weapon_slot* cur_slot = find_slot(pool, cur_wp());
 
 		if (game_over) {
 			if (edge(input::key::v, prev_v))
@@ -184,10 +198,13 @@ int main() {
 			if (mode == cmd_mode::none) {
 				for (int i = 1; i <= 9; ++i) {
 					bool down = backend->is_key_down(numkeys[i]);
-					if (down && !prev_num[i]) p.switch_weapons(i - 1);
+					if (down && !prev_num[i]) {
+						auto li = loadout_indices();
+						if (i - 1 < (int)li.size()) p.switch_weapons(li[i - 1]);
+					}
 					prev_num[i] = down;
 				}
-				cur_slot = find_slot(pool, p.current_weapon);
+				cur_slot = find_slot(pool, cur_wp());
 			}
 
 			// Shoot — auto weapons fire while LMB held, semi on press edge
@@ -205,7 +222,7 @@ int main() {
 			bool r_down = backend->is_key_down(input::key::r);
 			if (r_down && !prev_r && cur_slot
 			    && !cur_slot->is_melee
-			    && cur_slot->owned->reserve_mags > 0
+			    && cur_slot->ref->reserve_mags > 0
 			    && cur_slot->reload_timer <= 0.0f)
 			{
 				cur_slot->reload_timer = cur_slot->reload_duration;
@@ -221,9 +238,9 @@ int main() {
 
 			// Remove current weapon from loadout
 			bool minus_down = backend->is_key_down(input::key::hyphen);
-			if (minus_down && !prev_minus && p.current_weapon)
+			if (minus_down && !prev_minus && cur_wp())
 				for (auto& s : pool)
-					if (s.in_loadout && s.owned.get() == p.current_weapon) {
+					if (s.in_loadout && s.ref == cur_wp()) {
 						s.in_loadout = false; rebuild_loadout(); break;
 					}
 			prev_minus = minus_down;
@@ -264,7 +281,7 @@ int main() {
 					s.reload_timer -= dt;
 					if (s.reload_timer <= 0.0f) {
 						s.reload_timer = 0.0f;
-						s.owned->reload();
+						s.ref->reload();
 					}
 				}
 			}
@@ -273,7 +290,8 @@ int main() {
 		p.update(dt);  // ticks status effects regardless of alive state
 
 		// ---- render HUD ----
-		cur_slot = find_slot(pool, p.current_weapon);
+		auto* cw = cur_wp();
+		cur_slot = find_slot(pool, cw);
 		std::cout << "\033[H";
 
 		std::cout << (game_over ? "=== GAME  OVER  ===" : "=== PLAYER STATUS ===") << "\033[K\n";
@@ -291,12 +309,16 @@ int main() {
 
 		std::cout << "\033[K\n";
 
-		if (p.current_weapon && cur_slot) {
-			auto* cw = p.current_weapon;
+		if (cw && cur_slot) {
+			auto li = loadout_indices();
+			int slot_pos = 0;
+			for (int i = 0; i < (int)li.size(); ++i)
+				if (li[i] == p.current_weapon_index) { slot_pos = i; break; }
+
 			std::cout << "Weapon: " << cur_slot->name
 			          << (cur_slot->is_auto ? " [AUTO]" : "")
-			          << "  (slot " << (p.current_weapon_index + 1)
-			          << " / " << p.weapons.size() << ")\033[K\n";
+			          << "  (slot " << (slot_pos + 1)
+			          << " / " << li.size() << ")\033[K\n";
 
 			// Status line (reload / cooldown / ready)
 			std::string status;
@@ -343,15 +365,15 @@ int main() {
 		}
 
 		std::cout << "\033[K\nLoadout:";
-		for (int i = 0; i < (int)p.weapons.size(); ++i) {
-			bool active = (p.current_weapon && i == p.current_weapon_index);
-			std::string n;
-			for (auto& s : pool)
-				if (s.in_loadout && s.owned.get() == p.weapons[i]) { n = s.name; break; }
-			std::cout << "  " << (i + 1) << ":"
-			          << (active ? "[" : "") << n << (active ? "]" : "");
+		int slot_n = 0;
+		for (auto& s : pool) {
+			if (!s.in_loadout) continue;
+			bool active = (s.ref == cw);
+			std::cout << "  " << (slot_n + 1) << ":"
+			          << (active ? "[" : "") << s.name << (active ? "]" : "");
+			++slot_n;
 		}
-		if (p.weapons.empty()) std::cout << "  (empty)";
+		if (slot_n == 0) std::cout << "  (empty)";
 		std::cout << "\033[K\n";
 
 		std::cout << "\033[K\n";

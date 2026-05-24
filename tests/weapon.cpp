@@ -21,7 +21,7 @@ namespace combat { namespace weapons {
 	private:
 		[[=util::component_field{}]] std::vector<shot_record> spawned;
 	public:
-		void spawn_bullet(math::vec2 pos, float angle, float damage) override {
+		void spawn_bullet(math::vec2 pos, float angle, float damage, std::span<engine::actor*>) override {
 			spawned.push_back({pos, angle, damage});
 		}
 	};

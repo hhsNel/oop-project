@@ -8,7 +8,7 @@ namespace combat {
 			explicit katana(std::unique_ptr<firing_mode> firing = nullptr);
 
 			bool can_fire() const override;
-			void fire(math::vec2 pos, float angle) override;
+			void fire(math::vec2 pos, float angle, std::span<engine::actor*> targets = {}) override;
 			void reload() override;
 		};
 	}

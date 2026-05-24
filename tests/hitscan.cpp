@@ -36,6 +36,15 @@ static void result(const std::string& s) {
 // Shorthand: fire one hitscan shot and return the ammo object for inspection.
 static combat::weapons::hitscan_firing_mode*
 fire(combat::weapons::hitscan_firing_mode* ammo,
+     math::vec2 from, float angle, float damage,
+     std::span<engine::actor*> targets)
+{
+    ammo->spawn_bullet(from, angle, damage, targets);
+    return ammo;
+}
+
+static combat::weapons::hitscan_firing_mode*
+fire(combat::weapons::hitscan_firing_mode* ammo,
      math::vec2 from, float angle, float damage = 10.0f)
 {
     ammo->spawn_bullet(from, angle, damage);
@@ -66,8 +75,8 @@ int main() {
         if (cmd == "hs_direct_hit") {
             auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, 0.0f);
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
             result(m.hp());
 
         // ── hs_miss_side ─────────────────────────────────────────────────
@@ -77,8 +86,8 @@ int main() {
         } else if (cmd == "hs_miss_side") {
             auto m = make_at<entities::monster_basic>({0.0f, 100.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, 0.0f);
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
             result(m.hp());
 
         // ── hs_miss_behind ───────────────────────────────────────────────
@@ -88,8 +97,8 @@ int main() {
         } else if (cmd == "hs_miss_behind") {
             auto m = make_at<entities::monster_basic>({-100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, 0.0f);
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
             result(m.hp());
 
         // ── hs_miss_range ────────────────────────────────────────────────
@@ -99,8 +108,8 @@ int main() {
         } else if (cmd == "hs_miss_range") {
             auto m = make_at<entities::monster_basic>({600.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, 500.0f);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, 0.0f);
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
             result(m.hp());
 
         // ── hs_hit_in_range ──────────────────────────────────────────────
@@ -110,8 +119,8 @@ int main() {
         } else if (cmd == "hs_hit_in_range") {
             auto m = make_at<entities::monster_basic>({400.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, 500.0f);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, 0.0f);
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
             result(m.hp());
 
         // ── hs_wall_blocks ───────────────────────────────────────────────
@@ -123,8 +132,8 @@ int main() {
             map.linedefs.add(solid_wall({50.0f, -50.0f}, {50.0f, 50.0f}));
             auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, 0.0f);
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
             result(m.hp());
 
         // ── hs_wall_behind_actor ─────────────────────────────────────────
@@ -136,8 +145,8 @@ int main() {
             map.linedefs.add(solid_wall({200.0f, -50.0f}, {200.0f, 50.0f}));
             auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, 0.0f);
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
             result(m.hp());
 
         // ── hs_portal_passes ─────────────────────────────────────────────
@@ -149,8 +158,8 @@ int main() {
             map.linedefs.add(portal_wall({50.0f, -50.0f}, {50.0f, 50.0f}));
             auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, 0.0f);
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
             result(m.hp());
 
         // ── hs_closest_wins ──────────────────────────────────────────────
@@ -161,8 +170,8 @@ int main() {
             auto a = make_at<entities::monster_basic>({50.0f,  0.0f});
             auto b = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->targets = std::vector<engine::actor*>({&a, &b});
-            fire(ammo.get(), ORIGIN, 0.0f);
+            engine::actor* t[] = {&a, &b};
+            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
             result(a.hp());
             result(b.hp());
 
@@ -174,8 +183,8 @@ int main() {
             auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             m.take_damage(999.0f);  // kill
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, 0.0f);  // should be skipped
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);  // should be skipped
             result(m.hp());
 
         // ── hs_angle_north ───────────────────────────────────────────────
@@ -185,8 +194,8 @@ int main() {
         } else if (cmd == "hs_angle_north") {
             auto m = make_at<entities::monster_basic>({0.0f, 100.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, std::numbers::pi_v<float> / 2.0f);
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, std::numbers::pi_v<float> / 2.0f, 10.0f, t);
             result(m.hp());
 
         // ── hs_no_targets ────────────────────────────────────────────────
@@ -194,7 +203,7 @@ int main() {
         // Expected: "OK"
         } else if (cmd == "hs_no_targets") {
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            fire(ammo.get(), ORIGIN, 0.0f);
+            fire(&*ammo, ORIGIN, 0.0f);
             result("OK");
 
         // ── hs_damage_exact ──────────────────────────────────────────────
@@ -204,8 +213,8 @@ int main() {
         } else if (cmd == "hs_damage_exact") {
             auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            ammo->targets = std::vector<engine::actor*>({&m});
-            fire(ammo.get(), ORIGIN, 0.0f, 7.0f);
+            engine::actor* t[] = {&m};
+            fire(&*ammo, ORIGIN, 0.0f, 7.0f, t);
             result(m.hp());
         }
     }

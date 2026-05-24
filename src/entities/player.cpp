@@ -6,22 +6,25 @@ namespace entities {
 
 	void player::update(float dt) {
 		actor::update(dt);
-		for (auto* w : weapons) if (w) w->tick(dt);
+		for (auto& w : weapons) if (w) w->tick(dt);
 	}
 
 	void player::switch_weapons(int index) {
 		if (index < 0 || index >= static_cast<int>(weapons.size())) return;
-		current_weapon       = weapons[index];
 		current_weapon_index = index;
 	}
 
-	void player::shoot() {
-		if (current_weapon && current_weapon->can_fire())
-			current_weapon->fire(pos, angle);
+	void player::shoot(std::span<engine::actor*> targets) {
+		if (current_weapon_index < 0) return;
+		auto& w = weapons[current_weapon_index];
+		if (w && w->can_fire())
+			w->fire(pos, angle, targets);
 	}
 
 	void player::reload() {
-		if (current_weapon) current_weapon->reload();
+		if (current_weapon_index < 0) return;
+		auto& w = weapons[current_weapon_index];
+		if (w) w->reload();
 	}
 
 	void player::move(math::vec2 direction) {

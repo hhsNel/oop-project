@@ -27,7 +27,7 @@ inspect<M> make_m(math::vec2 pos = ORIGIN) {
 }
 
 static auto make_player(math::vec2 pos = ORIGIN) {
-	return std::make_shared<inspect<entities::player>>(pos, 0.0f, DUMMY_TEX, 1.0f, 100.0f, 0.0f, 2.0f, 1.0f);
+	return inspect<entities::player>(pos, 0.0f, DUMMY_TEX, 1.0f, 100.0f, 0.0f, 2.0f, 1.0f);
 }
 
 static void result(float v) {
@@ -206,7 +206,7 @@ int main() {
 		} else if (cmd == "basic_moves") {
 			auto t = make_player({5.0f, 0.0f});
 			auto m = make_m<entities::monster_basic>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			m.update(1.0f);
 			result(as_sprite(m)("pos"_f)("x"_f) > 0.0f ? "YES" : "NO");
 
@@ -214,7 +214,7 @@ int main() {
 		} else if (cmd == "basic_no_detect") {
 			auto t = make_player({10.0f, 0.0f});
 			auto m = make_m<entities::monster_basic>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			m.update(1.0f);
 			result(as_sprite(m)("pos"_f)("x"_f) == 0.0f ? "YES" : "NO");
 
@@ -222,8 +222,8 @@ int main() {
 		} else if (cmd == "basic_dead_target") {
 			auto t = make_player({5.0f, 0.0f});
 			auto m = make_m<entities::monster_basic>();
-			m.target_ptr = t;
-			t->take_damage(200.0f);
+			m.target_ptr = &t;
+			t.take_damage(200.0f);
 			m.update(1.0f);
 			result(as_sprite(m)("pos"_f)("x"_f) == 0.0f ? "YES" : "NO");
 
@@ -231,7 +231,7 @@ int main() {
 		} else if (cmd == "ranged_retreats") {
 			auto t = make_player({3.0f, 0.0f});
 			auto m = make_m<entities::monster_ranged>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			m.update(1.0f);
 			result(as_sprite(m)("pos"_f)("x"_f) < 0.0f ? "YES" : "NO");
 
@@ -239,7 +239,7 @@ int main() {
 		} else if (cmd == "ranged_advances") {
 			auto t = make_player({12.0f, 0.0f});
 			auto m = make_m<entities::monster_ranged>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			m.update(1.0f);
 			result(as_sprite(m)("pos"_f)("x"_f) > 0.0f ? "YES" : "NO");
 
@@ -247,7 +247,7 @@ int main() {
 		} else if (cmd == "maly_szybki_dashes") {
 			auto t = make_player({5.0f, 0.0f});
 			auto m = make_m<entities::monster_Maly_Szybki>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			m.update(0.01f); // ustawia is_dashing=true
 			m.update(0.5f);  // pędzi
 			result(as_sprite(m)("pos"_f)("x"_f) > 0.0f ? "YES" : "NO");
@@ -256,7 +256,7 @@ int main() {
 		} else if (cmd == "elite_swift_circles") {
 			auto t = make_player();
 			auto m = make_m<entities::monster_elite_swift>({5.0f, 0.0f});
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			// Pierwszy update: charge_cd=0 -> zaczyna szarze, charge_timer=0.8
 			// Szarza konczy sie po dotarciu lub po charge_timer<=0, ustawia charge_cd=5.0
 			m.update(0.01f); // start charge
@@ -274,47 +274,47 @@ int main() {
 		} else if (cmd == "basic_attacks") {
 			auto t = make_player({1.0f, 0.0f});
 			auto m = make_m<entities::monster_basic>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			m.update(1.0f);
-			result(t->hp());
+			result(t.hp());
 
 		// basic nie atakuje dwa razy pod rząd — cooldown blokuje drugi atak
 		} else if (cmd == "basic_attack_cooldown") {
 			auto t = make_player({1.0f, 0.0f});
 			auto m = make_m<entities::monster_basic>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			m.update(0.01f); // pierwszy atak
 			m.update(0.01f); // cooldown aktywny
-			result(t->hp());
+			result(t.hp());
 
 		// sniper nie strzela przed upływem shoot_interval=3s
 		} else if (cmd == "sniper_no_early") {
 			auto t = make_player({5.0f, 0.0f});
 			auto m = make_m<entities::monster_sniper>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			m.update(1.0f); // aim_timer=1.0 < shoot_interval=3.0
-			result(t->hp());
+			result(t.hp());
 
 		// sniper strzela gdy aim_timer >= shoot_interval (30 dmg)
 		} else if (cmd == "sniper_fires") {
 			auto t = make_player({5.0f, 0.0f});
 			auto m = make_m<entities::monster_sniper>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			// aim_timer starts at 0, shoot_interval=3.0
 			// update(3.1) -> aim_timer=3.1 >= 3.0 -> strzal
 			m.update(3.1f);
-			result(t->hp());
+			result(t.hp());
 
 		// magic strzela po naladowaniu charge_time=2s (40 dmg)
 		} else if (cmd == "magic_fires") {
 			auto t = make_player({5.0f, 0.0f});
 			auto m = make_m<entities::monster_magic>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			// Pierwszy update ustawia is_charging=true, charge_timer rośnie
 			m.update(0.01f);
 			// charge_timer musi osiagnac charge_time=2.0
 			m.update(2.0f); // charge_timer=2.01 >= 2.0 -> strzal
-			result(t->hp());
+			result(t.hp());
 
 		// =====================================================================
 		// AI — zachowania specyficzne
@@ -324,7 +324,7 @@ int main() {
 		} else if (cmd == "all_rounder_melee") {
 			auto t = make_player({2.0f, 0.0f});
 			auto m = make_m<entities::monster_all_rounder>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			m.update(0.01f);
 			result(m.melee_mode ? "YES" : "NO");
 
@@ -338,7 +338,7 @@ int main() {
 		} else if (cmd == "trapper_places_trap") {
 			auto t = make_player({5.0f, 0.0f});
 			auto m = make_m<entities::monster_trapper>();
-			m.target_ptr = t;
+			m.target_ptr = &t;
 			m.update(2.1f);
 			result(m.traps_placed);
 

@@ -9,7 +9,8 @@ namespace combat {
         hitscan_firing_mode::hitscan_firing_mode(geometry::map_data const* m, float range, float radius)
             : map(m), max_range(range), hit_radius(radius) {}
 
-        void hitscan_firing_mode::spawn_bullet(math::vec2 pos, float angle, float damage) {
+        void hitscan_firing_mode::spawn_bullet(math::vec2 pos, float angle, float damage,
+                                                   std::span<engine::actor*> targets) {
             math::vec2 dir{std::cos(angle), std::sin(angle)};
             math::ray2 ray{pos, dir};
 
