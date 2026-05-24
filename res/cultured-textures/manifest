@@ -3,4 +3,5 @@ sprite: cultured-textures/sprite/manifest
 flat: cultured-textures/flat/manifest
 ui: cultured-textures/ui/manifest
 menus: cultured-textures/menus/manifest
+audio: cultured-textures/audio/manifest
 

@@ -34,6 +34,7 @@ namespace assets {
 		texture const& flat_tx_by_id(texture_id const id) const;
 		texture const& ui_tx_by_id(texture_id const id) const;
 		menu &menu_by_id(menu_id const id);
+		audio_clip const& audio_clip_by_id(audio_clip_id const id) const;
 
 		int display_menu(menu_id const id, rendering::renderer_2d const& r2d, rendering::rendering_backend &rb, input::input_backend &in);
 	};
