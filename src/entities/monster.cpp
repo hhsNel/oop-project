@@ -19,10 +19,7 @@ namespace entities {
 		auto t = target_ptr.lock();
 		if (!t) return {0.0f, 0.0f};
 		math::vec2 d = (*t)("pos"_f) - pos;
-		float len = d.len();
-
-		if (len < 0.0001f) return {0.0f, 0.0f};
-		return d / len;
+		return d.normalized();
 	}
 
 	void monster::move_toward_target(float speed, float dt) {
@@ -33,9 +30,8 @@ namespace entities {
 		pos -= dir_to_target() * (speed * dt);
 	}
 
-	void monster::strafe(float speed, float sign, float dt) {
-		math::vec2 d = dir_to_target();
-		math::vec2 perp = d.perpendicular() * sign;
+	void monster::strafe(float speed, float dt) {
+		math::vec2 perp = dir_to_target().perpendicular();
 		pos += perp * (speed * dt);
 	}
 

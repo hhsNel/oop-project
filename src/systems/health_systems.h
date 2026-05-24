@@ -20,8 +20,8 @@ namespace engine {class actor;}
 			[[=util::component_field{}]] std::vector<std::unique_ptr<combat::status_effect>> active_effects;
 
 			friend class util::componentized<health_system>;
-			friend class engine::actor;
 
+		public:
 			health_system();
 			health_system(float hp, float max, float arm, float max_arm);
 
@@ -32,7 +32,7 @@ namespace engine {class actor;}
 
 			void add_effect(std::unique_ptr<combat::status_effect> effect, engine::actor& owner);
 			void process_effects(float dt, engine::actor& owner);
-		public:
+
 			bool is_dead() const { return current_hp <= 0.0f; }
 		};
 	}

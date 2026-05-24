@@ -18,11 +18,13 @@ namespace systems {
 	}
 
 	void health_system::apply_heal(float amount) {
-		current_hp = std::min(max_hp, current_hp + amount);
+		current_hp += amount;
+		if (current_hp > max_hp) current_hp = max_hp;
 	}
 
 	void health_system::apply_shield(float amount) {
-		armor = std::min(max_armor, armor + amount);
+		armor += amount;
+		if (armor > max_armor) armor = max_armor;
 	}
 
 	void health_system::apply_true_damage(float amount) {

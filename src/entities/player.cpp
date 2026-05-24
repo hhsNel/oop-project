@@ -24,7 +24,7 @@ namespace entities {
 		if (current_weapon) current_weapon->reload();
 	}
 
-	void player::move(math::vec3 direction) {
+	void player::move(math::vec2 direction) {
 		float ca = std::cos(angle);
 		float sa = std::sin(angle);
 		math::vec2 move_dir{

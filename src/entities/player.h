@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "engine/actor.h"
-#include "math/vec3.h"
+#include "math/vec2.h"
 #include "combat/weapons/weapon.h"
 
 int main();
@@ -30,8 +30,8 @@ namespace entities {
 			  current_weapon_index(0) {}
 
 		void update(float dt) override;
-		void move(math::vec3 direction);
-		void rotate(float yaw, float pitch);
+		void move(math::vec2 direction);
+		void rotate(float yaw);
 		void shoot();
 		void reload();
 		void switch_weapons(int index);

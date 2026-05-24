@@ -57,7 +57,7 @@ void monster_assault::update(float dt) {
         strafe_sign   = -strafe_sign;
         strafe_timer  = 1.2f;
     }
-    strafe(movement_speed * 0.7f, strafe_sign, dt);
+    strafe(movement_speed * 0.7f * strafe_sign, dt);
 
     // Repos lekko naprzód/wstecz
     float preferred = attack_range * 0.75f;
@@ -117,7 +117,7 @@ void monster_trapper::update(float dt) {
         wander_sign  = -wander_sign;
         wander_timer = 1.5f;
     }
-    strafe(movement_speed, wander_sign, dt);
+    strafe(movement_speed * wander_sign, dt);
     move_toward_target(movement_speed * 0.3f, dt);
 
     // Rozstawia pułapkę
@@ -244,7 +244,7 @@ void monster_magic::update(float dt) {
     // Cooldown po strzale — idzie w bok
     if (post_fire_cooldown > 0.0f) {
         post_fire_cooldown -= dt;
-        strafe(movement_speed, sidestep_sign, dt);
+        strafe(movement_speed * sidestep_sign, dt);
         return;
     }
 
@@ -259,7 +259,7 @@ void monster_magic::update(float dt) {
         sidestep_sign  = -sidestep_sign;
         sidestep_timer = 0.8f;
     }
-    strafe(movement_speed * 0.4f, sidestep_sign, dt);
+    strafe(movement_speed * 0.4f * sidestep_sign, dt);
 
     charge_timer += dt;
     if (charge_timer >= charge_time && dist <= attack_range && attack_cooldown <= 0.0f) {

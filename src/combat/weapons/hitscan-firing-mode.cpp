@@ -6,7 +6,7 @@
 namespace combat {
     namespace weapons {
 
-        hitscan_firing_mode::hitscan_firing_mode(geometry::map_data* m, float range, float radius)
+        hitscan_firing_mode::hitscan_firing_mode(geometry::map_data const* m, float range, float radius)
             : map(m), max_range(range), hit_radius(radius) {}
 
         void hitscan_firing_mode::spawn_bullet(math::vec2 pos, float angle, float damage) {

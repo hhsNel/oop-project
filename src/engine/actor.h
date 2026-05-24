@@ -20,13 +20,8 @@ namespace engine {
 		faction	team;
 
 		actor(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float const hp, float const shield, float const move_speed, faction const this_team)
-			: renderable_entity(p, z, tex, is), angle(0.0f), movement_speed(move_speed), team(this_team)
-		{
-			health.max_hp = hp;
-			health.current_hp = hp;
-			health.armor = shield;
-			health.max_armor = shield;
-		}
+			: renderable_entity(p, z, tex, is), health(hp, hp, shield, shield), angle(0.0f), movement_speed(move_speed), team(this_team)
+		{}
 
 		virtual void take_damage(float const dmg);
 		virtual void take_true_damage(float const dmg);

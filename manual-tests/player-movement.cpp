@@ -121,13 +121,13 @@ int main() {
         if (i_back->is_key_down(input::key::d)) strafe -= dt;
 
         if (fwd != 0.0f || strafe != 0.0f)
-            p.move({strafe, fwd, 0.0f});
+            p.move({strafe, fwd});
 
         auto mouse   = i_back->get_mouse_state();
         int delta_x  = mouse.x - prev_mouse_x;
         prev_mouse_x = mouse.x;
         if (delta_x != 0)
-            p.rotate(static_cast<float>(delta_x) * MOUSE_SENS, 0.0f);
+            p.rotate(static_cast<float>(delta_x) * MOUSE_SENS);
 
         p.update(dt);
 
