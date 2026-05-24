@@ -23,7 +23,7 @@ int main() {
     audio::alsa::backend backend;
     audio::audio_mixer   mixer(backend, FORMAT);
 
-    if (backend.is_bad()) {
+    if (backend.bad()) {
         std::cerr << "error: audio backend failed to initialise\n";
         return 1;
     }
@@ -64,7 +64,7 @@ int main() {
         // --- Mix + write one ~10 ms chunk (blocks for the chunk duration) ---
         mixer.step(FRAMES);
 
-        if (backend.is_bad()) {
+        if (backend.bad()) {
             std::cerr << "error: audio backend entered a bad state\n";
             return 1;
         }
