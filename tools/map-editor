@@ -31,7 +31,7 @@ import pygame
 #  Constants
 # ══════════════════════════════════════════════════════════════════════════════
 
-SCREEN_W, SCREEN_H = 1400, 1000
+SCREEN_W, SCREEN_H = 1400, 900
 PANEL_W  = 290
 CANVAS_W = SCREEN_W - PANEL_W
 CANVAS_H = SCREEN_H
@@ -1028,9 +1028,13 @@ class Editor:
 >>>>>>> 59ed830 (feat:monster spawn in map)
         self._flash_timer = 0
 
+<<<<<<< HEAD
         self.color_picker = ColorPicker()
         self.props        = PropertiesPanel(self.color_picker)
 
+=======
+        self._init_fields()
+>>>>>>> bd79ad0 (fix:monster spawn in map)
         self._build_panel()
         self._rebuild_bsp()
 
@@ -1043,6 +1047,20 @@ class Editor:
                 self.status = f"Could not load {preload}: {e}"
 
     # ── Panel construction ─────────────────────────────────────────────────────
+
+    def _init_fields(self):
+        """Create persistent input fields (survive panel rebuilds)."""
+        self.fi_monster_type = TextInput(pygame.Rect(0,0,1,1), "2", numeric=True)
+        self.fi_monster_z    = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.fi_sec_idx      = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_floor_h      = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.fi_ceil_h       = TextInput(pygame.Rect(0,0,1,1), "128.0", numeric=True)
+        self.fi_floor_tex    = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_ceil_tex     = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_light        = TextInput(pygame.Rect(0,0,1,1), "200", numeric=True)
+        self.fi_upper        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_mid          = TextInput(pygame.Rect(0,0,1,1), "1", numeric=True)
+        self.fi_lower        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
 
     def _build_panel(self):
         px = CANVAS_W + 10
@@ -1075,12 +1093,11 @@ class Editor:
             y += h+4
             return b
 
-        def field(val="", num=False, h=28):
+        def place_field(fi, h=28):
             nonlocal y
-            f = TextInput(pygame.Rect(px, y, pw, h), val, numeric=num)
-            self.widgets.append(f)
+            fi.rect = pygame.Rect(px, y, pw, h)
+            self.widgets.append(fi)
             y += h+4
-            return f
 
         self.widgets = []
 
@@ -1100,20 +1117,45 @@ class Editor:
         self.tb_delete  = tbtn("✕  Delete",  TOOL_DELETE)
         self._tool_btns = [self.tb_vertex,self.tb_line,self.tb_sector,
                            self.tb_monster,self.tb_select,self.tb_delete]
+<<<<<<< HEAD
 >>>>>>> 59ed830 (feat:monster spawn in map)
         self.tb_line.active = True
+=======
+        for tb in self._tool_btns:
+            if tb.tool_id == self.tool: tb.active = True
+>>>>>>> bd79ad0 (fix:monster spawn in map)
 
         sep()
 
-        # ── Monster props ─────────────────────────────────────────────────────
-        lbl("  MONSTER", color=TEXT_DIM); y += 2
-        lbl("Type ID (0-12):")
-        self.fi_monster_type = field("2", num=True)
-        lbl("Z height:")
-        self.fi_monster_z = field("0.0", num=True)
+        # ── Monster props (only for monster tool) ─────────────────────────────
+        if self.tool == TOOL_MONSTER:
+            lbl("  MONSTER", color=TEXT_DIM); y += 2
+            lbl("Type ID (0-12):")
+            place_field(self.fi_monster_type)
+            lbl("Z height:")
+            place_field(self.fi_monster_z)
+            sep()
 
-        sep()
+        # ── Sector / Sidedef props (only for line & sector tools) ─────────────
+        if self.tool in (TOOL_LINE, TOOL_SECTOR):
+            lbl("  SECTOR", color=TEXT_DIM); y += 2
+            lbl("Index:")
+            place_field(self.fi_sec_idx)
+            self.btn_new_sec = btn("+ New Sector")
+            lbl("Floor height:")
+            place_field(self.fi_floor_h)
+            lbl("Ceiling height:")
+            place_field(self.fi_ceil_h)
+            lbl("Floor tex ID:")
+            place_field(self.fi_floor_tex)
+            lbl("Ceiling tex ID:")
+            place_field(self.fi_ceil_tex)
+            lbl("Light (0-255):")
+            place_field(self.fi_light)
+            self.btn_apply = btn("Apply Sector", accent=True)
+            sep()
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         # ── Pickup props ──────────────────────────────────────────────────────
         lbl("  PICKUP", color=TEXT_DIM); y += 2
@@ -1156,6 +1198,16 @@ class Editor:
         self.fi_lower = field("0", num=True)
 
         sep()
+=======
+            lbl("  SIDEDEF TEXTURES", color=TEXT_DIM); y += 2
+            lbl("Upper tex:")
+            place_field(self.fi_upper)
+            lbl("Mid tex:")
+            place_field(self.fi_mid)
+            lbl("Lower tex:")
+            place_field(self.fi_lower)
+            sep()
+>>>>>>> bd79ad0 (fix:monster spawn in map)
 
         lbl("  FILE / BSP", color=TEXT_DIM); y += 2
         self.btn_bsp    = btn("Show BSP Overlay")
@@ -1773,6 +1825,8 @@ class Editor:
     # ── Button actions ─────────────────────────────────────────────────────────
 
     def _btn_action(self, btn):
+        if not hasattr(self, 'btn_new_sec'): self.btn_new_sec=None
+        if not hasattr(self, 'btn_apply'):   self.btn_apply=None
         if btn==self.btn_new_sec:
             ci=len(self.map.sectors)%len(DEFAULT_SECTOR_COLORS)
             self.map.sectors.append(Sector(color_idx=ci))
@@ -1835,9 +1889,9 @@ class Editor:
             self._rebuild_bsp(); self.status="Map cleared."
 
         elif isinstance(btn, ToolButton):
-            for tb in self._tool_btns: tb.active=False
-            btn.active=True; self.tool=btn.tool_id
+            self.tool=btn.tool_id
             if btn.tool_id!=TOOL_LINE: self.line_start=None
+            self._build_panel()
 
     # ── Main loop ──────────────────────────────────────────────────────────────
 
