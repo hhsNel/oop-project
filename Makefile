@@ -1,12 +1,12 @@
 SRCDIR = src
-MODULES = math geometry assets engine combat combat/weapons rendering util input rendering/drm-kms entities world_objects systems audio audio/alsa
+MODULES = math geometry assets engine combat combat/weapons rendering util input rendering/drm-kms entities world_objects systems audio audio/alsa game
 BUILDDIR = build
 RESDIR = res
 TESTDIR = tests
 MANUALTESTDIR = manual-tests
 
 TARGET = isekai-doom
-SRC = $(foreach MODULE, $(MODULES), $(wildcard $(SRCDIR)/$(MODULE)/*.cpp))
+SRC = $(SRCDIR)/main.cpp $(foreach MODULE, $(MODULES), $(wildcard $(SRCDIR)/$(MODULE)/*.cpp))
 RES = $(shell find $(RESDIR) -type f)
 RES_HEADER = $(SRCDIR)/res.h
 TEST_SRCS = $(wildcard $(TESTDIR)/*.cpp)
@@ -35,13 +35,13 @@ $(TARGET): $(OBJ) $(RESOBJ)
 $(BUILDDIR)/res/%.o: $(RESDIR)/% $(BUILDDIR)
 	objcopy $(OCFLAGS) $< $@
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(SRCDIR)/%.h $(BUILDDIR) $(RES_HEADER)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR) $(RES_HEADER)
 	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(RES_HEADER): $(RES)
 	./tools/generate-resources.sh $@ $(RESDIR)
 
-tests/%.out: tests/%.cpp $(filter-out src/main.o, $(OBJ)) $(RESOBJ)
+tests/%.out: tests/%.cpp $(filter-out $(BUILDDIR)/main.o, $(OBJ)) $(RESOBJ)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
 check: $(TEST_BINS)
@@ -50,7 +50,7 @@ check: $(TEST_BINS)
 	done
 	@echo ALL TESTS PASS
 
-manual-tests/%.out: manual-tests/%.cpp $(filter-out src/main.o, $(OBJ)) $(RESOBJ)
+manual-tests/%.out: manual-tests/%.cpp $(filter-out $(BUILDDIR)/main.o, $(OBJ)) $(RESOBJ)
 	$(CXX) -o $@ $(CXXFLAGS) $^ $(LDFLAGS)
 
 manual-check: $(MANUAL_TEST_BINS)
