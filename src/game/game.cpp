@@ -19,10 +19,12 @@ namespace game {
 		rb(std::make_unique<rendering::drm_kms::backend>()),
 		ab(std::make_unique<audio::alsa::backend>()),
 		md{},
-		mix(*ab, audio::audio_format{44100, 2, 16}),
+		mix(*ab, audio::audio_format{48000, 2, 16}),
 		r2d(*rb, am, am.flat_tx_by_id(0)),
 		sr(*rb, am, md),
-		w{} {
+//		w(),
+
+		fov(1.55) {
 		if (input->is_bad()) {
 			std::cerr << "error: failed to initialize input backend\n";
 			std::exit(1);
@@ -98,11 +100,13 @@ namespace game {
 			float dt_secs = std::chrono::duration<float>(now - last_tick).count();
 			last_tick     = now;
 
-			mix.step(static_cast<int>(44100 * dt_secs));
+			mix.step(static_cast<int>(48000 * dt_secs));
 			rb->wait_for_vsync();
 
 			scroll_offset += 90 * dt_secs;
 		}
+
+		mix.stop_all();
 	}
 
 	void game::ts_from_resource(std::string const& res_name, assets::audio_clip_id const aid) {
@@ -127,8 +131,157 @@ namespace game {
 		text_scroll(lines, aid);
 	}
 
-	void game::run() {
+	void game::credits() {
+		ts_from_resource("credits", 0);
+	}
+
+	void game::opening() {
 		ts_from_resource("opening-scroll", 0);
+	}
+
+	void game::ending() {
+		ts_from_resource("ending-scroll", 0);
+	}
+
+	void game::show_main_menu() {
+		while(1) {
+			int result = am.display_menu(0, r2d, *rb, *input);
+
+			switch (result) {
+				case -1:
+					return;
+				case 0:
+					loop();
+					break;
+				case 1:
+					credits();
+					break;
+				case 2:
+					show_options();
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	void game::show_options() {
+		auto modes = (*rb)("modes"_f);
+		std::size_t mode_idx = 0;
+
+		while(1) {
+			assets::menu& menu = am.menu_by_id(1);
+
+			menu.selective_formatter(
+				"{mode}|{fov}",
+				[&](std::string_view tmpl) {
+					struct replacement { std::string_view marker; std::string value; };
+					replacement replacements[] = {
+						{ "{mode}", modes.empty() ? "N/A" :
+							std::to_string((*modes[mode_idx])("x_res"_f))+"x"+std::to_string((*modes[mode_idx])("y_res"_f))+" "+std::to_string((*modes[mode_idx])("refresh_hz"_f))+"Hz" },
+						{ "{fov}", std::to_string(fov) },
+					};
+
+					std::string result(tmpl);
+					for (auto const& r : replacements) {
+						for (std::size_t pos = 0;
+							 (pos = result.find(r.marker, pos)) != std::string::npos;) {
+							result.replace(pos, r.marker.size(), r.value);
+							pos += r.value.size();
+						}
+					}
+					return result;
+				}
+			);
+
+			int result = am.display_menu(1, r2d, *rb, *input);
+
+			switch (result) {
+				case -1:
+					return;
+				case 0:
+					am.cycle_set();
+					break;
+				case 1:
+					if (!modes.empty()) {
+						mode_idx = (mode_idx + modes.size() - 1) % modes.size();
+						rb->push_mode(std::move(modes[mode_idx]));
+						modes = (*rb)("modes"_f);
+					}
+					break;
+				case 2:
+					if (!modes.empty()) {
+						mode_idx = (mode_idx + 1) % modes.size();
+						rb->push_mode(std::move(modes[mode_idx]));
+						modes = (*rb)("modes"_f);
+					}
+					break;
+				case 3:
+					if (fov > 0.5) fov -= 0.05;
+					break;
+				case 4:
+					if (fov < 3) fov += 0.05;
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	void game::loop() {
+		/* TODO */
+//		math::vec2 cam_pos{0.0f, 0.0f};
+//		float cam_angle  = 0.0f;
+//		float cam_height = 0.0f;
+//		constexpr float MOVE_SPEED  = 3.0f;
+//		constexpr float TURN_SPEED  = 2.0f;
+		/* TODO */
+
+		auto last_tick = std::chrono::high_resolution_clock::now();
+
+		while(1) {
+			auto now = std::chrono::high_resolution_clock::now();
+			float dt = std::chrono::duration<float>(now - last_tick).count();
+			last_tick = now;
+
+			/* guard */
+			if (dt > 0.5f) dt = 0.5f;
+
+			input->update();
+			if (input->is_key_down(input::key::esc)) break;
+
+			/* TODO */
+//			if (input->is_key_down(input::key::d))
+//				cam_angle -= TURN_SPEED * dt;
+//			if (input->is_key_down(input::key::a))
+//				cam_angle += TURN_SPEED * dt;
+//			float dx = std::cos(cam_angle);
+//			float dy = std::sin(cam_angle);
+//			if (input->is_key_down(input::key::w)) {
+//				cam_pos.x += dx * MOVE_SPEED * dt;
+//				cam_pos.y += dy * MOVE_SPEED * dt;
+//			}
+//			if (input->is_key_down(input::key::s)) {
+//				cam_pos.x -= dx * MOVE_SPEED * dt;
+//				cam_pos.y -= dy * MOVE_SPEED * dt;
+//			}
+			/* TODO */
+
+			w.update(dt);
+
+			//sr.render_bsp(cam_pos, cam_height, cam_angle, fov);
+
+			rb->flush();
+
+			mix.step(static_cast<int>(48000.0f * dt));
+
+			rb->wait_for_vsync();
+		}
+	}
+
+	void game::run() {
+//		opening();
+		show_main_menu();
 	}
 
 }

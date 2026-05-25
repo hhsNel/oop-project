@@ -12,8 +12,8 @@ namespace engine {
 		std::vector<util::indexed_storage<std::unique_ptr<entity>>::id_t> deleted_entities;
 
 	public:
+		
 		world();
-		~world();
 
 		world(const world&) = delete;
 		world& operator=(const world&) = delete;
