@@ -1,8 +1,9 @@
 #include "smg.h"
+#include "hitscan-firing-mode.h"
 
 namespace combat {
 	namespace weapons {
-		smg::smg(std::unique_ptr<firing_mode> firing)
-			: weapon(std::move(firing), 30, 10.0f, 10.0f, 4) {}
+		smg::smg(geometry::map_data const* map)
+			: weapon(std::make_unique<hitscan_firing_mode>(map), 30, 10.0f, 10.0f, 4) {}
 	}
 }

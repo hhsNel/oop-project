@@ -5,13 +5,6 @@
 #include "entities/player.h"
 #include "combat/weapons/pistol.h"
 #include "combat/weapons/smg.h"
-#include "combat/weapons/firing-mode.h"
-
-namespace {
-	struct noop_firing_mode : combat::weapons::firing_mode {
-		void spawn_bullet(math::vec2, float, float, std::span<engine::actor*>) override {}
-	};
-}
 
 static constexpr math::vec2 ORIGIN{0.0f, 0.0f};
 static constexpr assets::texture_id DUMMY_TEX = 0;
@@ -35,14 +28,6 @@ struct inspect : public M {
 	bool  dead()  const { return this->health.is_dead(); }
 };
 
-static auto make_owned_pistol() {
-	return std::make_unique<combat::weapons::pistol>(std::make_unique<noop_firing_mode>());
-}
-
-static auto make_owned_smg() {
-	return std::make_unique<combat::weapons::smg>(std::make_unique<noop_firing_mode>());
-}
-
 static entities::player make_p() {
 	return entities::player(ORIGIN, 0.0f, DUMMY_TEX, 1.0f, 100.0f, 0.0f, 2.0f, 1.0f);
 }
@@ -56,8 +41,8 @@ int main() {
 		// switch_index — add pistol+smg, switch to index 1 -> current_weapon_index=1
 		if (cmd == "switch_index") {
 			auto p = make_p();
-			p.weapons.push_back(make_owned_pistol());
-			p.weapons.push_back(make_owned_smg());
+			p.weapons.push_back(std::make_unique<combat::weapons::pistol>());
+			p.weapons.push_back(std::make_unique<combat::weapons::smg>());
 			p.switch_weapons(0);
 			p.switch_weapons(1);
 			result(p.current_weapon_index);
@@ -65,8 +50,8 @@ int main() {
 		// switch_back — switch to 1 then back to 0 -> current_weapon_index=0
 		} else if (cmd == "switch_back") {
 			auto p = make_p();
-			p.weapons.push_back(make_owned_pistol());
-			p.weapons.push_back(make_owned_smg());
+			p.weapons.push_back(std::make_unique<combat::weapons::pistol>());
+			p.weapons.push_back(std::make_unique<combat::weapons::smg>());
 			p.switch_weapons(1);
 			p.switch_weapons(0);
 			result(p.current_weapon_index);
@@ -74,7 +59,7 @@ int main() {
 		// switch_oob — switch to index beyond end; index unchanged
 		} else if (cmd == "switch_oob") {
 			auto p = make_p();
-			p.weapons.push_back(make_owned_pistol());
+			p.weapons.push_back(std::make_unique<combat::weapons::pistol>());
 			p.switch_weapons(0);
 			p.switch_weapons(5);
 			result(p.current_weapon_index);
@@ -82,7 +67,7 @@ int main() {
 		// switch_neg — switch to negative index; index unchanged
 		} else if (cmd == "switch_neg") {
 			auto p = make_p();
-			p.weapons.push_back(make_owned_pistol());
+			p.weapons.push_back(std::make_unique<combat::weapons::pistol>());
 			p.switch_weapons(0);
 			p.switch_weapons(-1);
 			result(p.current_weapon_index);
@@ -90,7 +75,7 @@ int main() {
 		// shoot_ammo — pistol mag=8, shoot once -> ammo=7
 		} else if (cmd == "shoot_ammo") {
 			auto p = make_p();
-			p.weapons.push_back(make_owned_pistol());
+			p.weapons.push_back(std::make_unique<combat::weapons::pistol>());
 			p.switch_weapons(0);
 			p.shoot();
 			result(p.weapons[0]->ammo_count);
@@ -104,7 +89,7 @@ int main() {
 		// shoot_blocked — rate=2.0: shoot twice without update, second shot blocked -> ammo=7
 		} else if (cmd == "shoot_blocked") {
 			auto p = make_p();
-			p.weapons.push_back(make_owned_pistol());
+			p.weapons.push_back(std::make_unique<combat::weapons::pistol>());
 			p.switch_weapons(0);
 			p.shoot();
 			p.shoot();
@@ -113,7 +98,7 @@ int main() {
 		// shoot_after_update — rate=2.0: shoot, update 0.6s, shoot -> ammo=6
 		} else if (cmd == "shoot_after_update") {
 			auto p = make_p();
-			p.weapons.push_back(make_owned_pistol());
+			p.weapons.push_back(std::make_unique<combat::weapons::pistol>());
 			p.switch_weapons(0);
 			p.shoot();
 			p.update(0.6f);
@@ -123,7 +108,7 @@ int main() {
 		// reload_current — fire empty (8 shots), reload -> ammo=8
 		} else if (cmd == "reload_current") {
 			auto p = make_p();
-			p.weapons.push_back(make_owned_pistol());
+			p.weapons.push_back(std::make_unique<combat::weapons::pistol>());
 			p.switch_weapons(0);
 			for (int i = 0; i < 8; ++i) { p.shoot(); p.update(1.0f); }
 			p.reload();
@@ -132,7 +117,7 @@ int main() {
 		// can_fire_after_empty — fire empty, can player still shoot? NO
 		} else if (cmd == "can_fire_after_empty") {
 			auto p = make_p();
-			p.weapons.push_back(make_owned_pistol());
+			p.weapons.push_back(std::make_unique<combat::weapons::pistol>());
 			p.switch_weapons(0);
 			for (int i = 0; i < 8; ++i) { p.shoot(); p.update(1.0f); }
 			p.shoot(); // should do nothing

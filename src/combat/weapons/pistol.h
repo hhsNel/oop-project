@@ -1,11 +1,13 @@
 #pragma once
 #include "weapon.h"
 
+namespace geometry { class map_data; }
+
 namespace combat {
 	namespace weapons {
 		class pistol : public weapon {
 		public:
-			explicit pistol(std::unique_ptr<firing_mode> firing);
+			explicit pistol(geometry::map_data const* map = nullptr);
 		};
 	}
 }

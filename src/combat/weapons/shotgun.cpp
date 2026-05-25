@@ -1,9 +1,10 @@
 #include "shotgun.h"
+#include "hitscan-firing-mode.h"
 
 namespace combat {
 	namespace weapons {
-		shotgun::shotgun(std::unique_ptr<firing_mode> firing)
-			: weapon(std::move(firing), 8, 1.0f, 15.0f, 4) {}
+		shotgun::shotgun(geometry::map_data const* map)
+			: weapon(std::make_unique<hitscan_firing_mode>(map), 8, 1.0f, 15.0f, 4) {}
 
 		void shotgun::fire(math::vec2 pos, float angle, std::span<engine::actor*> targets) {
 			if (!can_fire()) return;

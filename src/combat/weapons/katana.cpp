@@ -2,8 +2,8 @@
 
 namespace combat {
 	namespace weapons {
-		katana::katana(std::unique_ptr<firing_mode> fm)
-			: weapon(std::move(fm), 0, 1.5f, 50.0f) {}
+		katana::katana()
+			: weapon(nullptr, 0, 1.5f, 50.0f) {}
 
 		bool katana::can_fire() const {
 			return last_shot_time <= 0.0f;

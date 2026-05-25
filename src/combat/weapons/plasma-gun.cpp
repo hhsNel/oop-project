@@ -1,8 +1,9 @@
 #include "plasma-gun.h"
+#include "hitscan-firing-mode.h"
 
 namespace combat {
 	namespace weapons {
-		plasma_gun::plasma_gun(std::unique_ptr<firing_mode> firing)
-			: weapon(std::move(firing), 10, 1.0f, 75.0f, 3) {}
+		plasma_gun::plasma_gun(geometry::map_data const* map)
+			: weapon(std::make_unique<hitscan_firing_mode>(map), 10, 1.0f, 75.0f, 3) {}
 	}
 }

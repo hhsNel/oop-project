@@ -1,6 +1,8 @@
 #pragma once
 #include "weapon.h"
 
+namespace geometry { class map_data; }
+
 namespace combat {
 	namespace weapons {
 		// Shotgun nadpisuje fire() — strzela wieloma pelletami z rozrzutem.
@@ -9,7 +11,7 @@ namespace combat {
 			static constexpr int   pellet_count = 8;
 			static constexpr float spread       = 0.2618f; // ~15 degrees total
 
-			explicit shotgun(std::unique_ptr<firing_mode> firing);
+			explicit shotgun(geometry::map_data const* map = nullptr);
 			void fire(math::vec2 pos, float angle, std::span<engine::actor*> targets = {}) override;
 		};
 	}
