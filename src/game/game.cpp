@@ -22,7 +22,7 @@ namespace game {
 		mix(*ab, audio::audio_format{48000, 2, 16}),
 		r2d(*rb, am, am.flat_tx_by_id(0)),
 		sr(*rb, am, md),
-		w{},
+		w(),
 
 		fov(1.55) {
 		if (input->is_bad()) {
@@ -230,11 +230,11 @@ namespace game {
 
 	void game::loop() {
 		/* TODO */
-		math::vec2 cam_pos{0.0f, 0.0f};
-		float cam_angle  = 0.0f;
-		float cam_height = 0.0f;
-		constexpr float MOVE_SPEED  = 3.0f;
-		constexpr float TURN_SPEED  = 2.0f;
+//		math::vec2 cam_pos{0.0f, 0.0f};
+//		float cam_angle  = 0.0f;
+//		float cam_height = 0.0f;
+//		constexpr float MOVE_SPEED  = 3.0f;
+//		constexpr float TURN_SPEED  = 2.0f;
 		/* TODO */
 
 		auto last_tick = std::chrono::high_resolution_clock::now();
@@ -251,20 +251,20 @@ namespace game {
 			if (input->is_key_down(input::key::esc)) break;
 
 			/* TODO */
-			if (input->is_key_down(input::key::d))
-				cam_angle -= TURN_SPEED * dt;
-			if (input->is_key_down(input::key::a))
-				cam_angle += TURN_SPEED * dt;
-			float dx = std::cos(cam_angle);
-			float dy = std::sin(cam_angle);
-			if (input->is_key_down(input::key::w)) {
-				cam_pos.x += dx * MOVE_SPEED * dt;
-				cam_pos.y += dy * MOVE_SPEED * dt;
-			}
-			if (input->is_key_down(input::key::s)) {
-				cam_pos.x -= dx * MOVE_SPEED * dt;
-				cam_pos.y -= dy * MOVE_SPEED * dt;
-			}
+//			if (input->is_key_down(input::key::d))
+//				cam_angle -= TURN_SPEED * dt;
+//			if (input->is_key_down(input::key::a))
+//				cam_angle += TURN_SPEED * dt;
+//			float dx = std::cos(cam_angle);
+//			float dy = std::sin(cam_angle);
+//			if (input->is_key_down(input::key::w)) {
+//				cam_pos.x += dx * MOVE_SPEED * dt;
+//				cam_pos.y += dy * MOVE_SPEED * dt;
+//			}
+//			if (input->is_key_down(input::key::s)) {
+//				cam_pos.x -= dx * MOVE_SPEED * dt;
+//				cam_pos.y -= dy * MOVE_SPEED * dt;
+//			}
 			/* TODO */
 
 			w.update(dt);
