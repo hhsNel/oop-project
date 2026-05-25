@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Doom-style Map Editor  —  pure pygame, no external UI library
-Exports: sectors.bin  sidedefs.bin  linedefs.bin  subsectors.bin  nodes.bin
+Exports: sectors.bin  sidedefs.bin  linedefs.bin  subsectors.bin  nodes.bin  monsters.bin
 
 Binary layouts (packed, little-endian):
   bin_sector    : float fh, float ch, uint32 floor_tex, uint32 ceil_tex, uint8 light
@@ -11,6 +11,7 @@ Binary layouts (packed, little-endian):
   bin_bsp_node  : float pl_x,pl_y,dir_x,dir_y,
                   f_top,f_bot,f_left,f_right, b_top,b_bot,b_left,b_right,
                   uint32 front_child, uint32 back_child
+  bin_monster   : uint32 type, int x, int y, float z
 """
 
 import sys, os, math, struct, json
@@ -22,8 +23,13 @@ import pygame
 #  Constants
 # ══════════════════════════════════════════════════════════════════════════════
 
+<<<<<<< HEAD
 SCREEN_W, SCREEN_H = 1400, 900
 PANEL_W  = 250
+=======
+SCREEN_W, SCREEN_H = 1400, 1000
+PANEL_W  = 290
+>>>>>>> 59ed830 (feat:monster spawn in map)
 CANVAS_W = SCREEN_W - PANEL_W
 CANVAS_H = SCREEN_H
 
@@ -86,6 +92,15 @@ TOOL_LINE   = "line"
 TOOL_SECTOR = "sector"
 TOOL_SELECT = "select"
 TOOL_DELETE = "delete"
+TOOL_MONSTER = "monster"
+
+MONSTER_NAMES = [
+    "all_rounder", "assault", "basic", "boss", "duzy_gruby",
+    "elite_swift", "elite_tank", "magic", "maly_szybki",
+    "ranged", "sniper", "spawner", "trapper",
+]
+MONSTER_COL  = (255, 80, 80)
+MONSTER_HOV  = (255, 180, 180)
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  Data model
@@ -124,17 +139,31 @@ class Linedef:
     back:  int = NULL_ID
 
 @dataclass
+class MonsterSpawn:
+    x: float; y: float
+    monster_type: int = 2   # default: basic
+    z: float = 0.0
+
+@dataclass
 class MapData:
     vertices: list = field(default_factory=list)
     sectors:  list = field(default_factory=list)
     sidedefs: list = field(default_factory=list)
     linedefs: list = field(default_factory=list)
+<<<<<<< HEAD
     subsector_colors: list = field(default_factory=list)  # per-subsector RGB
+=======
+    monsters: list = field(default_factory=list)
+>>>>>>> 59ed830 (feat:monster spawn in map)
 
     def clear(self):
         self.vertices.clear(); self.sectors.clear()
         self.sidedefs.clear(); self.linedefs.clear()
+<<<<<<< HEAD
         self.subsector_colors.clear()
+=======
+        self.monsters.clear()
+>>>>>>> 59ed830 (feat:monster spawn in map)
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  BSP builder
@@ -257,7 +286,10 @@ def export_bin(md: MapData, out_dir: str):
                 n.f_top,n.f_bot,n.f_left,n.f_right,
                 n.b_top,n.b_bot,n.b_left,n.b_right,
                 n.front_child,n.back_child))
-    return len(md.sectors),len(md.linedefs),len(nodes),len(sub_recs)
+    with open(os.path.join(out_dir,"monsters.bin"),"wb") as f:
+        for m in md.monsters:
+            f.write(struct.pack("<Iiif", m.monster_type, int(m.x), int(m.y), m.z))
+    return len(md.sectors),len(md.linedefs),len(nodes),len(sub_recs),len(md.monsters)
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  JSON save / load
@@ -273,7 +305,12 @@ def save_json(md,path):
                     "mid_tex":sd.mid_tex,"lower_tex":sd.lower_tex} for sd in md.sidedefs],
        "linedefs":[{"v0":l.v0,"v1":l.v1,"front":l.front,"back":l.back}
                    for l in md.linedefs],
+<<<<<<< HEAD
        "subsector_colors":[list(c) if c else None for c in md.subsector_colors]}
+=======
+       "monsters":[{"x":m.x,"y":m.y,"monster_type":m.monster_type,"z":m.z}
+                   for m in md.monsters]}
+>>>>>>> 59ed830 (feat:monster spawn in map)
     with open(path,"w") as f: json.dump(d,f,indent=2)
 
 def load_json(path):
@@ -288,8 +325,12 @@ def load_json(path):
         md.sectors.append(sec)
     md.sidedefs=[Sidedef(**sd) for sd in d["sidedefs"]]
     md.linedefs=[Linedef(**l) for l in d["linedefs"]]
+<<<<<<< HEAD
     sc = d.get("subsector_colors", [])
     md.subsector_colors = [tuple(c) if c else None for c in sc]
+=======
+    md.monsters=[MonsterSpawn(**m) for m in d.get("monsters",[])]
+>>>>>>> 59ed830 (feat:monster spawn in map)
     return md
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -917,6 +958,7 @@ class Editor:
         self.panning   = False
         self.pan_start = (0,0); self.pan_cam = (0.0,0.0)
 
+<<<<<<< HEAD
         self.sel_verts     = []
         self.sel_lines     = []
         self.sel_sector    = None
@@ -927,13 +969,27 @@ class Editor:
         self.hov_subsector = None
         self.line_start    = None
         self.cur_sector    = 0
+=======
+        # Edit state
+        self.sel_verts  = []
+        self.sel_lines  = []
+        self.hov_vert   = None
+        self.hov_line   = None
+        self.line_start = None
+        self.cur_sector = 0
+        self.hov_monster = None
+>>>>>>> 59ed830 (feat:monster spawn in map)
 
         self.show_bsp  = False
         self.bsp_nodes = []; self.bsp_subs = []
         self.bsp_verts = []; self.bsp_lines = []
         self.bsp_nc    = 0;  self.bsp_sc   = 0
 
+<<<<<<< HEAD
         self.status = "F1 or ? for help  |  V=vertex  L=line  S=paint  E=select  D=delete  |  F5=export"
+=======
+        self.status = "V=vertex  L=line  S=paint sector  M=monster  E=select  D=delete  |  F5=export"
+>>>>>>> 59ed830 (feat:monster spawn in map)
         self._flash_timer = 0
 
         self.color_picker = ColorPicker()
@@ -993,17 +1049,31 @@ class Editor:
         self.widgets = []
 
         lbl("  TOOLS", color=TEXT_DIM); y += 2
-        self.tb_vertex = tbtn("✦  Vertex",  TOOL_VERTEX)
-        self.tb_line   = tbtn("╱  Line",    TOOL_LINE)
-        self.tb_sector = tbtn("▣  Paint Sector", TOOL_SECTOR)
-        self.tb_select = tbtn("⊹  Select",  TOOL_SELECT)
-        self.tb_delete = tbtn("✕  Delete",  TOOL_DELETE)
+        self.tb_vertex  = tbtn("✦  Vertex",  TOOL_VERTEX)
+        self.tb_line    = tbtn("╱  Line",    TOOL_LINE)
+        self.tb_sector  = tbtn("▣  Paint Sector", TOOL_SECTOR)
+        self.tb_monster = tbtn("☠  Monster", TOOL_MONSTER)
+        self.tb_select  = tbtn("⊹  Select",  TOOL_SELECT)
+        self.tb_delete  = tbtn("✕  Delete",  TOOL_DELETE)
         self._tool_btns = [self.tb_vertex,self.tb_line,self.tb_sector,
-                           self.tb_select,self.tb_delete]
+                           self.tb_monster,self.tb_select,self.tb_delete]
         self.tb_line.active = True
 
         sep()
 
+<<<<<<< HEAD
+=======
+        # ── Monster props ─────────────────────────────────────────────────────
+        lbl("  MONSTER", color=TEXT_DIM); y += 2
+        lbl("Type ID (0-12):")
+        self.fi_monster_type = field("2", num=True)
+        lbl("Z height:")
+        self.fi_monster_z = field("0.0", num=True)
+
+        sep()
+
+        # ── Sector props ──────────────────────────────────────────────────────
+>>>>>>> 59ed830 (feat:monster spawn in map)
         lbl("  SECTOR", color=TEXT_DIM); y += 2
         lbl("Index:")
         self.fi_sec_idx = field("0", num=True)
@@ -1095,6 +1165,7 @@ class Editor:
         t=max(0,min(1,((px-ax)*dx+(py-ay)*dy)/l2))
         return math.hypot(px-(ax+t*dx),py-(ay+t*dy))
 
+<<<<<<< HEAD
     def _pt_in_polygon(self, px, py, poly_pts):
         """Ray-cast point-in-polygon."""
         n = len(poly_pts); inside = False
@@ -1197,6 +1268,16 @@ class Editor:
         return raw if raw else DEFAULT_SUBSEC_COLORS[si % len(DEFAULT_SUBSEC_COLORS)]
 
     # ── Sector/sidedef helpers ─────────────────────────────────────────────────
+=======
+    def near_monster(self, wx, wy, r=14):
+        best=None; bd=r/self.zoom
+        for i,m in enumerate(self.map.monsters):
+            d=math.hypot(m.x-wx,m.y-wy)
+            if d<bd: best,bd=i,d
+        return best
+
+    # ── Sector/sidedef helpers ────────────────────────────────────────────────
+>>>>>>> 59ed830 (feat:monster spawn in map)
 
     def _ensure_sector(self):
         while len(self.map.sectors) <= self.cur_sector:
@@ -1344,6 +1425,17 @@ class Editor:
             pygame.draw.circle(surf,col,(sx,sy),r)
             pygame.draw.circle(surf,(10,12,20),(sx,sy),r,1)
 
+    def _draw_monsters(self, surf):
+        for i,m in enumerate(self.map.monsters):
+            sx,sy=self.w2s(m.x,m.y)
+            col=MONSTER_HOV if i==self.hov_monster else MONSTER_COL
+            r=7
+            pygame.draw.circle(surf,col,(sx,sy),r)
+            pygame.draw.circle(surf,(10,12,20),(sx,sy),r,1)
+            name=MONSTER_NAMES[m.monster_type] if m.monster_type<len(MONSTER_NAMES) else "?"
+            txt=self.font_sm.render(name,True,col)
+            surf.blit(txt,(sx-txt.get_width()//2,sy-r-14))
+
     def _draw_preview(self, surf, mx, my):
         if self.line_start is None: return
         v=self.map.vertices[self.line_start]
@@ -1369,6 +1461,7 @@ class Editor:
             ("Linedefs",  len(self.map.linedefs)),
             ("Sectors",   len(self.map.sectors)),
             ("Sidedefs",  len(self.map.sidedefs)),
+            ("Monsters",  len(self.map.monsters)),
             ("BSP nodes", self.bsp_nc),
             ("Subsectors",self.bsp_sc),
             ("Sector #",  self.cur_sector),
@@ -1389,7 +1482,8 @@ class Editor:
         pygame.draw.rect(surf,(12,14,22),(0,CANVAS_H-22,CANVAS_W,22))
         pygame.draw.line(surf,(40,45,65),(0,CANVAS_H-22),(CANVAS_W,CANVAS_H-22),1)
         tool_labels = {TOOL_VERTEX:"✦ VERTEX",TOOL_LINE:"╱ LINE",
-                       TOOL_SECTOR:"▣ PAINT",TOOL_SELECT:"⊹ SELECT",TOOL_DELETE:"✕ DELETE"}
+                       TOOL_SECTOR:"▣ PAINT",TOOL_MONSTER:"☠ MONSTER",
+                       TOOL_SELECT:"⊹ SELECT",TOOL_DELETE:"✕ DELETE"}
         badge=self.font_hd.render(f" {tool_labels[self.tool]} ",True,(20,22,32))
         bs=badge.get_rect(); bs.inflate_ip(8,4)
         bs.topleft=(6,CANVAS_H-20)
@@ -1429,10 +1523,14 @@ class Editor:
             else:
                 self.hov_vert=self.near_vert(wx,wy,14)
                 self.hov_line=self.near_line(wx,wy,8)
+<<<<<<< HEAD
                 # hover sector / subsector
                 self.hov_sector = self._find_sector_at(wx,wy) if self.tool==TOOL_SELECT else None
                 self.hov_subsector = (self._find_subsector_at(wx,wy)
                                       if self.tool==TOOL_SELECT and self.show_bsp else None)
+=======
+                self.hov_monster=self.near_monster(wx,wy,14)
+>>>>>>> 59ed830 (feat:monster spawn in map)
 
         elif event.type==pygame.MOUSEWHEEL:
             fac=1.15 if event.y>0 else 1/1.15
@@ -1522,9 +1620,20 @@ class Editor:
                 else:
                     self.props.clear()
 
+        elif t==TOOL_MONSTER:
+            mt=max(0,min(len(MONSTER_NAMES)-1,self._int(self.fi_monster_type,2)))
+            mz=self._flt(self.fi_monster_z,0.0)
+            self.map.monsters.append(MonsterSpawn(swx,swy,mt,mz))
+            name=MONSTER_NAMES[mt]
+            self.status=f"Monster '{name}' placed at ({int(swx)},{int(swy)})"
+
         elif t==TOOL_DELETE:
+            mi=self.near_monster(wx,wy,14)
             vi=self.near_vert(wx,wy,14); li=self.near_line(wx,wy,8)
-            if vi is not None:
+            if mi is not None:
+                self.map.monsters.pop(mi)
+                self.status=f"Deleted monster #{mi}"
+            elif vi is not None:
                 self.map.linedefs=[l for l in self.map.linedefs if l.v0!=vi and l.v1!=vi]
                 self.map.vertices.pop(vi)
                 for i,l in enumerate(self.map.linedefs):
@@ -1575,8 +1684,8 @@ class Editor:
 
         elif btn==self.btn_export:
             try:
-                ns,nl,nb,nss=export_bin(self.map,"map_output")
-                self.status=f"Exported → map_output/  ({ns} sectors, {nl} lines, {nb} nodes, {nss} subs)"
+                ns,nl,nb,nss,nm=export_bin(self.map,"map_output")
+                self.status=f"Exported → map_output/  ({ns} sectors, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters)"
             except Exception as e:
                 self.status=f"Export error: {e}"
 
@@ -1642,14 +1751,15 @@ class Editor:
                     elif k==pygame.K_v: self._btn_action(self.tb_vertex)
                     elif k==pygame.K_l: self._btn_action(self.tb_line)
                     elif k==pygame.K_s: self._btn_action(self.tb_sector)
+                    elif k==pygame.K_m: self._btn_action(self.tb_monster)
                     elif k==pygame.K_e: self._btn_action(self.tb_select)
                     elif k==pygame.K_d: self._btn_action(self.tb_delete)
                     elif k==pygame.K_b: self._btn_action(self.btn_bsp)
                     elif k==pygame.K_HOME: self.cam_x=0; self.cam_y=0; self.zoom=1.0
                     elif k==pygame.K_F5:
                         try:
-                            ns,nl,nb,nss=export_bin(self.map,"map_output")
-                            self.status=f"[F5] Exported: {ns} sec, {nl} lines, {nb} nodes, {nss} subs"
+                            ns,nl,nb,nss,nm=export_bin(self.map,"map_output")
+                            self.status=f"[F5] Exported: {ns} sec, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters"
                         except Exception as ex:
                             self.status=f"Export error: {ex}"
                     elif k==pygame.K_DELETE and self.sel_lines:
@@ -1686,6 +1796,7 @@ class Editor:
             self._draw_lines(self.screen)
             if self.tool==TOOL_LINE: self._draw_preview(self.screen,mx,my)
             self._draw_verts(self.screen)
+            self._draw_monsters(self.screen)
             self._draw_statusbar(self.screen)
             if mx<CANVAS_W: self._draw_coord(self.screen,mx,my)
             self._draw_panel(self.screen)
