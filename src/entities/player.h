@@ -30,7 +30,7 @@ namespace entities {
 		void update(float dt) override;
 		void move(math::vec2 direction);
 		void rotate(float yaw);
-		void shoot(std::span<engine::actor*> targets = {});
+		void shoot();
 		void reload();
 		void switch_weapons(int index);
 

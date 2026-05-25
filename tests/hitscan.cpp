@@ -9,6 +9,7 @@
 #include "geometry/map-data.h"
 #include "geometry/linedef.h"
 #include "geometry/sidedef.h"
+#include "engine/world.h"
 
 // Exposes health fields for test inspection via componentized.
 template<typename M>
@@ -19,36 +20,12 @@ struct inspect : public M {
 };
 
 static constexpr math::vec2 ORIGIN{0.0f, 0.0f};
-// Factory for test monsters at a given position.
-template<typename M>
-inspect<M> make_at(math::vec2 pos) {
-    inspect<M> m(pos, 0.0f);
-    return m;
-}
 
 static void result(float v) {
     std::cout << "RESULT " << static_cast<int>(v * 100 + 0.5f) / 100.0f << std::endl;
 }
 static void result(const std::string& s) {
     std::cout << "RESULT " << s << std::endl;
-}
-
-// Shorthand: fire one hitscan shot and return the ammo object for inspection.
-static combat::weapons::hitscan_firing_mode*
-fire(combat::weapons::hitscan_firing_mode* ammo,
-     math::vec2 from, float angle, float damage,
-     std::span<engine::actor*> targets)
-{
-    ammo->spawn_bullet(from, angle, damage, targets);
-    return ammo;
-}
-
-static combat::weapons::hitscan_firing_mode*
-fire(combat::weapons::hitscan_firing_mode* ammo,
-     math::vec2 from, float angle, float damage = 10.0f)
-{
-    ammo->spawn_bullet(from, angle, damage);
-    return ammo;
 }
 
 // Build a solid wall linedef (back = nullid).
@@ -73,55 +50,65 @@ int main() {
         // Setup: monster_basic (30 HP), from (0,0) east, actor at (100,0), dmg=10
         // Expected: HP = 20
         if (cmd == "hs_direct_hit") {
-            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
+            auto* mptr = &*m;
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
+            result(mptr->hp());
 
         // ── hs_miss_side ─────────────────────────────────────────────────
         // Actor perpendicular to ray — must miss.
         // Actor at (0, 100), shoot east. Perpendicular distance >> hit_radius.
         // Expected: HP = 30
         } else if (cmd == "hs_miss_side") {
-            auto m = make_at<entities::monster_basic>({0.0f, 100.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{0.0f, 100.0f}, 0.0f);
+            auto* mptr = &*m;
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
+            result(mptr->hp());
 
         // ── hs_miss_behind ───────────────────────────────────────────────
         // Actor behind the shooter — must miss (t < 0).
         // Actor at (-100, 0), shoot east.
         // Expected: HP = 30
         } else if (cmd == "hs_miss_behind") {
-            auto m = make_at<entities::monster_basic>({-100.0f, 0.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{-100.0f, 0.0f}, 0.0f);
+            auto* mptr = &*m;
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
+            result(mptr->hp());
 
         // ── hs_miss_range ────────────────────────────────────────────────
         // Actor beyond max_range — must miss.
         // Actor at (600, 0), range = 500.
         // Expected: HP = 30
         } else if (cmd == "hs_miss_range") {
-            auto m = make_at<entities::monster_basic>({600.0f, 0.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, 500.0f);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{600.0f, 0.0f}, 0.0f);
+            auto* mptr = &*m;
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w, 500.0f);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
+            result(mptr->hp());
 
         // ── hs_hit_in_range ──────────────────────────────────────────────
         // Actor within max_range — must be hit.
         // Actor at (400, 0), range = 500.
         // Expected: HP = 20
         } else if (cmd == "hs_hit_in_range") {
-            auto m = make_at<entities::monster_basic>({400.0f, 0.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, 500.0f);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{400.0f, 0.0f}, 0.0f);
+            auto* mptr = &*m;
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w, 500.0f);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
+            result(mptr->hp());
 
         // ── hs_wall_blocks ───────────────────────────────────────────────
         // Solid wall between shooter and actor — actor must NOT be hit.
@@ -130,11 +117,13 @@ int main() {
         } else if (cmd == "hs_wall_blocks") {
             geometry::map_data map;
             map.linedefs.add(solid_wall({50.0f, -50.0f}, {50.0f, 50.0f}));
-            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
+            auto* mptr = &*m;
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map, &w);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
+            result(mptr->hp());
 
         // ── hs_wall_behind_actor ─────────────────────────────────────────
         // Solid wall behind the actor — must NOT block, actor gets hit.
@@ -143,11 +132,13 @@ int main() {
         } else if (cmd == "hs_wall_behind_actor") {
             geometry::map_data map;
             map.linedefs.add(solid_wall({200.0f, -50.0f}, {200.0f, 50.0f}));
-            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
+            auto* mptr = &*m;
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map, &w);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
+            result(mptr->hp());
 
         // ── hs_portal_passes ─────────────────────────────────────────────
         // Two-sided wall (portal) between shooter and actor — must NOT block.
@@ -156,54 +147,64 @@ int main() {
         } else if (cmd == "hs_portal_passes") {
             geometry::map_data map;
             map.linedefs.add(portal_wall({50.0f, -50.0f}, {50.0f, 50.0f}));
-            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
+            auto* mptr = &*m;
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map, &w);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
+            result(mptr->hp());
 
         // ── hs_closest_wins ──────────────────────────────────────────────
         // Two actors on the same ray — only the closer one is hit.
         // A at (50, 0), B at (100, 0). Shoot east.
         // Expected: A hp=20, B hp=30
         } else if (cmd == "hs_closest_wins") {
-            auto a = make_at<entities::monster_basic>({50.0f,  0.0f});
-            auto b = make_at<entities::monster_basic>({100.0f, 0.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            engine::actor* t[] = {&a, &b};
-            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);
-            result(a.hp());
-            result(b.hp());
+            engine::world w;
+            auto a = std::make_unique<inspect<entities::monster_basic>>(math::vec2{50.0f, 0.0f}, 0.0f);
+            auto b = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
+            auto* aptr = &*a;
+            auto* bptr = &*b;
+            w.register_entity(std::move(a));
+            w.register_entity(std::move(b));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
+            result(aptr->hp());
+            result(bptr->hp());
 
         // ── hs_dead_skipped ──────────────────────────────────────────────
         // Dead actor must be skipped (take_damage not called again).
         // Kill monster, then fire. HP must stay at 0.
         // Expected: HP = 0
         } else if (cmd == "hs_dead_skipped") {
-            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
-            m.take_damage(999.0f);  // kill
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, 0.0f, 10.0f, t);  // should be skipped
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
+            auto* mptr = &*m;
+            mptr->take_damage(999.0f);  // kill
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);  // should be skipped
+            result(mptr->hp());
 
         // ── hs_angle_north ───────────────────────────────────────────────
         // Shoot north (angle = π/2), actor directly north.
         // Actor at (0, 100). Shoot at π/2.
         // Expected: HP = 20
         } else if (cmd == "hs_angle_north") {
-            auto m = make_at<entities::monster_basic>({0.0f, 100.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, std::numbers::pi_v<float> / 2.0f, 10.0f, t);
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{0.0f, 100.0f}, 0.0f);
+            auto* mptr = &*m;
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            ammo->spawn_bullet(ORIGIN, std::numbers::pi_v<float> / 2.0f, 10.0f);
+            result(mptr->hp());
 
         // ── hs_no_targets ────────────────────────────────────────────────
-        // Empty target list — must not crash.
+        // Empty world — must not crash.
         // Expected: "OK"
         } else if (cmd == "hs_no_targets") {
             auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            fire(&*ammo, ORIGIN, 0.0f);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result("OK");
 
         // ── hs_damage_exact ──────────────────────────────────────────────
@@ -211,11 +212,13 @@ int main() {
         // monster_basic has 30 HP. Fire with damage=7 → HP = 23.
         // Expected: HP = 23
         } else if (cmd == "hs_damage_exact") {
-            auto m = make_at<entities::monster_basic>({100.0f, 0.0f});
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
-            engine::actor* t[] = {&m};
-            fire(&*ammo, ORIGIN, 0.0f, 7.0f, t);
-            result(m.hp());
+            engine::world w;
+            auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
+            auto* mptr = &*m;
+            w.register_entity(std::move(m));
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            ammo->spawn_bullet(ORIGIN, 0.0f, 7.0f);
+            result(mptr->hp());
         }
     }
     return 0;

@@ -14,11 +14,11 @@ namespace entities {
 		current_weapon_index = index;
 	}
 
-	void player::shoot(std::span<engine::actor*> targets) {
+	void player::shoot() {
 		if (current_weapon_index < 0) return;
 		auto& w = weapons[current_weapon_index];
 		if (w && w->can_fire())
-			w->fire(pos, angle, targets);
+			w->fire(pos, angle);
 	}
 
 	void player::reload() {
