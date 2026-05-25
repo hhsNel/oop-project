@@ -9,7 +9,10 @@ namespace combat {
 		class rifle : public weapon {
 		public:
 			explicit rifle(geometry::map_data const* map,
-			               engine::world const* world);
+			               engine::world const* world,
+			               audio::audio_mixer* mix = nullptr,
+			               assets::audio_clip const* fire_snd = nullptr,
+			               assets::audio_clip const* reload_snd = nullptr);
 		};
 	}
 }

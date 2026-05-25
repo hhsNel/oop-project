@@ -19,6 +19,10 @@
 
 #include "input/input-backend.h"
 #include "input/evdev-backend.h"
+#include "audio/audio-mixer.h"
+#include "audio/alsa/backend.h"
+#include "util/resource-loader.h"
+#include "assets/asset-manager.h"
 
 template<typename M>
 struct inspect : public M {
@@ -73,6 +77,12 @@ static weapon_slot* find_slot(std::vector<weapon_slot>& pool,
 int main() {
 	std::cout << "\033[2J\033[H\033[?25l" << std::flush;
 
+	// ---- resources & audio ----
+	util::resource_loader rl;
+	auto tex_mgr = assets::asset_manager::load(rl);
+	auto a_back = std::make_unique<audio::alsa::backend>();
+	audio::audio_mixer mix(*a_back, audio::audio_format{48000, 2, 16});
+
 	// ---- player ----
 	inspect<entities::player> p({0.0f, 0.0f}, 0.0f, 0, 1.0f, 100.0f, 50.0f, 2.0f, 1.0f);
 
@@ -86,13 +96,20 @@ int main() {
 		                 0.0f, reload_dur, false, melee, is_auto });
 	};
 
-	add_weapon(std::make_unique<combat::weapons::pistol>(nullptr, nullptr),       "Pistol",     1.5f);
-	add_weapon(std::make_unique<combat::weapons::smg>(nullptr, nullptr),         "SMG",        2.5f, false, true);
-	add_weapon(std::make_unique<combat::weapons::rifle>(nullptr, nullptr),       "Rifle",      2.0f, false, true);
-	add_weapon(std::make_unique<combat::weapons::shotgun>(nullptr, nullptr),     "Shotgun",    3.0f);
-	add_weapon(std::make_unique<combat::weapons::sniper_rifle>(nullptr, nullptr),"Sniper",     3.5f);
-	add_weapon(std::make_unique<combat::weapons::plasma_gun>(nullptr, nullptr),  "Plasma Gun", 2.0f);
-	add_weapon(std::make_unique<combat::weapons::katana>(),      "Katana",     0.0f, true);
+	add_weapon(std::make_unique<combat::weapons::pistol>(nullptr, nullptr, &mix,
+	               &tex_mgr.audio_clip_by_id(1), &tex_mgr.audio_clip_by_id(2)),       "Pistol",     1.5f);
+	add_weapon(std::make_unique<combat::weapons::smg>(nullptr, nullptr, &mix,
+	               &tex_mgr.audio_clip_by_id(3), &tex_mgr.audio_clip_by_id(4)),       "SMG",        2.5f, false, true);
+	add_weapon(std::make_unique<combat::weapons::rifle>(nullptr, nullptr, &mix,
+	               &tex_mgr.audio_clip_by_id(5), &tex_mgr.audio_clip_by_id(6)),       "Rifle",      2.0f, false, true);
+	add_weapon(std::make_unique<combat::weapons::shotgun>(nullptr, nullptr, &mix,
+	               &tex_mgr.audio_clip_by_id(7), &tex_mgr.audio_clip_by_id(8)),       "Shotgun",    3.0f);
+	add_weapon(std::make_unique<combat::weapons::sniper_rifle>(nullptr, nullptr, &mix,
+	               &tex_mgr.audio_clip_by_id(9), &tex_mgr.audio_clip_by_id(10)),      "Sniper",     3.5f);
+	add_weapon(std::make_unique<combat::weapons::plasma_gun>(nullptr, nullptr, &mix,
+	               &tex_mgr.audio_clip_by_id(11), &tex_mgr.audio_clip_by_id(12)),     "Plasma Gun", 2.0f);
+	add_weapon(std::make_unique<combat::weapons::katana>(&mix,
+	               &tex_mgr.audio_clip_by_id(13)),                                     "Katana",     0.0f, true);
 
 	pool[0].in_loadout = true;  // start with pistol
 
@@ -222,6 +239,7 @@ int main() {
 			    && cur_slot->ref->*(&wp::reserve_mags) > 0
 			    && cur_slot->reload_timer <= 0.0f)
 			{
+				cur_slot->ref->reload();
 				cur_slot->reload_timer = cur_slot->reload_duration;
 			}
 			prev_r = r_down;
@@ -276,15 +294,14 @@ int main() {
 			for (auto& s : pool) {
 				if (s.reload_timer > 0.0f) {
 					s.reload_timer -= dt;
-					if (s.reload_timer <= 0.0f) {
+					if (s.reload_timer <= 0.0f)
 						s.reload_timer = 0.0f;
-						s.ref->reload();
-					}
 				}
 			}
 		}
 
 		p.update(dt);  // ticks status effects regardless of alive state
+		mix.step(static_cast<unsigned long>(48000 * dt));
 
 		// ---- render HUD ----
 		auto* cw = cur_wp();

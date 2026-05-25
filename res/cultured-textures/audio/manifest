@@ -1,2 +1,15 @@
 cultured-textures/audio/test.bau
+common/audio/weapons/pistol_shot.bau
+common/audio/weapons/pistol_reload.bau
+common/audio/weapons/smg_shot.bau
+common/audio/weapons/smg_reload.bau
+common/audio/weapons/rifle_shot.bau
+common/audio/weapons/rifle_reload.bau
+common/audio/weapons/shotgun_shot.bau
+common/audio/weapons/shotgun_reload.bau
+common/audio/weapons/sniper_rifle_shot.bau
+common/audio/weapons/sniper_rifle_reload.bau
+common/audio/weapons/plasma_gun_shot.bau
+common/audio/weapons/plasma_gun_reload.bau
+common/audio/weapons/katana_swing.bau
 

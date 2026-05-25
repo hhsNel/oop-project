@@ -5,6 +5,9 @@
 #include "math/vec2.h"
 #include "firing-mode.h"
 
+namespace audio { class audio_mixer; }
+namespace assets { class audio_clip; }
+
 namespace combat
 {
 	namespace weapons {
@@ -17,6 +20,9 @@ namespace combat
 			float fire_rate;
 			float last_shot_time;
 			float damage;
+			audio::audio_mixer* mixer;
+			assets::audio_clip const* fire_sound;
+			assets::audio_clip const* reload_sound;
 		public:
 			virtual bool can_fire() const;
 			void tick(float dt);
@@ -27,7 +33,11 @@ namespace combat
 			virtual ~weapon() = default;
 
 		protected:
-			weapon(std::unique_ptr<firing_mode> firing, int max, float rate, float dmg, int reserve = 0);
+			weapon(std::unique_ptr<firing_mode> firing, int max, float rate, float dmg,
+			       int reserve = 0,
+			       audio::audio_mixer* mix = nullptr,
+			       assets::audio_clip const* fire_snd = nullptr,
+			       assets::audio_clip const* reload_snd = nullptr);
 		};
 	}
 }
