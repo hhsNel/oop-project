@@ -7,7 +7,7 @@
 
 namespace assets {
 
-	menu_element::menu_element(int f, float bx, float by, float ex, float ey, texture_id const b, std::string s, int cw, int ch, std::uint8_t r, std::uint8_t g, std::uint8_t b_col) :
+	menu_element::menu_element(int f, float bx, float by, float ex, float ey, texture_id const b, std::string s, int cw, int ch, std::uint8_t r, std::uint8_t g, std::uint8_t b_col, float rlm) :
 		function(f),
 		begin_x(bx),
 		begin_y(by),
@@ -19,10 +19,11 @@ namespace assets {
 		char_h(ch),
 		col_r(r),
 		col_g(g),
-		col_b(b_col) {}
+		col_b(b_col),
+		relative_left_margin(rlm) {}
 
 	/* bin fmt: */
-	/* <function> <bx> <by> <ex> <ey> <bg_tx_idx> <char_w> <char_h> <r> <g> <b> */
+	/* <function> <bx> <by> <ex> <ey> <bg_tx_idx> <char_w> <char_h> <r> <g> <b> <relative_left_margin> */
 	/* <format template string — rest of next line> */
 	menu_element menu_element::load_from_bin(util::resource const &res) {
 		std::string content(reinterpret_cast<const char *>(res("beginning"_f)), res("size"_f));
@@ -33,15 +34,16 @@ namespace assets {
 		int bg_tx_idx;
 		int cw, ch;
 		int r, g, b;
+		float rlm;
 		std::string tmpl;
 
 		stream >> f >> bx >> by >> ex >> ey >> bg_tx_idx
-			   >> cw >> ch >> r >> g >> b;
+			   >> cw >> ch >> r >> g >> b >> rlm;
 
 		stream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		std::getline(stream, tmpl);
 
-		return menu_element(f, bx, by, ex, ey, bg_tx_idx, std::move(tmpl), cw, ch, static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b));
+		return menu_element(f, bx, by, ex, ey, bg_tx_idx, std::move(tmpl), cw, ch, static_cast<std::uint8_t>(r), static_cast<std::uint8_t>(g), static_cast<std::uint8_t>(b), rlm);
 	}
 
 	std::string menu_element::resolve_text() const {
@@ -90,7 +92,7 @@ namespace assets {
 
 		std::string label = resolve_text();
 		if (!label.empty()) {
-			int text_x = x0 + 4;
+			int text_x = x0 + static_cast<int>(relative_left_margin * w);
 			int text_y = y0 + (h - char_h) / 2;
 			r2d.draw_text(label, text_x, text_y, char_w, char_h, text_color());
 		}
@@ -102,4 +104,3 @@ namespace assets {
 		return -2;
 	}
 }
-

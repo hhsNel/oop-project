@@ -20,7 +20,7 @@ namespace input {
 
 namespace assets {
 	class menu_element {
-		menu_element(int f, float bx, float by, float ex, float ey, texture_id const b, std::string s, int cw, int ch, std::uint8_t r, std::uint8_t g, std::uint8_t b_col);
+		menu_element(int f, float bx, float by, float ex, float ey, texture_id const b, std::string s, int cw, int ch, std::uint8_t r, std::uint8_t g, std::uint8_t b_col, float rlm);
 
 		int function;
 		float const begin_x, begin_y, end_x, end_y;
@@ -29,6 +29,7 @@ namespace assets {
 		std::function<std::string(std::string_view)> formatter;
 		int char_w, char_h;
 		std::uint8_t col_r, col_g, col_b;
+		float relative_left_margin;
 
 		std::string resolve_text() const;
 		std::uint32_t text_color() const;

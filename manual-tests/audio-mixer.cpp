@@ -17,7 +17,7 @@ int main() {
     util::resource_loader resld;
     assets::asset_manager asset_mgr = assets::asset_manager::load(resld);
 
-    constexpr audio::audio_format FORMAT { 44100, 2, 16 };
+    constexpr audio::audio_format FORMAT { 48000, 2, 16 };
     constexpr unsigned long       FRAMES  = 441;  // ~10 ms per step
 
     audio::alsa::backend backend;
