@@ -2,6 +2,8 @@
 
 namespace engine {
 
+	world::world() {};
+
 	void world::update(float const dt) {
 		for (auto const& [id, entity_ptr] : entities) {
 			if (entity_ptr) {
