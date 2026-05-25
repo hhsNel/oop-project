@@ -16,17 +16,11 @@ namespace engine {
 	}
 
 	entity& world::operator[](util::indexed_storage<std::unique_ptr<entity>>::id_t const id) {
-		if (entities.contains(id)) {
-			return *entities[id];
-		}
-		return nullptr;
+		return *entities[id];
 	}
 
 	entity const& world::operator[](util::indexed_storage<std::unique_ptr<entity>>::id_t const id) const {
-		if (entities.contains(id)) {
-			return *entities[id];
-		}
-		return nullptr;
+		return *entities[id];
 	}
 
 	util::indexed_storage<std::unique_ptr<entity>> const& world::get_entities() const {
