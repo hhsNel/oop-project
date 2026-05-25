@@ -14,7 +14,6 @@ void weapon_pickup::on_pickup(entities::player& p) {
     for (auto& w : p.weapons)
         if (w && std::type_index(typeid(*w)) == incoming) return;
     p.weapons.push_back(std::move(provided_weapon));
-    collected = true;
 }
 
 }

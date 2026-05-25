@@ -50,12 +50,23 @@
 template<typename M>
 struct inspect : public M {
     using M::M;
+    using M::weapons;
+    using M::current_weapon_index;
     float hp()           const { return this->health("current_hp"_f); }
     float max_hp()       const { return this->health("max_hp"_f); }
     float armor()        const { return this->health("armor"_f); }
     float max_armor()    const { return this->health("max_armor"_f); }
     bool  dead()         const { return this->health.is_dead(); }
     int   effect_count() const { return static_cast<int>(this->health("active_effects"_f).size()); }
+};
+
+// Expose protected weapon fields via pointer-to-member.
+struct wp : combat::weapons::weapon {
+    using weapon::ammo_count;
+    using weapon::max_ammo;
+    using weapon::reserve_mags;
+    using weapon::last_shot_time;
+    using weapon::fire_rate;
 };
 
 struct weapon_slot {
@@ -163,12 +174,12 @@ int main() {
                          false, melee, is_auto });
     };
 
-    add_weapon(std::make_unique<combat::weapons::pistol>(),       "Pistol",  1.5f);
-    add_weapon(std::make_unique<combat::weapons::smg>(),         "SMG",     2.5f, false, true);
-    add_weapon(std::make_unique<combat::weapons::rifle>(),       "Rifle",   2.0f, false, true);
-    add_weapon(std::make_unique<combat::weapons::shotgun>(),     "Shotgun", 3.0f);
-    add_weapon(std::make_unique<combat::weapons::sniper_rifle>(),"Sniper",  3.5f);
-    add_weapon(std::make_unique<combat::weapons::plasma_gun>(),  "Plasma",  2.0f);
+    add_weapon(std::make_unique<combat::weapons::pistol>(nullptr, nullptr),       "Pistol",  1.5f);
+    add_weapon(std::make_unique<combat::weapons::smg>(nullptr, nullptr),         "SMG",     2.5f, false, true);
+    add_weapon(std::make_unique<combat::weapons::rifle>(nullptr, nullptr),       "Rifle",   2.0f, false, true);
+    add_weapon(std::make_unique<combat::weapons::shotgun>(nullptr, nullptr),     "Shotgun", 3.0f);
+    add_weapon(std::make_unique<combat::weapons::sniper_rifle>(nullptr, nullptr),"Sniper",  3.5f);
+    add_weapon(std::make_unique<combat::weapons::plasma_gun>(nullptr, nullptr),  "Plasma",  2.0f);
     add_weapon(std::make_unique<combat::weapons::katana>(),      "Katana",  0.0f, true);
 
     pool[0].in_loadout = true;  // start with Pistol equipped
@@ -293,7 +304,7 @@ int main() {
                 bool r_down = i_back->is_key_down(input::key::r);
                 if (r_down && !prev_r && cur_slot
                     && !cur_slot->is_melee
-                    && cur_slot->ref->reserve_mags > 0
+                    && cur_slot->ref->*(&wp::reserve_mags) > 0
                     && cur_slot->reload_timer <= 0.0f)
                 {
                     cur_slot->reload_timer = cur_slot->reload_duration;
@@ -454,9 +465,9 @@ int main() {
                     // Melee weapon: no ammo, show swing cooldown bar
                     r2d.draw_text("AMMO: ---- (melee)", cx, cy, CW, CH, TW);
                     cy += LS;
-                    float lst = cw->last_shot_time;
-                    float mcd = cw->fire_rate > 0.0f
-                              ? 1.0f / cw->fire_rate : 1.0f;
+                    float lst = cw->*(&wp::last_shot_time);
+                    float mcd = cw->*(&wp::fire_rate) > 0.0f
+                              ? 1.0f / cw->*(&wp::fire_rate) : 1.0f;
                     r2d.draw_text("SWING CD:", cx, cy + 2, CW, CH - 4, TW);
                     draw_bar(cx + 120, cy, BARW, BH, mcd - std::min(lst, mcd), mcd, C_CD);
                     r2d.draw_text(lst > 0.005f ? fmt1(lst) + "s" : "Ready",
@@ -465,11 +476,11 @@ int main() {
                 } else if (cur_slot->reload_timer > 0.0f) {
                     // Weapon is reloading: show ammo state and reload progress bar
                     r2d.draw_text("AMMO: "
-                        + std::to_string(cw->ammo_count)
-                        + " / " + std::to_string(cw->max_ammo),
+                        + std::to_string(cw->*(&wp::ammo_count))
+                        + " / " + std::to_string(cw->*(&wp::max_ammo)),
                         cx, cy, CW, CH, TW);
                     cy += LS;
-                    r2d.draw_text("MAGS: " + std::to_string(cur_slot->ref->reserve_mags),
+                    r2d.draw_text("MAGS: " + std::to_string(cur_slot->ref->*(&wp::reserve_mags)),
                         cx, cy, CW, CH, TW);
                     cy += LS;
                     r2d.draw_rect(cx - PAD, cy - 2, COL_W, CH + 6, C_RELOAD);
@@ -483,22 +494,22 @@ int main() {
                     // Normal state: ammo bar + reserve mags + cooldown bar
                     r2d.draw_text("AMMO:", cx, cy + 2, CW, CH - 4, TW);
                     draw_bar(cx + 65, cy, BARW, BH,
-                             static_cast<float>(cw->ammo_count),
-                             static_cast<float>(cw->max_ammo), C_AMMO);
-                    r2d.draw_text(std::to_string(cw->ammo_count)
-                                  + "/" + std::to_string(cw->max_ammo),
+                             static_cast<float>(cw->*(&wp::ammo_count)),
+                             static_cast<float>(cw->*(&wp::max_ammo)), C_AMMO);
+                    r2d.draw_text(std::to_string(cw->*(&wp::ammo_count))
+                                  + "/" + std::to_string(cw->*(&wp::max_ammo)),
                                   cx + 69 + BARW, cy + 2, CW - 2, CH - 4, TW);
                     cy += LS;
 
-                    r2d.draw_text("MAGS: " + std::to_string(cur_slot->ref->reserve_mags),
+                    r2d.draw_text("MAGS: " + std::to_string(cur_slot->ref->*(&wp::reserve_mags)),
                                   cx, cy, CW, CH, TW);
                     cy += LS;
 
                     // Shot cooldown bar (semi-auto only; auto weapons fire as fast as allowed)
                     if (!cur_slot->is_auto) {
-                        float lst = cw->last_shot_time;
-                        float mcd = cw->fire_rate > 0.0f
-                                  ? 1.0f / cw->fire_rate : 1.0f;
+                        float lst = cw->*(&wp::last_shot_time);
+                        float mcd = cw->*(&wp::fire_rate) > 0.0f
+                                  ? 1.0f / cw->*(&wp::fire_rate) : 1.0f;
                         r2d.draw_text("SHOT CD:", cx, cy + 2, CW, CH - 4, TW);
                         draw_bar(cx + 100, cy, BARW, BH,
                                  mcd - std::min(lst, mcd), mcd, C_CD);

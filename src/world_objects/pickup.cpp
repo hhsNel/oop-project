@@ -3,7 +3,7 @@
 namespace world_object {
 
 pickup::pickup(math::vec2 pos, float radius)
-    : position(pos), pickup_radius(radius), collected(false) {}
+    : position(pos), pickup_radius(radius) {}
 
 void pickup::update(float) {}
 

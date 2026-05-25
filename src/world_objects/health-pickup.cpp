@@ -8,7 +8,6 @@ health_pickup::health_pickup(math::vec2 pos, float amount, float radius)
 
 void health_pickup::on_pickup(entities::player& p) {
     p.heal(heal_amount);
-    collected = true;
 }
 
 }

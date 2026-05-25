@@ -8,7 +8,6 @@ armor_pickup::armor_pickup(math::vec2 pos, float amount, float radius)
 
 void armor_pickup::on_pickup(entities::player& p) {
     p.add_shield(armor_amount);
-    collected = true;
 }
 
 }

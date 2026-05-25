@@ -11,13 +11,16 @@
 // i udostępnia gettery potrzebne do weryfikacji stanu.
 class test_actor : public engine::actor {
 public:
+	using actor::movement_speed;
+	using actor::team;
+
 	test_actor(float hp, float shield, float speed)
 		: actor(math::vec2(), 0, 0, 0, hp, shield, speed, engine::faction::enemy) {}
- 
+
 	void update(float dt) override {
 		engine::actor::update(dt);
 	}
- 
+
 	float hp()     const { return health("current_hp"_f); }
 	float shield() const { return health("armor"_f); }
 };

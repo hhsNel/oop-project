@@ -4,8 +4,6 @@
 #include "geometry/map-data.h"
 #include "engine/actor.h"
 
-int main();
-
 namespace engine { class world; }
 
 namespace combat {
@@ -19,11 +17,9 @@ namespace combat {
             float               max_range;
             float               hit_radius;   // promien cylindra kolizji aktora (jednostki mapy)
 
-            friend int ::main();
-
         public:
-            hitscan_firing_mode(geometry::map_data const* map = nullptr,
-                            engine::world const* world = nullptr,
+            hitscan_firing_mode(geometry::map_data const* map,
+                            engine::world const* world,
                             float range  = 8192.0f,
                             float radius = 16.0f);
 

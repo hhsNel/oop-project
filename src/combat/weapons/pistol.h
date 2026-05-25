@@ -8,8 +8,8 @@ namespace combat {
 	namespace weapons {
 		class pistol : public weapon {
 		public:
-			explicit pistol(geometry::map_data const* map = nullptr,
-			                engine::world const* world = nullptr);
+			explicit pistol(geometry::map_data const* map,
+			                engine::world const* world);
 		};
 	}
 }

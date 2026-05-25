@@ -203,7 +203,7 @@ int main() {
         // Empty world — must not crash.
         // Expected: "OK"
         } else if (cmd == "hs_no_targets") {
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, nullptr);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result("OK");
 

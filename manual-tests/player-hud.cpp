@@ -23,12 +23,23 @@
 template<typename M>
 struct inspect : public M {
 	using M::M;
+	using M::weapons;
+	using M::current_weapon_index;
 	float hp()          const { return this->health("current_hp"_f); }
 	float max_hp()      const { return this->health("max_hp"_f); }
 	float armor()       const { return this->health("armor"_f); }
 	float max_armor()   const { return this->health("max_armor"_f); }
 	bool  dead()        const { return this->health.is_dead(); }
 	int   effect_count() const { return static_cast<int>(this->health("active_effects"_f).size()); }
+};
+
+// Expose protected weapon fields via pointer-to-member.
+struct wp : combat::weapons::weapon {
+	using weapon::ammo_count;
+	using weapon::max_ammo;
+	using weapon::reserve_mags;
+	using weapon::last_shot_time;
+	using weapon::fire_rate;
 };
 
 struct weapon_slot {
@@ -75,12 +86,12 @@ int main() {
 		                 0.0f, reload_dur, false, melee, is_auto });
 	};
 
-	add_weapon(std::make_unique<combat::weapons::pistol>(),       "Pistol",     1.5f);
-	add_weapon(std::make_unique<combat::weapons::smg>(),         "SMG",        2.5f, false, true);
-	add_weapon(std::make_unique<combat::weapons::rifle>(),       "Rifle",      2.0f, false, true);
-	add_weapon(std::make_unique<combat::weapons::shotgun>(),     "Shotgun",    3.0f);
-	add_weapon(std::make_unique<combat::weapons::sniper_rifle>(),"Sniper",     3.5f);
-	add_weapon(std::make_unique<combat::weapons::plasma_gun>(),  "Plasma Gun", 2.0f);
+	add_weapon(std::make_unique<combat::weapons::pistol>(nullptr, nullptr),       "Pistol",     1.5f);
+	add_weapon(std::make_unique<combat::weapons::smg>(nullptr, nullptr),         "SMG",        2.5f, false, true);
+	add_weapon(std::make_unique<combat::weapons::rifle>(nullptr, nullptr),       "Rifle",      2.0f, false, true);
+	add_weapon(std::make_unique<combat::weapons::shotgun>(nullptr, nullptr),     "Shotgun",    3.0f);
+	add_weapon(std::make_unique<combat::weapons::sniper_rifle>(nullptr, nullptr),"Sniper",     3.5f);
+	add_weapon(std::make_unique<combat::weapons::plasma_gun>(nullptr, nullptr),  "Plasma Gun", 2.0f);
 	add_weapon(std::make_unique<combat::weapons::katana>(),      "Katana",     0.0f, true);
 
 	pool[0].in_loadout = true;  // start with pistol
@@ -208,7 +219,7 @@ int main() {
 			bool r_down = backend->is_key_down(input::key::r);
 			if (r_down && !prev_r && cur_slot
 			    && !cur_slot->is_melee
-			    && cur_slot->ref->reserve_mags > 0
+			    && cur_slot->ref->*(&wp::reserve_mags) > 0
 			    && cur_slot->reload_timer <= 0.0f)
 			{
 				cur_slot->reload_timer = cur_slot->reload_duration;
@@ -313,12 +324,12 @@ int main() {
 				oss << "RELOADING... " << std::fixed << std::setprecision(1)
 				    << cur_slot->reload_timer << "s";
 				status = oss.str();
-			} else if (!cur_slot->is_melee && cw->ammo_count == 0
-			           && cw->reserve_mags > 0) {
+			} else if (!cur_slot->is_melee && cw->*(&wp::ammo_count) == 0
+			           && cw->*(&wp::reserve_mags) > 0) {
 				status = "[press R to reload]";
 			} else if (!cur_slot->is_auto) {
-				float lst    = cw->last_shot_time;
-				float max_cd = 1.0f / cw->fire_rate;
+				float lst    = cw->*(&wp::last_shot_time);
+				float max_cd = 1.0f / cw->*(&wp::fire_rate);
 				if (lst > 0.005f) {
 					std::ostringstream oss;
 					oss << (cur_slot->is_melee ? "Next swing: " : "Next shot:  ")
@@ -335,12 +346,12 @@ int main() {
 				std::cout << "Mags:   ---\033[K\n";
 			} else {
 				std::cout << "Ammo:   "
-				          << cw->ammo_count
-				          << " / " << cw->max_ammo
-				          << "  " << hbar(cw->ammo_count,
-				                          cw->max_ammo, 15)
+				          << cw->*(&wp::ammo_count)
+				          << " / " << cw->*(&wp::max_ammo)
+				          << "  " << hbar(cw->*(&wp::ammo_count),
+				                          cw->*(&wp::max_ammo), 15)
 				          << "\033[K\n";
-				std::cout << "Mags:   " << cw->reserve_mags << " remaining\033[K\n";
+				std::cout << "Mags:   " << cw->*(&wp::reserve_mags) << " remaining\033[K\n";
 			}
 			std::cout << "        " << status << "\033[K\n";
 		} else {

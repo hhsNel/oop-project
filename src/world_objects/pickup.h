@@ -15,8 +15,6 @@ namespace world_object {
 	class pickup : public engine::entity {
 		math::vec2 position;
 		float      pickup_radius;
-	protected:
-		bool collected;
 	public:
 		pickup(math::vec2 pos, float radius = 20.0f);
 

@@ -7,19 +7,16 @@
 #include "math/vec2.h"
 #include "combat/weapons/weapon.h"
 
-int main();
-
 namespace world_object {
 	class weapon_pickup;
 }
 
 namespace entities {
 	class player : public engine::actor {
+	protected:
 		std::vector<std::unique_ptr<combat::weapons::weapon>> weapons;
 		float sensitivity;
 		int current_weapon_index;
-
-		friend int ::main();
 	public:
 
 		player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens)

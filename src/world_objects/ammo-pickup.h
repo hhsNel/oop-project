@@ -13,8 +13,7 @@ namespace world_object {
 			: pickup(pos, radius), amount(amt) {}
 
 		void on_pickup(entities::player& p) override {
-			if (p.resupply<WeaponT>(amount))
-				collected = true;
+			p.resupply<WeaponT>(amount);
 		}
 	};
 

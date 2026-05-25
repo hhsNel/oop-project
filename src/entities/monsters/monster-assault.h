@@ -2,8 +2,6 @@
 
 #include "entities/monster.h"
 
-int main();
-
 namespace entities {
 
 	class monster_assault : public monster {
@@ -14,8 +12,6 @@ namespace entities {
 		float burst_cooldown;
 		float strafe_sign;
 		float strafe_timer;
-
-		friend int ::main();
 
 	public:
 		monster_assault(math::vec2 const p, float const z)

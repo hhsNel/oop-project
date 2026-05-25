@@ -2,8 +2,6 @@
 
 #include "engine/actor.h"
 
-int main();
-
 namespace entities {
 	class monster : public engine::actor {
 	protected:
@@ -13,8 +11,6 @@ namespace entities {
 		float detection_radius;
 		float attack_damage;
 		float attack_cd_max;
-
-		friend int ::main();
 
 		bool has_target() const;
 		float dist_to_target() const;

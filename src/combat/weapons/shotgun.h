@@ -12,8 +12,8 @@ namespace combat {
 			static constexpr int   pellet_count = 8;
 			static constexpr float spread       = 0.2618f; // ~15 degrees total
 
-			explicit shotgun(geometry::map_data const* map = nullptr,
-			                 engine::world const* world = nullptr);
+			explicit shotgun(geometry::map_data const* map,
+			                 engine::world const* world);
 			void fire(math::vec2 pos, float angle) override;
 		};
 	}

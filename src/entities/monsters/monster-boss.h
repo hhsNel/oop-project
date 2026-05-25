@@ -2,14 +2,10 @@
 
 #include "entities/monster.h"
 
-int main();
-
 namespace entities {
 
 	class monster_boss : public monster {
 		int phase_count;
-
-		friend int ::main();
 
 	public:
 		monster_boss(math::vec2 const p, float const z)

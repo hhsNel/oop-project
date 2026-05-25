@@ -27,6 +27,12 @@
 #include "rendering/drm-kms/backend.h"
 #include "rendering/renderer-2d.h"
 
+template<typename M>
+struct inspect : public M {
+    using M::M;
+    using M::angle;
+};
+
 static std::string fmt2(float v) {
     std::ostringstream ss;
     ss << std::fixed << std::setprecision(2) << v;
@@ -57,7 +63,7 @@ int main() {
     if (i_back->is_bad()) { std::cerr << "error: input init failed\n"; return 1; }
 
     // ── Player ───────────────────────────────────────────────────────────────
-    entities::player p({0.0f, 0.0f}, 0.0f, 0, 1.0f, 100.0f, 50.0f, 4.0f, 1.0f);
+    inspect<entities::player> p({0.0f, 0.0f}, 0.0f, 0, 1.0f, 100.0f, 50.0f, 4.0f, 1.0f);
     p.angle    = 0.0f;
 
     // Helper to access pos through the correct componentized base

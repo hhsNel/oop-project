@@ -2,8 +2,6 @@
 
 #include "entities/monster.h"
 
-int main();
-
 namespace entities {
 
 	class monster_spawner : public monster {
@@ -11,8 +9,6 @@ namespace entities {
 		int   current_spawns;
 		float spawn_interval;
 		float spawn_timer;
-
-		friend int ::main();
 
 	public:
 		monster_spawner(math::vec2 const p, float const z)

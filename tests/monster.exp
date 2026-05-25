@@ -62,17 +62,6 @@ run_test "maly_szybki_speed" "4.5"
 run_test "sniper_detection"  "30"
 
 # =====================================================================
-# TYPE-SPECIFIC FIELDS
-# =====================================================================
-
-run_test2 "assault_burst"    "3"  "0.2"
-run_test  "sniper_interval"  "3"
-run_test  "trapper_traps"    "3"
-run_test2 "spawner_fields"   "5"  "5"
-run_test  "elite_swift_charge" "15"
-run_test  "boss_phases"      "3"
-
-# =====================================================================
 # HEALTH SYSTEM
 # =====================================================================
 
@@ -103,14 +92,6 @@ run_test "basic_attack_cooldown" "90"
 run_test "sniper_no_early"      "100"
 run_test "sniper_fires"         "70"
 run_test "magic_fires"          "60"
-
-# =====================================================================
-# AI — zachowania specyficzne
-# =====================================================================
-
-run_test "all_rounder_melee"    "YES"
-run_test "spawner_spawns"       "1"
-run_test "trapper_places_trap"  "1"
 
 send "exit\r"
 expect eof

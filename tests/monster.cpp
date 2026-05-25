@@ -8,12 +8,22 @@ static constexpr math::vec2 ORIGIN{0.0f, 0.0f};
 static constexpr assets::texture_id DUMMY_TEX = 0;
 
 // Test helper - exposes protected/private data for test inspection and setup.
+// Health-only inspect, works for any actor subclass.
 template<typename M>
-struct inspect : public M {
+struct inspect_hp : public M {
 	using M::M;
 	float hp()    const { return this->health("current_hp"_f); }
 	float armor() const { return this->health("armor"_f); }
 	bool  dead()  const { return this->health.is_dead(); }
+};
+
+// Monster-specific inspect, adds movement/detection/target access.
+template<typename M>
+struct inspect : public inspect_hp<M> {
+	using inspect_hp<M>::inspect_hp;
+	using M::movement_speed;
+	using M::detection_radius;
+	using M::target_ptr;
 };
 
 // Disambiguate componentized operator() for sprite (pos)
@@ -27,14 +37,11 @@ inspect<M> make_m(math::vec2 pos = ORIGIN) {
 }
 
 static auto make_player(math::vec2 pos = ORIGIN) {
-	return inspect<entities::player>(pos, 0.0f, DUMMY_TEX, 1.0f, 100.0f, 0.0f, 2.0f, 1.0f);
+	return inspect_hp<entities::player>(pos, 0.0f, DUMMY_TEX, 1.0f, 100.0f, 0.0f, 2.0f, 1.0f);
 }
 
 static void result(float v) {
 	std::cout << "RESULT " << static_cast<int>(v * 100 + 0.5f) / 100.0f << std::endl;
-}
-static void result(int v) {
-	std::cout << "RESULT " << v << std::endl;
 }
 static void result(const std::string& s) {
 	std::cout << "RESULT " << s << std::endl;
@@ -130,36 +137,6 @@ int main() {
 		} else if (cmd == "sniper_detection") {
 			auto m = make_m<entities::monster_sniper>();
 			result(m.detection_radius);
-
-		// =====================================================================
-		// TYPE-SPECIFIC FIELDS
-		// =====================================================================
-
-		} else if (cmd == "assault_burst") {
-			auto m = make_m<entities::monster_assault>();
-			result(m.burst_size);
-			result(m.burst_interval);
-
-		} else if (cmd == "sniper_interval") {
-			auto m = make_m<entities::monster_sniper>();
-			result(m.shoot_interval);
-
-		} else if (cmd == "trapper_traps") {
-			auto m = make_m<entities::monster_trapper>();
-			result(m.max_traps);
-
-		} else if (cmd == "spawner_fields") {
-			auto m = make_m<entities::monster_spawner>();
-			result(m.max_spawns);
-			result(m.spawn_interval);
-
-		} else if (cmd == "elite_swift_charge") {
-			auto m = make_m<entities::monster_elite_swift>();
-			result(m.charge_speed);
-
-		} else if (cmd == "boss_phases") {
-			auto m = make_m<entities::monster_boss>();
-			result(m.phase_count);
 
 		// =====================================================================
 		// HEALTH SYSTEM
@@ -315,32 +292,6 @@ int main() {
 			// charge_timer musi osiagnac charge_time=2.0
 			m.update(2.0f); // charge_timer=2.01 >= 2.0 -> strzal
 			result(t.hp());
-
-		// =====================================================================
-		// AI — zachowania specyficzne
-		// =====================================================================
-
-		// all_rounder przechodzi w tryb melee gdy cel jest blisko
-		} else if (cmd == "all_rounder_melee") {
-			auto t = make_player({2.0f, 0.0f});
-			auto m = make_m<entities::monster_all_rounder>();
-			m.target_ptr = &t;
-			m.update(0.01f);
-			result(m.melee_mode ? "YES" : "NO");
-
-		// spawner co spawn_interval=5s tworzy nowego potwora
-		} else if (cmd == "spawner_spawns") {
-			auto m = make_m<entities::monster_spawner>();
-			m.update(5.1f);
-			result(m.current_spawns);
-
-		// trapper po trap_interval=2s rozstawia pułapkę
-		} else if (cmd == "trapper_places_trap") {
-			auto t = make_player({5.0f, 0.0f});
-			auto m = make_m<entities::monster_trapper>();
-			m.target_ptr = &t;
-			m.update(2.1f);
-			result(m.traps_placed);
 
 		} else if (cmd == "exit") {
 			break;

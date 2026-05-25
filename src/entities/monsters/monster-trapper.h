@@ -2,8 +2,6 @@
 
 #include "entities/monster.h"
 
-int main();
-
 namespace entities {
 
 	class monster_trapper : public monster {
@@ -13,8 +11,6 @@ namespace entities {
 		float trap_interval;
 		float wander_timer;
 		float wander_sign;
-
-		friend int ::main();
 
 	public:
 		monster_trapper(math::vec2 const p, float const z)

@@ -5,8 +5,6 @@
 #include "math/vec2.h"
 #include "firing-mode.h"
 
-int main();
-
 namespace combat
 {
 	namespace weapons {
@@ -19,8 +17,6 @@ namespace combat
 			float fire_rate;
 			float last_shot_time;
 			float damage;
-
-			friend int ::main();
 		public:
 			virtual bool can_fire() const;
 			void tick(float dt);
