@@ -47,7 +47,7 @@ int main() {
 	std::cout << "OK" << std::endl;
 
 	// 2. Otwieranie urzadzenia
-	audio::audio_format fmt{44100, 2, 16};
+	audio::audio_format fmt{48000, 2, 16};
 	std::cout << "[2] open(" << fmt.sample_rate << " Hz, "
 	          << fmt.channels << " ch, "
 	          << fmt.bits_per_sample << " bit)... ";

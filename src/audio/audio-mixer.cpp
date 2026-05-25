@@ -21,6 +21,10 @@ namespace audio {
 		active_sounds.push_back({&clip, 0});
 	}
 
+	void audio_mixer::stop_all() {
+		active_sounds.clear();
+	}
+
 	void audio_mixer::step(unsigned long frames_to_mix) {
 		if (target.bad()) return;
 
