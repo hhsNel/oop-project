@@ -47,7 +47,7 @@ namespace geometry {
 		}
 	}
 
-	map_data map_data::load_from_bin(util::resource const& sectors_res, util::resource const& sidedefs_res, util::resource const& linedefs_res, util::resource const& subsectors_res, util::resource const& nodes_res) {
+	map_data map_data::load_from_bin(util::resource const& sectors_res, util::resource const& sidedefs_res, util::resource const& linedefs_res, util::resource const& subsectors_res, util::resource const& nodes_res, util::resource const& monsters_res) {
 		map_data map;
 
 		map.sectors = util::indexed_storage<sector>(sector::load_from_bin(sectors_res));
@@ -64,6 +64,8 @@ namespace geometry {
 		}
 
 		map.nodes = std::move(loaded_nodes);
+
+		map.monster_spawns = monster_spawn::load_from_bin(monsters_res);
 
 		return map;
 	}
