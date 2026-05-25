@@ -22,7 +22,7 @@ namespace game {
 		mix(*ab, audio::audio_format{48000, 2, 16}),
 		r2d(*rb, am, am.flat_tx_by_id(0)),
 		sr(*rb, am, md),
-		w(),
+//		w(),
 
 		fov(1.55) {
 		if (input->is_bad()) {
@@ -247,7 +247,7 @@ namespace game {
 			/* guard */
 			if (dt > 0.5f) dt = 0.5f;
 
-			input->poll();
+			input->update();
 			if (input->is_key_down(input::key::esc)) break;
 
 			/* TODO */
@@ -269,7 +269,7 @@ namespace game {
 
 			w.update(dt);
 
-			sr.render_bsp(cam_pos, cam_height, cam_angle, fov);
+			//sr.render_bsp(cam_pos, cam_height, cam_angle, fov);
 
 			rb->flush();
 

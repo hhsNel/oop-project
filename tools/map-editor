@@ -1,1023 +1,1058 @@
 #!/usr/bin/env python3
-
 """
-Doom-style Map Editor
-Produces binary files: sectors.bin, sidedefs.bin, linedefs.bin, subsectors.bin, nodes.bin
-matching the geometry:: structs in the engine.
+Doom-style Map Editor  —  pure pygame, no external UI library
+Exports: sectors.bin  sidedefs.bin  linedefs.bin  subsectors.bin  nodes.bin
 
-Binary layouts (all packed, little-endian):
+Binary layouts (packed, little-endian):
   bin_sector    : float fh, float ch, uint32 floor_tex, uint32 ceil_tex, uint8 light
   bin_sidedef   : uint32 facing_sector, uint32 upper_tex, uint32 mid_tex, uint32 lower_tex
   bin_linedef   : int v1x, int v1y, int v2x, int v2y, uint32 front, uint32 back
   bin_subsector : uint32 line_count, uint32 first_line_id
-  bin_bsp_node  : float pl_x,pl_y,dir_x,dir_y, f_top,f_bot,f_left,f_right,
-                  b_top,b_bot,b_left,b_right, uint32 front_child, uint32 back_child
+  bin_bsp_node  : float pl_x,pl_y,dir_x,dir_y,
+                  f_top,f_bot,f_left,f_right, b_top,b_bot,b_left,b_right,
+                  uint32 front_child, uint32 back_child
 """
 
-import sys
-import os
-import math
-import struct
-import json
+import sys, os, math, struct, json
 from dataclasses import dataclass, field
-from typing import Optional
-import pygame
-import pygame_gui
 
-# ─── Constants ───────────────────────────────────────────────────────────────
+import pygame
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  Constants
+# ══════════════════════════════════════════════════════════════════════════════
 
 SCREEN_W, SCREEN_H = 1400, 900
-PANEL_W = 280
+PANEL_W  = 290
 CANVAS_W = SCREEN_W - PANEL_W
 CANVAS_H = SCREEN_H
 
 GRID = 32
 SNAP = 16
 
-NULL_ID = 0xFFFFFFFF
+NULL_ID   = 0xFFFFFFFF
 LEAF_FLAG = 1 << 31
 
-# Palette
-BG        = (18,  20,  28)
-GRID_COL  = (35,  38,  52)
-GRID_MAJ  = (50,  54,  72)
-VERTEX_C  = (80, 200, 255)
-LINE_WALL = (220, 100,  60)
-LINE_PORT = (80,  200, 120)
-LINE_SEL  = (255, 240,  60)
-LINE_PREV = (160, 160, 200)
-SECTOR_COLORS = [
-    (60, 80, 140, 55), (80, 140, 60, 55), (140, 60, 80, 55),
-    (140, 120, 40, 55), (60, 120, 140, 55), (120, 60, 140, 55),
-]
-BSP_COLORS = [
-    (255,100,100),(100,255,100),(100,100,255),
-    (255,255,100),(100,255,255),(255,100,255),
-    (255,180,80),(80,255,180),
-]
-PANEL_BG  = (24,  26,  36)
-TEXT_COL  = (200, 210, 230)
+# ── Colours ───────────────────────────────────────────────────────────────────
+BG         = ( 18,  20,  28)
+GRID_MIN   = ( 32,  35,  48)
+GRID_MAJ   = ( 50,  54,  72)
+ORIGIN_COL = ( 70,  75, 110)
+VERTEX_C   = ( 80, 200, 255)
+VERTEX_HOV = (180, 240, 255)
+LINE_WALL  = (220, 100,  60)
+LINE_PORT  = ( 80, 200, 120)
+LINE_SEL   = (255, 240,  60)
+LINE_PREV  = (130, 130, 180)
 
-TOOL_VERTEX  = "vertex"
-TOOL_LINE    = "line"
-TOOL_SECTOR  = "sector"
-TOOL_SELECT  = "select"
-TOOL_DELETE  = "delete"
+SECTOR_FILLS = [
+    ( 60,  80, 160,  50), ( 80, 160,  60,  50), (160,  60,  90,  50),
+    (160, 130,  40,  50), ( 50, 130, 160,  50), (130,  60, 160,  50),
+    (160, 100,  40,  50), ( 40, 160, 140,  50),
+]
+BSP_COLS = [
+    (255,100,100),(100,255,100),(100,130,255),
+    (255,230, 80),(80,255,220),(255,100,220),
+    (255,180, 60),(60,220,180),
+]
 
-# ─── Data model ──────────────────────────────────────────────────────────────
+PANEL_BG   = ( 20,  22,  34)
+PANEL_LINE = ( 50,  55,  80)
+BTN_NORM   = ( 34,  38,  58)
+BTN_HOV    = ( 48,  54,  80)
+BTN_ACT    = ( 60,  90, 160)
+BTN_BORDER = ( 70,  80, 120)
+FIELD_BG   = ( 14,  16,  26)
+FIELD_ACT  = ( 22,  26,  44)
+FIELD_BOR  = ( 60,  70, 110)
+FIELD_ACBR = (100, 150, 255)
+TEXT_NORM  = (190, 200, 225)
+TEXT_DIM   = (100, 110, 140)
+TEXT_HOT   = (255, 255, 255)
+TEXT_LABEL = (130, 145, 175)
+ACCENT     = ( 80, 160, 255)
+WARN       = (220,  80,  60)
+
+TOOL_VERTEX = "vertex"
+TOOL_LINE   = "line"
+TOOL_SECTOR = "sector"
+TOOL_SELECT = "select"
+TOOL_DELETE = "delete"
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  Data model
+# ══════════════════════════════════════════════════════════════════════════════
 
 @dataclass
 class Vertex:
-    x: float
-    y: float
+    x: float; y: float
 
 @dataclass
 class Sector:
-    floor_h: float = 0.0
-    ceil_h: float  = 128.0
-    floor_tex: int = 0
-    ceil_tex: int  = 0
-    light: int     = 200
-    color_idx: int = 0
+    floor_h:   float = 0.0
+    ceil_h:    float = 128.0
+    floor_tex: int   = 0
+    ceil_tex:  int   = 0
+    light:     int   = 200
+    color_idx: int   = 0
 
 @dataclass
 class Sidedef:
     facing_sector: int
-    upper_tex: int  = 0
-    mid_tex: int    = 1
-    lower_tex: int  = 0
+    upper_tex: int = 0
+    mid_tex:   int = 1
+    lower_tex: int = 0
 
 @dataclass
 class Linedef:
-    v0: int   # index into vertices
-    v1: int
-    front: int = NULL_ID   # sidedef index
-    back: int  = NULL_ID
+    v0: int; v1: int
+    front: int = NULL_ID
+    back:  int = NULL_ID
 
 @dataclass
 class MapData:
-    vertices: list  = field(default_factory=list)
-    sectors:  list  = field(default_factory=list)
-    sidedefs: list  = field(default_factory=list)
-    linedefs: list  = field(default_factory=list)
+    vertices: list = field(default_factory=list)
+    sectors:  list = field(default_factory=list)
+    sidedefs: list = field(default_factory=list)
+    linedefs: list = field(default_factory=list)
 
     def clear(self):
-        self.vertices.clear()
-        self.sectors.clear()
-        self.sidedefs.clear()
-        self.linedefs.clear()
+        self.vertices.clear(); self.sectors.clear()
+        self.sidedefs.clear(); self.linedefs.clear()
 
-# ─── BSP builder ─────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+#  BSP builder
+# ══════════════════════════════════════════════════════════════════════════════
 
 @dataclass
 class BSPNode:
-    pl_x: float; pl_y: float; dir_x: float; dir_y: float
-    f_top: float; f_bot: float; f_left: float; f_right: float
-    b_top: float; b_bot: float; b_left: float; b_right: float
-    front_child: int; back_child: int
+    pl_x:float; pl_y:float; dir_x:float; dir_y:float
+    f_top:float; f_bot:float; f_left:float; f_right:float
+    b_top:float; b_bot:float; b_left:float; b_right:float
+    front_child:int; back_child:int
 
-def _seg_side(ax, ay, bx, by, px, py):
-    """Cross product sign: >0 = left, <0 = right, =0 = on line."""
-    dx, dy = bx - ax, by - ay
-    return dx * (py - ay) - dy * (px - ax)
-
-def _bbox(lines, verts):
-    xs = [verts[l.v0].x for l in lines] + [verts[l.v1].x for l in lines]
-    ys = [verts[l.v0].y for l in lines] + [verts[l.v1].y for l in lines]
-    return min(ys), max(ys), min(xs), max(xs)   # top, bot, left, right  (y-up)
-
-def _split_line(line, verts, ax, ay, bx, by):
-    """Split a linedef by the BSP partition. Returns (front_half, back_half) or (line, None)."""
-    s0 = _seg_side(ax, ay, bx, by, verts[line.v0].x, verts[line.v0].y)
-    s1 = _seg_side(ax, ay, bx, by, verts[line.v1].x, verts[line.v1].y)
-    EPS = 1e-4
-    if s0 >= -EPS and s1 >= -EPS:   return line, None   # both front / on
-    if s0 <= EPS  and s1 <= EPS:    return None, line   # both back  / on
-
-    # Compute intersection
-    dx, dy = bx - ax, by - ay
-    lx = verts[line.v1].x - verts[line.v0].x
-    ly = verts[line.v1].y - verts[line.v0].y
-    denom = dx * ly - dy * lx
-    if abs(denom) < 1e-9:
-        return line, None
-    t = (dx * (verts[line.v0].y - ay) - dy * (verts[line.v0].x - ax)) / denom
-    ix = verts[line.v0].x + t * lx
-    iy = verts[line.v0].y + t * ly
-    mi = len(verts)
-    verts.append(Vertex(ix, iy))
-
-    front_half = Linedef(line.v0 if s0 >= 0 else mi,
-                         mi if s0 >= 0 else line.v1,
-                         line.front, line.back)
-    back_half  = Linedef(line.v0 if s0 < 0 else mi,
-                         mi if s0 < 0 else line.v1,
-                         line.front, line.back)
-    return front_half, back_half
+def _seg_side(ax,ay,bx,by,px,py):
+    dx,dy = bx-ax, by-ay
+    return dx*(py-ay) - dy*(px-ax)
 
 def _build_bsp(line_indices, all_lines, verts, nodes, subsectors, depth=0):
     if not line_indices:
-        si = len(subsectors)
-        subsectors.append([])
-        return si | LEAF_FLAG
+        si = len(subsectors); subsectors.append([]); return si | LEAF_FLAG
 
     if len(line_indices) <= 3 or depth > 24:
-        si = len(subsectors)
-        subsectors.append(list(line_indices))
-        return si | LEAF_FLAG
+        si = len(subsectors); subsectors.append(list(line_indices)); return si | LEAF_FLAG
 
-    # Pick splitter: prefer axis-aligned, else first line
     splitter = None
     for idx in line_indices:
         l = all_lines[idx]
-        dx = abs(verts[l.v1].x - verts[l.v0].x)
-        dy = abs(verts[l.v1].y - verts[l.v0].y)
-        if dx < 1 or dy < 1:
-            splitter = idx
-            break
-    if splitter is None:
-        splitter = line_indices[0]
+        if abs(verts[l.v1].x-verts[l.v0].x)<1 or abs(verts[l.v1].y-verts[l.v0].y)<1:
+            splitter = idx; break
+    if splitter is None: splitter = line_indices[0]
 
     sl = all_lines[splitter]
-    ax, ay = verts[sl.v0].x, verts[sl.v0].y
-    bx, by = verts[sl.v1].x, verts[sl.v1].y
-    dx, dy = bx - ax, by - ay
-    ln = math.hypot(dx, dy)
+    ax,ay = verts[sl.v0].x, verts[sl.v0].y
+    bx,by = verts[sl.v1].x, verts[sl.v1].y
+    dx,dy = bx-ax, by-ay
+    ln = math.hypot(dx,dy)
     if ln < 1e-6:
-        si = len(subsectors)
-        subsectors.append(list(line_indices))
-        return si | LEAF_FLAG
-    ndx, ndy = dx / ln, dy / ln
+        si = len(subsectors); subsectors.append(list(line_indices)); return si | LEAF_FLAG
+    ndx,ndy = dx/ln, dy/ln
 
+    EPS = 1e-4
     front_idx, back_idx = [], []
     for idx in line_indices:
         l = all_lines[idx]
-        s0 = _seg_side(ax, ay, bx, by, verts[l.v0].x, verts[l.v0].y)
-        s1 = _seg_side(ax, ay, bx, by, verts[l.v1].x, verts[l.v1].y)
-        EPS = 1e-4
+        s0 = _seg_side(ax,ay,bx,by, verts[l.v0].x,verts[l.v0].y)
+        s1 = _seg_side(ax,ay,bx,by, verts[l.v1].x,verts[l.v1].y)
         if s0 >= -EPS and s1 >= -EPS:
             front_idx.append(idx)
         elif s0 <= EPS and s1 <= EPS:
             back_idx.append(idx)
         else:
-            # Split
-            lx = verts[l.v1].x - verts[l.v0].x
-            ly = verts[l.v1].y - verts[l.v0].y
-            denom = dx * ly - dy * lx
-            if abs(denom) < 1e-9:
-                front_idx.append(idx)
-                continue
-            t = (dx * (verts[l.v0].y - ay) - dy * (verts[l.v0].x - ax)) / denom
-            ix = verts[l.v0].x + t * lx
-            iy = verts[l.v0].y + t * ly
-            mi = len(verts)
-            verts.append(Vertex(ix, iy))
-            new_f = Linedef(l.v0 if s0 >= 0 else mi, mi if s0 >= 0 else l.v1, l.front, l.back)
-            new_b = Linedef(l.v0 if s0 < 0 else mi,  mi if s0 < 0 else l.v1,  l.front, l.back)
-            nfi = len(all_lines); all_lines.append(new_f); front_idx.append(nfi)
-            nbi = len(all_lines); all_lines.append(new_b); back_idx.append(nbi)
+            lx = verts[l.v1].x-verts[l.v0].x; ly = verts[l.v1].y-verts[l.v0].y
+            denom = dx*ly - dy*lx
+            if abs(denom) < 1e-9: front_idx.append(idx); continue
+            t = (dx*(verts[l.v0].y-ay) - dy*(verts[l.v0].x-ax)) / denom
+            ix = verts[l.v0].x + t*lx; iy = verts[l.v0].y + t*ly
+            mi = len(verts); verts.append(Vertex(ix,iy))
+            nf = Linedef(l.v0 if s0>=0 else mi, mi if s0>=0 else l.v1, l.front, l.back)
+            nb = Linedef(l.v0 if s0< 0 else mi, mi if s0< 0 else l.v1, l.front, l.back)
+            nfi = len(all_lines); all_lines.append(nf); front_idx.append(nfi)
+            nbi = len(all_lines); all_lines.append(nb); back_idx.append(nbi)
 
     if not front_idx:
-        si = len(subsectors)
-        subsectors.append(list(back_idx))
-        return si | LEAF_FLAG
+        si = len(subsectors); subsectors.append(list(back_idx)); return si | LEAF_FLAG
     if not back_idx:
-        si = len(subsectors)
-        subsectors.append(list(front_idx))
-        return si | LEAF_FLAG
+        si = len(subsectors); subsectors.append(list(front_idx)); return si | LEAF_FLAG
 
-    def bbox_of(idxs):
+    def bb(idxs):
         if not idxs: return 0,0,0,0
-        xs = [verts[all_lines[i].v0].x for i in idxs] + [verts[all_lines[i].v1].x for i in idxs]
-        ys = [verts[all_lines[i].v0].y for i in idxs] + [verts[all_lines[i].v1].y for i in idxs]
-        return max(ys), min(ys), min(xs), max(xs)
+        xs=[verts[all_lines[i].v0].x for i in idxs]+[verts[all_lines[i].v1].x for i in idxs]
+        ys=[verts[all_lines[i].v0].y for i in idxs]+[verts[all_lines[i].v1].y for i in idxs]
+        return max(ys),min(ys),min(xs),max(xs)
 
-    fb = bbox_of(front_idx)
-    bb = bbox_of(back_idx)
-
-    ni = len(nodes)
-    nodes.append(None)  # placeholder
-
-    front_child = _build_bsp(front_idx, all_lines, verts, nodes, subsectors, depth+1)
-    back_child  = _build_bsp(back_idx,  all_lines, verts, nodes, subsectors, depth+1)
-
-    nodes[ni] = BSPNode(ax, ay, ndx, ndy,
-                        fb[0], fb[1], fb[2], fb[3],
-                        bb[0], bb[1], bb[2], bb[3],
-                        front_child, back_child)
+    fb=bb(front_idx); bbb=bb(back_idx)
+    ni = len(nodes); nodes.append(None)
+    fc = _build_bsp(front_idx, all_lines, verts, nodes, subsectors, depth+1)
+    bc = _build_bsp(back_idx,  all_lines, verts, nodes, subsectors, depth+1)
+    nodes[ni] = BSPNode(ax,ay,ndx,ndy, fb[0],fb[1],fb[2],fb[3],
+                        bbb[0],bbb[1],bbb[2],bbb[3], fc, bc)
     return ni
 
+def build_bsp(md: MapData):
+    verts = [Vertex(v.x,v.y) for v in md.vertices]
+    lines = [Linedef(l.v0,l.v1,l.front,l.back) for l in md.linedefs]
+    nodes=[]; subs=[]
+    if lines:
+        _build_bsp(list(range(len(lines))), lines, verts, nodes, subs)
+    return nodes, subs, lines, verts
 
-def build_bsp(map_data: MapData):
-    """Returns (nodes, subsectors, working_lines, working_verts)."""
-    verts    = [Vertex(v.x, v.y) for v in map_data.vertices]
-    lines    = [Linedef(l.v0, l.v1, l.front, l.back) for l in map_data.linedefs]
-    nodes    = []
-    subsecs  = []  # each is list of line indices
-    if not lines:
-        return nodes, subsecs, lines, verts
-    indices = list(range(len(lines)))
-    _build_bsp(indices, lines, verts, nodes, subsecs, 0)
-    return nodes, subsecs, lines, verts
+# ══════════════════════════════════════════════════════════════════════════════
+#  Binary export
+# ══════════════════════════════════════════════════════════════════════════════
 
-# ─── Binary export ────────────────────────────────────────────────────────────
-
-def export_bin(map_data: MapData, out_dir: str):
+def export_bin(md: MapData, out_dir: str):
     os.makedirs(out_dir, exist_ok=True)
-
-    # sectors.bin
-    with open(os.path.join(out_dir, "sectors.bin"), "wb") as f:
-        for s in map_data.sectors:
-            f.write(struct.pack("<ffIIB",
-                s.floor_h, s.ceil_h,
-                s.floor_tex, s.ceil_tex, s.light))
-
-    # sidedefs.bin
-    with open(os.path.join(out_dir, "sidedefs.bin"), "wb") as f:
-        for sd in map_data.sidedefs:
-            f.write(struct.pack("<IIII",
-                sd.facing_sector,
-                sd.upper_tex, sd.mid_tex, sd.lower_tex))
-
-    # Build BSP (also produces final linedefs / subsectors)
-    nodes, subsecs, work_lines, work_verts = build_bsp(map_data)
-
-    # Flatten subsectors into a contiguous linedef list
-    flat_lines = []          # final linedef indices in order
-    sub_records = []         # (count, first_id)
-    for sub in subsecs:
-        first = len(flat_lines)
-        for li in sub:
-            flat_lines.append(work_lines[li])
-        sub_records.append((len(sub), first))
-
-    # linedefs.bin
-    with open(os.path.join(out_dir, "linedefs.bin"), "wb") as f:
-        for l in flat_lines:
-            v0 = work_verts[l.v0]
-            v1 = work_verts[l.v1]
-            back = l.back if l.back != NULL_ID else NULL_ID
-            f.write(struct.pack("<iiiiII",
-                int(v0.x), int(v0.y), int(v1.x), int(v1.y),
-                l.front, back))
-
-    # subsectors.bin
-    with open(os.path.join(out_dir, "subsectors.bin"), "wb") as f:
-        for count, first in sub_records:
-            f.write(struct.pack("<II", count, first))
-
-    # nodes.bin
-    with open(os.path.join(out_dir, "nodes.bin"), "wb") as f:
+    with open(os.path.join(out_dir,"sectors.bin"),"wb") as f:
+        for s in md.sectors:
+            f.write(struct.pack("<ffIIB", s.floor_h,s.ceil_h,s.floor_tex,s.ceil_tex,s.light))
+    with open(os.path.join(out_dir,"sidedefs.bin"),"wb") as f:
+        for sd in md.sidedefs:
+            f.write(struct.pack("<IIII", sd.facing_sector,sd.upper_tex,sd.mid_tex,sd.lower_tex))
+    nodes,subs,wlines,wverts = build_bsp(md)
+    flat=[]; sub_recs=[]
+    for sub in subs:
+        first=len(flat)
+        for li in sub: flat.append(wlines[li])
+        sub_recs.append((len(sub),first))
+    with open(os.path.join(out_dir,"linedefs.bin"),"wb") as f:
+        for l in flat:
+            v0=wverts[l.v0]; v1=wverts[l.v1]
+            f.write(struct.pack("<iiiiII", int(v0.x),int(v0.y),int(v1.x),int(v1.y),
+                                l.front, l.back if l.back!=NULL_ID else NULL_ID))
+    with open(os.path.join(out_dir,"subsectors.bin"),"wb") as f:
+        for cnt,first in sub_recs:
+            f.write(struct.pack("<II",cnt,first))
+    with open(os.path.join(out_dir,"nodes.bin"),"wb") as f:
         for n in nodes:
             if n is None: continue
-            f.write(struct.pack("<ffffffff ffff II",
-                n.pl_x, n.pl_y, n.dir_x, n.dir_y,
-                n.f_top, n.f_bot, n.f_left, n.f_right,
-                n.b_top, n.b_bot, n.b_left, n.b_right,
-                n.front_child, n.back_child))
+            f.write(struct.pack("<ffffffffffff II",
+                n.pl_x,n.pl_y,n.dir_x,n.dir_y,
+                n.f_top,n.f_bot,n.f_left,n.f_right,
+                n.b_top,n.b_bot,n.b_left,n.b_right,
+                n.front_child,n.back_child))
+    return len(md.sectors),len(md.linedefs),len(nodes),len(sub_recs)
 
-    return len(map_data.sectors), len(map_data.linedefs), len(nodes), len(sub_records)
+# ══════════════════════════════════════════════════════════════════════════════
+#  JSON save / load
+# ══════════════════════════════════════════════════════════════════════════════
 
-# ─── JSON save/load ───────────────────────────────────────────────────────────
+def save_json(md,path):
+    d={"vertices":[{"x":v.x,"y":v.y} for v in md.vertices],
+       "sectors":[{"floor_h":s.floor_h,"ceil_h":s.ceil_h,"floor_tex":s.floor_tex,
+                   "ceil_tex":s.ceil_tex,"light":s.light,"color_idx":s.color_idx}
+                  for s in md.sectors],
+       "sidedefs":[{"facing_sector":sd.facing_sector,"upper_tex":sd.upper_tex,
+                    "mid_tex":sd.mid_tex,"lower_tex":sd.lower_tex} for sd in md.sidedefs],
+       "linedefs":[{"v0":l.v0,"v1":l.v1,"front":l.front,"back":l.back}
+                   for l in md.linedefs]}
+    with open(path,"w") as f: json.dump(d,f,indent=2)
 
-def save_json(map_data: MapData, path: str):
-    d = {
-        "vertices": [{"x": v.x, "y": v.y} for v in map_data.vertices],
-        "sectors":  [{"floor_h": s.floor_h, "ceil_h": s.ceil_h,
-                       "floor_tex": s.floor_tex, "ceil_tex": s.ceil_tex,
-                       "light": s.light, "color_idx": s.color_idx}
-                     for s in map_data.sectors],
-        "sidedefs": [{"facing_sector": sd.facing_sector,
-                       "upper_tex": sd.upper_tex, "mid_tex": sd.mid_tex,
-                       "lower_tex": sd.lower_tex}
-                     for sd in map_data.sidedefs],
-        "linedefs": [{"v0": l.v0, "v1": l.v1, "front": l.front, "back": l.back}
-                     for l in map_data.linedefs],
-    }
-    with open(path, "w") as f:
-        json.dump(d, f, indent=2)
-
-def load_json(path: str) -> MapData:
-    with open(path) as f:
-        d = json.load(f)
-    md = MapData()
-    md.vertices = [Vertex(**v) for v in d["vertices"]]
-    md.sectors  = [Sector(**s) for s in d["sectors"]]
-    md.sidedefs = [Sidedef(**sd) for sd in d["sidedefs"]]
-    md.linedefs = [Linedef(**l) for l in d["linedefs"]]
+def load_json(path):
+    with open(path) as f: d=json.load(f)
+    md=MapData()
+    md.vertices=[Vertex(**v) for v in d["vertices"]]
+    md.sectors=[Sector(**s) for s in d["sectors"]]
+    md.sidedefs=[Sidedef(**sd) for sd in d["sidedefs"]]
+    md.linedefs=[Linedef(**l) for l in d["linedefs"]]
     return md
 
-# ─── Editor ──────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+#  Pure-pygame UI widgets
+# ══════════════════════════════════════════════════════════════════════════════
+
+class Button:
+    def __init__(self, rect, label, accent=False):
+        self.rect   = pygame.Rect(rect)
+        self.label  = label
+        self.accent = accent
+        self.hovered= False
+        self.pressed= False   # visual flash
+
+    def draw(self, surf, font):
+        if self.pressed:
+            bg = BTN_ACT
+        elif self.hovered:
+            bg = BTN_HOV
+        else:
+            bg = (50,80,140) if self.accent else BTN_NORM
+        pygame.draw.rect(surf, bg,          self.rect, border_radius=4)
+        pygame.draw.rect(surf, BTN_BORDER,  self.rect, 1, border_radius=4)
+        col = TEXT_HOT if self.hovered or self.accent else TEXT_NORM
+        txt = font.render(self.label, True, col)
+        surf.blit(txt, txt.get_rect(center=self.rect.center))
+
+    def update(self, mx, my):
+        self.hovered = self.rect.collidepoint(mx, my)
+
+    def handle(self, event):
+        """Return True on click."""
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
+            if self.rect.collidepoint(event.pos):
+                self.pressed = True
+                return True
+        if event.type == pygame.MOUSEBUTTONUP:
+            self.pressed = False
+        return False
+
+
+class TextInput:
+    """Single-line text field."""
+    CURSOR_BLINK = 530   # ms
+
+    def __init__(self, rect, value="", numeric=False):
+        self.rect    = pygame.Rect(rect)
+        self.text    = str(value)
+        self.numeric = numeric
+        self.active  = False
+        self.cursor  = len(self.text)
+        self._blink  = 0
+        self._show_cur = True
+
+    @property
+    def value(self):
+        try:    return float(self.text) if '.' in self.text else int(self.text)
+        except: return 0
+
+    def set(self, v):
+        self.text   = str(v)
+        self.cursor = len(self.text)
+
+    def draw(self, surf, font):
+        bg  = FIELD_ACT  if self.active else FIELD_BG
+        bor = FIELD_ACBR if self.active else FIELD_BOR
+        pygame.draw.rect(surf, bg,  self.rect, border_radius=3)
+        pygame.draw.rect(surf, bor, self.rect, 1, border_radius=3)
+        display = self.text if self.text else ""
+        txt = font.render(display, True, TEXT_NORM)
+        clip = self.rect.inflate(-8, -4)
+        surf.set_clip(clip)
+        ty = self.rect.centery - txt.get_height()//2
+        # Scroll so cursor stays visible
+        cx_px = font.size(self.text[:self.cursor])[0]
+        ox = min(0, clip.width - cx_px - 4)
+        surf.blit(txt, (clip.x + ox, ty))
+        if self.active and self._show_cur:
+            cx = clip.x + ox + cx_px
+            pygame.draw.line(surf, ACCENT, (cx, ty+2), (cx, ty+txt.get_height()-2))
+        surf.set_clip(None)
+
+    def update(self, dt_ms):
+        self._blink += dt_ms
+        if self._blink >= self.CURSOR_BLINK:
+            self._blink = 0; self._show_cur = not self._show_cur
+
+    def handle(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
+            self.active = self.rect.collidepoint(event.pos)
+            if self.active: self.cursor = len(self.text)
+        if not self.active: return False
+        if event.type == pygame.KEYDOWN:
+            k = event.key
+            if k == pygame.K_BACKSPACE:
+                if self.cursor > 0:
+                    self.text = self.text[:self.cursor-1] + self.text[self.cursor:]
+                    self.cursor -= 1
+            elif k == pygame.K_DELETE:
+                self.text = self.text[:self.cursor] + self.text[self.cursor+1:]
+            elif k == pygame.K_LEFT:
+                self.cursor = max(0, self.cursor-1)
+            elif k == pygame.K_RIGHT:
+                self.cursor = min(len(self.text), self.cursor+1)
+            elif k == pygame.K_HOME: self.cursor = 0
+            elif k == pygame.K_END:  self.cursor = len(self.text)
+            elif k in (pygame.K_RETURN, pygame.K_KP_ENTER, pygame.K_TAB):
+                self.active = False
+            else:
+                ch = event.unicode
+                if ch and (not self.numeric or ch in '0123456789.-'):
+                    self.text = self.text[:self.cursor] + ch + self.text[self.cursor:]
+                    self.cursor += 1
+            self._show_cur = True; self._blink = 0
+        return False
+
+
+class Label:
+    def __init__(self, rect, text, color=TEXT_LABEL, small=False):
+        self.rect  = pygame.Rect(rect)
+        self.text  = text
+        self.color = color
+        self.small = small
+
+    def draw(self, surf, font, font_sm):
+        f = font_sm if self.small else font
+        txt = f.render(self.text, True, self.color)
+        surf.blit(txt, (self.rect.x, self.rect.centery - txt.get_height()//2))
+
+
+class Separator:
+    def __init__(self, y, x0, x1):
+        self.y=y; self.x0=x0; self.x1=x1
+    def draw(self, surf, *_):
+        pygame.draw.line(surf, PANEL_LINE, (self.x0,self.y),(self.x1,self.y))
+
+
+class ToolButton(Button):
+    """Stays visually 'active' when selected."""
+    def __init__(self, rect, label, tool_id):
+        super().__init__(rect, label)
+        self.tool_id = tool_id
+        self.active  = False
+
+    def draw(self, surf, font):
+        if self.active:
+            bg = BTN_ACT
+        elif self.hovered:
+            bg = BTN_HOV
+        else:
+            bg = BTN_NORM
+        pygame.draw.rect(surf, bg,         self.rect, border_radius=4)
+        col_b = ACCENT if self.active else BTN_BORDER
+        pygame.draw.rect(surf, col_b,      self.rect, 1 if not self.active else 2,
+                         border_radius=4)
+        col = TEXT_HOT if self.active or self.hovered else TEXT_NORM
+        txt = font.render(self.label, True, col)
+        surf.blit(txt, txt.get_rect(center=self.rect.center))
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  Editor
+# ══════════════════════════════════════════════════════════════════════════════
 
 class Editor:
+
+    # ── init ──────────────────────────────────────────────────────────────────
     def __init__(self):
         pygame.init()
+        pygame.key.set_repeat(400, 40)
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H), pygame.RESIZABLE)
-        pygame.display.set_caption("Map Editor  —  Doom-style BSP")
-        self.clock = pygame.time.Clock()
-        self.manager = pygame_gui.UIManager((SCREEN_W, SCREEN_H), self._make_theme())
+        pygame.display.set_caption("Map Editor")
+        self.clock  = pygame.time.Clock()
 
-        self.map = MapData()
-        self.tool = TOOL_LINE
+        self.font    = pygame.font.SysFont("monospace", 13)
+        self.font_sm = pygame.font.SysFont("monospace", 11)
+        self.font_lg = pygame.font.SysFont("monospace", 15, bold=True)
+        self.font_hd = pygame.font.SysFont("monospace", 12, bold=True)
+
+        self.map     = MapData()
+        self.tool    = TOOL_LINE
         self.running = True
 
         # Viewport
-        self.cam_x, self.cam_y = 0.0, 0.0
-        self.zoom = 1.0
-        self.dragging = False
-        self.drag_start = (0, 0)
-        self.drag_cam   = (0, 0)
+        self.cam_x = 0.0; self.cam_y = 0.0; self.zoom = 1.0
+        self.panning   = False
+        self.pan_start = (0,0); self.pan_cam = (0.0,0.0)
 
-        # Tool state
-        self.selected_verts = []   # indices
-        self.selected_lines = []   # indices
-        self.hover_vertex  = None
-        self.hover_line    = None
-        self.line_start    = None  # vertex index, during LINE draw
-        self.current_sector = 0   # sector assigned to new lines
+        # Edit state
+        self.sel_verts  = []
+        self.sel_lines  = []
+        self.hov_vert   = None
+        self.hov_line   = None
+        self.line_start = None
+        self.cur_sector = 0
 
-        # Status
-        self.status = "Ready. Draw linedefs, assign sectors, then export."
-        self.bsp_node_count = 0
-        self.bsp_sub_count  = 0
+        # BSP overlay
+        self.show_bsp  = False
+        self.bsp_nodes = []; self.bsp_subs = []
+        self.bsp_verts = []; self.bsp_lines = []
+        self.bsp_nc    = 0;  self.bsp_sc   = 0
 
-        # BSP preview
-        self.show_bsp      = False
-        self.bsp_nodes_cache = []
-        self.bsp_subs_cache  = []
-        self.bsp_verts_cache = []
-        self.bsp_lines_cache = []
+        self.status = "V=vertex  L=line  S=paint sector  E=select  D=delete  |  F5=export"
+        self._flash_timer = 0
 
-        self._build_ui()
-        self._rebuild_bsp_cache()
+        self._build_panel()
+        self._rebuild_bsp()
 
-    # ── Theme ──────────────────────────────────────────────────────────────
+    # ── Panel construction ────────────────────────────────────────────────────
 
-    def _make_theme(self):
-        return {
-            "defaults": {
-                "colours": {
-                    "dark_bg": "#181420",
-                    "normal_bg": "#22243a",
-                    "hovered_bg": "#2e3050",
-                    "selected_bg": "#3a4070",
-                    "active_bg": "#3a4070",
-                    "normal_border": "#444466",
-                    "hovered_border": "#6688bb",
-                    "normal_text": "#c8d2e6",
-                    "hovered_text": "#ffffff",
-                    "selected_text": "#ffffff",
-                    "disabled_bg": "#1a1c28",
-                    "disabled_border": "#2a2c40",
-                    "disabled_text": "#555577",
-                    "link_text": "#8899ff",
-                    "link_hover": "#aabbff",
-                    "link_selected": "#ccddff",
-                    "text_shadow": "#000000",
-                    "filled_bar": "#4466cc",
-                    "unfilled_bar": "#222244",
-                }
-            }
-        }
-
-    # ── UI construction ────────────────────────────────────────────────────
-
-    def _build_ui(self):
-        m = self.manager
+    def _build_panel(self):
         px = CANVAS_W + 10
-        y = 10
-        w = PANEL_W - 20
+        pw = PANEL_W - 20
+        y  = 8
 
-        def btn(label, yy, hh=34):
-            return pygame_gui.elements.UIButton(
-                relative_rect=pygame.Rect(px, yy, w, hh),
-                text=label, manager=m)
+        def sep(extra=4):
+            nonlocal y
+            s = Separator(y+extra, CANVAS_W+4, SCREEN_W-4)
+            self.widgets.append(s)
+            y += extra*2+2
 
-        def lbl(text, yy, hh=22):
-            return pygame_gui.elements.UILabel(
-                relative_rect=pygame.Rect(px, yy, w, hh),
-                text=text, manager=m)
+        def lbl(text, dy=4, color=TEXT_LABEL):
+            nonlocal y
+            w = Label(pygame.Rect(px, y, pw, 18), text, color=color)
+            self.widgets.append(w)
+            y += 18+dy
 
-        def entry(yy, val="", hh=34):
-            e = pygame_gui.elements.UITextEntryLine(
-                relative_rect=pygame.Rect(px, yy, w, hh), manager=m)
-            e.set_text(str(val))
-            return e
+        def btn(label, h=30, accent=False):
+            nonlocal y
+            b = Button(pygame.Rect(px, y, pw, h), label, accent=accent)
+            self.widgets.append(b)
+            y += h+4
+            return b
 
-        # ── Tools ──
-        lbl("── TOOLS ──", y); y += 26
-        self.btn_vertex = btn("✦  Add Vertices",  y); y += 38
-        self.btn_line   = btn("╱  Draw Lines",    y); y += 38
-        self.btn_sector = btn("▣  Paint Sector",  y); y += 38
-        self.btn_select = btn("⊹  Select",        y); y += 38
-        self.btn_delete = btn("✕  Delete",        y); y += 46
+        def tbtn(label, tool_id, h=30):
+            nonlocal y
+            b = ToolButton(pygame.Rect(px, y, pw, h), label, tool_id)
+            self.widgets.append(b)
+            y += h+4
+            return b
 
-        # ── Sector ──
-        lbl("── CURRENT SECTOR ──", y); y += 26
-        lbl("Sector index:", y); y += 22
-        self.entry_sector_idx = entry(y, 0); y += 38
-        self.btn_new_sector = btn("+ New Sector", y); y += 40
+        def field(val="", num=False, h=28):
+            nonlocal y
+            f = TextInput(pygame.Rect(px, y, pw, h), val, numeric=num)
+            self.widgets.append(f)
+            y += h+4
+            return f
 
-        lbl("Floor H:", y); y += 22
-        self.entry_floor_h = entry(y, "0.0"); y += 38
-        lbl("Ceiling H:", y); y += 22
-        self.entry_ceil_h = entry(y, "128.0"); y += 38
-        lbl("Floor Tex ID:", y); y += 22
-        self.entry_floor_tex = entry(y, "0"); y += 38
-        lbl("Ceil Tex ID:", y); y += 22
-        self.entry_ceil_tex = entry(y, "0"); y += 38
-        lbl("Light (0-255):", y); y += 22
-        self.entry_light = entry(y, "200"); y += 38
-        self.btn_apply_sector = btn("Apply Sector Props", y); y += 46
+        self.widgets = []
 
-        # ── Sidedef ──
-        lbl("── SIDEDEF TEXTURES ──", y); y += 26
-        lbl("Upper Tex:", y); y += 22
-        self.entry_upper = entry(y, "0"); y += 38
-        lbl("Mid Tex:", y); y += 22
-        self.entry_mid   = entry(y, "1"); y += 38
-        lbl("Lower Tex:", y); y += 22
-        self.entry_lower = entry(y, "0"); y += 38
+        # ── Tools ─────────────────────────────────────────────────────────────
+        lbl("  TOOLS", color=TEXT_DIM); y += 2
+        self.tb_vertex = tbtn("✦  Vertex",  TOOL_VERTEX)
+        self.tb_line   = tbtn("╱  Line",    TOOL_LINE)
+        self.tb_sector = tbtn("▣  Paint Sector", TOOL_SECTOR)
+        self.tb_select = tbtn("⊹  Select",  TOOL_SELECT)
+        self.tb_delete = tbtn("✕  Delete",  TOOL_DELETE)
+        self._tool_btns = [self.tb_vertex,self.tb_line,self.tb_sector,
+                           self.tb_select,self.tb_delete]
+        self.tb_line.active = True
 
-        # ── BSP / Export ──
-        lbl("── BSP / EXPORT ──", y); y += 26
-        self.btn_bsp_toggle = btn("Show BSP Tree", y); y += 38
-        self.btn_export = btn("◉  Export Binary", y); y += 38
-        self.btn_save   = btn("💾  Save JSON",     y); y += 38
-        self.btn_load   = btn("📂  Load JSON",     y); y += 38
-        self.btn_clear  = btn("⊘  Clear Map",      y); y += 38
+        sep()
 
-        self.status_label = lbl(self.status, SCREEN_H - 30)
+        # ── Sector props ──────────────────────────────────────────────────────
+        lbl("  SECTOR", color=TEXT_DIM); y += 2
+        lbl("Index:")
+        self.fi_sec_idx = field("0", num=True)
+        self.btn_new_sec = btn("+ New Sector")
+        lbl("Floor height:")
+        self.fi_floor_h  = field("0.0", num=True)
+        lbl("Ceiling height:")
+        self.fi_ceil_h   = field("128.0", num=True)
+        lbl("Floor tex ID:")
+        self.fi_floor_tex= field("0", num=True)
+        lbl("Ceiling tex ID:")
+        self.fi_ceil_tex = field("0", num=True)
+        lbl("Light (0-255):")
+        self.fi_light    = field("200", num=True)
+        self.btn_apply   = btn("Apply Sector", accent=True)
 
-    # ── Coordinate helpers ────────────────────────────────────────────────
+        sep()
 
-    def world_to_screen(self, wx, wy):
-        sx = (wx - self.cam_x) * self.zoom + CANVAS_W / 2
-        sy = (- wy + self.cam_y) * self.zoom + CANVAS_H / 2
+        # ── Sidedef textures ──────────────────────────────────────────────────
+        lbl("  SIDEDEF TEXTURES", color=TEXT_DIM); y += 2
+        lbl("Upper tex:")
+        self.fi_upper = field("0", num=True)
+        lbl("Mid tex:")
+        self.fi_mid   = field("1", num=True)
+        lbl("Lower tex:")
+        self.fi_lower = field("0", num=True)
+
+        sep()
+
+        # ── File ops ──────────────────────────────────────────────────────────
+        lbl("  FILE / BSP", color=TEXT_DIM); y += 2
+        self.btn_bsp    = btn("Show BSP Overlay")
+        self.btn_export = btn("◉  Export Binary", accent=True)
+        self.btn_save   = btn("💾  Save JSON")
+        self.btn_load   = btn("📂  Load JSON")
+        self.btn_clear  = btn("⊘  Clear Map")
+
+        # store y for info block at bottom
+        self._info_y = max(y, SCREEN_H - 200)
+
+    # ── Widget helpers ────────────────────────────────────────────────────────
+
+    def _int(self, fi, default=0):
+        try:    return int(float(fi.text))
+        except: return default
+
+    def _flt(self, fi, default=0.0):
+        try:    return float(fi.text)
+        except: return default
+
+    def _all_inputs(self):
+        return [w for w in self.widgets if isinstance(w, TextInput)]
+
+    def _any_input_active(self):
+        return any(w.active for w in self._all_inputs())
+
+    # ── Coord helpers ─────────────────────────────────────────────────────────
+
+    def w2s(self, wx, wy):
+        sx = (wx-self.cam_x)*self.zoom + CANVAS_W/2
+        sy = (-wy+self.cam_y)*self.zoom + CANVAS_H/2
         return int(sx), int(sy)
 
-    def screen_to_world(self, sx, sy):
-        wx = (sx - CANVAS_W / 2) / self.zoom + self.cam_x
-        wy = -((sy - CANVAS_H / 2) / self.zoom - self.cam_y)
+    def s2w(self, sx, sy):
+        wx = (sx - CANVAS_W/2)/self.zoom + self.cam_x
+        wy = -((sy - CANVAS_H/2)/self.zoom - self.cam_y)
         return wx, wy
 
     def snap(self, wx, wy):
-        s = SNAP
-        return round(wx / s) * s, round(wy / s) * s
+        s=SNAP
+        return round(wx/s)*s, round(wy/s)*s
 
-    def find_vertex_near(self, wx, wy, radius=12):
-        best, best_d = None, radius / self.zoom
-        for i, v in enumerate(self.map.vertices):
-            d = math.hypot(v.x - wx, v.y - wy)
-            if d < best_d:
-                best, best_d = i, d
+    def near_vert(self, wx, wy, r=14):
+        best=None; bd=r/self.zoom
+        for i,v in enumerate(self.map.vertices):
+            d=math.hypot(v.x-wx,v.y-wy)
+            if d<bd: best,bd=i,d
         return best
 
-    def find_line_near(self, wx, wy, radius=8):
-        best, best_d = None, radius / self.zoom
-        for i, l in enumerate(self.map.linedefs):
-            v0 = self.map.vertices[l.v0]
-            v1 = self.map.vertices[l.v1]
-            d = self._pt_seg_dist(wx, wy, v0.x, v0.y, v1.x, v1.y)
-            if d < best_d:
-                best, best_d = i, d
+    def near_line(self, wx, wy, r=8):
+        best=None; bd=r/self.zoom
+        for i,l in enumerate(self.map.linedefs):
+            v0=self.map.vertices[l.v0]; v1=self.map.vertices[l.v1]
+            d=self._pt_seg(wx,wy,v0.x,v0.y,v1.x,v1.y)
+            if d<bd: best,bd=i,d
         return best
 
-    def _pt_seg_dist(self, px, py, ax, ay, bx, by):
-        dx, dy = bx - ax, by - ay
-        ln2 = dx*dx + dy*dy
-        if ln2 < 1e-10: return math.hypot(px-ax, py-ay)
-        t = max(0, min(1, ((px-ax)*dx + (py-ay)*dy) / ln2))
-        return math.hypot(px - (ax + t*dx), py - (ay + t*dy))
+    def _pt_seg(self,px,py,ax,ay,bx,by):
+        dx,dy=bx-ax,by-ay; l2=dx*dx+dy*dy
+        if l2<1e-10: return math.hypot(px-ax,py-ay)
+        t=max(0,min(1,((px-ax)*dx+(py-ay)*dy)/l2))
+        return math.hypot(px-(ax+t*dx),py-(ay+t*dy))
 
-    # ── Sector/sidedef helpers ─────────────────────────────────────────────
-
-    def _read_int(self, entry, default=0):
-        try: return int(float(entry.get_text()))
-        except: return default
-
-    def _read_float(self, entry, default=0.0):
-        try: return float(entry.get_text())
-        except: return default
-
-    def _get_or_create_sidedef(self, sector_idx):
-        ut = self._read_int(self.entry_upper, 0)
-        mt = self._read_int(self.entry_mid,   1)
-        lt = self._read_int(self.entry_lower,  0)
-        # Reuse existing sidedef if identical
-        for i, sd in enumerate(self.map.sidedefs):
-            if sd.facing_sector == sector_idx and sd.upper_tex == ut and sd.mid_tex == mt and sd.lower_tex == lt:
-                return i
-        self.map.sidedefs.append(Sidedef(sector_idx, ut, mt, lt))
-        return len(self.map.sidedefs) - 1
+    # ── Sector/sidedef helpers ────────────────────────────────────────────────
 
     def _ensure_sector(self):
-        while len(self.map.sectors) <= self.current_sector:
-            ci = len(self.map.sectors) % len(SECTOR_COLORS)
+        while len(self.map.sectors) <= self.cur_sector:
+            ci = len(self.map.sectors) % len(SECTOR_FILLS)
             self.map.sectors.append(Sector(color_idx=ci))
 
-    def _update_sector_fields(self):
-        if self.current_sector < len(self.map.sectors):
-            s = self.map.sectors[self.current_sector]
-            self.entry_floor_h.set_text(str(s.floor_h))
-            self.entry_ceil_h.set_text(str(s.ceil_h))
-            self.entry_floor_tex.set_text(str(s.floor_tex))
-            self.entry_ceil_tex.set_text(str(s.ceil_tex))
-            self.entry_light.set_text(str(s.light))
+    def _get_sidedef(self, sec_idx):
+        ut=self._int(self.fi_upper,0); mt=self._int(self.fi_mid,1); lt=self._int(self.fi_lower,0)
+        for i,sd in enumerate(self.map.sidedefs):
+            if sd.facing_sector==sec_idx and sd.upper_tex==ut and sd.mid_tex==mt and sd.lower_tex==lt:
+                return i
+        self.map.sidedefs.append(Sidedef(sec_idx,ut,mt,lt))
+        return len(self.map.sidedefs)-1
 
-    # ── BSP cache ─────────────────────────────────────────────────────────
+    def _sync_sector_fields(self):
+        if self.cur_sector < len(self.map.sectors):
+            s=self.map.sectors[self.cur_sector]
+            self.fi_floor_h.set(s.floor_h); self.fi_ceil_h.set(s.ceil_h)
+            self.fi_floor_tex.set(s.floor_tex); self.fi_ceil_tex.set(s.ceil_tex)
+            self.fi_light.set(s.light)
 
-    def _rebuild_bsp_cache(self):
+    # ── BSP cache ─────────────────────────────────────────────────────────────
+
+    def _rebuild_bsp(self):
         if not self.map.linedefs:
-            self.bsp_nodes_cache = []
-            self.bsp_subs_cache  = []
-            return
-        nodes, subs, wlines, wverts = build_bsp(self.map)
-        self.bsp_nodes_cache = nodes
-        self.bsp_subs_cache  = subs
-        self.bsp_lines_cache = wlines
-        self.bsp_verts_cache = wverts
-        self.bsp_node_count = len(nodes)
-        self.bsp_sub_count  = len(subs)
+            self.bsp_nodes=[]; self.bsp_subs=[]; self.bsp_nc=0; self.bsp_sc=0; return
+        n,s,wl,wv = build_bsp(self.map)
+        self.bsp_nodes=n; self.bsp_subs=s; self.bsp_lines=wl; self.bsp_verts=wv
+        self.bsp_nc=len(n); self.bsp_sc=len(s)
 
-    # ── Drawing ───────────────────────────────────────────────────────────
+    # ── Drawing ───────────────────────────────────────────────────────────────
 
-    def draw_grid(self, surf):
-        wl, wt = self.screen_to_world(0, 0)
-        wr, wb = self.screen_to_world(CANVAS_W, CANVAS_H)
-        step = GRID
-        # Minor
-        gx0 = int(wl // step) * step
-        gy0 = int(wb // step) * step
-        x = gx0
-        while x <= wr + step:
-            sx, _ = self.world_to_screen(x, 0)
-            if 0 <= sx <= CANVAS_W:
-                col = GRID_MAJ if x % (step*4) == 0 else GRID_COL
-                pygame.draw.line(surf, col, (sx, 0), (sx, CANVAS_H))
-            x += step
-        y = gy0
-        while y <= wt + step:
-            _, sy = self.world_to_screen(0, y)
-            if 0 <= sy <= CANVAS_H:
-                col = GRID_MAJ if y % (step*4) == 0 else GRID_COL
-                pygame.draw.line(surf, col, (0, sy), (CANVAS_W, sy))
-            y += step
-        # Origin
-        ox, oy = self.world_to_screen(0, 0)
-        pygame.draw.line(surf, (80, 80, 120), (ox, 0), (ox, CANVAS_H), 1)
-        pygame.draw.line(surf, (80, 80, 120), (0, oy), (CANVAS_W, oy), 1)
+    def _draw_grid(self, surf):
+        wl,wt = self.s2w(0,0); wr,wb = self.s2w(CANVAS_W,CANVAS_H)
+        s=GRID
+        x=int(wl//s)*s
+        while x<=wr+s:
+            sx,_=self.w2s(x,0)
+            if 0<=sx<=CANVAS_W:
+                col = GRID_MAJ if x%(s*4)==0 else GRID_MIN
+                pygame.draw.line(surf,col,(sx,0),(sx,CANVAS_H))
+            x+=s
+        y=int(wb//s)*s
+        while y<=wt+s:
+            _,sy=self.w2s(0,y)
+            if 0<=sy<=CANVAS_H:
+                col = GRID_MAJ if y%(s*4)==0 else GRID_MIN
+                pygame.draw.line(surf,col,(0,sy),(CANVAS_W,sy))
+            y+=s
+        ox,oy=self.w2s(0,0)
+        pygame.draw.line(surf,ORIGIN_COL,(ox,0),(ox,CANVAS_H))
+        pygame.draw.line(surf,ORIGIN_COL,(0,oy),(CANVAS_W,oy))
 
-    def draw_sector_fills(self, surf):
-        # Simple: for each closed polygon detected per sector, fill it
-        # We do a simple convex-hull-per-sector approximation for display
-        sector_verts = {}
+    def _draw_sector_fills(self, surf):
+        alpha = pygame.Surface((CANVAS_W,CANVAS_H), pygame.SRCALPHA)
+        sec_vids = {}
         for l in self.map.linedefs:
-            if l.front == NULL_ID: continue
-            if l.front < len(self.map.sidedefs):
-                si = self.map.sidedefs[l.front].facing_sector
-                if si not in sector_verts: sector_verts[si] = []
-                sector_verts[si].extend([l.v0, l.v1])
-        for si, vis in sector_verts.items():
-            vis = list(dict.fromkeys(vis))
-            if len(vis) < 3 or si >= len(self.map.sectors): continue
-            s = self.map.sectors[si]
-            col = SECTOR_COLORS[s.color_idx % len(SECTOR_COLORS)]
-            pts = []
-            cx = sum(self.map.vertices[i].x for i in vis) / len(vis)
-            cy = sum(self.map.vertices[i].y for i in vis) / len(vis)
-            def angle(vi):
-                return math.atan2(self.map.vertices[vi].y - cy,
-                                  self.map.vertices[vi].x - cx)
-            vis_sorted = sorted(vis, key=angle)
-            for vi in vis_sorted:
-                sx, sy = self.world_to_screen(self.map.vertices[vi].x, self.map.vertices[vi].y)
-                pts.append((sx, sy))
-            if len(pts) >= 3:
-                fill_surf = pygame.Surface((CANVAS_W, CANVAS_H), pygame.SRCALPHA)
-                pygame.draw.polygon(fill_surf, col, pts)
-                surf.blit(fill_surf, (0, 0))
+            if l.front!=NULL_ID and l.front<len(self.map.sidedefs):
+                si=self.map.sidedefs[l.front].facing_sector
+                sec_vids.setdefault(si,[]).extend([l.v0,l.v1])
+        for si,vis in sec_vids.items():
+            vis=list(dict.fromkeys(vis))
+            if len(vis)<3 or si>=len(self.map.sectors): continue
+            s=self.map.sectors[si]
+            col=SECTOR_FILLS[s.color_idx%len(SECTOR_FILLS)]
+            cx=sum(self.map.vertices[i].x for i in vis)/len(vis)
+            cy=sum(self.map.vertices[i].y for i in vis)/len(vis)
+            vis=sorted(vis, key=lambda i: math.atan2(
+                self.map.vertices[i].y-cy, self.map.vertices[i].x-cx))
+            pts=[self.w2s(self.map.vertices[i].x,self.map.vertices[i].y) for i in vis]
+            if len(pts)>=3:
+                pygame.draw.polygon(alpha,col,pts)
+        surf.blit(alpha,(0,0))
 
-    def draw_bsp_overlay(self, surf):
-        if not self.bsp_nodes_cache: return
-        verts = self.bsp_verts_cache
-        lines = self.bsp_lines_cache
-
-        # Draw subsector lines coloured by subsector
-        for sub_i, sub in enumerate(self.bsp_subs_cache):
-            col = BSP_COLORS[sub_i % len(BSP_COLORS)]
+    def _draw_bsp(self, surf):
+        if not self.bsp_nodes: return
+        alpha=pygame.Surface((CANVAS_W,CANVAS_H),pygame.SRCALPHA)
+        # subsector coloured lines
+        for si,sub in enumerate(self.bsp_subs):
+            col=BSP_COLS[si%len(BSP_COLS)]
             for li in sub:
-                l = lines[li]
-                p0 = self.world_to_screen(verts[l.v0].x, verts[l.v0].y)
-                p1 = self.world_to_screen(verts[l.v1].x, verts[l.v1].y)
-                pygame.draw.line(surf, col, p0, p1, 1)
-
-        # Draw partition lines
-        for ni, n in enumerate(self.bsp_nodes_cache):
+                l=self.bsp_lines[li]
+                p0=self.w2s(self.bsp_verts[l.v0].x,self.bsp_verts[l.v0].y)
+                p1=self.w2s(self.bsp_verts[l.v1].x,self.bsp_verts[l.v1].y)
+                pygame.draw.line(alpha,(*col,200),p0,p1,2)
+        # partition planes (faint)
+        for ni,n in enumerate(self.bsp_nodes):
             if n is None: continue
-            col = (*(x//3 for x in BSP_COLORS[ni % len(BSP_COLORS)]), 180)
-            sx, sy = self.world_to_screen(n.pl_x, n.pl_y)
-            # Draw a faint long partition line
-            ext = 2000
-            ex = n.pl_x + n.dir_x * ext
-            ey = n.pl_y + n.dir_y * ext
-            ex2 = n.pl_x - n.dir_x * ext
-            ey2 = n.pl_y - n.dir_y * ext
-            p1 = self.world_to_screen(ex, ey)
-            p2 = self.world_to_screen(ex2, ey2)
-            line_surf = pygame.Surface((CANVAS_W, CANVAS_H), pygame.SRCALPHA)
-            pygame.draw.line(line_surf, (*BSP_COLORS[ni % len(BSP_COLORS)], 40), p1, p2, 1)
-            surf.blit(line_surf, (0, 0))
+            col=(*BSP_COLS[ni%len(BSP_COLS)],35)
+            EXT=3000
+            p1=self.w2s(n.pl_x+n.dir_x*EXT, n.pl_y+n.dir_y*EXT)
+            p2=self.w2s(n.pl_x-n.dir_x*EXT, n.pl_y-n.dir_y*EXT)
+            pygame.draw.line(alpha,col,p1,p2,1)
+        surf.blit(alpha,(0,0))
 
-    def draw_linedefs(self, surf):
-        for i, l in enumerate(self.map.linedefs):
-            v0 = self.map.vertices[l.v0]
-            v1 = self.map.vertices[l.v1]
-            p0 = self.world_to_screen(v0.x, v0.y)
-            p1 = self.world_to_screen(v1.x, v1.y)
-            if i in self.selected_lines:
-                col = LINE_SEL
-            elif l.back == NULL_ID:
-                col = LINE_WALL
-            else:
-                col = LINE_PORT
-            pygame.draw.line(surf, col, p0, p1, 2 if i not in self.selected_lines else 3)
-            # Direction tick
-            mx, my = (p0[0]+p1[0])//2, (p0[1]+p1[1])//2
-            dx, dy = v1.x - v0.x, v1.y - v0.y
-            ln = math.hypot(dx, dy)
-            if ln > 0:
-                nx, ny = -dy/ln, -dx/ln   # normal (screen y is flipped)
-                tx, ty = int(mx + ny*8), int(my + nx*8)
-                pygame.draw.line(surf, col, (mx, my), (tx, ty), 1)
+    def _draw_lines(self, surf):
+        for i,l in enumerate(self.map.linedefs):
+            v0=self.map.vertices[l.v0]; v1=self.map.vertices[l.v1]
+            p0=self.w2s(v0.x,v0.y); p1=self.w2s(v1.x,v1.y)
+            if i in self.sel_lines: col=LINE_SEL; w=3
+            elif i==self.hov_line:  col=LINE_SEL; w=2
+            elif l.back==NULL_ID:   col=LINE_WALL; w=2
+            else:                   col=LINE_PORT; w=2
+            pygame.draw.line(surf,col,p0,p1,w)
+            # direction tick
+            mx,my=(p0[0]+p1[0])//2,(p0[1]+p1[1])//2
+            dx,dy=v1.x-v0.x,v1.y-v0.y; ln=math.hypot(dx,dy)
+            if ln>0:
+                nx,ny=-dy/ln,-dx/ln
+                tx,ty=int(mx+ny*9),int(my+nx*9)
+                pygame.draw.line(surf,col,(mx,my),(tx,ty),1)
 
-    def draw_vertices(self, surf):
-        for i, v in enumerate(self.map.vertices):
-            sx, sy = self.world_to_screen(v.x, v.y)
-            col = LINE_SEL if i in self.selected_verts else VERTEX_C
-            r = 5 if i == self.hover_vertex else 4
-            pygame.draw.circle(surf, col, (sx, sy), r)
-            pygame.draw.circle(surf, (20, 20, 30), (sx, sy), r, 1)
+    def _draw_verts(self, surf):
+        for i,v in enumerate(self.map.vertices):
+            sx,sy=self.w2s(v.x,v.y)
+            if i in self.sel_verts:    col=LINE_SEL; r=6
+            elif i==self.hov_vert:     col=VERTEX_HOV; r=6
+            elif i==self.line_start:   col=(255,200,80); r=6
+            else:                      col=VERTEX_C; r=4
+            pygame.draw.circle(surf,col,(sx,sy),r)
+            pygame.draw.circle(surf,(10,12,20),(sx,sy),r,1)
 
-    def draw_preview_line(self, surf, mx, my):
+    def _draw_preview(self, surf, mx, my):
         if self.line_start is None: return
-        v = self.map.vertices[self.line_start]
-        p0 = self.world_to_screen(v.x, v.y)
-        wx, wy = self.screen_to_world(mx, my)
-        wx, wy = self.snap(wx, wy)
-        hv = self.find_vertex_near(wx, wy, 20)
+        v=self.map.vertices[self.line_start]
+        p0=self.w2s(v.x,v.y)
+        wx,wy=self.s2w(mx,my); wx,wy=self.snap(wx,wy)
+        hv=self.near_vert(wx,wy,20)
         if hv is not None:
-            wx, wy = self.map.vertices[hv].x, self.map.vertices[hv].y
-        p1 = self.world_to_screen(wx, wy)
-        pygame.draw.line(surf, LINE_PREV, p0, p1, 1)
+            wx,wy=self.map.vertices[hv].x,self.map.vertices[hv].y
+        p1=self.w2s(wx,wy)
+        pygame.draw.line(surf,LINE_PREV,p0,p1,1)
+        pygame.draw.circle(surf,LINE_PREV,p1,4,1)
 
-    def draw_panel(self, surf):
-        pygame.draw.rect(surf, PANEL_BG, (CANVAS_W, 0, PANEL_W, SCREEN_H))
-        pygame.draw.line(surf, (60, 65, 90), (CANVAS_W, 0), (CANVAS_W, SCREEN_H), 2)
-        font = pygame.font.SysFont("monospace", 11)
-        info = [
-            f"Verts:    {len(self.map.vertices)}",
-            f"Lines:    {len(self.map.linedefs)}",
-            f"Sectors:  {len(self.map.sectors)}",
-            f"Sidedefs: {len(self.map.sidedefs)}",
-            f"BSP nodes:{self.bsp_node_count}",
-            f"Subsecs:  {self.bsp_sub_count}",
-            f"",
-            f"Sector:   #{self.current_sector}",
-            f"Zoom:     {self.zoom:.2f}x",
-            f"Cam:      {int(self.cam_x)},{int(self.cam_y)}",
+    def _draw_panel(self, surf):
+        pygame.draw.rect(surf,PANEL_BG,(CANVAS_W,0,PANEL_W,SCREEN_H))
+        pygame.draw.line(surf,(45,50,75),(CANVAS_W,0),(CANVAS_W,SCREEN_H),2)
+
+        for w in self.widgets:
+            w.draw(surf, self.font, self.font_sm)
+
+        # Stats block near bottom
+        y=SCREEN_H-195
+        stats=[
+            ("Vertices",  len(self.map.vertices)),
+            ("Linedefs",  len(self.map.linedefs)),
+            ("Sectors",   len(self.map.sectors)),
+            ("Sidedefs",  len(self.map.sidedefs)),
+            ("BSP nodes", self.bsp_nc),
+            ("Subsectors",self.bsp_sc),
+            ("Sector #",  self.cur_sector),
+            ("Zoom",      f"{self.zoom:.2f}x"),
         ]
-        # Draw info near bottom of panel
-        y = SCREEN_H - 260
-        for line in info:
-            txt = font.render(line, True, (120, 130, 160))
-            surf.blit(txt, (CANVAS_W + 10, y))
-            y += 16
+        pygame.draw.line(surf,PANEL_LINE,(CANVAS_W+4,y-8),(SCREEN_W-4,y-8))
+        txt=self.font_hd.render("  STATS",True,TEXT_DIM)
+        surf.blit(txt,(CANVAS_W+10,y-6))
+        y+=14
+        for k,v in stats:
+            kt=self.font_sm.render(f"{k}:",True,TEXT_DIM)
+            vt=self.font_sm.render(str(v),True,TEXT_NORM)
+            surf.blit(kt,(CANVAS_W+12,y))
+            surf.blit(vt,(SCREEN_W-12-vt.get_width(),y))
+            y+=16
 
-    def draw_status(self, surf):
-        font = pygame.font.SysFont("monospace", 12)
-        pygame.draw.rect(surf, (14, 16, 24), (0, CANVAS_H - 24, CANVAS_W, 24))
-        txt = font.render(self.status, True, (140, 180, 220))
-        surf.blit(txt, (8, CANVAS_H - 20))
+    def _draw_statusbar(self, surf):
+        pygame.draw.rect(surf,(12,14,22),(0,CANVAS_H-22,CANVAS_W,22))
+        pygame.draw.line(surf,(40,45,65),(0,CANVAS_H-22),(CANVAS_W,CANVAS_H-22),1)
+        # Tool badge
+        tool_labels = {TOOL_VERTEX:"✦ VERTEX",TOOL_LINE:"╱ LINE",
+                       TOOL_SECTOR:"▣ PAINT",TOOL_SELECT:"⊹ SELECT",TOOL_DELETE:"✕ DELETE"}
+        badge=self.font_hd.render(f" {tool_labels[self.tool]} ",True,(20,22,32))
+        bs=badge.get_rect(); bs.inflate_ip(8,4)
+        bs.topleft=(6,CANVAS_H-20)
+        pygame.draw.rect(surf,ACCENT,bs,border_radius=3)
+        surf.blit(badge,(bs.x+4,bs.y+2))
+        # Status message
+        st=self.font_sm.render(self.status,True,TEXT_NORM)
+        surf.blit(st,(bs.right+10,CANVAS_H-16))
 
-    def draw_tool_indicator(self, surf):
-        font = pygame.font.SysFont("monospace", 13, bold=True)
-        icons = {TOOL_VERTEX:"✦ VERTEX", TOOL_LINE:"╱ LINE", TOOL_SECTOR:"▣ SECTOR",
-                 TOOL_SELECT:"⊹ SELECT", TOOL_DELETE:"✕ DELETE"}
-        txt = font.render(f"  {icons.get(self.tool,self.tool)}", True, (255, 220, 80))
-        surf.blit(txt, (8, 8))
+    def _draw_coord(self, surf, mx, my):
+        if mx>=CANVAS_W: return
+        wx,wy=self.s2w(mx,my); swx,swy=self.snap(wx,wy)
+        coord=self.font_sm.render(f"({int(swx)},{int(swy)})",True,TEXT_DIM)
+        surf.blit(coord,(mx+12,my-16))
 
-    # ── Event handling ────────────────────────────────────────────────────
+    # ── Mouse on canvas ───────────────────────────────────────────────────────
 
-    def handle_canvas_mouse(self, event):
-        mx, my = event.pos
-        if mx >= CANVAS_W: return  # in panel
+    def _canvas_mouse(self, event, mx, my):
+        wx,wy=self.s2w(mx,my); swx,swy=self.snap(wx,wy)
 
-        wx, wy = self.screen_to_world(mx, my)
-        swx, swy = self.snap(wx, wy)
+        if event.type==pygame.MOUSEBUTTONDOWN:
+            if event.button==2:
+                self.panning=True; self.pan_start=(mx,my)
+                self.pan_cam=(self.cam_x,self.cam_y)
+            elif event.button==1:
+                if not self._any_input_active():
+                    self._lmb(swx,swy,wx,wy)
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 2:   # middle drag
-                self.dragging = True
-                self.drag_start = (mx, my)
-                self.drag_cam   = (self.cam_x, self.cam_y)
+        elif event.type==pygame.MOUSEBUTTONUP:
+            if event.button==2: self.panning=False
 
-            elif event.button == 1:
-                self._handle_lmb(swx, swy, wx, wy)
-
-        elif event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 2:
-                self.dragging = False
-
-        elif event.type == pygame.MOUSEMOTION:
-            if self.dragging:
-                dx = (mx - self.drag_start[0]) / self.zoom
-                dy = (my - self.drag_start[1]) / self.zoom
-                self.cam_x = self.drag_cam[0] - dx
-                self.cam_y = self.drag_cam[1] + dy
+        elif event.type==pygame.MOUSEMOTION:
+            if self.panning:
+                dx=(mx-self.pan_start[0])/self.zoom
+                dy=(my-self.pan_start[1])/self.zoom
+                self.cam_x=self.pan_cam[0]-dx
+                self.cam_y=self.pan_cam[1]+dy
             else:
-                self.hover_vertex = self.find_vertex_near(wx, wy, 14)
-                self.hover_line   = self.find_line_near(wx, wy, 8)
+                self.hov_vert=self.near_vert(wx,wy,14)
+                self.hov_line=self.near_line(wx,wy,8)
 
-        elif event.type == pygame.MOUSEWHEEL:
-            factor = 1.15 if event.y > 0 else 1/1.15
-            old_z = self.zoom
-            self.zoom = max(0.05, min(16.0, self.zoom * factor))
-            # Zoom toward cursor
-            self.cam_x += (wx - self.cam_x) * (1 - old_z / self.zoom)
-            self.cam_y += (wy - self.cam_y) * (1 - old_z / self.zoom)
+        elif event.type==pygame.MOUSEWHEEL:
+            fac=1.15 if event.y>0 else 1/1.15
+            old_z=self.zoom
+            self.zoom=max(0.04,min(20.0,self.zoom*fac))
+            self.cam_x+=(wx-self.cam_x)*(1-old_z/self.zoom)
+            self.cam_y+=(wy-self.cam_y)*(1-old_z/self.zoom)
 
-    def _handle_lmb(self, swx, swy, wx, wy):
-        t = self.tool
+    def _lmb(self, swx, swy, wx, wy):
+        t=self.tool
 
-        if t == TOOL_VERTEX:
-            existing = self.find_vertex_near(wx, wy, 14)
-            if existing is None:
-                self.map.vertices.append(Vertex(swx, swy))
-                self.status = f"Added vertex at ({int(swx)},{int(swy)})"
-            self._rebuild_bsp_cache()
-
-        elif t == TOOL_LINE:
-            # Find/create vertex at snap position
-            vi = self.find_vertex_near(wx, wy, 14)
+        if t==TOOL_VERTEX:
+            vi=self.near_vert(wx,wy,14)
             if vi is None:
-                self.map.vertices.append(Vertex(swx, swy))
-                vi = len(self.map.vertices) - 1
+                self.map.vertices.append(Vertex(swx,swy))
+                self.status=f"Vertex added at ({int(swx)},{int(swy)})"
+            self._rebuild_bsp()
+
+        elif t==TOOL_LINE:
+            vi=self.near_vert(wx,wy,14)
+            if vi is None:
+                self.map.vertices.append(Vertex(swx,swy)); vi=len(self.map.vertices)-1
             if self.line_start is None:
-                self.line_start = vi
-                self.status = f"Line start: vertex #{vi} — click to set end"
+                self.line_start=vi
+                self.status=f"Line start: vertex #{vi} — click to place end"
             else:
-                if vi != self.line_start:
+                if vi!=self.line_start:
                     self._ensure_sector()
-                    sd = self._get_or_create_sidedef(self.current_sector)
-                    self.map.linedefs.append(Linedef(self.line_start, vi, sd, NULL_ID))
-                    self.status = f"Added linedef #{len(self.map.linedefs)-1}  (sector {self.current_sector})"
-                self.line_start = vi
-                self._rebuild_bsp_cache()
+                    sd=self._get_sidedef(self.cur_sector)
+                    self.map.linedefs.append(Linedef(self.line_start,vi,sd,NULL_ID))
+                    self.status=f"Linedef #{len(self.map.linedefs)-1} added  (sector {self.cur_sector})"
+                self.line_start=vi
+                self._rebuild_bsp()
 
-        elif t == TOOL_SECTOR:
-            li = self.find_line_near(wx, wy, 12)
+        elif t==TOOL_SECTOR:
+            li=self.near_line(wx,wy,12)
             if li is not None:
-                self._ensure_sector()
-                sd = self._get_or_create_sidedef(self.current_sector)
-                l = self.map.linedefs[li]
-                # Determine which side
-                side = _seg_side(
-                    self.map.vertices[l.v0].x, self.map.vertices[l.v0].y,
-                    self.map.vertices[l.v1].x, self.map.vertices[l.v1].y,
-                    wx, wy)
-                if side >= 0:
-                    self.map.linedefs[li] = Linedef(l.v0, l.v1, sd, l.back)
-                else:
-                    self.map.linedefs[li] = Linedef(l.v0, l.v1, l.front, sd)
-                self.status = f"Painted sector {self.current_sector} onto line #{li}"
-                self._rebuild_bsp_cache()
+                self._ensure_sector(); sd=self._get_sidedef(self.cur_sector)
+                l=self.map.linedefs[li]
+                side=_seg_side(self.map.vertices[l.v0].x,self.map.vertices[l.v0].y,
+                               self.map.vertices[l.v1].x,self.map.vertices[l.v1].y,wx,wy)
+                if side>=0: self.map.linedefs[li]=Linedef(l.v0,l.v1,sd,l.back)
+                else:       self.map.linedefs[li]=Linedef(l.v0,l.v1,l.front,sd)
+                self.status=f"Painted sector {self.cur_sector} on line #{li}"
+                self._rebuild_bsp()
 
-        elif t == TOOL_SELECT:
-            vi = self.find_vertex_near(wx, wy, 14)
-            li = self.find_line_near(wx, wy, 8)
-            mods = pygame.key.get_mods()
-            if not (mods & pygame.KMOD_SHIFT):
-                self.selected_verts = []
-                self.selected_lines = []
+        elif t==TOOL_SELECT:
+            vi=self.near_vert(wx,wy,14); li=self.near_line(wx,wy,8)
+            if not pygame.key.get_mods()&pygame.KMOD_SHIFT:
+                self.sel_verts=[]; self.sel_lines=[]
             if vi is not None:
-                if vi in self.selected_verts: self.selected_verts.remove(vi)
-                else: self.selected_verts.append(vi)
-                v = self.map.vertices[vi]
-                self.status = f"Selected vertex #{vi}  ({int(v.x)},{int(v.y)})"
+                if vi in self.sel_verts: self.sel_verts.remove(vi)
+                else: self.sel_verts.append(vi)
+                v=self.map.vertices[vi]
+                self.status=f"Vertex #{vi} at ({int(v.x)},{int(v.y)})"
             elif li is not None:
-                if li in self.selected_lines: self.selected_lines.remove(li)
-                else: self.selected_lines.append(li)
-                l = self.map.linedefs[li]
-                back_str = str(l.back) if l.back != NULL_ID else "wall"
-                self.status = f"Selected line #{li}  v{l.v0}→v{l.v1}  front:{l.front}  back:{back_str}"
+                if li in self.sel_lines: self.sel_lines.remove(li)
+                else: self.sel_lines.append(li)
+                l=self.map.linedefs[li]
+                bs="wall" if l.back==NULL_ID else str(l.back)
+                self.status=f"Line #{li}  v{l.v0}→v{l.v1}  front={l.front} back={bs}"
 
-        elif t == TOOL_DELETE:
-            vi = self.find_vertex_near(wx, wy, 14)
-            li = self.find_line_near(wx, wy, 8)
+        elif t==TOOL_DELETE:
+            vi=self.near_vert(wx,wy,14); li=self.near_line(wx,wy,8)
             if vi is not None:
-                # Remove lines referencing this vertex first
-                self.map.linedefs = [l for l in self.map.linedefs
-                                     if l.v0 != vi and l.v1 != vi]
+                self.map.linedefs=[l for l in self.map.linedefs if l.v0!=vi and l.v1!=vi]
                 self.map.vertices.pop(vi)
-                # Remap vertex indices
-                for i, l in enumerate(self.map.linedefs):
-                    v0 = l.v0 if l.v0 < vi else l.v0 - 1
-                    v1 = l.v1 if l.v1 < vi else l.v1 - 1
-                    self.map.linedefs[i] = Linedef(v0, v1, l.front, l.back)
-                self.status = f"Deleted vertex #{vi}"
+                for i,l in enumerate(self.map.linedefs):
+                    v0=l.v0 if l.v0<vi else l.v0-1
+                    v1=l.v1 if l.v1<vi else l.v1-1
+                    self.map.linedefs[i]=Linedef(v0,v1,l.front,l.back)
+                self.status=f"Deleted vertex #{vi}"
             elif li is not None:
                 self.map.linedefs.pop(li)
-                self.status = f"Deleted line #{li}"
-            self.selected_verts = []
-            self.selected_lines = []
-            self._rebuild_bsp_cache()
+                self.status=f"Deleted linedef #{li}"
+            self.sel_verts=[]; self.sel_lines=[]
+            self._rebuild_bsp()
 
-    def handle_ui_event(self, event):
-        if event.type != pygame_gui.UI_BUTTON_PRESSED:
-            return
-        el = event.ui_element
+    # ── Button actions ────────────────────────────────────────────────────────
 
-        if el == self.btn_vertex: self.tool = TOOL_VERTEX; self.line_start = None
-        elif el == self.btn_line:   self.tool = TOOL_LINE
-        elif el == self.btn_sector: self.tool = TOOL_SECTOR; self.line_start = None
-        elif el == self.btn_select: self.tool = TOOL_SELECT; self.line_start = None
-        elif el == self.btn_delete: self.tool = TOOL_DELETE; self.line_start = None
-
-        elif el == self.btn_new_sector:
-            ci = len(self.map.sectors) % len(SECTOR_COLORS)
+    def _btn_action(self, btn):
+        if btn==self.btn_new_sec:
+            ci=len(self.map.sectors)%len(SECTOR_FILLS)
             self.map.sectors.append(Sector(color_idx=ci))
-            self.current_sector = len(self.map.sectors) - 1
-            self.entry_sector_idx.set_text(str(self.current_sector))
-            self._update_sector_fields()
-            self.status = f"Created sector #{self.current_sector}"
+            self.cur_sector=len(self.map.sectors)-1
+            self.fi_sec_idx.set(self.cur_sector)
+            self._sync_sector_fields()
+            self.status=f"Created sector #{self.cur_sector}"
 
-        elif el == self.btn_apply_sector:
-            idx = self._read_int(self.entry_sector_idx, 0)
-            while len(self.map.sectors) <= idx:
-                ci = len(self.map.sectors) % len(SECTOR_COLORS)
+        elif btn==self.btn_apply:
+            idx=self._int(self.fi_sec_idx,0)
+            while len(self.map.sectors)<=idx:
+                ci=len(self.map.sectors)%len(SECTOR_FILLS)
                 self.map.sectors.append(Sector(color_idx=ci))
-            self.current_sector = idx
-            s = self.map.sectors[idx]
-            s.floor_h   = self._read_float(self.entry_floor_h, 0.0)
-            s.ceil_h    = self._read_float(self.entry_ceil_h, 128.0)
-            s.floor_tex = self._read_int(self.entry_floor_tex, 0)
-            s.ceil_tex  = self._read_int(self.entry_ceil_tex,  0)
-            s.light     = max(0, min(255, self._read_int(self.entry_light, 200)))
-            self.status = f"Updated sector #{idx}"
+            self.cur_sector=idx
+            s=self.map.sectors[idx]
+            s.floor_h  =self._flt(self.fi_floor_h,0.0)
+            s.ceil_h   =self._flt(self.fi_ceil_h,128.0)
+            s.floor_tex=self._int(self.fi_floor_tex,0)
+            s.ceil_tex =self._int(self.fi_ceil_tex,0)
+            s.light    =max(0,min(255,self._int(self.fi_light,200)))
+            self.status=f"Sector #{idx} updated"
 
-        elif el == self.btn_bsp_toggle:
-            self.show_bsp = not self.show_bsp
-            self.btn_bsp_toggle.set_text(
-                "Hide BSP Tree" if self.show_bsp else "Show BSP Tree")
-            self._rebuild_bsp_cache()
+        elif btn==self.btn_bsp:
+            self.show_bsp=not self.show_bsp
+            self.btn_bsp.label="Hide BSP Overlay" if self.show_bsp else "Show BSP Overlay"
+            self._rebuild_bsp()
 
-        elif el == self.btn_export:
-            out = "map_output"
+        elif btn==self.btn_export:
             try:
-                ns, nl, nb, nss = export_bin(self.map, out)
-                self.status = (f"Exported → {out}/  "
-                               f"({ns} sectors, {nl} lines, {nb} BSP nodes, {nss} subsectors)")
+                ns,nl,nb,nss=export_bin(self.map,"map_output")
+                self.status=f"Exported → map_output/  ({ns} sectors, {nl} lines, {nb} nodes, {nss} subs)"
             except Exception as e:
-                self.status = f"Export error: {e}"
+                self.status=f"Export error: {e}"
 
-        elif el == self.btn_save:
+        elif btn==self.btn_save:
             try:
-                save_json(self.map, "map.json")
-                self.status = "Saved to map.json"
+                save_json(self.map,"map.json")
+                self.status="Saved to map.json"
             except Exception as e:
-                self.status = f"Save error: {e}"
+                self.status=f"Save error: {e}"
 
-        elif el == self.btn_load:
+        elif btn==self.btn_load:
             try:
-                self.map = load_json("map.json")
-                self._rebuild_bsp_cache()
-                self.status = f"Loaded map.json — {len(self.map.linedefs)} lines"
+                self.map=load_json("map.json")
+                self._rebuild_bsp()
+                self.status=f"Loaded map.json — {len(self.map.linedefs)} lines"
             except Exception as e:
-                self.status = f"Load error: {e}"
+                self.status=f"Load error: {e}"
 
-        elif el == self.btn_clear:
-            self.map.clear()
-            self.line_start = None
-            self.selected_verts = []
-            self.selected_lines = []
-            self._rebuild_bsp_cache()
-            self.status = "Map cleared."
+        elif btn==self.btn_clear:
+            self.map.clear(); self.line_start=None
+            self.sel_verts=[]; self.sel_lines=[]
+            self._rebuild_bsp(); self.status="Map cleared."
 
-        # Sync sector idx field → current_sector
-        try:
-            idx = int(float(self.entry_sector_idx.get_text()))
-            if idx != self.current_sector:
-                self.current_sector = idx
-                self._update_sector_fields()
-        except: pass
+        elif isinstance(btn, ToolButton):
+            for tb in self._tool_btns: tb.active=False
+            btn.active=True; self.tool=btn.tool_id
+            if btn.tool_id!=TOOL_LINE: self.line_start=None
 
-    # ── Main loop ─────────────────────────────────────────────────────────
+    # ── Main loop ─────────────────────────────────────────────────────────────
 
     def run(self):
-        mx, my = 0, 0
+        mx=my=0
         while self.running:
-            dt = self.clock.tick(60) / 1000.0
+            dt_ms=self.clock.tick(60)
 
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
+                if event.type==pygame.QUIT: self.running=False
 
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        self.line_start = None
-                        self.selected_verts = []
-                        self.selected_lines = []
-                    elif event.key == pygame.K_v: self.tool = TOOL_VERTEX; self.line_start = None
-                    elif event.key == pygame.K_l: self.tool = TOOL_LINE
-                    elif event.key == pygame.K_s: self.tool = TOOL_SECTOR; self.line_start = None
-                    elif event.key == pygame.K_e: self.tool = TOOL_SELECT; self.line_start = None
-                    elif event.key == pygame.K_d: self.tool = TOOL_DELETE; self.line_start = None
-                    elif event.key == pygame.K_b:
-                        self.show_bsp = not self.show_bsp
-                        self._rebuild_bsp_cache()
-                    elif event.key == pygame.K_F5:
-                        out = "map_output"
+                # Pass events to all input fields first
+                for w in self._all_inputs():
+                    w.handle(event)
+
+                # Check for button clicks
+                for w in self.widgets:
+                    if isinstance(w,(Button,ToolButton)) and w.handle(event):
+                        self._btn_action(w)
+
+                # Keyboard shortcuts (only when no input focused)
+                if event.type==pygame.KEYDOWN and not self._any_input_active():
+                    k=event.key
+                    if   k==pygame.K_ESCAPE: self.line_start=None; self.sel_verts=[]; self.sel_lines=[]
+                    elif k==pygame.K_v: self._btn_action(self.tb_vertex)
+                    elif k==pygame.K_l: self._btn_action(self.tb_line)
+                    elif k==pygame.K_s: self._btn_action(self.tb_sector)
+                    elif k==pygame.K_e: self._btn_action(self.tb_select)
+                    elif k==pygame.K_d: self._btn_action(self.tb_delete)
+                    elif k==pygame.K_b: self._btn_action(self.btn_bsp)
+                    elif k==pygame.K_HOME: self.cam_x=0; self.cam_y=0; self.zoom=1.0
+                    elif k==pygame.K_F5:
                         try:
-                            ns, nl, nb, nss = export_bin(self.map, out)
-                            self.status = f"[F5] Exported → {out}/ ({ns} sec, {nl} lines, {nb} nodes, {nss} subs)"
+                            ns,nl,nb,nss=export_bin(self.map,"map_output")
+                            self.status=f"[F5] Exported: {ns} sec, {nl} lines, {nb} nodes, {nss} subs"
                         except Exception as ex:
-                            self.status = f"Export error: {ex}"
-                    elif event.key == pygame.K_HOME:
-                        self.cam_x, self.cam_y = 0, 0
-                        self.zoom = 1.0
+                            self.status=f"Export error: {ex}"
+                    elif k==pygame.K_DELETE and self.sel_lines:
+                        for li in sorted(self.sel_lines,reverse=True):
+                            if li<len(self.map.linedefs): self.map.linedefs.pop(li)
+                        self.sel_lines=[]; self._rebuild_bsp()
 
-                elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP,
-                                    pygame.MOUSEMOTION, pygame.MOUSEWHEEL):
-                    if event.type == pygame.MOUSEMOTION:
-                        mx, my = event.pos
-                    self.handle_canvas_mouse(event)
+                # Canvas mouse
+                if event.type in (pygame.MOUSEBUTTONDOWN,pygame.MOUSEBUTTONUP,
+                                  pygame.MOUSEMOTION,pygame.MOUSEWHEEL):
+                    if event.type==pygame.MOUSEMOTION: mx,my=event.pos
+                    elif hasattr(event,'pos'): mx,my=event.pos
+                    if mx<CANVAS_W:
+                        self._canvas_mouse(event,mx,my)
+                    elif event.type==pygame.MOUSEMOTION:
+                        self.hov_vert=None; self.hov_line=None
 
-                self.manager.process_events(event)
-                if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                    self.handle_ui_event(event)
+                # Panel hover update
+                for w in self.widgets:
+                    if isinstance(w,(Button,ToolButton)): w.update(mx,my)
 
-            self.manager.update(dt)
+            # Update text inputs
+            for w in self._all_inputs(): w.update(dt_ms)
 
-            # Draw
-            self.screen.fill(BG, (0, 0, CANVAS_W, CANVAS_H))
-            self.draw_grid(self.screen)
-            self.draw_sector_fills(self.screen)
-            if self.show_bsp:
-                self.draw_bsp_overlay(self.screen)
-            self.draw_linedefs(self.screen)
-            if self.tool == TOOL_LINE:
-                self.draw_preview_line(self.screen, mx, my)
-            self.draw_vertices(self.screen)
-            self.draw_tool_indicator(self.screen)
-            self.draw_status(self.screen)
-            self.draw_panel(self.screen)
-            self.manager.draw_ui(self.screen)
+            # Sync sector index field → cur_sector
+            try:
+                idx=int(float(self.fi_sec_idx.text))
+                if not self.fi_sec_idx.active and idx!=self.cur_sector:
+                    self.cur_sector=idx; self._sync_sector_fields()
+            except: pass
+
+            # ── Render ────────────────────────────────────────────────────────
+            self.screen.fill(BG,(0,0,CANVAS_W,CANVAS_H))
+            self._draw_grid(self.screen)
+            self._draw_sector_fills(self.screen)
+            if self.show_bsp: self._draw_bsp(self.screen)
+            self._draw_lines(self.screen)
+            if self.tool==TOOL_LINE: self._draw_preview(self.screen,mx,my)
+            self._draw_verts(self.screen)
+            self._draw_statusbar(self.screen)
+            if mx<CANVAS_W: self._draw_coord(self.screen,mx,my)
+            self._draw_panel(self.screen)
             pygame.display.flip()
 
         pygame.quit()
 
-# ─── Entry point ─────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
 
-if __name__ == "__main__":
+if __name__=="__main__":
     Editor().run()
