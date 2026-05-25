@@ -2,16 +2,8 @@
 
 namespace engine {
 
-	world::world() {
-		/* TODO */
-	}
-
-	world::~world() {
-		/* TODO */
-	}
-
 	void world::update(float const dt) {
-		for (auto [id, entity_ptr] : entities) {
+		for (auto const& [id, entity_ptr] : entities) {
 			if (entity_ptr) {
 				entity_ptr->update(dt);
 			}
@@ -24,11 +16,17 @@ namespace engine {
 	}
 
 	entity& world::operator[](util::indexed_storage<std::unique_ptr<entity>>::id_t const id) {
-		return *entities[id];
+		if (entities.contains(id)) {
+			return *entities[id];
+		}
+		return nullptr;
 	}
 
 	entity const& world::operator[](util::indexed_storage<std::unique_ptr<entity>>::id_t const id) const {
-		return *entities[id];
+		if (entities.contains(id)) {
+			return *entities[id];
+		}
+		return nullptr;
 	}
 
 	util::indexed_storage<std::unique_ptr<entity>> const& world::get_entities() const {

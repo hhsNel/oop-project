@@ -36,6 +36,7 @@ namespace game {
 		void credits();
 		void show_main_menu();
 		void show_options();
+		void loop();
 	public:
 		game();
 		void run();

@@ -151,7 +151,7 @@ namespace game {
 				case -1:
 					return;
 				case 0:
-					// TODO: start game
+					loop();
 					break;
 				case 1:
 					credits();
@@ -225,6 +225,57 @@ namespace game {
 				default:
 					break;
 			}
+		}
+	}
+
+	void game::loop() {
+		/* TODO */
+		math::vec2 cam_pos{0.0f, 0.0f};
+		float cam_angle  = 0.0f;
+		float cam_height = 0.0f;
+		constexpr float MOVE_SPEED  = 3.0f;
+		constexpr float TURN_SPEED  = 2.0f;
+		/* TODO */
+
+		auto last_tick = std::chrono::high_resolution_clock::now();
+
+		while(1) {
+			auto now = std::chrono::high_resolution_clock::now();
+			float dt = std::chrono::duration<float>(now - last_tick).count();
+			last_tick = now;
+
+			/* guard */
+			if (dt > 0.5f) dt = 0.5f;
+
+			input->poll();
+			if (input->is_key_down(input::key::esc)) break;
+
+			/* TODO */
+			if (input->is_key_down(input::key::d))
+				cam_angle -= TURN_SPEED * dt;
+			if (input->is_key_down(input::key::a))
+				cam_angle += TURN_SPEED * dt;
+			float dx = std::cos(cam_angle);
+			float dy = std::sin(cam_angle);
+			if (input->is_key_down(input::key::w)) {
+				cam_pos.x += dx * MOVE_SPEED * dt;
+				cam_pos.y += dy * MOVE_SPEED * dt;
+			}
+			if (input->is_key_down(input::key::s)) {
+				cam_pos.x -= dx * MOVE_SPEED * dt;
+				cam_pos.y -= dy * MOVE_SPEED * dt;
+			}
+			/* TODO */
+
+			w.update(dt);
+
+			sr.render_bsp(cam_pos, cam_height, cam_angle, fov);
+
+			rb->flush();
+
+			mix.step(static_cast<int>(48000.0f * dt));
+
+			rb->wait_for_vsync();
 		}
 	}
 
