@@ -39,7 +39,7 @@ namespace rendering {
 					conn_req.connector_id = conn_id;
 					dev->ioctl(DRM_IOCTL_MODE_GETCONNECTOR, &conn_req);
 
-					if (conn_req.connection == 1 /*&& conn_req.encoder_id != 0*/) {
+					if (conn_req.connection == 1 && conn_req.encoder_id != 0) {
 						active_connector = std::make_unique<connector>(*dev, conn_id);
 
 						struct drm_mode_get_encoder enc_req = {};
