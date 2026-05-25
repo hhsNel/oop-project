@@ -22,6 +22,8 @@ namespace audio {
 		explicit audio_mixer(audio_backend &tgt, audio_format const& fmt);
 
 		void play(assets::audio_clip const& clip);
+
+		void stop_all();
 		
 		void step(unsigned long frames_to_mix);
 

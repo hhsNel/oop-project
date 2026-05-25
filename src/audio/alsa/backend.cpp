@@ -6,7 +6,7 @@ namespace audio {
 		backend::backend() :
 			is_bad(false),
 			pcm_handle(nullptr),
-			fmt{44100, 2, 16},
+			fmt{48000, 2, 16},
 			paused(false) {}
 
 		backend::~backend() {
