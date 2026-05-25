@@ -2,7 +2,11 @@
 """
 Doom-style Map Editor  —  pure pygame, no external UI library
 <<<<<<< HEAD
+<<<<<<< HEAD
 Exports: sectors.bin  sidedefs.bin  linedefs.bin  subsectors.bin  nodes.bin  monsters.bin  pickups.bin
+=======
+Exports: sectors.bin  sidedefs.bin  linedefs.bin  subsectors.bin  nodes.bin  monsters.bin
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 Exports: sectors.bin  sidedefs.bin  linedefs.bin  subsectors.bin  nodes.bin  monsters.bin
 >>>>>>> 59ed830 (feat:monster spawn in map)
@@ -17,7 +21,10 @@ Binary layouts (packed, little-endian):
                   uint32 front_child, uint32 back_child
   bin_monster   : uint32 type, int x, int y, float z
 <<<<<<< HEAD
+<<<<<<< HEAD
   bin_pickup    : uint32 type, uint32 subtype, int x, int y, float z
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
 """
@@ -31,7 +38,7 @@ import pygame
 #  Constants
 # ══════════════════════════════════════════════════════════════════════════════
 
-SCREEN_W, SCREEN_H = 1400, 900
+SCREEN_W, SCREEN_H = 1400, 1000
 PANEL_W  = 290
 CANVAS_W = SCREEN_W - PANEL_W
 CANVAS_H = SCREEN_H
@@ -97,7 +104,10 @@ TOOL_SELECT = "select"
 TOOL_DELETE = "delete"
 TOOL_MONSTER = "monster"
 <<<<<<< HEAD
+<<<<<<< HEAD
 TOOL_PICKUP  = "pickup"
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
 
@@ -109,6 +119,7 @@ MONSTER_NAMES = [
 MONSTER_COL  = (255, 80, 80)
 MONSTER_HOV  = (255, 180, 180)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 PICKUP_NAMES = [
     "health", "armor", "weapon",
@@ -118,6 +129,8 @@ WEAPON_SUBTYPE_NAMES = [
 ]
 PICKUP_COL   = ( 80, 200, 255)
 PICKUP_HOV   = (180, 240, 255)
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
 
@@ -165,6 +178,7 @@ class MonsterSpawn:
 
 @dataclass
 <<<<<<< HEAD
+<<<<<<< HEAD
 class PickupSpawn:
     x: float; y: float
     pickup_type: int = 0   # default: health
@@ -174,15 +188,21 @@ class PickupSpawn:
 @dataclass
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 class MapData:
     vertices: list = field(default_factory=list)
     sectors:  list = field(default_factory=list)
     sidedefs: list = field(default_factory=list)
     linedefs: list = field(default_factory=list)
 <<<<<<< HEAD
+<<<<<<< HEAD
     subsector_colors: list = field(default_factory=list)  # per-subsector RGB
     monsters: list = field(default_factory=list)
     pickups:  list = field(default_factory=list)
+=======
+    monsters: list = field(default_factory=list)
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
     monsters: list = field(default_factory=list)
 >>>>>>> 59ed830 (feat:monster spawn in map)
@@ -191,8 +211,12 @@ class MapData:
         self.vertices.clear(); self.sectors.clear()
         self.sidedefs.clear(); self.linedefs.clear()
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.subsector_colors.clear()
         self.monsters.clear(); self.pickups.clear()
+=======
+        self.monsters.clear()
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
         self.monsters.clear()
 >>>>>>> 59ed830 (feat:monster spawn in map)
@@ -322,10 +346,14 @@ def export_bin(md: MapData, out_dir: str):
         for m in md.monsters:
             f.write(struct.pack("<Iiif", m.monster_type, int(m.x), int(m.y), m.z))
 <<<<<<< HEAD
+<<<<<<< HEAD
     with open(os.path.join(out_dir,"pickups.bin"),"wb") as f:
         for p in md.pickups:
             f.write(struct.pack("<IIiif", p.pickup_type, p.subtype, int(p.x), int(p.y), p.z))
     return len(md.sectors),len(md.linedefs),len(nodes),len(sub_recs),len(md.monsters),len(md.pickups)
+=======
+    return len(md.sectors),len(md.linedefs),len(nodes),len(sub_recs),len(md.monsters)
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
     return len(md.sectors),len(md.linedefs),len(nodes),len(sub_recs),len(md.monsters)
 >>>>>>> 59ed830 (feat:monster spawn in map)
@@ -345,11 +373,16 @@ def save_json(md,path):
        "linedefs":[{"v0":l.v0,"v1":l.v1,"front":l.front,"back":l.back}
                    for l in md.linedefs],
 <<<<<<< HEAD
+<<<<<<< HEAD
        "subsector_colors":[list(c) if c else None for c in md.subsector_colors],
        "monsters":[{"x":m.x,"y":m.y,"monster_type":m.monster_type,"z":m.z}
                    for m in md.monsters],
        "pickups":[{"x":p.x,"y":p.y,"pickup_type":p.pickup_type,"subtype":p.subtype,"z":p.z}
                   for p in md.pickups]}
+=======
+       "monsters":[{"x":m.x,"y":m.y,"monster_type":m.monster_type,"z":m.z}
+                   for m in md.monsters]}
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
        "monsters":[{"x":m.x,"y":m.y,"monster_type":m.monster_type,"z":m.z}
                    for m in md.monsters]}
@@ -369,10 +402,14 @@ def load_json(path):
     md.sidedefs=[Sidedef(**sd) for sd in d["sidedefs"]]
     md.linedefs=[Linedef(**l) for l in d["linedefs"]]
 <<<<<<< HEAD
+<<<<<<< HEAD
     sc = d.get("subsector_colors", [])
     md.subsector_colors = [tuple(c) if c else None for c in sc]
     md.monsters=[MonsterSpawn(**m) for m in d.get("monsters",[])]
     md.pickups=[PickupSpawn(**p) for p in d.get("pickups",[])]
+=======
+    md.monsters=[MonsterSpawn(**m) for m in d.get("monsters",[])]
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
     md.monsters=[MonsterSpawn(**m) for m in d.get("monsters",[])]
 >>>>>>> 59ed830 (feat:monster spawn in map)
@@ -1012,7 +1049,10 @@ class Editor:
         self.cur_sector = 0
         self.hov_monster = None
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.hov_pickup = None
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
 
@@ -1022,7 +1062,11 @@ class Editor:
         self.bsp_nc    = 0;  self.bsp_sc   = 0
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.status = "V=vertex  L=line  S=paint sector  M=monster  P=pickup  E=select  D=delete  |  F5=export"
+=======
+        self.status = "V=vertex  L=line  S=paint sector  M=monster  E=select  D=delete  |  F5=export"
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
         self.status = "V=vertex  L=line  S=paint sector  M=monster  E=select  D=delete  |  F5=export"
 >>>>>>> 59ed830 (feat:monster spawn in map)
@@ -1107,6 +1151,7 @@ class Editor:
         self.tb_sector  = tbtn("▣  Paint Sector", TOOL_SECTOR)
         self.tb_monster = tbtn("☠  Monster", TOOL_MONSTER)
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.tb_pickup  = tbtn("♦  Pickup",  TOOL_PICKUP)
         self.tb_select  = tbtn("⊹  Select",  TOOL_SELECT)
         self.tb_delete  = tbtn("✕  Delete",  TOOL_DELETE)
@@ -1119,6 +1164,12 @@ class Editor:
                            self.tb_monster,self.tb_select,self.tb_delete]
 <<<<<<< HEAD
 >>>>>>> 59ed830 (feat:monster spawn in map)
+=======
+        self.tb_select  = tbtn("⊹  Select",  TOOL_SELECT)
+        self.tb_delete  = tbtn("✕  Delete",  TOOL_DELETE)
+        self._tool_btns = [self.tb_vertex,self.tb_line,self.tb_sector,
+                           self.tb_monster,self.tb_select,self.tb_delete]
+>>>>>>> 59ed830 (feat:monster spawn in map)
         self.tb_line.active = True
 =======
         for tb in self._tool_btns:
@@ -1127,6 +1178,7 @@ class Editor:
 
         sep()
 
+<<<<<<< HEAD
         # ── Monster props (only for monster tool) ─────────────────────────────
         if self.tool == TOOL_MONSTER:
             lbl("  MONSTER", color=TEXT_DIM); y += 2
@@ -1169,6 +1221,17 @@ class Editor:
         sep()
 
 =======
+>>>>>>> 59ed830 (feat:monster spawn in map)
+=======
+        # ── Monster props ─────────────────────────────────────────────────────
+        lbl("  MONSTER", color=TEXT_DIM); y += 2
+        lbl("Type ID (0-12):")
+        self.fi_monster_type = field("2", num=True)
+        lbl("Z height:")
+        self.fi_monster_z = field("0.0", num=True)
+
+        sep()
+
 >>>>>>> 59ed830 (feat:monster spawn in map)
         # ── Sector props ──────────────────────────────────────────────────────
         lbl("  SECTOR", color=TEXT_DIM); y += 2
@@ -1272,6 +1335,7 @@ class Editor:
         t=max(0,min(1,((px-ax)*dx+(py-ay)*dy)/l2))
         return math.hypot(px-(ax+t*dx),py-(ay+t*dy))
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     def _pt_in_polygon(self, px, py, poly_pts):
         """Ray-cast point-in-polygon."""
@@ -1377,6 +1441,8 @@ class Editor:
     # ── Sector/sidedef helpers ─────────────────────────────────────────────────
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
     def near_monster(self, wx, wy, r=14):
         best=None; bd=r/self.zoom
         for i,m in enumerate(self.map.monsters):
@@ -1385,6 +1451,7 @@ class Editor:
         return best
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def near_pickup(self, wx, wy, r=14):
         best=None; bd=r/self.zoom
         for i,p in enumerate(self.map.pickups):
@@ -1392,6 +1459,8 @@ class Editor:
             if d<bd: best,bd=i,d
         return best
 
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
     # ── Sector/sidedef helpers ────────────────────────────────────────────────
@@ -1554,6 +1623,7 @@ class Editor:
             surf.blit(txt,(sx-txt.get_width()//2,sy-r-14))
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     def _draw_pickups(self, surf):
         for i,p in enumerate(self.map.pickups):
             sx,sy=self.w2s(p.x,p.y)
@@ -1567,6 +1637,8 @@ class Editor:
             txt=self.font_sm.render(name,True,col)
             surf.blit(txt,(sx-txt.get_width()//2,sy-r-14))
 
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
     def _draw_preview(self, surf, mx, my):
@@ -1596,7 +1668,10 @@ class Editor:
             ("Sidedefs",  len(self.map.sidedefs)),
             ("Monsters",  len(self.map.monsters)),
 <<<<<<< HEAD
+<<<<<<< HEAD
             ("Pickups",   len(self.map.pickups)),
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
             ("BSP nodes", self.bsp_nc),
@@ -1621,8 +1696,12 @@ class Editor:
         tool_labels = {TOOL_VERTEX:"✦ VERTEX",TOOL_LINE:"╱ LINE",
                        TOOL_SECTOR:"▣ PAINT",TOOL_MONSTER:"☠ MONSTER",
 <<<<<<< HEAD
+<<<<<<< HEAD
                        TOOL_PICKUP:"♦ PICKUP",TOOL_SELECT:"⊹ SELECT",
                        TOOL_DELETE:"✕ DELETE"}
+=======
+                       TOOL_SELECT:"⊹ SELECT",TOOL_DELETE:"✕ DELETE"}
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
                        TOOL_SELECT:"⊹ SELECT",TOOL_DELETE:"✕ DELETE"}
 >>>>>>> 59ed830 (feat:monster spawn in map)
@@ -1666,12 +1745,16 @@ class Editor:
                 self.hov_vert=self.near_vert(wx,wy,14)
                 self.hov_line=self.near_line(wx,wy,8)
 <<<<<<< HEAD
+<<<<<<< HEAD
                 # hover sector / subsector
                 self.hov_sector = self._find_sector_at(wx,wy) if self.tool==TOOL_SELECT else None
                 self.hov_subsector = (self._find_subsector_at(wx,wy)
                                       if self.tool==TOOL_SELECT and self.show_bsp else None)
                 self.hov_monster=self.near_monster(wx,wy,14)
                 self.hov_pickup=self.near_pickup(wx,wy,14)
+=======
+                self.hov_monster=self.near_monster(wx,wy,14)
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
                 self.hov_monster=self.near_monster(wx,wy,14)
 >>>>>>> 59ed830 (feat:monster spawn in map)
@@ -1787,10 +1870,20 @@ class Editor:
             name=MONSTER_NAMES[mt]
             self.status=f"Monster '{name}' placed at ({int(swx)},{int(swy)})"
 
+        elif t==TOOL_MONSTER:
+            mt=max(0,min(len(MONSTER_NAMES)-1,self._int(self.fi_monster_type,2)))
+            mz=self._flt(self.fi_monster_z,0.0)
+            self.map.monsters.append(MonsterSpawn(swx,swy,mt,mz))
+            name=MONSTER_NAMES[mt]
+            self.status=f"Monster '{name}' placed at ({int(swx)},{int(swy)})"
+
         elif t==TOOL_DELETE:
             mi=self.near_monster(wx,wy,14)
 <<<<<<< HEAD
+<<<<<<< HEAD
             pi=self.near_pickup(wx,wy,14)
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
             vi=self.near_vert(wx,wy,14); li=self.near_line(wx,wy,8)
@@ -1798,9 +1891,12 @@ class Editor:
                 self.map.monsters.pop(mi)
                 self.status=f"Deleted monster #{mi}"
 <<<<<<< HEAD
+<<<<<<< HEAD
             elif pi is not None:
                 self.map.pickups.pop(pi)
                 self.status=f"Deleted pickup #{pi}"
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
             elif vi is not None:
@@ -1857,8 +1953,13 @@ class Editor:
         elif btn==self.btn_export:
             try:
 <<<<<<< HEAD
+<<<<<<< HEAD
                 ns,nl,nb,nss,nm,np=export_bin(self.map,"map_output")
                 self.status=f"Exported → map_output/  ({ns} sectors, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters, {np} pickups)"
+=======
+                ns,nl,nb,nss,nm=export_bin(self.map,"map_output")
+                self.status=f"Exported → map_output/  ({ns} sectors, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters)"
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
                 ns,nl,nb,nss,nm=export_bin(self.map,"map_output")
                 self.status=f"Exported → map_output/  ({ns} sectors, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters)"
@@ -1930,7 +2031,10 @@ class Editor:
                     elif k==pygame.K_s: self._btn_action(self.tb_sector)
                     elif k==pygame.K_m: self._btn_action(self.tb_monster)
 <<<<<<< HEAD
+<<<<<<< HEAD
                     elif k==pygame.K_p: self._btn_action(self.tb_pickup)
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
                     elif k==pygame.K_e: self._btn_action(self.tb_select)
@@ -1940,8 +2044,13 @@ class Editor:
                     elif k==pygame.K_F5:
                         try:
 <<<<<<< HEAD
+<<<<<<< HEAD
                             ns,nl,nb,nss,nm,np=export_bin(self.map,"map_output")
                             self.status=f"[F5] Exported: {ns} sec, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters, {np} pickups"
+=======
+                            ns,nl,nb,nss,nm=export_bin(self.map,"map_output")
+                            self.status=f"[F5] Exported: {ns} sec, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters"
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
                             ns,nl,nb,nss,nm=export_bin(self.map,"map_output")
                             self.status=f"[F5] Exported: {ns} sec, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters"
@@ -1984,7 +2093,10 @@ class Editor:
             self._draw_verts(self.screen)
             self._draw_monsters(self.screen)
 <<<<<<< HEAD
+<<<<<<< HEAD
             self._draw_pickups(self.screen)
+=======
+>>>>>>> 59ed830 (feat:monster spawn in map)
 =======
 >>>>>>> 59ed830 (feat:monster spawn in map)
             self._draw_statusbar(self.screen)
