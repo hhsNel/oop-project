@@ -32,10 +32,10 @@ all: $(TARGET)
 $(TARGET): $(OBJ) $(RESOBJ)
 	$(CXX) -o $(TARGET) $(OBJ) $(RESOBJ) $(LDFLAGS)
 
-$(BUILDDIR)/res/%.o: $(RESDIR)/% $(BUILDDIR)
+$(BUILDDIR)/res/%.o: $(RESDIR)/% | $(BUILDDIR)
 	objcopy $(OCFLAGS) $< $@
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR) $(RES_HEADER)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(RES_HEADER) | $(BUILDDIR)
 	$(CXX) -o $@ $(CXXFLAGS) -c $<
 
 $(RES_HEADER): $(RES)

@@ -19,7 +19,7 @@ namespace game {
 		rb(std::make_unique<rendering::drm_kms::backend>()),
 		ab(std::make_unique<audio::alsa::backend>()),
 		md{},
-		mix(*ab, audio::audio_format{44100, 2, 16}),
+		mix(*ab, audio::audio_format{48000, 2, 16}),
 		r2d(*rb, am, am.flat_tx_by_id(0)),
 		sr(*rb, am, md),
 		w{} {
@@ -98,11 +98,13 @@ namespace game {
 			float dt_secs = std::chrono::duration<float>(now - last_tick).count();
 			last_tick     = now;
 
-			mix.step(static_cast<int>(44100 * dt_secs));
+			mix.step(static_cast<int>(48000 * dt_secs));
 			rb->wait_for_vsync();
 
 			scroll_offset += 90 * dt_secs;
 		}
+
+		mix.stop_all();
 	}
 
 	void game::ts_from_resource(std::string const& res_name, assets::audio_clip_id const aid) {
@@ -127,8 +129,98 @@ namespace game {
 		text_scroll(lines, aid);
 	}
 
-	void game::run() {
+	void game::credits() {
+		ts_from_resource("credits", 0);
+	}
+
+	void game::opening() {
 		ts_from_resource("opening-scroll", 0);
+	}
+
+	void game::ending() {
+		ts_from_resource("ending-scroll", 0);
+	}
+
+	void game::show_main_menu() {
+		while(1) {
+			int result = am.display_menu(0, r2d, *rb, *input);
+
+			switch (result) {
+				case -1:
+					return;
+				case 0:
+					// TODO: start game
+					break;
+				case 1:
+					credits();
+					break;
+				case 2:
+					show_options();
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	void game::show_options() {
+		auto modes = (*rb)("modes"_f);
+		std::size_t mode_idx = 0;
+
+		while(1) {
+			assets::menu& menu = am.menu_by_id(1);
+
+			menu.selective_formatter(
+				"{mode}",
+				[&](std::string_view tmpl) {
+					struct replacement { std::string_view marker; std::string value; };
+					replacement replacements[] = {
+						{ "{mode}",          modes.empty() ? "N/A" : modes[mode_idx]->name()  },
+					};
+
+					std::string result(tmpl);
+					for (auto const& r : replacements) {
+						for (std::size_t pos = 0;
+							 (pos = result.find(r.marker, pos)) != std::string::npos;) {
+							result.replace(pos, r.marker.size(), r.value);
+							pos += r.value.size();
+						}
+					}
+					return result;
+				}
+			);
+
+			int result = am.display_menu(1, r2d, *rb, *input);
+
+			switch (result) {
+				case -1:
+					return;
+				case 0:
+					am.cycle_set();
+					break;
+				case 1:
+					if (!modes.empty()) {
+						mode_idx = (mode_idx + modes.size() - 1) % modes.size();
+						rb->push_mode(std::move(modes[mode_idx]));
+						modes = (*rb)("modes"_f);
+					}
+					break;
+				case 2:
+					if (!modes.empty()) {
+						mode_idx = (mode_idx + 1) % modes.size();
+						rb->push_mode(std::move(modes[mode_idx]));
+						modes = (*rb)("modes"_f);
+					}
+					break;
+				default:
+					break;
+			}
+		}
+	}
+
+	void game::run() {
+//		opening();
+		show_main_menu();
 	}
 
 }

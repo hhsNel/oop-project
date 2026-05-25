@@ -31,6 +31,9 @@ namespace game {
 		void ts_from_resource(std::string const& res_name, assets::audio_clip_id const aid);
 		void opening();
 		void ending();
+		void credits();
+		void show_main_menu();
+		void show_options();
 	public:
 		game();
 		void run();

@@ -48,6 +48,8 @@ namespace assets {
 		const int sw = static_cast<int>(rb("width"_f));
 		const int sh = static_cast<int>(rb("height"_f));
 
+		bool esc_debounce = in.is_key_down(input::key::esc);
+
 		while (true) {
 			in.update();
 
@@ -70,7 +72,9 @@ namespace assets {
 			const int ch = static_cast<int>(ui_tx[0]("height"_f));
 			r2d.draw_texture(ui_tx[0], ms.x, ms.y, cw, ch);
 
-			if (in.is_key_down(input::key::esc)) {
+			if (esc_debounce) {
+				if (!in.is_key_down(input::key::esc)) esc_debounce = false;
+			} else if (in.is_key_down(input::key::esc)) {
 				return -1;
 			}
 
