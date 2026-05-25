@@ -38,7 +38,7 @@ import pygame
 #  Constants
 # ══════════════════════════════════════════════════════════════════════════════
 
-SCREEN_W, SCREEN_H = 1400, 1000
+SCREEN_W, SCREEN_H = 1400, 900
 PANEL_W  = 290
 CANVAS_W = SCREEN_W - PANEL_W
 CANVAS_H = SCREEN_H
@@ -1073,9 +1073,13 @@ class Editor:
         self._flash_timer = 0
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.color_picker = ColorPicker()
         self.props        = PropertiesPanel(self.color_picker)
 
+=======
+        self._init_fields()
+>>>>>>> bd79ad0 (fix:monster spawn in map)
 =======
         self._init_fields()
 >>>>>>> bd79ad0 (fix:monster spawn in map)
@@ -1091,6 +1095,20 @@ class Editor:
                 self.status = f"Could not load {preload}: {e}"
 
     # ── Panel construction ─────────────────────────────────────────────────────
+
+    def _init_fields(self):
+        """Create persistent input fields (survive panel rebuilds)."""
+        self.fi_monster_type = TextInput(pygame.Rect(0,0,1,1), "2", numeric=True)
+        self.fi_monster_z    = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.fi_sec_idx      = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_floor_h      = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.fi_ceil_h       = TextInput(pygame.Rect(0,0,1,1), "128.0", numeric=True)
+        self.fi_floor_tex    = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_ceil_tex     = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_light        = TextInput(pygame.Rect(0,0,1,1), "200", numeric=True)
+        self.fi_upper        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_mid          = TextInput(pygame.Rect(0,0,1,1), "1", numeric=True)
+        self.fi_lower        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
 
     def _init_fields(self):
         """Create persistent input fields (survive panel rebuilds)."""
@@ -1163,6 +1181,7 @@ class Editor:
         self._tool_btns = [self.tb_vertex,self.tb_line,self.tb_sector,
                            self.tb_monster,self.tb_select,self.tb_delete]
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 59ed830 (feat:monster spawn in map)
 =======
         self.tb_select  = tbtn("⊹  Select",  TOOL_SELECT)
@@ -1179,6 +1198,13 @@ class Editor:
         sep()
 
 <<<<<<< HEAD
+=======
+        for tb in self._tool_btns:
+            if tb.tool_id == self.tool: tb.active = True
+
+        sep()
+
+>>>>>>> bd79ad0 (fix:monster spawn in map)
         # ── Monster props (only for monster tool) ─────────────────────────────
         if self.tool == TOOL_MONSTER:
             lbl("  MONSTER", color=TEXT_DIM); y += 2
@@ -1187,6 +1213,7 @@ class Editor:
             lbl("Z height:")
             place_field(self.fi_monster_z)
             sep()
+<<<<<<< HEAD
 
         # ── Sector / Sidedef props (only for line & sector tools) ─────────────
         if self.tool in (TOOL_LINE, TOOL_SECTOR):
@@ -1229,9 +1256,29 @@ class Editor:
         self.fi_monster_type = field("2", num=True)
         lbl("Z height:")
         self.fi_monster_z = field("0.0", num=True)
+=======
+>>>>>>> bd79ad0 (fix:monster spawn in map)
 
-        sep()
+        # ── Sector / Sidedef props (only for line & sector tools) ─────────────
+        if self.tool in (TOOL_LINE, TOOL_SECTOR):
+            lbl("  SECTOR", color=TEXT_DIM); y += 2
+            lbl("Index:")
+            place_field(self.fi_sec_idx)
+            self.btn_new_sec = btn("+ New Sector")
+            lbl("Floor height:")
+            place_field(self.fi_floor_h)
+            lbl("Ceiling height:")
+            place_field(self.fi_ceil_h)
+            lbl("Floor tex ID:")
+            place_field(self.fi_floor_tex)
+            lbl("Ceiling tex ID:")
+            place_field(self.fi_ceil_tex)
+            lbl("Light (0-255):")
+            place_field(self.fi_light)
+            self.btn_apply = btn("Apply Sector", accent=True)
+            sep()
 
+<<<<<<< HEAD
 >>>>>>> 59ed830 (feat:monster spawn in map)
         # ── Sector props ──────────────────────────────────────────────────────
         lbl("  SECTOR", color=TEXT_DIM); y += 2
@@ -1262,6 +1309,8 @@ class Editor:
 
         sep()
 =======
+=======
+>>>>>>> bd79ad0 (fix:monster spawn in map)
             lbl("  SIDEDEF TEXTURES", color=TEXT_DIM); y += 2
             lbl("Upper tex:")
             place_field(self.fi_upper)
@@ -1270,6 +1319,9 @@ class Editor:
             lbl("Lower tex:")
             place_field(self.fi_lower)
             sep()
+<<<<<<< HEAD
+>>>>>>> bd79ad0 (fix:monster spawn in map)
+=======
 >>>>>>> bd79ad0 (fix:monster spawn in map)
 
         lbl("  FILE / BSP", color=TEXT_DIM); y += 2
