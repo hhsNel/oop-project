@@ -175,7 +175,8 @@ namespace game {
 				[&](std::string_view tmpl) {
 					struct replacement { std::string_view marker; std::string value; };
 					replacement replacements[] = {
-						{ "{mode}",          modes.empty() ? "N/A" : modes[mode_idx]->name()  },
+						{ "{mode}", modes.empty() ? "N/A" :
+							std::to_string((*modes[mode_idx])("x_res"_f))+"x"+std::to_string((*modes[mode_idx])("y_res"_f))+" "+std::to_string((*modes[mode_idx])("refresh_hz"_f))+"Hz" },
 					};
 
 					std::string result(tmpl);
