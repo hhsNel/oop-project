@@ -22,7 +22,9 @@ namespace game {
 		mix(*ab, audio::audio_format{48000, 2, 16}),
 		r2d(*rb, am, am.flat_tx_by_id(0)),
 		sr(*rb, am, md),
-		w{} {
+		w{},
+
+		fov(1.55) {
 		if (input->is_bad()) {
 			std::cerr << "error: failed to initialize input backend\n";
 			std::exit(1);
@@ -171,12 +173,13 @@ namespace game {
 			assets::menu& menu = am.menu_by_id(1);
 
 			menu.selective_formatter(
-				"{mode}",
+				"{mode}|{fov}",
 				[&](std::string_view tmpl) {
 					struct replacement { std::string_view marker; std::string value; };
 					replacement replacements[] = {
 						{ "{mode}", modes.empty() ? "N/A" :
 							std::to_string((*modes[mode_idx])("x_res"_f))+"x"+std::to_string((*modes[mode_idx])("y_res"_f))+" "+std::to_string((*modes[mode_idx])("refresh_hz"_f))+"Hz" },
+						{ "{fov}", std::to_string(fov) },
 					};
 
 					std::string result(tmpl);
@@ -212,6 +215,12 @@ namespace game {
 						rb->push_mode(std::move(modes[mode_idx]));
 						modes = (*rb)("modes"_f);
 					}
+					break;
+				case 3:
+					if (fov > 0.5) fov -= 0.05;
+					break;
+				case 4:
+					if (fov < 3) fov += 0.05;
 					break;
 				default:
 					break;

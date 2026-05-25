@@ -27,6 +27,8 @@ namespace game {
 		rendering::software_renderer sr;
 		engine::world w;
 
+		float fov;
+
 		void text_scroll(std::vector<std::string> const& text, assets::audio_clip_id const aid);
 		void ts_from_resource(std::string const& res_name, assets::audio_clip_id const aid);
 		void opening();
