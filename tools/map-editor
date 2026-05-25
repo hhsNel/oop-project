@@ -431,12 +431,13 @@ class ToolButton(Button):
 class Editor:
 
     # ── init ──────────────────────────────────────────────────────────────────
-    def __init__(self):
+    def __init__(self, preload=None):
         pygame.init()
         pygame.key.set_repeat(400, 40)
         self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H), pygame.RESIZABLE)
-        pygame.display.set_caption("Map Editor")
+        pygame.display.set_caption("Map Editor  —  F1 or ? for help")
         self.clock  = pygame.time.Clock()
+        self.help   = HelpOverlay()
 
         self.font    = pygame.font.SysFont("monospace", 13)
         self.font_sm = pygame.font.SysFont("monospace", 11)
@@ -466,11 +467,19 @@ class Editor:
         self.bsp_verts = []; self.bsp_lines = []
         self.bsp_nc    = 0;  self.bsp_sc   = 0
 
-        self.status = "V=vertex  L=line  S=paint sector  E=select  D=delete  |  F5=export"
+        self.status = "F1 or ? for help  |  V=vertex  L=line  S=paint  E=select  D=delete  |  F5=export"
         self._flash_timer = 0
 
         self._build_panel()
         self._rebuild_bsp()
+
+        if preload:
+            try:
+                self.map = load_json(preload)
+                self._rebuild_bsp()
+                self.status = f"Loaded {preload} — {len(self.map.linedefs)} lines"
+            except Exception as e:
+                self.status = f"Could not load {preload}: {e}"
 
     # ── Panel construction ────────────────────────────────────────────────────
 
@@ -982,6 +991,9 @@ class Editor:
             for event in pygame.event.get():
                 if event.type==pygame.QUIT: self.running=False
 
+                # Help overlay gets first crack at events
+                if self.help.handle(event): continue
+
                 # Pass events to all input fields first
                 for w in self._all_inputs():
                     w.handle(event)
@@ -995,6 +1007,7 @@ class Editor:
                 if event.type==pygame.KEYDOWN and not self._any_input_active():
                     k=event.key
                     if   k==pygame.K_ESCAPE: self.line_start=None; self.sel_verts=[]; self.sel_lines=[]
+                    elif k in (pygame.K_F1, pygame.K_QUESTION, pygame.K_SLASH): self.help.toggle()
                     elif k==pygame.K_v: self._btn_action(self.tb_vertex)
                     elif k==pygame.K_l: self._btn_action(self.tb_line)
                     elif k==pygame.K_s: self._btn_action(self.tb_sector)
@@ -1048,6 +1061,7 @@ class Editor:
             self._draw_statusbar(self.screen)
             if mx<CANVAS_W: self._draw_coord(self.screen,mx,my)
             self._draw_panel(self.screen)
+            self.help.draw(self.screen, self.font, self.font_hd)
             pygame.display.flip()
 
         pygame.quit()
@@ -1056,3 +1070,213 @@ class Editor:
 
 if __name__=="__main__":
     Editor().run()
+
+CLI_HELP = """\
+map-editor  —  Doom-style BSP map editor (pure pygame)
+
+USAGE
+  map-editor [OPTIONS] [map.json]
+
+OPTIONS
+  -h, --help      Show this help and exit
+  --format        Print binary format reference and exit
+
+ARGUMENTS
+  map.json        JSON map file to load on startup (optional)
+
+TOOLS  (keyboard shortcut in parentheses)
+  V  Vertex      Click canvas to place a vertex.  Snaps to grid.
+  L  Line        Click a vertex (or empty space) to start a linedef,
+                 click again to finish it.  Chains automatically.
+  S  Paint       Click near a linedef to assign the current sector
+                 to its front or back side (determined by which side
+                 of the line you click).
+  E  Select      Click a vertex or linedef to select it.
+                 Shift-click to add to the selection.
+  D  Delete      Click a vertex or linedef to delete it.
+                 Deleting a vertex also removes all attached linedefs.
+
+NAVIGATION
+  Middle-drag    Pan the viewport
+  Scroll wheel   Zoom in / out  (also zooms toward the cursor)
+  Home           Reset camera to origin, zoom to 1x
+
+KEYBOARD SHORTCUTS
+  V / L / S / E / D   Switch tool
+  B                   Toggle BSP overlay
+  F5                  Export binary files to map_output/
+  Escape              Cancel current operation / deselect all
+  Delete              Delete selected linedefs
+  Home                Reset viewport
+  F1  or  ?           Open in-editor help overlay
+
+SECTOR WORKFLOW
+  1. Click "+ New Sector" (or type an index and "Apply Sector") to
+     define a sector with floor/ceiling heights, texture IDs, and light.
+  2. Switch to Line tool and draw the walls enclosing that sector.
+  3. Switch to Paint tool and click each linedef's front face to assign
+     the sector.  For two-sided (portal) linedefs, click both sides.
+
+FILES
+  map.json        Save/load the editable map (JSON)
+  map_output/     Binary export directory
+    sectors.bin     packed: f32 floor_h, f32 ceil_h, u32 floor_tex,
+                            u32 ceil_tex, u8 light
+    sidedefs.bin    packed: u32 facing_sector, u32 upper, u32 mid, u32 lower
+    linedefs.bin    packed: i32 v1x, i32 v1y, i32 v2x, i32 v2y,
+                            u32 front_sidedef, u32 back_sidedef
+    subsectors.bin  packed: u32 line_count, u32 first_line_id
+    nodes.bin       packed: 12x f32 (coords + bounding boxes),
+                            u32 front_child, u32 back_child
+                    high bit of child index = leaf flag (subsector ref)
+"""
+
+FORMAT_HELP = """\
+BINARY FORMAT REFERENCE  (all little-endian, packed structs)
+
+bin_sector  (17 bytes)
+  float  floor_height
+  float  ceiling_height
+  uint32 floor_tex
+  uint32 ceiling_tex
+  uint8  light_level
+
+bin_sidedef  (16 bytes)
+  uint32 facing_sector
+  uint32 upper_tex
+  uint32 middle_tex
+  uint32 lower_tex
+
+bin_linedef  (24 bytes)
+  int32  v1_x, v1_y, v2_x, v2_y
+  uint32 front_sidedef
+  uint32 back_sidedef   (0xFFFFFFFF = no back = solid wall)
+
+bin_subsector  (8 bytes)
+  uint32 line_count
+  uint32 first_line_id   (index into linedefs.bin after BSP reorder)
+
+bin_bsp_node  (56 bytes)
+  float  pl_x, pl_y       partition line origin
+  float  dir_x, dir_y     partition line direction (normalised)
+  float  f_top, f_bot, f_left, f_right   front bounding box
+  float  b_top, b_bot, b_left, b_right   back  bounding box
+  uint32 front_child      high bit set = subsector index, else node index
+  uint32 back_child       same encoding
+"""
+
+HELP_SECTIONS = [
+    ("TOOLS", [
+        "V  Vertex   — place a vertex (snaps to grid)",
+        "L  Line     — click start/end to draw a linedef; chains",
+        "S  Paint    — click a line to assign current sector",
+        "             (click front/back side to choose which)",
+        "E  Select   — click vert/line; Shift to multi-select",
+        "D  Delete   — click vert/line to remove it",
+    ]),
+    ("NAVIGATION", [
+        "Middle-drag        Pan viewport",
+        "Scroll wheel       Zoom (toward cursor)",
+        "Home               Reset camera and zoom",
+    ]),
+    ("KEYBOARD", [
+        "V / L / S / E / D  Switch tool",
+        "B                  Toggle BSP overlay",
+        "F5                 Export binaries to map_output/",
+        "Escape             Cancel / deselect",
+        "Delete             Remove selected linedefs",
+        "F1  or  ?          Toggle this help overlay",
+    ]),
+    ("SECTOR WORKFLOW", [
+        "1. New Sector: set floor/ceiling heights, textures, light",
+        "2. Draw linedefs enclosing the sector (Line tool)",
+        "3. Paint tool: click each linedef face to assign sector",
+        "   Portal lines: paint BOTH front and back sides",
+    ]),
+    ("FILES", [
+        "map.json      — editable save/load format",
+        "map_output/   — binary export:",
+        "  sectors.bin, sidedefs.bin, linedefs.bin,",
+        "  subsectors.bin, nodes.bin",
+    ]),
+]
+
+
+class HelpOverlay:
+    def __init__(self):
+        self.visible = False
+
+    def toggle(self):
+        self.visible = not self.visible
+
+    def handle(self, event):
+        """Return True if the overlay consumed the event."""
+        if not self.visible:
+            return False
+        if event.type == pygame.KEYDOWN and event.key in (
+                pygame.K_ESCAPE, pygame.K_F1, pygame.K_QUESTION, pygame.K_SLASH):
+            self.visible = False
+            return True
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.visible = False
+            return True
+        return True  # swallow all other events while open
+
+    def draw(self, surf, font, font_hd):
+        if not self.visible:
+            return
+        sw, sh = surf.get_size()
+        PAD = 40
+
+        # Dim
+        dim = pygame.Surface((sw, sh), pygame.SRCALPHA)
+        dim.fill((0, 0, 0, 200))
+        surf.blit(dim, (0, 0))
+
+        box = pygame.Rect(PAD, PAD, sw - PAD*2, sh - PAD*2)
+        pygame.draw.rect(surf, (22, 25, 40), box, border_radius=8)
+        pygame.draw.rect(surf, (70, 90, 150), box, 2, border_radius=8)
+
+        title = font_hd.render(
+            "MAP EDITOR  —  REFERENCE  (press Esc, F1, or click to close)",
+            True, (160, 190, 255))
+        surf.blit(title, (PAD + 20, PAD + 14))
+        pygame.draw.line(surf, (50, 60, 100),
+                         (PAD + 16, PAD + 38), (PAD + box.width - 16, PAD + 38))
+
+        lh = font.get_linesize()
+        col_w = (box.width - 40) // 2
+        positions = [PAD + 16, PAD + 16 + col_w + 8]
+        col = 0
+        cy = PAD + 50
+
+        for section, lines in HELP_SECTIONS:
+            needed = (lh + 4) + len(lines) * lh + 14
+            if cy + needed > PAD + box.height - 16 and col == 0:
+                col = 1
+                cy = PAD + 50
+            x = positions[col]
+            hdr = font_hd.render(section, True, (100, 170, 255))
+            surf.blit(hdr, (x, cy))
+            cy += lh + 4
+            for ln in lines:
+                txt = font.render(ln, True, (190, 200, 220))
+                surf.blit(txt, (x + 8, cy))
+                cy += lh
+            cy += 14
+
+
+if __name__ == "__main__":
+    import argparse
+    ap = argparse.ArgumentParser(add_help=False)
+    ap.add_argument("-h", "--help",  action="store_true")
+    ap.add_argument("--format",      action="store_true")
+    ap.add_argument("map_file",      nargs="?", default=None)
+    args = ap.parse_args()
+
+    if args.help:
+        print(CLI_HELP); sys.exit(0)
+    if args.format:
+        print(FORMAT_HELP); sys.exit(0)
+
+    Editor(preload=args.map_file).run()
