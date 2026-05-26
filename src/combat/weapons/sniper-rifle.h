@@ -1,13 +1,15 @@
 #pragma once
 #include "weapon.h"
 
+namespace geometry { class map_data; }
+namespace engine { class world; }
+
 namespace combat {
 	namespace weapons {
 		class sniper_rifle : public weapon {
 		public:
-			sniper_rifle(std::unique_ptr<ammunition> ammo_type, int mag_size = 5, int max = 5, float rate = 0.5f, float dmg = 100.0f);
-			void fire(math::vec2 pos, float angle) override;
-			void reload() override;
+			explicit sniper_rifle(geometry::map_data const& map,
+			                      engine::world const& world);
 		};
 	}
 }

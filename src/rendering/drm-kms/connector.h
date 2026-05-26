@@ -1,5 +1,4 @@
 #pragma once
-#define DRM_KMS_CONNECTOR_H
 
 #include <vector>
 #include <memory>

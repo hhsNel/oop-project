@@ -1,5 +1,4 @@
 #pragma once
-#define SOFTWARE_RENDERER_H
 
 #include "rendering-backend.h"
 #include "frd.h"

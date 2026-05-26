@@ -1,5 +1,5 @@
 #pragma once
-#define MAP_DATA_H
+
 
 #include "sector.h"
 #include "sidedef.h"

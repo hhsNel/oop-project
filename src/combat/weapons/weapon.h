@@ -1,40 +1,33 @@
 #pragma once
-#define WEAPON_H
 
-#include <algorithm>
 #include <memory>
 
 #include "math/vec2.h"
-#include "ammunition.h"
+#include "firing-mode.h"
 
 namespace combat
 {
 	namespace weapons {
 		class weapon {
-		public:
-			unsigned int weapon_id;
-			std::unique_ptr<ammunition> ammo;
+		protected:
+			std::unique_ptr<firing_mode> ammo;
 			int ammo_count;
 			int max_ammo;
+			int reserve_mags;
 			float fire_rate;
 			float last_shot_time;
 			float damage;
+		public:
+			virtual bool can_fire() const;
+			void tick(float dt);
+			void resupply(int amount);
 
-			virtual bool can_fire() const { return ammo_count > 0 && last_shot_time <= 0.0f; }
-			void update(float dt) {
-				last_shot_time = std::max(0.0f, last_shot_time - dt);
-				if (ammo) ammo->update(dt);
-			}
-
-			virtual void fire(math::vec2 const pos, float const angle) = 0;
-			virtual void reload() = 0;
+			virtual void fire(math::vec2 pos, float angle);
+			virtual void reload();
 			virtual ~weapon() = default;
 
 		protected:
-			weapon(unsigned int id, std::unique_ptr<ammunition> ammo_type, int mag, int max, float rate, float dmg)
-				: weapon_id(id), ammo(std::move(ammo_type)), ammo_count(mag),
-				max_ammo(max), fire_rate(rate), last_shot_time(0.0f), damage(dmg) {}
+			weapon(std::unique_ptr<firing_mode> firing, int max, float rate, float dmg, int reserve = 0);
 		};
 	}
 }
-

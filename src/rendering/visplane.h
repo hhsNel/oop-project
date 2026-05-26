@@ -1,5 +1,5 @@
 #pragma once
-#define VISPLANE_H
+
 
 #include <cstdint>
 #include <vector>

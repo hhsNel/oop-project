@@ -1,19 +1,9 @@
 #include "pistol.h"
+#include "hitscan-firing-mode.h"
 
 namespace combat {
 	namespace weapons {
-		pistol::pistol(std::unique_ptr<ammunition> ammo_type, int mag_size, int max, float rate, float dmg)
-			: weapon(0, std::move(ammo_type), mag_size, max, rate, dmg) {}
-
-		void pistol::fire(math::vec2 pos, float angle) {
-			if (!can_fire()) return;
-			ammo->spawn_bullet(pos, angle, damage);
-			--ammo_count;
-			last_shot_time = 1.0f / fire_rate;
-		}
-
-		void pistol::reload() {
-			ammo_count = max_ammo;
-		}
+		pistol::pistol(geometry::map_data const& map, engine::world const& world)
+			: weapon(std::make_unique<hitscan_firing_mode>(map, world), 8, 2.0f, 25.0f, 5) {}
 	}
 }

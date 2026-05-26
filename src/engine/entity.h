@@ -1,5 +1,4 @@
 #pragma once
-#define ENTITY_H
 
 namespace engine {
 	class entity {

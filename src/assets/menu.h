@@ -1,5 +1,4 @@
 #pragma once
-#define MENU_H
 
 #include <vector>
 #include <string>

@@ -1,5 +1,4 @@
 #pragma once
-#define VISSPRITE_H
 
 #include <cstdint>
 #include <vector>
