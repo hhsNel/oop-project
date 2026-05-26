@@ -137,9 +137,18 @@ namespace input {
 		void backend::update() {
 			struct epoll_event events[32];
 			int n = epoll_wait(epoll_fd, events, 32, 0);
-			struct input_event ev;
+
 			for (int i = 0; i < n; ++i) {
-				while (read(events[i].data.fd, &ev, sizeof(ev)) > 0) process_event(ev);
+
+				struct input_event ev_buffer[64];
+
+				ssize_t bytes_read;
+				while ((bytes_read = read(events[i].data.fd, ev_buffer, sizeof(ev_buffer))) > 0) {
+					int num_events = bytes_read / sizeof(struct input_event);
+					for (int j = 0; j < num_events; ++j) {
+						process_event(ev_buffer[j]);
+					}
+				}
 			}
 		}
 
