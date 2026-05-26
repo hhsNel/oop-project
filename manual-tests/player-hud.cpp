@@ -17,6 +17,8 @@
 #include "combat/weapons/katana.h"
 #include "combat/burning.h"
 
+#include "geometry/map-data.h"
+#include "engine/world.h"
 #include "input/input-backend.h"
 #include "input/evdev-backend.h"
 
@@ -74,6 +76,8 @@ int main() {
 	std::cout << "\033[2J\033[H\033[?25l" << std::flush;
 
 	// ---- player ----
+	geometry::map_data md;
+	engine::world w;
 	inspect<entities::player> p({0.0f, 0.0f}, 0.0f, 0, 1.0f, 100.0f, 50.0f, 2.0f, 1.0f);
 
 	// ---- weapon pool (metadata) ----
@@ -86,12 +90,12 @@ int main() {
 		                 0.0f, reload_dur, false, melee, is_auto });
 	};
 
-	add_weapon(std::make_unique<combat::weapons::pistol>(nullptr, nullptr),       "Pistol",     1.5f);
-	add_weapon(std::make_unique<combat::weapons::smg>(nullptr, nullptr),         "SMG",        2.5f, false, true);
-	add_weapon(std::make_unique<combat::weapons::rifle>(nullptr, nullptr),       "Rifle",      2.0f, false, true);
-	add_weapon(std::make_unique<combat::weapons::shotgun>(nullptr, nullptr),     "Shotgun",    3.0f);
-	add_weapon(std::make_unique<combat::weapons::sniper_rifle>(nullptr, nullptr),"Sniper",     3.5f);
-	add_weapon(std::make_unique<combat::weapons::plasma_gun>(nullptr, nullptr),  "Plasma Gun", 2.0f);
+	add_weapon(std::make_unique<combat::weapons::pistol>(md, w),       "Pistol",     1.5f);
+	add_weapon(std::make_unique<combat::weapons::smg>(md, w),         "SMG",        2.5f, false, true);
+	add_weapon(std::make_unique<combat::weapons::rifle>(md, w),       "Rifle",      2.0f, false, true);
+	add_weapon(std::make_unique<combat::weapons::shotgun>(md, w),     "Shotgun",    3.0f);
+	add_weapon(std::make_unique<combat::weapons::sniper_rifle>(md, w),"Sniper",     3.5f);
+	add_weapon(std::make_unique<combat::weapons::plasma_gun>(md, w),  "Plasma Gun", 2.0f);
 	add_weapon(std::make_unique<combat::weapons::katana>(),      "Katana",     0.0f, true);
 
 	pool[0].in_loadout = true;  // start with pistol

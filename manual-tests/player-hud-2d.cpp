@@ -43,6 +43,8 @@
 #include "rendering/drm-kms/backend.h"
 #include "rendering/renderer-2d.h"
 #include "assets/asset-manager.h"
+#include "geometry/map-data.h"
+#include "engine/world.h"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -161,6 +163,8 @@ int main() {
     };
 
     // ── Player ───────────────────────────────────────────────────────────────
+    geometry::map_data md;
+    engine::world w;
     inspect<entities::player> p({0.0f, 0.0f}, 0.0f, 0, 1.0f, 100.0f, 50.0f, 2.0f, 1.0f);
 
     // ── Weapon pool (metadata only — weapons live in p.weapons) ─────────────
@@ -174,12 +178,12 @@ int main() {
                          false, melee, is_auto });
     };
 
-    add_weapon(std::make_unique<combat::weapons::pistol>(nullptr, nullptr),       "Pistol",  1.5f);
-    add_weapon(std::make_unique<combat::weapons::smg>(nullptr, nullptr),         "SMG",     2.5f, false, true);
-    add_weapon(std::make_unique<combat::weapons::rifle>(nullptr, nullptr),       "Rifle",   2.0f, false, true);
-    add_weapon(std::make_unique<combat::weapons::shotgun>(nullptr, nullptr),     "Shotgun", 3.0f);
-    add_weapon(std::make_unique<combat::weapons::sniper_rifle>(nullptr, nullptr),"Sniper",  3.5f);
-    add_weapon(std::make_unique<combat::weapons::plasma_gun>(nullptr, nullptr),  "Plasma",  2.0f);
+    add_weapon(std::make_unique<combat::weapons::pistol>(md, w),       "Pistol",  1.5f);
+    add_weapon(std::make_unique<combat::weapons::smg>(md, w),         "SMG",     2.5f, false, true);
+    add_weapon(std::make_unique<combat::weapons::rifle>(md, w),       "Rifle",   2.0f, false, true);
+    add_weapon(std::make_unique<combat::weapons::shotgun>(md, w),     "Shotgun", 3.0f);
+    add_weapon(std::make_unique<combat::weapons::sniper_rifle>(md, w),"Sniper",  3.5f);
+    add_weapon(std::make_unique<combat::weapons::plasma_gun>(md, w),  "Plasma",  2.0f);
     add_weapon(std::make_unique<combat::weapons::katana>(),      "Katana",  0.0f, true);
 
     pool[0].in_loadout = true;  // start with Pistol equipped
