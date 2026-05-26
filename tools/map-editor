@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Doom-style Map Editor  —  pure pygame, no external UI library
-Exports: sectors.bin  sidedefs.bin  linedefs.bin  subsectors.bin  nodes.bin  monsters.bin
+Exports: sectors.bin  sidedefs.bin  linedefs.bin  subsectors.bin  nodes.bin  monsters.bin  pickups.bin
 
 Binary layouts (packed, little-endian):
   bin_sector    : float fh, float ch, uint32 floor_tex, uint32 ceil_tex, uint8 light
@@ -12,6 +12,7 @@ Binary layouts (packed, little-endian):
                   f_top,f_bot,f_left,f_right, b_top,b_bot,b_left,b_right,
                   uint32 front_child, uint32 back_child
   bin_monster   : uint32 type, int x, int y, float z
+  bin_pickup    : uint32 type, uint32 subtype, int x, int y, float z
 """
 
 import sys, os, math, struct, json
@@ -88,6 +89,7 @@ TOOL_SECTOR = "sector"
 TOOL_SELECT = "select"
 TOOL_DELETE = "delete"
 TOOL_MONSTER = "monster"
+TOOL_PICKUP  = "pickup"
 
 MONSTER_NAMES = [
     "all_rounder", "assault", "basic", "boss", "duzy_gruby",
@@ -96,6 +98,15 @@ MONSTER_NAMES = [
 ]
 MONSTER_COL  = (255, 80, 80)
 MONSTER_HOV  = (255, 180, 180)
+
+PICKUP_NAMES = [
+    "health", "armor", "weapon",
+]
+WEAPON_SUBTYPE_NAMES = [
+    "pistol", "smg", "rifle", "shotgun", "sniper", "plasma_gun", "katana",
+]
+PICKUP_COL   = ( 80, 200, 255)
+PICKUP_HOV   = (180, 240, 255)
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  Data model
@@ -140,6 +151,13 @@ class MonsterSpawn:
     z: float = 0.0
 
 @dataclass
+class PickupSpawn:
+    x: float; y: float
+    pickup_type: int = 0   # default: health
+    subtype: int = 0       # for weapon: which weapon
+    z: float = 0.0
+
+@dataclass
 class MapData:
     vertices: list = field(default_factory=list)
     sectors:  list = field(default_factory=list)
@@ -147,12 +165,13 @@ class MapData:
     linedefs: list = field(default_factory=list)
     subsector_colors: list = field(default_factory=list)  # per-subsector RGB
     monsters: list = field(default_factory=list)
+    pickups:  list = field(default_factory=list)
 
     def clear(self):
         self.vertices.clear(); self.sectors.clear()
         self.sidedefs.clear(); self.linedefs.clear()
         self.subsector_colors.clear()
-        self.monsters.clear()
+        self.monsters.clear(); self.pickups.clear()
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  BSP builder
@@ -278,7 +297,10 @@ def export_bin(md: MapData, out_dir: str):
     with open(os.path.join(out_dir,"monsters.bin"),"wb") as f:
         for m in md.monsters:
             f.write(struct.pack("<Iiif", m.monster_type, int(m.x), int(m.y), m.z))
-    return len(md.sectors),len(md.linedefs),len(nodes),len(sub_recs),len(md.monsters)
+    with open(os.path.join(out_dir,"pickups.bin"),"wb") as f:
+        for p in md.pickups:
+            f.write(struct.pack("<IIiif", p.pickup_type, p.subtype, int(p.x), int(p.y), p.z))
+    return len(md.sectors),len(md.linedefs),len(nodes),len(sub_recs),len(md.monsters),len(md.pickups)
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  JSON save / load
@@ -294,9 +316,11 @@ def save_json(md,path):
                     "mid_tex":sd.mid_tex,"lower_tex":sd.lower_tex} for sd in md.sidedefs],
        "linedefs":[{"v0":l.v0,"v1":l.v1,"front":l.front,"back":l.back}
                    for l in md.linedefs],
-       "subsector_colors":[list(c) if c else None for c in md.subsector_colors]}
+       "subsector_colors":[list(c) if c else None for c in md.subsector_colors],
        "monsters":[{"x":m.x,"y":m.y,"monster_type":m.monster_type,"z":m.z}
-                   for m in md.monsters]}
+                   for m in md.monsters],
+       "pickups":[{"x":p.x,"y":p.y,"pickup_type":p.pickup_type,"subtype":p.subtype,"z":p.z}
+                  for p in md.pickups]}
     with open(path,"w") as f: json.dump(d,f,indent=2)
 
 def load_json(path):
@@ -314,6 +338,7 @@ def load_json(path):
     sc = d.get("subsector_colors", [])
     md.subsector_colors = [tuple(c) if c else None for c in sc]
     md.monsters=[MonsterSpawn(**m) for m in d.get("monsters",[])]
+    md.pickups=[PickupSpawn(**p) for p in d.get("pickups",[])]
     return md
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -949,13 +974,14 @@ class Editor:
         self.line_start = None
         self.cur_sector = 0
         self.hov_monster = None
+        self.hov_pickup = None
 
         self.show_bsp  = False
         self.bsp_nodes = []; self.bsp_subs = []
         self.bsp_verts = []; self.bsp_lines = []
         self.bsp_nc    = 0;  self.bsp_sc   = 0
 
-        self.status = "V=vertex  L=line  S=paint sector  M=monster  E=select  D=delete  |  F5=export"
+        self.status = "V=vertex  L=line  S=paint sector  M=monster  P=pickup  E=select  D=delete  |  F5=export"
         self._flash_timer = 0
 
         self.color_picker = ColorPicker()
@@ -1019,10 +1045,11 @@ class Editor:
         self.tb_line    = tbtn("╱  Line",    TOOL_LINE)
         self.tb_sector  = tbtn("▣  Paint Sector", TOOL_SECTOR)
         self.tb_monster = tbtn("☠  Monster", TOOL_MONSTER)
+        self.tb_pickup  = tbtn("♦  Pickup",  TOOL_PICKUP)
         self.tb_select  = tbtn("⊹  Select",  TOOL_SELECT)
         self.tb_delete  = tbtn("✕  Delete",  TOOL_DELETE)
         self._tool_btns = [self.tb_vertex,self.tb_line,self.tb_sector,
-                           self.tb_monster,self.tb_select,self.tb_delete]
+                           self.tb_monster,self.tb_pickup,self.tb_select,self.tb_delete]
         self.tb_line.active = True
 
         sep()
@@ -1033,6 +1060,17 @@ class Editor:
         self.fi_monster_type = field("2", num=True)
         lbl("Z height:")
         self.fi_monster_z = field("0.0", num=True)
+
+        sep()
+
+        # ── Pickup props ──────────────────────────────────────────────────────
+        lbl("  PICKUP", color=TEXT_DIM); y += 2
+        lbl(f"Type ID (0-{len(PICKUP_NAMES)-1}):")
+        self.fi_pickup_type = field("0", num=True)
+        lbl(f"Subtype (0-{len(WEAPON_SUBTYPE_NAMES)-1}):")
+        self.fi_pickup_subtype = field("0", num=True)
+        lbl("Z height:")
+        self.fi_pickup_z = field("0.0", num=True)
 
         sep()
 
@@ -1237,6 +1275,13 @@ class Editor:
             if d<bd: best,bd=i,d
         return best
 
+    def near_pickup(self, wx, wy, r=14):
+        best=None; bd=r/self.zoom
+        for i,p in enumerate(self.map.pickups):
+            d=math.hypot(p.x-wx,p.y-wy)
+            if d<bd: best,bd=i,d
+        return best
+
     # ── Sector/sidedef helpers ────────────────────────────────────────────────
 
     def _ensure_sector(self):
@@ -1396,6 +1441,19 @@ class Editor:
             txt=self.font_sm.render(name,True,col)
             surf.blit(txt,(sx-txt.get_width()//2,sy-r-14))
 
+    def _draw_pickups(self, surf):
+        for i,p in enumerate(self.map.pickups):
+            sx,sy=self.w2s(p.x,p.y)
+            col=PICKUP_HOV if i==self.hov_pickup else PICKUP_COL
+            r=7
+            pygame.draw.rect(surf,col,(sx-r,sy-r,r*2,r*2))
+            pygame.draw.rect(surf,(10,12,20),(sx-r,sy-r,r*2,r*2),1)
+            name=PICKUP_NAMES[p.pickup_type] if p.pickup_type<len(PICKUP_NAMES) else "?"
+            if p.pickup_type==2 and p.subtype<len(WEAPON_SUBTYPE_NAMES):
+                name+=f"({WEAPON_SUBTYPE_NAMES[p.subtype]})"
+            txt=self.font_sm.render(name,True,col)
+            surf.blit(txt,(sx-txt.get_width()//2,sy-r-14))
+
     def _draw_preview(self, surf, mx, my):
         if self.line_start is None: return
         v=self.map.vertices[self.line_start]
@@ -1422,6 +1480,7 @@ class Editor:
             ("Sectors",   len(self.map.sectors)),
             ("Sidedefs",  len(self.map.sidedefs)),
             ("Monsters",  len(self.map.monsters)),
+            ("Pickups",   len(self.map.pickups)),
             ("BSP nodes", self.bsp_nc),
             ("Subsectors",self.bsp_sc),
             ("Sector #",  self.cur_sector),
@@ -1443,7 +1502,8 @@ class Editor:
         pygame.draw.line(surf,(40,45,65),(0,CANVAS_H-22),(CANVAS_W,CANVAS_H-22),1)
         tool_labels = {TOOL_VERTEX:"✦ VERTEX",TOOL_LINE:"╱ LINE",
                        TOOL_SECTOR:"▣ PAINT",TOOL_MONSTER:"☠ MONSTER",
-                       TOOL_SELECT:"⊹ SELECT",TOOL_DELETE:"✕ DELETE"}
+                       TOOL_PICKUP:"♦ PICKUP",TOOL_SELECT:"⊹ SELECT",
+                       TOOL_DELETE:"✕ DELETE"}
         badge=self.font_hd.render(f" {tool_labels[self.tool]} ",True,(20,22,32))
         bs=badge.get_rect(); bs.inflate_ip(8,4)
         bs.topleft=(6,CANVAS_H-20)
@@ -1488,6 +1548,7 @@ class Editor:
                 self.hov_subsector = (self._find_subsector_at(wx,wy)
                                       if self.tool==TOOL_SELECT and self.show_bsp else None)
                 self.hov_monster=self.near_monster(wx,wy,14)
+                self.hov_pickup=self.near_pickup(wx,wy,14)
 
         elif event.type==pygame.MOUSEWHEEL:
             fac=1.15 if event.y>0 else 1/1.15
@@ -1584,12 +1645,25 @@ class Editor:
             name=MONSTER_NAMES[mt]
             self.status=f"Monster '{name}' placed at ({int(swx)},{int(swy)})"
 
+        elif t==TOOL_PICKUP:
+            pt=max(0,min(len(PICKUP_NAMES)-1,self._int(self.fi_pickup_type,0)))
+            pst=max(0,min(len(WEAPON_SUBTYPE_NAMES)-1,self._int(self.fi_pickup_subtype,0)))
+            pz=self._flt(self.fi_pickup_z,0.0)
+            self.map.pickups.append(PickupSpawn(swx,swy,pt,pst,pz))
+            name=PICKUP_NAMES[pt]
+            if pt==2: name+=f"({WEAPON_SUBTYPE_NAMES[pst]})"
+            self.status=f"Pickup '{name}' placed at ({int(swx)},{int(swy)})"
+
         elif t==TOOL_DELETE:
             mi=self.near_monster(wx,wy,14)
+            pi=self.near_pickup(wx,wy,14)
             vi=self.near_vert(wx,wy,14); li=self.near_line(wx,wy,8)
             if mi is not None:
                 self.map.monsters.pop(mi)
                 self.status=f"Deleted monster #{mi}"
+            elif pi is not None:
+                self.map.pickups.pop(pi)
+                self.status=f"Deleted pickup #{pi}"
             elif vi is not None:
                 self.map.linedefs=[l for l in self.map.linedefs if l.v0!=vi and l.v1!=vi]
                 self.map.vertices.pop(vi)
@@ -1641,8 +1715,8 @@ class Editor:
 
         elif btn==self.btn_export:
             try:
-                ns,nl,nb,nss,nm=export_bin(self.map,"map_output")
-                self.status=f"Exported → map_output/  ({ns} sectors, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters)"
+                ns,nl,nb,nss,nm,np=export_bin(self.map,"map_output")
+                self.status=f"Exported → map_output/  ({ns} sectors, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters, {np} pickups)"
             except Exception as e:
                 self.status=f"Export error: {e}"
 
@@ -1709,14 +1783,15 @@ class Editor:
                     elif k==pygame.K_l: self._btn_action(self.tb_line)
                     elif k==pygame.K_s: self._btn_action(self.tb_sector)
                     elif k==pygame.K_m: self._btn_action(self.tb_monster)
+                    elif k==pygame.K_p: self._btn_action(self.tb_pickup)
                     elif k==pygame.K_e: self._btn_action(self.tb_select)
                     elif k==pygame.K_d: self._btn_action(self.tb_delete)
                     elif k==pygame.K_b: self._btn_action(self.btn_bsp)
                     elif k==pygame.K_HOME: self.cam_x=0; self.cam_y=0; self.zoom=1.0
                     elif k==pygame.K_F5:
                         try:
-                            ns,nl,nb,nss,nm=export_bin(self.map,"map_output")
-                            self.status=f"[F5] Exported: {ns} sec, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters"
+                            ns,nl,nb,nss,nm,np=export_bin(self.map,"map_output")
+                            self.status=f"[F5] Exported: {ns} sec, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters, {np} pickups"
                         except Exception as ex:
                             self.status=f"Export error: {ex}"
                     elif k==pygame.K_DELETE and self.sel_lines:
@@ -1754,6 +1829,7 @@ class Editor:
             if self.tool==TOOL_LINE: self._draw_preview(self.screen,mx,my)
             self._draw_verts(self.screen)
             self._draw_monsters(self.screen)
+            self._draw_pickups(self.screen)
             self._draw_statusbar(self.screen)
             if mx<CANVAS_W: self._draw_coord(self.screen,mx,my)
             self._draw_panel(self.screen)
@@ -1789,11 +1865,15 @@ TOOLS  (keyboard shortcut in parentheses)
   S  Paint       Click near a linedef to assign the current sector
                  to its front or back side (determined by which side
                  of the line you click).
+  M  Monster     Click canvas to place a monster spawn point.
+                 Set type and Z in the panel.
+  P  Pickup      Click canvas to place a pickup spawn point.
+                 Set type and Z in the panel.
   E  Select      Click a vertex, linedef, sector fill, or (with BSP
                  overlay enabled) a subsector to select it.
                  Shift-click to add to the selection.
                  Selected items show in the Properties panel (top-right).
-  D  Delete      Click a vertex or linedef to delete it.
+  D  Delete      Click a vertex, linedef, monster, or pickup to delete it.
 
 PROPERTIES PANEL (top-right of canvas, appears on selection)
   Shows all editable fields for the selected object.
@@ -1807,7 +1887,7 @@ NAVIGATION
   Home           Reset camera to origin, zoom to 1x
 
 KEYBOARD SHORTCUTS
-  V / L / S / E / D   Switch tool
+  V / L / S / M / P / E / D   Switch tool
   B                   Toggle BSP overlay (required for subsector selection)
   F5                  Export binary files to map_output/
   Escape              Cancel current operation / deselect all
@@ -1848,6 +1928,17 @@ bin_bsp_node  (56 bytes)
   float  b_top, b_bot, b_left, b_right
   uint32 front_child
   uint32 back_child
+
+bin_monster  (16 bytes)
+  uint32 type
+  int32  x, y
+  float  z
+
+bin_pickup  (20 bytes)
+  uint32 type
+  uint32 subtype
+  int32  x, y
+  float  z
 """
 
 HELP_SECTIONS = [
@@ -1856,9 +1947,11 @@ HELP_SECTIONS = [
         "L  Line     — click start/end to draw a linedef; chains",
         "S  Paint    — click a line to assign current sector",
         "             (click front/back side to choose which)",
+        "M  Monster  — place a monster spawn point",
+        "P  Pickup   — place a pickup spawn point",
         "E  Select   — click vert/line/sector fill; Shift = multi",
         "             Enable BSP (B) to also select subsectors",
-        "D  Delete   — click vert/line to remove it",
+        "D  Delete   — click vert/line/monster/pickup to remove it",
     ]),
     ("PROPERTIES PANEL", [
         "Appears top-right of canvas when anything is selected",
@@ -1874,7 +1967,7 @@ HELP_SECTIONS = [
         "Home               Reset camera and zoom",
     ]),
     ("KEYBOARD", [
-        "V / L / S / E / D  Switch tool",
+        "V/L/S/M/P/E/D     Switch tool",
         "B                  Toggle BSP overlay",
         "F5                 Export binaries to map_output/",
         "Escape             Cancel / deselect",
