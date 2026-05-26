@@ -1,5 +1,10 @@
+common/ui/font-atlas.btx
 kp-textures/ui/cursor.btx
+
 kp-textures/ui/button.btx
 kp-textures/ui/background.btx
 kp-textures/ui/logo.btx
 kp-textures/ui/options-bg.btx
+
+common/ui/HP-Arm-HUD.btx
+common/ui/Mag_HUD.btx
