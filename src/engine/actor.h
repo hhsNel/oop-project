@@ -1,8 +1,9 @@
 #pragma once
-#define ACTOR_H
 
 #include "renderable-entity.h"
-#include "systems/systems.h"
+#include "systems/health_systems.h"
+
+namespace combat { class charmed; class slowed; }
 
 namespace engine {
 
@@ -15,36 +16,27 @@ namespace engine {
 	class actor : public renderable_entity {
 	protected:
 		systems::health_system health;
-	public:
 		float	  angle;
 		float	  movement_speed;
-		faction	team;
+		faction	  team;
 
+		friend class combat::charmed;
+		friend class combat::slowed;
+
+	public:
 		actor(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float const hp, float const shield, float const move_speed, faction const this_team)
-			: renderable_entity(p, z, tex, is), angle(0.0f), movement_speed(move_speed), team(this_team)
-		{
-			health.max_hp = hp;
-			health.current_hp = hp;
-			health.armor = shield;
-			health.max_armor = shield;
-		}
+			: renderable_entity(p, z, tex, is), health(hp, hp, shield, shield), angle(0.0f), movement_speed(move_speed), team(this_team)
+		{}
 
-		virtual void take_damage(float const dmg) { health.apply_damage(dmg); }
-		virtual void take_true_damage(float const dmg) { health.current_hp = std::max(0.0f, health.current_hp - dmg); }
-		virtual void heal(float const amount) { health.apply_heal(amount); }
-		virtual void add_shield(float const amount) { health.apply_shield(amount); }
-
-		virtual void add_effect(std::unique_ptr<combat::status_effect> effect)
-		{
-			health.add_effect(std::move(effect), *this);
-		}
+		virtual void take_damage(float const dmg);
+		virtual void take_true_damage(float const dmg);
+		virtual void heal(float const amount);
+		virtual void add_shield(float const amount);
+		virtual void add_effect(std::unique_ptr<combat::status_effect> effect);
 
 		bool is_dead() const { return health.is_dead(); }
 
-		virtual void update(float dt) override
-		{
-			health.process_effects(dt, *this);
-		}
+		virtual void update(float dt) override;
 	};
 }
 

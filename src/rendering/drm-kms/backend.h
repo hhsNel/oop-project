@@ -1,5 +1,4 @@
 #pragma once
-#define DRM_KMS_BACKEND_H
 
 #include <memory>
 #include <vector>

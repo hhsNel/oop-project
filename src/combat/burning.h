@@ -1,5 +1,4 @@
 #pragma once
-#define BURNING_H
 
 #include "status-effect.h"
 

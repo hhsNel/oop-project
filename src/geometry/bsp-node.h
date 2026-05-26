@@ -1,5 +1,4 @@
 #pragma once
-#define BSP_NODE_H
 
 #include "math/vec2.h"
 #include "util/indexed-storage.h"

@@ -1,5 +1,4 @@
 #pragma once
-#define RENDERING_BACKEND_H
 
 #include <vector>
 #include <memory>

@@ -1,5 +1,4 @@
 #pragma once
-#define DRM_KMS_CRTC_H
 
 #include <cstdint>
 #include "device-context.h"

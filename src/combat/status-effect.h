@@ -1,7 +1,4 @@
 #pragma once
-#define STATUS_EFFECT_H
-
-#include <memory>
 
 #include "math/vec2.h"
 
@@ -24,18 +21,7 @@ namespace combat
 		virtual void affect(engine::actor&) {}
 		virtual ~status_effect() = default;
 
-		bool update(float dt) {
-			duration -= dt;
-			if(tick_interval > 0.0f) {
-				tick_timer += dt;
-				if(tick_timer >= tick_interval) {
-					tick_timer -= tick_interval;
-					return false; // tick fires — caller calls affect()
-				}
-				return true; // between ticks — skip affect()
-			}
-			return true; // non-ticking effect — affect() never fires
-		}
+		bool tick(float dt);
 		bool is_expired() const {return duration <= 0.0f;}
 	};
 }

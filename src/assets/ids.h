@@ -1,5 +1,4 @@
 #pragma once
-#define IDS_H
 
 #include <cstdint>
 

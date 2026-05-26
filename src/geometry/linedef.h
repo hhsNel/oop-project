@@ -1,5 +1,5 @@
 #pragma once
-#define LINEDEF_H
+
 
 #include "math/segment.h"
 #include "util/resource.h"

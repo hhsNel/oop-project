@@ -1,5 +1,4 @@
 #pragma once
-#define ASSET_PACK_H
 
 #include <vector>
 #include <cstddef>

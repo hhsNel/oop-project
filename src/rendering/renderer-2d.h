@@ -1,5 +1,5 @@
 #pragma once
-#define RENDERER_2D_H
+
 
 #include "rendering-backend.h"
 #include "assets/asset-manager.h"

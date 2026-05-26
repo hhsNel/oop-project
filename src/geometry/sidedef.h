@@ -1,5 +1,4 @@
 #pragma once
-#define SIDEDEF_H
 
 #include "assets/ids.h"
 #include "util/resource.h"

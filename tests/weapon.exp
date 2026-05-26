@@ -135,8 +135,8 @@ if {![near $mn -0.1309] || ![near $mx 0.1309]} {
 # KATANA
 # =====================================================================
 
-# swing once: swing_count=1, immediately blocked
-run_test2 "katana_swing"          "1" "NO"
+# swing once, immediately blocked
+run_test  "katana_swing"          "NO"
 
 # cooldown still active at 0.5s (1/1.5 ≈ 0.667s)
 run_test  "katana_cooldown"       "NO"

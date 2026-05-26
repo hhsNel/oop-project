@@ -1,5 +1,4 @@
 #pragma once
-#define RENDERING_MODE_H
 
 #include "util/componentized.h"
 

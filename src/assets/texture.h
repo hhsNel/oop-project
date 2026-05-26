@@ -1,5 +1,4 @@
 #pragma once
-#define TEXTURE_H
 
 #include <vector>
 #include <cstddef>

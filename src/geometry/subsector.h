@@ -1,5 +1,4 @@
 #pragma once
-#define SUBSECTOR_H
 
 #include "util/resource.h"
 #include "util/indexed-storage.h"

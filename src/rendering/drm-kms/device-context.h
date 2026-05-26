@@ -1,5 +1,4 @@
 #pragma once
-#define DRM_KMS_DEVICE_CONTEXT_H
 
 #include <string>
 

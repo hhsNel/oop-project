@@ -1,5 +1,4 @@
 #pragma once
-#define SECTOR_H
 
 #include "assets/asset-manager.h"
 #include "util/resource.h"

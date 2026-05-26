@@ -1,5 +1,4 @@
 #pragma once
-#define VEC3_H
 
 #include "util/componentized.h"
 #include "vec2.h"

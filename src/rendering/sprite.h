@@ -1,5 +1,4 @@
 #pragma once
-#define SPRITE_H
 
 #include "math/vec2.h"
 #include "assets/ids.h"
