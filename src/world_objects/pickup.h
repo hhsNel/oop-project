@@ -19,7 +19,7 @@ namespace world_object {
 	public:
 		pickup(math::vec2 pos, float radius = 20.0f);
 
-		void bind(entities::player* p, engine::world* w,
+		void bind(entities::player& p, engine::world& w,
 		          util::indexed_storage<std::unique_ptr<engine::entity>>::id_t id);
 
 		void update(float dt) override;

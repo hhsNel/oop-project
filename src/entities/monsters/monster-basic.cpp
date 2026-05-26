@@ -2,6 +2,11 @@
 
 namespace entities {
 
+monster_basic::monster_basic(math::vec2 const p, float const z, engine::actor* target)
+	: monster(p, z, 2, 1.0f, 30.0f, 0.0f, 1.5f, 1.5f, 8.0f, 10.0f, 1.0f) {
+	target_ptr = target;
+}
+
 void monster_basic::update(float dt) {
     monster::update(dt);
     if (!has_target()) return;
