@@ -23,7 +23,8 @@ namespace geometry {
 			std::vector<util::indexed_storage<linedef>::id_t> lines;
 			lines.reserve(data[i].line_count);
 			for (std::uint32_t j = 0; j < data[i].line_count; ++j) {
-				lines.push_back(data[i].first_line_id + j);
+				// binary uses 0-based indices; indexed_storage IDs start at 1
+				lines.push_back(data[i].first_line_id + j + 1);
 			}
 			result.emplace_back(std::move(lines), std::vector<std::unique_ptr<rendering::sprite>>{});
 		}
