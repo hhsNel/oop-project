@@ -12,15 +12,14 @@ namespace world_object {
 		math::vec2 position;
 		float      pickup_radius;
 
-		entities::player* player_ref = nullptr;
-		engine::world*    world_ref  = nullptr;
-		util::indexed_storage<std::unique_ptr<engine::entity>>::id_t self_id = 0;
+		entities::player& player_ref;
+		engine::world&    world_ref;
+		util::indexed_storage<std::unique_ptr<engine::entity>>::id_t self_id;
 
 	public:
-		pickup(math::vec2 pos, float radius = 20.0f);
-
-		void bind(entities::player& p, engine::world& w,
-		          util::indexed_storage<std::unique_ptr<engine::entity>>::id_t id);
+		pickup(math::vec2 pos, entities::player& p, engine::world& w,
+		       util::indexed_storage<std::unique_ptr<engine::entity>>::id_t id,
+		       float radius = 20.0f);
 
 		void update(float dt) override;
 
