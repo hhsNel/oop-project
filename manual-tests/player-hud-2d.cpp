@@ -43,11 +43,8 @@
 #include "rendering/drm-kms/backend.h"
 #include "rendering/renderer-2d.h"
 #include "assets/asset-manager.h"
-<<<<<<< HEAD
 #include "geometry/map-data.h"
 #include "engine/world.h"
-=======
->>>>>>> 7772340b1660540fe4cd5d85418048d9d66933dc
 #include "audio/audio-mixer.h"
 #include "audio/alsa/backend.h"
 

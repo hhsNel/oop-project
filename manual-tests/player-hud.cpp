@@ -20,11 +20,7 @@
 #include "geometry/map-data.h"
 #include "engine/world.h"
 #include "input/input-backend.h"
-<<<<<<< HEAD
 #include "input/evdev/backend.h"
-=======
-#include "input/evdev-backend.h"
->>>>>>> 7772340b1660540fe4cd5d85418048d9d66933dc
 #include "audio/audio-mixer.h"
 #include "audio/alsa/backend.h"
 #include "util/resource-loader.h"
