@@ -5,6 +5,8 @@
 #include <thread>
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
+#include <numbers>
 
 #include "rendering/drm-kms/backend.h"
 #include "audio/alsa/backend.h"
@@ -18,11 +20,18 @@ namespace game {
 		input(std::make_unique<input::evdev::backend>()),
 		rb(std::make_unique<rendering::drm_kms::backend>()),
 		ab(std::make_unique<audio::alsa::backend>()),
-		md{},
+		md(geometry::map_data::load_from_bin(
+			*rl.lookup_resource("map/sectors.bin"),
+			*rl.lookup_resource("map/sidedefs.bin"),
+			*rl.lookup_resource("map/linedefs.bin"),
+			*rl.lookup_resource("map/subsectors.bin"),
+			*rl.lookup_resource("map/nodes.bin"),
+			*rl.lookup_resource("map/monsters.bin"))),
 		mix(*ab, audio::audio_format{48000, 2, 16}),
 		r2d(*rb, am, am.ui_tx_by_id(0)),
 		sr(*rb, am, md),
-//		w(),
+		w(),
+		player_ptr(nullptr),
 
 		fov(1.55) {
 		if (input->is_bad()) {
@@ -229,14 +238,16 @@ namespace game {
 	}
 
 	void game::loop() {
-		/* TODO */
-//		math::vec2 cam_pos{0.0f, 0.0f};
-//		float cam_angle  = 0.0f;
-//		float cam_height = 0.0f;
-//		constexpr float MOVE_SPEED  = 3.0f;
-//		constexpr float TURN_SPEED  = 2.0f;
-		/* TODO */
+		constexpr float CAM_HEIGHT  = 48.0f;
+		constexpr float MOUSE_SENS  = 0.002f;
 
+		auto p = std::make_unique<entities::player>(
+			math::vec2{256.0f, 128.0f}, 0.0f, 0, 1.0f,
+			100.0f, 50.0f, 120.0f, 1.0f);
+		player_ptr = &*p;
+		w.register_entity(std::move(p));
+
+		int prev_mouse_x = 0;
 		auto last_tick = std::chrono::high_resolution_clock::now();
 
 		while(1) {
@@ -244,32 +255,41 @@ namespace game {
 			float dt = std::chrono::duration<float>(now - last_tick).count();
 			last_tick = now;
 
-			/* guard */
 			if (dt > 0.5f) dt = 0.5f;
 
 			input->update();
 			if (input->is_key_down(input::key::esc)) break;
 
-			/* TODO */
-//			if (input->is_key_down(input::key::d))
-//				cam_angle -= TURN_SPEED * dt;
-//			if (input->is_key_down(input::key::a))
-//				cam_angle += TURN_SPEED * dt;
-//			float dx = std::cos(cam_angle);
-//			float dy = std::sin(cam_angle);
-//			if (input->is_key_down(input::key::w)) {
-//				cam_pos.x += dx * MOVE_SPEED * dt;
-//				cam_pos.y += dy * MOVE_SPEED * dt;
-//			}
-//			if (input->is_key_down(input::key::s)) {
-//				cam_pos.x -= dx * MOVE_SPEED * dt;
-//				cam_pos.y -= dy * MOVE_SPEED * dt;
-//			}
-			/* TODO */
+			// movement
+			float fwd = 0.0f, strafe = 0.0f;
+			if (input->is_key_down(input::key::w)) fwd    += dt;
+			if (input->is_key_down(input::key::s)) fwd    -= dt;
+			if (input->is_key_down(input::key::a)) strafe -= dt;
+			if (input->is_key_down(input::key::d)) strafe += dt;
+			if (fwd != 0.0f || strafe != 0.0f)
+				player_ptr->move({strafe, fwd});
+
+			// mouse rotation
+			auto mouse   = input->get_mouse_state();
+			int delta_x  = mouse.x - prev_mouse_x;
+			prev_mouse_x = mouse.x;
+			if (delta_x != 0)
+				player_ptr->rotate(static_cast<float>(-delta_x) * MOUSE_SENS);
+
+			// shooting
+			if (mouse.left)
+				player_ptr->shoot();
+			if (input->is_key_down(input::key::r))
+				player_ptr->reload();
 
 			w.update(dt);
 
-			//sr.render_bsp(cam_pos, cam_height, cam_angle, fov);
+			// render
+			auto& spr = static_cast<util::componentized<rendering::sprite>&>(*player_ptr);
+			std::memset(const_cast<std::uint32_t*>((*rb)("mmio"_f)), 0x00,
+				static_cast<std::size_t>((*rb)("height"_f)) * (*rb)("pitch"_f));
+
+			sr.render_bsp(spr("pos"_f), CAM_HEIGHT, spr("angle"_f), fov);
 
 			rb->flush();
 
