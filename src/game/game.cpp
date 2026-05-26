@@ -27,7 +27,8 @@ namespace game {
 			*rl.lookup_resource("map/linedefs.bin"),
 			*rl.lookup_resource("map/subsectors.bin"),
 			*rl.lookup_resource("map/nodes.bin"),
-			*rl.lookup_resource("map/monsters.bin"))),
+			*rl.lookup_resource("map/monsters.bin"),
+			*rl.lookup_resource("map/pickups.bin"))),
 		mix(*ab, audio::audio_format{48000, 2, 16}),
 		r2d(*rb, am, am.ui_tx_by_id(0)),
 		sr(*rb, am, md),
@@ -249,9 +250,9 @@ namespace game {
 		w.register_entity(std::move(p));
 
 		for (auto const& spawn : md.monster_spawns) {
-			auto m = entities::make_monster(spawn.type, spawn.pos, spawn.z);
+			auto m = entities::make_monster(spawn("type"_f), spawn("pos"_f), spawn("z"_f));
 			if (m) {
-				auto sub_id = md.get_subsector_id(spawn.pos);
+				auto sub_id = md.get_subsector_id(spawn("pos"_f));
 				md.subsectors[sub_id].add_sprite(std::move(m));
 			}
 		}
