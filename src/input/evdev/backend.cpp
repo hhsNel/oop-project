@@ -1,8 +1,9 @@
-#include "evdev-backend.h"
+#include "backend.h"
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <string>
+#include <sys/epoll.h>
 
 namespace input {
 	namespace evdev {
@@ -31,6 +32,14 @@ namespace input {
 //				probe_device(path);
 //			}
 //			probe_device("/dev/input/mice");
+
+			epoll_fd = epoll_create1(0);
+			for (auto& dev : devices) {
+				struct epoll_event ev{};
+				ev.events = EPOLLIN;
+				ev.data.fd = dev.fd;
+				epoll_ctl(epoll_fd, EPOLL_CTL_ADD, dev.fd, &ev);
+			}
 		}
 
 		void backend::probe_device(std::string const& dev_name) {
@@ -55,6 +64,10 @@ namespace input {
 				bool is_ms = has_left_click || has_x_axis || has_abs_x;
 
 				if (is_kb || is_ms) {
+
+					struct input_event discard;
+					while (read(fd, &discard, sizeof(discard)) > 0);
+
 					ioctl(fd, EVIOCGRAB, 1);
 					devices.push_back({fd, is_kb, is_ms});
 					return;
@@ -122,11 +135,11 @@ namespace input {
 		}
 
 		void backend::update() {
+			struct epoll_event events[32];
+			int n = epoll_wait(epoll_fd, events, 32, 0);
 			struct input_event ev;
-			for (auto& dev : devices) {
-				while (read(dev.fd, &ev, sizeof(ev)) > 0) {
-					process_event(ev);
-				}
+			for (int i = 0; i < n; ++i) {
+				while (read(events[i].data.fd, &ev, sizeof(ev)) > 0) process_event(ev);
 			}
 		}
 

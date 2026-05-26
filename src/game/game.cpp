@@ -8,7 +8,7 @@
 
 #include "rendering/drm-kms/backend.h"
 #include "audio/alsa/backend.h"
-#include "input/evdev-backend.h"
+#include "input/evdev/backend.h"
 
 namespace game {
 

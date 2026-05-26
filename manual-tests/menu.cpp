@@ -7,7 +7,7 @@
 #include "assets/asset-manager.h"
 #include "util/resource-loader.h"
 #include "input/input-backend.h"
-#include "input/evdev-backend.h"
+#include "input/evdev/backend.h"
 
 static std::string replace_token(std::string_view tmpl, std::string_view token, std::string_view value) {
     std::string result(tmpl);

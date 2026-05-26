@@ -2,7 +2,7 @@
 #include <vector>
 #include <bitset>
 #include <linux/input.h>
-#include "input-backend.h"
+#include "input/input-backend.h"
 
 namespace input {
 	namespace evdev {
@@ -20,6 +20,8 @@ namespace input {
 
 			int last_abs_x;
 			int last_abs_y;
+
+			int epoll_fd;
 
 			uint16_t map_to_native(key k) const;
 			void probe_devices();
