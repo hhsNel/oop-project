@@ -51,7 +51,7 @@ int main() {
     util::resource_loader rl;
     auto tex_mgr = assets::asset_manager::load(rl);
 
-    rendering::renderer_2d r2d(*backend.get(), tex_mgr, tex_mgr.flat_tx_by_id(0));
+    rendering::renderer_2d r2d(*backend.get(), tex_mgr, tex_mgr.ui_tx_by_id(0));
 
     std::unique_ptr<input::input_backend> in = std::make_unique<input::evdev::backend>();
 

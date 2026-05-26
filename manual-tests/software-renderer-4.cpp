@@ -128,7 +128,7 @@ int main() {
 	util::resource_loader rl;
     auto tm = std::make_unique<assets::asset_manager>(assets::asset_manager::load(rl));
 
-	rendering::renderer_2d r2d(*backend.get(), *tm.get(), tm->flat_tx_by_id(0));
+	rendering::renderer_2d r2d(*backend.get(), *tm.get(), tm->ui_tx_by_id(0));
 
     geometry::map_data map;
     auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
@@ -174,7 +174,7 @@ int main() {
     auto ld1_r2 = add_line(1024.0f, 1024.0f, 0.0f, 1024.0f, sd_portal_back_id, sd_portal_front_id);
 
     geometry::subsector ss_south({ld_w_s, ld_s_s, ld_e_s, ld_p_s}, {});
-    ss_south.add_sprite(std::make_unique<rendering::sprite>(math::vec2(128.0f, 256.0f), -256.0f, 0, 0.25));
+    ss_south.add_sprite(std::make_unique<rendering::sprite>(math::vec2(128.0f, 256.0f), 0.0f, 0, 2.0f));
     auto ss_south_id = map.subsectors.add(std::move(ss_south));
 
     geometry::subsector ss_north({ld_w_n, ld_n_n, ld_e_n, ld_p_n}, {});
@@ -190,7 +190,7 @@ int main() {
     auto ss_pillar_id = map.subsectors.add(std::move(ss_pillar));
 
     geometry::subsector ss2({ld1_r2, ld4, ld5, ld6}, {});
-    ss2.add_sprite(std::make_unique<rendering::sprite>(math::vec2(768.0f, 1536.0f), -256.0f, 1, 0.25));
+    ss2.add_sprite(std::make_unique<rendering::sprite>(math::vec2(768.0f, 1536.0f), 0.0f, 1, 2.0f));
     auto ss2_id = map.subsectors.add(std::move(ss2));
 
     /* BSP TREE */
