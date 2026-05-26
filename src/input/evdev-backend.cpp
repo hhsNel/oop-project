@@ -26,11 +26,11 @@ namespace input {
 				std::string path = "/dev/input/event" + std::to_string(i);
 				probe_device(path);
 			}
-			for (int i = 0; i < 32; ++i) {
-				std::string path = "/dev/input/mouse" + std::to_string(i);
-				probe_device(path);
-			}
-			probe_device("/dev/input/mice");
+//			for (int i = 0; i < 32; ++i) {
+//				std::string path = "/dev/input/mouse" + std::to_string(i);
+//				probe_device(path);
+//			}
+//			probe_device("/dev/input/mice");
 		}
 
 		void backend::probe_device(std::string const& dev_name) {
