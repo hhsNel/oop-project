@@ -39,7 +39,7 @@
 #include "combat/burning.h"
 
 #include "input/input-backend.h"
-#include "input/evdev-backend.h"
+#include "input/evdev/backend.h"
 #include "rendering/drm-kms/backend.h"
 #include "rendering/renderer-2d.h"
 #include "assets/asset-manager.h"

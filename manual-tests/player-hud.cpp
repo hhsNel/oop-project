@@ -20,7 +20,7 @@
 #include "geometry/map-data.h"
 #include "engine/world.h"
 #include "input/input-backend.h"
-#include "input/evdev-backend.h"
+#include "input/evdev/backend.h"
 
 template<typename M>
 struct inspect : public M {

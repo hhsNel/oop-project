@@ -33,7 +33,7 @@
 #include "rendering/renderer-2d.h"
 #include "rendering/drm-kms/backend.h"
 #include "input/input-backend.h"
-#include "input/evdev-backend.h"
+#include "input/evdev/backend.h"
 
 // Expose protected actor fields for this manual test.
 template<typename M>
