@@ -21,7 +21,7 @@ namespace combat {
             if (map) {
                 for (auto const& e : map->linedefs) {
                     geometry::linedef const& ld = e.value;
-                    if (!ld.is_wall()) continue;   // portal — przepuszcza
+                    if (ld.is_portal()) continue;
                     math::vec2 hit;
                     float dist = 0.0f, seg_len = 0.0f;
                     if (ray.intersects(ld("seg"_f), hit, dist, seg_len) && dist < wall_dist)

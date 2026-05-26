@@ -5,7 +5,7 @@
 
 #include "combat/weapons/hitscan-firing-mode.h"
 #include "combat/weapons/pistol.h"
-#include "entities/monsters.h"
+#include "entities/monsters/monster-basic.h"
 #include "geometry/map-data.h"
 #include "geometry/linedef.h"
 #include "geometry/sidedef.h"
