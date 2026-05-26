@@ -42,8 +42,8 @@ namespace entities {
 		std::vector<util::indexed_storage<std::unique_ptr<engine::entity>>::id_t> minion_ids;
 
 		// world + map refs for spawning
-		engine::world*      world_ref = nullptr;
-		geometry::map_data* map_ref   = nullptr;
+		engine::world&      world_ref;
+		geometry::map_data& map_ref;
 
 		float hp_ratio() const;
 		void  update_phase();
@@ -58,9 +58,7 @@ namespace entities {
 		bool  minions_alive() const;
 
 	public:
-		monster_boss(math::vec2 const p, float const z);
-
-		void bind(engine::world& w, geometry::map_data& md);
+		monster_boss(math::vec2 const p, float const z, engine::world& w, geometry::map_data& md);
 
 		bool channeling() const { return is_channeling; }
 		float flash_phase() const { return flash_timer; }

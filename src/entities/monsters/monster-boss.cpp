@@ -6,14 +6,9 @@
 
 namespace entities {
 
-monster_boss::monster_boss(math::vec2 const p, float const z)
+monster_boss::monster_boss(math::vec2 const p, float const z, engine::world& w, geometry::map_data& md)
 	: monster(p, z, 3, 1.0f, 1000.0f, 300.0f, 1.5f, 3.0f, 30.0f, 20.0f, 1.0f),
-	  max_hp_val(1000.0f) {}
-
-void monster_boss::bind(engine::world& w, geometry::map_data& md) {
-	world_ref = &w;
-	map_ref   = &md;
-}
+	  max_hp_val(1000.0f), world_ref(w), map_ref(md) {}
 
 float monster_boss::hp_ratio() const {
 	float cur = health("current_hp"_f);
@@ -29,9 +24,8 @@ void monster_boss::update_phase() {
 }
 
 bool monster_boss::minions_alive() const {
-	if (!world_ref) return false;
 	for (auto id : minion_ids) {
-		auto* e = world_ref->entity_from_id(id);
+		auto* e = world_ref.entity_from_id(id);
 		if (e) {
 			auto* a = dynamic_cast<engine::actor*>(e);
 			if (a && !a->is_dead()) return true;
@@ -97,8 +91,6 @@ void monster_boss::update_charge(float dt) {
 }
 
 void monster_boss::start_channel() {
-	if (!world_ref) return;
-
 	is_channeling = true;
 	channel_timer = 0.0f;
 	flash_timer = 0.0f;
@@ -113,20 +105,13 @@ void monster_boss::start_channel() {
 
 		auto minion = std::make_unique<monster_basic>(spawn_pos, z_pos, target_ptr);
 
-		if (map_ref) {
-			auto sub_id = map_ref->get_subsector_id(spawn_pos);
-			auto* raw = &*minion;
-			auto id = world_ref->register_entity(std::move(minion));
-			minion_ids.push_back(id);
+		auto sub_id = map_ref.get_subsector_id(spawn_pos);
+		auto id = world_ref.register_entity(std::move(minion));
+		minion_ids.push_back(id);
 
-			auto spr_copy = std::make_unique<rendering::sprite>(
-				spawn_pos, z_pos, 2, 1.0f);
-			map_ref->subsectors[sub_id].add_sprite(std::move(spr_copy));
-			(void)raw;
-		} else {
-			auto id = world_ref->register_entity(std::move(minion));
-			minion_ids.push_back(id);
-		}
+		auto spr_copy = std::make_unique<rendering::sprite>(
+			spawn_pos, z_pos, 2, 1.0f);
+		map_ref.subsectors[sub_id].add_sprite(std::move(spr_copy));
 	}
 }
 

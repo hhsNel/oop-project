@@ -15,6 +15,8 @@
 #include "entities/monsters/monster-elite-swift.h"
 #include "entities/monsters/monster-boss.h"
 #include "entities/player.h"
+#include "engine/world.h"
+#include "geometry/map-data.h"
 
 static constexpr math::vec2 ORIGIN{0.0f, 0.0f};
 static constexpr assets::texture_id DUMMY_TEX = 0;
@@ -130,7 +132,9 @@ int main() {
 			result(m.armor());
 
 		} else if (cmd == "boss_stats") {
-			auto m = make_m<entities::monster_boss>();
+			engine::world bw;
+			geometry::map_data bmd;
+			auto m = inspect<entities::monster_boss>(ORIGIN, 0.0f, bw, bmd);
 			result(m.hp());
 			result(m.armor());
 
