@@ -1,5 +1,5 @@
 SRCDIR = src
-MODULES = math geometry assets engine combat combat/weapons rendering util input rendering/drm-kms entities world_objects systems audio audio/alsa game
+MODULES = math geometry assets engine combat combat/weapons rendering util input rendering/drm-kms entities entities/monsters world_objects systems audio audio/alsa game
 BUILDDIR = build
 RESDIR = res
 TESTDIR = tests

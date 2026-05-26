@@ -1,0 +1,38 @@
+#include "monster-maly-szybki.h"
+
+namespace entities {
+
+void monster_Maly_Szybki::update(float dt) {
+    monster::update(dt);
+    if (!has_target()) return;
+
+    float dist = dist_to_target();
+    if (dist > detection_radius) return;
+
+    if (dash_cooldown > 0.0f) { dash_cooldown -= dt; return; }
+
+    if (is_dashing) {
+        move_toward_target(movement_speed * 3.5f, dt);
+        dash_timer -= dt;
+
+        if (dist <= attack_range) {
+            if (attack_cooldown <= 0.0f) {
+                melee_attack(attack_damage);
+                attack_cooldown = attack_cd_max;
+            }
+            is_dashing   = false;
+            dash_cooldown = 2.5f;
+        }
+        if (dash_timer <= 0.0f) {
+            is_dashing   = false;
+            dash_cooldown = 2.5f;
+        }
+    } else {
+        if (dist <= detection_radius) {
+            is_dashing = true;
+            dash_timer = 1.0f;
+        }
+    }
+}
+
+}
