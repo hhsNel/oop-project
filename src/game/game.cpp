@@ -11,6 +11,7 @@
 #include "rendering/drm-kms/backend.h"
 #include "audio/alsa/backend.h"
 #include "input/evdev/backend.h"
+#include "entities/monster-factory.h"
 
 namespace game {
 
@@ -247,6 +248,14 @@ namespace game {
 		player_ptr = &*p;
 		w.register_entity(std::move(p));
 
+		for (auto const& spawn : md.monster_spawns) {
+			auto m = entities::make_monster(spawn.type, spawn.pos, spawn.z);
+			if (m) {
+				auto sub_id = md.get_subsector_id(spawn.pos);
+				md.subsectors[sub_id].add_sprite(std::move(m));
+			}
+		}
+
 		int prev_mouse_x = 0;
 		auto last_tick = std::chrono::high_resolution_clock::now();
 
@@ -262,10 +271,10 @@ namespace game {
 
 			// movement
 			float fwd = 0.0f, strafe = 0.0f;
-			if (input->is_key_down(input::key::w)) fwd    += dt;
-			if (input->is_key_down(input::key::s)) fwd    -= dt;
-			if (input->is_key_down(input::key::a)) strafe -= dt;
-			if (input->is_key_down(input::key::d)) strafe += dt;
+			if (input->is_key_down(input::key::w)) strafe -= dt;
+			if (input->is_key_down(input::key::s)) strafe += dt;
+			if (input->is_key_down(input::key::a)) fwd    -= dt;
+			if (input->is_key_down(input::key::d)) fwd    += dt;
 			if (fwd != 0.0f || strafe != 0.0f)
 				player_ptr->move({strafe, fwd});
 
