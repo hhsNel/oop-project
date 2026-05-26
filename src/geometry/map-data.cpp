@@ -58,9 +58,10 @@ namespace geometry {
 		auto loaded_nodes = util::indexed_storage<bsp_node>(bsp_node::load_from_bin(nodes_res));
 
 		if (loaded_nodes.size() != 0) {
-			map.root_node_id = loaded_nodes.size() - 1;
+			// IDs in indexed_storage start at 1; the last node (root) has ID = size()
+			map.root_node_id = loaded_nodes.size();
 		} else {
-			map.root_node_id = 0;
+			map.root_node_id = util::indexed_storage<bsp_node>::nullid;
 		}
 
 		map.nodes = std::move(loaded_nodes);

@@ -13,6 +13,7 @@
 #include "audio/audio-mixer.h"
 #include "rendering/renderer-2d.h"
 #include "rendering/software-renderer.h"
+#include "entities/player.h"
 
 namespace game {
 	class game {
@@ -26,6 +27,7 @@ namespace game {
 		rendering::renderer_2d r2d;
 		rendering::software_renderer sr;
 		engine::world w;
+		entities::player* player_ptr;
 
 		float fov;
 
