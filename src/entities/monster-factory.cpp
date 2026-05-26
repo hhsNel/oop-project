@@ -1,5 +1,17 @@
 #include "entities/monster-factory.h"
-#include "entities/monsters.h"
+#include "entities/monsters/monster-all-rounder.h"
+#include "entities/monsters/monster-assault.h"
+#include "entities/monsters/monster-basic.h"
+#include "entities/monsters/monster-boss.h"
+#include "entities/monsters/monster-duzy-gruby.h"
+#include "entities/monsters/monster-elite-swift.h"
+#include "entities/monsters/monster-elite-tank.h"
+#include "entities/monsters/monster-magic.h"
+#include "entities/monsters/monster-maly-szybki.h"
+#include "entities/monsters/monster-ranged.h"
+#include "entities/monsters/monster-sniper.h"
+#include "entities/monsters/monster-spawner.h"
+#include "entities/monsters/monster-trapper.h"
 
 namespace entities {
 	std::unique_ptr<monster> make_monster(std::uint32_t type, math::vec2 pos, float z) {
