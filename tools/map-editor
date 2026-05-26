@@ -987,6 +987,7 @@ class Editor:
         self.color_picker = ColorPicker()
         self.props        = PropertiesPanel(self.color_picker)
 
+        self._init_fields()
         self._build_panel()
         self._rebuild_bsp()
 
@@ -1000,6 +1001,28 @@ class Editor:
 
     # ── Panel construction ─────────────────────────────────────────────────────
 
+<<<<<<< HEAD
+=======
+    def _init_fields(self):
+        """Create persistent input fields (survive panel rebuilds)."""
+        self.fi_monster_type = TextInput(pygame.Rect(0,0,1,1), "2", numeric=True)
+        self.fi_monster_z    = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.fi_pickup_type  = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_pickup_subtype = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_pickup_z     = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.btn_new_sec     = None
+        self.btn_apply       = None
+        self.fi_sec_idx      = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_floor_h      = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.fi_ceil_h       = TextInput(pygame.Rect(0,0,1,1), "128.0", numeric=True)
+        self.fi_floor_tex    = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_ceil_tex     = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_light        = TextInput(pygame.Rect(0,0,1,1), "200", numeric=True)
+        self.fi_upper        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_mid          = TextInput(pygame.Rect(0,0,1,1), "1", numeric=True)
+        self.fi_lower        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+
+>>>>>>> 247620f (map-edit)
     def _build_panel(self):
         px = CANVAS_W + 10
         pw = PANEL_W - 20
@@ -1011,17 +1034,17 @@ class Editor:
             self.widgets.append(s)
             y += extra*2+2
 
-        def lbl(text, dy=4, color=TEXT_LABEL):
+        def lbl(text, dy=2, color=TEXT_LABEL):
             nonlocal y
-            w = Label(pygame.Rect(px, y, pw, 18), text, color=color)
+            w = Label(pygame.Rect(px, y, pw, 16), text, color=color)
             self.widgets.append(w)
-            y += 18+dy
+            y += 16+dy
 
-        def btn(label, h=30, accent=False):
+        def btn(label, h=26, accent=False):
             nonlocal y
             b = Button(pygame.Rect(px, y, pw, h), label, accent=accent)
             self.widgets.append(b)
-            y += h+4
+            y += h+3
             return b
 
         def tbtn(label, tool_id, h=30):
@@ -1031,29 +1054,44 @@ class Editor:
             y += h+4
             return b
 
+<<<<<<< HEAD
         def field(val="", num=False, h=28):
             nonlocal y
             f = TextInput(pygame.Rect(px, y, pw, h), val, numeric=num)
             self.widgets.append(f)
             y += h+4
             return f
+=======
+        def field(val="", num=False, h=24):
+            nonlocal y
+            f = TextInput(pygame.Rect(px, y, pw, h), val, numeric=num)
+            self.widgets.append(f)
+            y += h+3
+            return f
+
+        def place(fi, h=24):
+            nonlocal y
+            fi.rect = pygame.Rect(px, y, pw, h)
+            self.widgets.append(fi)
+            y += h+3
+>>>>>>> 247620f (map-edit)
 
         self.widgets = []
 
         lbl("  TOOLS", color=TEXT_DIM); y += 2
-        self.tb_vertex  = tbtn("✦  Vertex",  TOOL_VERTEX)
-        self.tb_line    = tbtn("╱  Line",    TOOL_LINE)
-        self.tb_sector  = tbtn("▣  Paint Sector", TOOL_SECTOR)
-        self.tb_monster = tbtn("☠  Monster", TOOL_MONSTER)
-        self.tb_pickup  = tbtn("♦  Pickup",  TOOL_PICKUP)
-        self.tb_select  = tbtn("⊹  Select",  TOOL_SELECT)
-        self.tb_delete  = tbtn("✕  Delete",  TOOL_DELETE)
+        self.tb_vertex  = tbtn("✦  Vertex",  TOOL_VERTEX, 26)
+        self.tb_line    = tbtn("╱  Line",    TOOL_LINE, 26)
+        self.tb_sector  = tbtn("▣  Paint Sector", TOOL_SECTOR, 26)
+        self.tb_monster = tbtn("☠  Monster", TOOL_MONSTER, 26)
+        self.tb_pickup  = tbtn("♦  Pickup",  TOOL_PICKUP, 26)
+        self.tb_select  = tbtn("⊹  Select",  TOOL_SELECT, 26)
+        self.tb_delete  = tbtn("✕  Delete",  TOOL_DELETE, 26)
         self._tool_btns = [self.tb_vertex,self.tb_line,self.tb_sector,
                            self.tb_monster,self.tb_pickup,self.tb_select,self.tb_delete]
         self.tb_line.active = True
-
         sep()
 
+<<<<<<< HEAD
         # ── Monster props ─────────────────────────────────────────────────────
         lbl("  MONSTER", color=TEXT_DIM); y += 2
         lbl("Type ID (0-12):")
@@ -1092,16 +1130,54 @@ class Editor:
         self.btn_apply   = btn("Apply Sector", accent=True)
 
         sep()
+=======
+        if self.tool == TOOL_MONSTER:
+            # ── Monster props ─────────────────────────────────────────────────
+            lbl("  MONSTER", color=TEXT_DIM); y += 2
+            lbl("Type ID (0-12):")
+            place(self.fi_monster_type)
+            lbl("Z height:")
+            place(self.fi_monster_z)
+            sep()
+>>>>>>> 247620f (map-edit)
 
-        lbl("  SIDEDEF TEXTURES", color=TEXT_DIM); y += 2
-        lbl("Upper tex:")
-        self.fi_upper = field("0", num=True)
-        lbl("Mid tex:")
-        self.fi_mid   = field("1", num=True)
-        lbl("Lower tex:")
-        self.fi_lower = field("0", num=True)
+        elif self.tool == TOOL_PICKUP:
+            # ── Pickup props ──────────────────────────────────────────────────
+            lbl("  PICKUP", color=TEXT_DIM); y += 2
+            lbl(f"Type ID (0-{len(PICKUP_NAMES)-1}):")
+            place(self.fi_pickup_type)
+            lbl(f"Subtype (0-{len(WEAPON_SUBTYPE_NAMES)-1}):")
+            place(self.fi_pickup_subtype)
+            lbl("Z height:")
+            place(self.fi_pickup_z)
+            sep()
 
-        sep()
+        elif self.tool in (TOOL_LINE, TOOL_SECTOR, TOOL_SELECT):
+            # ── Sector props ──────────────────────────────────────────────────
+            lbl("  SECTOR", color=TEXT_DIM); y += 2
+            lbl("Index:")
+            place(self.fi_sec_idx)
+            self.btn_new_sec = btn("+ New Sector")
+            lbl("Floor height:")
+            place(self.fi_floor_h)
+            lbl("Ceiling height:")
+            place(self.fi_ceil_h)
+            lbl("Floor tex ID:")
+            place(self.fi_floor_tex)
+            lbl("Ceiling tex ID:")
+            place(self.fi_ceil_tex)
+            lbl("Light (0-255):")
+            place(self.fi_light)
+            self.btn_apply   = btn("Apply Sector", accent=True)
+
+            lbl("  SIDEDEF TEXTURES", color=TEXT_DIM); y += 2
+            lbl("Upper tex:")
+            place(self.fi_upper)
+            lbl("Mid tex:")
+            place(self.fi_mid)
+            lbl("Lower tex:")
+            place(self.fi_lower)
+            sep()
 
         lbl("  FILE / BSP", color=TEXT_DIM); y += 2
         self.btn_bsp    = btn("Show BSP Overlay")
@@ -1473,7 +1549,7 @@ class Editor:
         for w in self.widgets:
             w.draw(surf, self.font, self.font_sm)
 
-        y=SCREEN_H-195
+        y=SCREEN_H-175
         stats=[
             ("Vertices",  len(self.map.vertices)),
             ("Linedefs",  len(self.map.linedefs)),
