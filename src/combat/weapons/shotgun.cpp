@@ -3,7 +3,7 @@
 
 namespace combat {
 	namespace weapons {
-		shotgun::shotgun(geometry::map_data const* map, engine::world const* world)
+		shotgun::shotgun(geometry::map_data const& map, engine::world const& world)
 			: weapon(std::make_unique<hitscan_firing_mode>(map, world), 8, 1.0f, 15.0f, 4) {}
 
 		void shotgun::fire(math::vec2 pos, float angle) {

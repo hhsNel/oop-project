@@ -39,6 +39,8 @@ static geometry::linedef portal_wall(math::vec2 a, math::vec2 b) {
 }
 
 int main() {
+    geometry::map_data empty_md;
+
     std::cout << "READY" << std::endl;
     std::string cmd;
 
@@ -54,7 +56,7 @@ int main() {
             auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
             auto* mptr = &*m;
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(empty_md, w);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result(mptr->hp());
 
@@ -67,7 +69,7 @@ int main() {
             auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{0.0f, 100.0f}, 0.0f);
             auto* mptr = &*m;
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(empty_md, w);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result(mptr->hp());
 
@@ -80,7 +82,7 @@ int main() {
             auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{-100.0f, 0.0f}, 0.0f);
             auto* mptr = &*m;
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(empty_md, w);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result(mptr->hp());
 
@@ -93,7 +95,7 @@ int main() {
             auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{600.0f, 0.0f}, 0.0f);
             auto* mptr = &*m;
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w, 500.0f);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(empty_md, w, 500.0f);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result(mptr->hp());
 
@@ -106,7 +108,7 @@ int main() {
             auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{400.0f, 0.0f}, 0.0f);
             auto* mptr = &*m;
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w, 500.0f);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(empty_md, w, 500.0f);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result(mptr->hp());
 
@@ -121,7 +123,7 @@ int main() {
             auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
             auto* mptr = &*m;
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map, &w);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(map, w);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result(mptr->hp());
 
@@ -136,7 +138,7 @@ int main() {
             auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
             auto* mptr = &*m;
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map, &w);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(map, w);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result(mptr->hp());
 
@@ -151,7 +153,7 @@ int main() {
             auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
             auto* mptr = &*m;
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(&map, &w);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(map, w);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result(mptr->hp());
 
@@ -167,7 +169,7 @@ int main() {
             auto* bptr = &*b;
             w.register_entity(std::move(a));
             w.register_entity(std::move(b));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(empty_md, w);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result(aptr->hp());
             result(bptr->hp());
@@ -182,7 +184,7 @@ int main() {
             auto* mptr = &*m;
             mptr->take_damage(999.0f);  // kill
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(empty_md, w);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);  // should be skipped
             result(mptr->hp());
 
@@ -195,7 +197,7 @@ int main() {
             auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{0.0f, 100.0f}, 0.0f);
             auto* mptr = &*m;
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(empty_md, w);
             ammo->spawn_bullet(ORIGIN, std::numbers::pi_v<float> / 2.0f, 10.0f);
             result(mptr->hp());
 
@@ -203,7 +205,8 @@ int main() {
         // Empty world — must not crash.
         // Expected: "OK"
         } else if (cmd == "hs_no_targets") {
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, nullptr);
+            engine::world empty_w;
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(empty_md, empty_w);
             ammo->spawn_bullet(ORIGIN, 0.0f, 10.0f);
             result("OK");
 
@@ -216,7 +219,7 @@ int main() {
             auto m = std::make_unique<inspect<entities::monster_basic>>(math::vec2{100.0f, 0.0f}, 0.0f);
             auto* mptr = &*m;
             w.register_entity(std::move(m));
-            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(nullptr, &w);
+            auto ammo = std::make_unique<combat::weapons::hitscan_firing_mode>(empty_md, w);
             ammo->spawn_bullet(ORIGIN, 0.0f, 7.0f);
             result(mptr->hp());
         }

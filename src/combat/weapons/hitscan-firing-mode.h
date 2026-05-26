@@ -12,14 +12,14 @@ namespace combat {
         // Rzuca promien z pozycji strzalu, zatrzymuje sie na najblizszej solidnej scianie,
         // i zadaje obrazenia najblizszemu aktorowi trafionemu przed ta sciana.
         class hitscan_firing_mode : public firing_mode {
-            geometry::map_data const* map;
-            engine::world const*      world_ref;
+            geometry::map_data const& map;
+            engine::world const&      world_ref;
             float               max_range;
-            float               hit_radius;   // promien cylindra kolizji aktora (jednostki mapy)
+            float               hit_radius;
 
         public:
-            hitscan_firing_mode(geometry::map_data const* map,
-                            engine::world const* world,
+            hitscan_firing_mode(geometry::map_data const& map,
+                            engine::world const& world,
                             float range  = 8192.0f,
                             float radius = 16.0f);
 

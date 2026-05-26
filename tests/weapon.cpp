@@ -8,6 +8,8 @@
 #include "combat/weapons/plasma-gun.h"
 #include "combat/weapons/shotgun.h"
 #include "combat/weapons/katana.h"
+#include "geometry/map-data.h"
+#include "engine/world.h"
 
 template<typename W>
 struct inspect : public W {
@@ -29,6 +31,9 @@ static void result(const std::string& s) {
 }
 
 int main() {
+	geometry::map_data md;
+	engine::world w;
+
 	std::cout << "READY" << std::endl;
 	std::string cmd;
 
@@ -36,7 +41,7 @@ int main() {
 
 		// pistol_fire — fire once: ammo drops 8→7, 1 bullet spawned
 		if (cmd == "pistol_fire") {
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			int before = p.ammo_count;
 			p.fire({0.0f, 0.0f}, 0.0f);
 			result(p.ammo_count);
@@ -44,20 +49,20 @@ int main() {
 
 		// pistol_empty — fire full magazine (with cooldown bypass), can_fire() = false
 		} else if (cmd == "pistol_empty") {
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			result(p.can_fire() ? 1 : 0);
 
 		// pistol_overshoot — fire more than magazine, check spawned count capped at 8
 		} else if (cmd == "pistol_overshoot") {
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			int before = p.ammo_count;
 			for (int i = 0; i < 12; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			result(before - p.ammo_count);
 
 		// pistol_reload — fire empty, reload: can_fire() = true, ammo_count = 8
 		} else if (cmd == "pistol_reload") {
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			p.tick(1.0f);
 			p.reload();
@@ -66,21 +71,21 @@ int main() {
 
 		// pistol_cooldown_ready — fire, advance 0.6s (> 1/2.0=0.5s), can fire
 		} else if (cmd == "pistol_cooldown_ready") {
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.tick(0.6f);
 			result(p.can_fire() ? "YES" : "NO");
 
 		// pistol_cooldown_block — fire, advance 0.3s (< 1/2.0=0.5s), blocked
 		} else if (cmd == "pistol_cooldown_block") {
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.tick(0.3f);
 			result(p.can_fire() ? "YES" : "NO");
 
 		// pistol_no_fire_blocked — second fire during cooldown spawns nothing extra
 		} else if (cmd == "pistol_no_fire_blocked") {
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			int before = p.ammo_count;
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.tick(0.3f);
@@ -91,7 +96,7 @@ int main() {
 		} else if (cmd == "pistol_bullet_pos") {
 			float px, py, ang;
 			std::cin >> px >> py >> ang;
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			p.fire({px, py}, ang);
 			result(px);
 			result(py);
@@ -105,7 +110,7 @@ int main() {
 		} else if (cmd == "fire_count") {
 			int shots;
 			std::cin >> shots;
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			int before = p.ammo_count;
 			for (int i = 0; i < shots; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			result(p.ammo_count);
@@ -115,21 +120,21 @@ int main() {
 		} else if (cmd == "cooldown_check") {
 			float dt;
 			std::cin >> dt;
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			p.fire({0.0f, 0.0f}, 0.0f);
 			p.tick(dt);
 			result(p.can_fire() ? "YES" : "NO");
 
 		// reload_check — fire pistol empty (mag=8), reload, report ammo_count
 		} else if (cmd == "reload_check") {
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			p.reload();
 			result(p.ammo_count);
 
 		// reload_no_reserve — exhaust all reserve mags, reload fails
 		} else if (cmd == "reload_no_reserve") {
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			// exhaust all 5 reserve mags
 			for (int m = 0; m < 5; ++m) {
 				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
@@ -143,7 +148,7 @@ int main() {
 
 		// resupply_reload — resupply adds mags, reload uses them
 		} else if (cmd == "resupply_reload") {
-			inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			inspect<combat::weapons::pistol> p(md, w);
 			// exhaust all reserve mags
 			for (int m = 0; m < 5; ++m) {
 				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
@@ -163,7 +168,7 @@ int main() {
 
 		// smg_fire — fire once: ammo 30→29, 1 bullet spawned
 		} else if (cmd == "smg_fire") {
-			inspect<combat::weapons::smg> s(nullptr, nullptr);
+			inspect<combat::weapons::smg> s(md, w);
 			int before = s.ammo_count;
 			s.fire({0.0f, 0.0f}, 0.0f);
 			result(s.ammo_count);
@@ -175,7 +180,7 @@ int main() {
 
 		// rifle_fire — fire once: ammo 20→19, 1 bullet spawned
 		} else if (cmd == "rifle_fire") {
-			inspect<combat::weapons::rifle> r(nullptr, nullptr);
+			inspect<combat::weapons::rifle> r(md, w);
 			int before = r.ammo_count;
 			r.fire({0.0f, 0.0f}, 0.0f);
 			result(r.ammo_count);
@@ -187,7 +192,7 @@ int main() {
 
 		// sniper_fire — fire once: ammo 5→4, 1 bullet spawned
 		} else if (cmd == "sniper_fire") {
-			inspect<combat::weapons::sniper_rifle> s(nullptr, nullptr);
+			inspect<combat::weapons::sniper_rifle> s(md, w);
 			int before = s.ammo_count;
 			s.fire({0.0f, 0.0f}, 0.0f);
 			result(s.ammo_count);
@@ -199,7 +204,7 @@ int main() {
 
 		// plasma_fire — fire once: ammo 10→9, 1 plasma spawned
 		} else if (cmd == "plasma_fire") {
-			inspect<combat::weapons::plasma_gun> p(nullptr, nullptr);
+			inspect<combat::weapons::plasma_gun> p(md, w);
 			int before = p.ammo_count;
 			p.fire({0.0f, 0.0f}, 0.0f);
 			result(p.ammo_count);
@@ -211,7 +216,7 @@ int main() {
 
 		// shotgun_fire — fire once: ammo 8→7, pellet_count pellets spawned
 		} else if (cmd == "shotgun_fire") {
-			inspect<combat::weapons::shotgun> s(nullptr, nullptr);
+			inspect<combat::weapons::shotgun> s(md, w);
 			int before = s.ammo_count;
 			s.fire({0.0f, 0.0f}, 0.0f);
 			int shots_fired = before - s.ammo_count;
@@ -228,7 +233,7 @@ int main() {
 		} else if (cmd == "shotgun_pellet_count") {
 			int shots;
 			std::cin >> shots;
-			inspect<combat::weapons::shotgun> s(nullptr, nullptr);
+			inspect<combat::weapons::shotgun> s(md, w);
 			int before = s.ammo_count;
 			for (int i = 0; i < shots; ++i) { s.fire({0.0f, 0.0f}, 0.0f); s.tick(1.0f); }
 			int shots_fired = before - s.ammo_count;
@@ -273,27 +278,27 @@ int main() {
 		// damage_check <weapon> — report damage value
 		// Weapons: pistol(25) smg(10) rifle(35) sniper(100) plasma(75) shotgun(15) katana(50)
 		} else if (cmd == "damage_check") {
-			std::string w;
-			std::cin >> w;
-			if (w == "pistol") {
-				inspect<combat::weapons::pistol> p(nullptr, nullptr);
+			std::string wname;
+			std::cin >> wname;
+			if (wname == "pistol") {
+				inspect<combat::weapons::pistol> p(md, w);
 				result(p.damage);
-			} else if (w == "smg") {
-				inspect<combat::weapons::smg> s(nullptr, nullptr);
+			} else if (wname == "smg") {
+				inspect<combat::weapons::smg> s(md, w);
 				result(s.damage);
-			} else if (w == "rifle") {
-				inspect<combat::weapons::rifle> r(nullptr, nullptr);
+			} else if (wname == "rifle") {
+				inspect<combat::weapons::rifle> r(md, w);
 				result(r.damage);
-			} else if (w == "sniper") {
-				inspect<combat::weapons::sniper_rifle> s(nullptr, nullptr);
+			} else if (wname == "sniper") {
+				inspect<combat::weapons::sniper_rifle> s(md, w);
 				result(s.damage);
-			} else if (w == "plasma") {
-				inspect<combat::weapons::plasma_gun> p(nullptr, nullptr);
+			} else if (wname == "plasma") {
+				inspect<combat::weapons::plasma_gun> p(md, w);
 				result(p.damage);
-			} else if (w == "shotgun") {
-				inspect<combat::weapons::shotgun> s(nullptr, nullptr);
+			} else if (wname == "shotgun") {
+				inspect<combat::weapons::shotgun> s(md, w);
 				result(s.damage);
-			} else if (w == "katana") {
+			} else if (wname == "katana") {
 				inspect<combat::weapons::katana> k;
 				result(k.damage);
 			} else {
@@ -302,7 +307,7 @@ int main() {
 
 		// shotgun_total_damage — 8 pellets × 15 = 120 total damage
 		} else if (cmd == "shotgun_total_damage") {
-			inspect<combat::weapons::shotgun> s(nullptr, nullptr);
+			inspect<combat::weapons::shotgun> s(md, w);
 			result(static_cast<float>(combat::weapons::shotgun::pellet_count) * s.damage);
 
 		} else if (cmd == "exit") {

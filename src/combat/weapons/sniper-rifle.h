@@ -8,8 +8,8 @@ namespace combat {
 	namespace weapons {
 		class sniper_rifle : public weapon {
 		public:
-			explicit sniper_rifle(geometry::map_data const* map,
-			                      engine::world const* world);
+			explicit sniper_rifle(geometry::map_data const& map,
+			                      engine::world const& world);
 		};
 	}
 }
