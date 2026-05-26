@@ -8,7 +8,7 @@
 
 #include "rendering/drm-kms/backend.h"
 #include "audio/alsa/backend.h"
-#include "input/evdev-backend.h"
+#include "input/evdev/backend.h"
 
 namespace game {
 
@@ -20,7 +20,7 @@ namespace game {
 		ab(std::make_unique<audio::alsa::backend>()),
 		md{},
 		mix(*ab, audio::audio_format{48000, 2, 16}),
-		r2d(*rb, am, am.flat_tx_by_id(0)),
+		r2d(*rb, am, am.ui_tx_by_id(0)),
 		sr(*rb, am, md),
 //		w(),
 

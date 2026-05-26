@@ -3,9 +3,10 @@
 #include <thread>
 #include <memory>
 #include <iomanip>
+#include <unistd.h>
 
 #include "input/input-backend.h"
-#include "input/evdev-backend.h"
+#include "input/evdev/backend.h"
 
 bool check_input_state(const std::unique_ptr<input::input_backend>& backend, const std::string& action) {
     if (backend->is_bad()) {
@@ -16,6 +17,9 @@ bool check_input_state(const std::unique_ptr<input::input_backend>& backend, con
 }
 
 int main() {
+	std::cout << "usleeping to sync with X" << std::endl;
+	usleep(100000);
+
     std::cout << "initializing..." << std::endl;
 
     std::unique_ptr<input::input_backend> backend = std::make_unique<input::evdev::backend>();

@@ -128,7 +128,7 @@ int main() {
 	util::resource_loader rl;
     auto tm = std::make_unique<assets::asset_manager>(assets::asset_manager::load(rl));
 
-	rendering::renderer_2d r2d(*backend.get(), *tm.get(), tm->flat_tx_by_id(0));
+	rendering::renderer_2d r2d(*backend.get(), *tm.get(), tm->ui_tx_by_id(0));
 
     geometry::map_data map;
     auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
