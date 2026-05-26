@@ -1,7 +1,8 @@
 #include "geometry/monster-spawn.h"
 
 namespace geometry {
-	struct bin_monster_spawn {
+	class bin_monster_spawn {
+	public:
 		std::uint32_t type;
 		int x, y;
 		float z;
