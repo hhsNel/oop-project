@@ -4,19 +4,29 @@ PROGRAMMING
 Lead Programmer: hhsNel
 UAPI Integration: hhsNel
 Rendering: hhsNel
+Asset Foundations: hhsNel
+Engine: hhsNel
 Enemy Logic: MitrisStudios
 Player Logic: MitrisStudios
+Maintainer: hhsNel
 
 DESIGN
-Lead Desginer: MitrisStudios
+Lead Designer: MitrisStudios
 Enemy Design: MitrisStudios
 Map Design: MitrisStudios
-Weapon Desing: MitrisStudios
+Weapon Design: MitrisStudios
 
 SOUND EFFECTS
 Voice Acting: RozrywkaFan
 
+THIRD-PARTY SOFTWARE
+Audio Server Interface:
+         libasound (ALSA)
+
 SPECIAL THANKS
-yorha2b: for motivating me to
-work on and improve this project
+yoruhanigoubgataa: for
+motivating me to work on and
+improve this project
+Genkunen: for helping us
+with Advanced c++ features
 
