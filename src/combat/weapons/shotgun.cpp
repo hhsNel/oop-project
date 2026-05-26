@@ -4,7 +4,7 @@
 
 namespace combat {
 	namespace weapons {
-		shotgun::shotgun(geometry::map_data const* map, engine::world const* world,
+		shotgun::shotgun(geometry::map_data const& map, engine::world const& world,
 		                 audio::audio_mixer* mix, assets::audio_clip const* fire_snd,
 		                 assets::audio_clip const* reload_snd)
 			: weapon(std::make_unique<hitscan_firing_mode>(map, world), 8, 1.0f, 15.0f, 4,
