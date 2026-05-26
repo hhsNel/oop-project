@@ -1000,6 +1000,20 @@ class Editor:
 
     # ── Panel construction ─────────────────────────────────────────────────────
 
+    def _init_fields(self):
+        """Create persistent input fields (survive panel rebuilds)."""
+        self.fi_monster_type = TextInput(pygame.Rect(0,0,1,1), "2", numeric=True)
+        self.fi_monster_z    = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.fi_sec_idx      = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_floor_h      = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.fi_ceil_h       = TextInput(pygame.Rect(0,0,1,1), "128.0", numeric=True)
+        self.fi_floor_tex    = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_ceil_tex     = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_light        = TextInput(pygame.Rect(0,0,1,1), "200", numeric=True)
+        self.fi_upper        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_mid          = TextInput(pygame.Rect(0,0,1,1), "1", numeric=True)
+        self.fi_lower        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+
     def _build_panel(self):
         px = CANVAS_W + 10
         pw = PANEL_W - 20
@@ -1031,12 +1045,11 @@ class Editor:
             y += h+4
             return b
 
-        def field(val="", num=False, h=28):
+        def place_field(fi, h=28):
             nonlocal y
-            f = TextInput(pygame.Rect(px, y, pw, h), val, numeric=num)
-            self.widgets.append(f)
+            fi.rect = pygame.Rect(px, y, pw, h)
+            self.widgets.append(fi)
             y += h+4
-            return f
 
         self.widgets = []
 
@@ -1091,7 +1104,24 @@ class Editor:
         self.fi_light    = field("200", num=True)
         self.btn_apply   = btn("Apply Sector", accent=True)
 
-        sep()
+        # ── Sector / Sidedef props (only for line & sector tools) ─────────────
+        if self.tool in (TOOL_LINE, TOOL_SECTOR):
+            lbl("  SECTOR", color=TEXT_DIM); y += 2
+            lbl("Index:")
+            place_field(self.fi_sec_idx)
+            self.btn_new_sec = btn("+ New Sector")
+            lbl("Floor height:")
+            place_field(self.fi_floor_h)
+            lbl("Ceiling height:")
+            place_field(self.fi_ceil_h)
+            lbl("Floor tex ID:")
+            place_field(self.fi_floor_tex)
+            lbl("Ceiling tex ID:")
+            place_field(self.fi_ceil_tex)
+            lbl("Light (0-255):")
+            place_field(self.fi_light)
+            self.btn_apply = btn("Apply Sector", accent=True)
+            sep()
 
         lbl("  SIDEDEF TEXTURES", color=TEXT_DIM); y += 2
         lbl("Upper tex:")
@@ -1654,6 +1684,13 @@ class Editor:
             if pt==2: name+=f"({WEAPON_SUBTYPE_NAMES[pst]})"
             self.status=f"Pickup '{name}' placed at ({int(swx)},{int(swy)})"
 
+        elif t==TOOL_MONSTER:
+            mt=max(0,min(len(MONSTER_NAMES)-1,self._int(self.fi_monster_type,2)))
+            mz=self._flt(self.fi_monster_z,0.0)
+            self.map.monsters.append(MonsterSpawn(swx,swy,mt,mz))
+            name=MONSTER_NAMES[mt]
+            self.status=f"Monster '{name}' placed at ({int(swx)},{int(swy)})"
+
         elif t==TOOL_DELETE:
             mi=self.near_monster(wx,wy,14)
             pi=self.near_pickup(wx,wy,14)
@@ -1686,6 +1723,8 @@ class Editor:
     # ── Button actions ─────────────────────────────────────────────────────────
 
     def _btn_action(self, btn):
+        if not hasattr(self, 'btn_new_sec'): self.btn_new_sec=None
+        if not hasattr(self, 'btn_apply'):   self.btn_apply=None
         if btn==self.btn_new_sec:
             ci=len(self.map.sectors)%len(DEFAULT_SECTOR_COLORS)
             self.map.sectors.append(Sector(color_idx=ci))
@@ -1743,9 +1782,9 @@ class Editor:
             self._rebuild_bsp(); self.status="Map cleared."
 
         elif isinstance(btn, ToolButton):
-            for tb in self._tool_btns: tb.active=False
-            btn.active=True; self.tool=btn.tool_id
+            self.tool=btn.tool_id
             if btn.tool_id!=TOOL_LINE: self.line_start=None
+            self._build_panel()
 
     # ── Main loop ──────────────────────────────────────────────────────────────
 
