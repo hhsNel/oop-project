@@ -4,10 +4,9 @@
 
 namespace entities {
 
-	class plasma_projectile : public projectile {
+	class plasma_projectile : public engine::projectile {
 	public:
-		float speed;
-		int damage;
+		using projectile::projectile;
 	};
 
 }

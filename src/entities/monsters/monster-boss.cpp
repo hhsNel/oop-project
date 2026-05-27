@@ -2,13 +2,15 @@
 #include "monster-basic.h"
 #include "combat/burning.h"
 #include "combat/slowed.h"
+#include "engine/projectile.h"
+#include "engine/world.h"
 #include <cmath>
 
 namespace entities {
 
-monster_boss::monster_boss(math::vec2 const p, float const z, engine::world& w, geometry::map_data& md)
+monster_boss::monster_boss(math::vec2 const p, float const z)
 	: monster(p, z, 3, 1.0f, 1000.0f, 300.0f, 1.5f, 3.0f, 30.0f, 20.0f, 1.0f),
-	  max_hp_val(1000.0f), world_ref(w), map_ref(md) {}
+	  max_hp_val(1000.0f) {}
 
 float monster_boss::hp_ratio() const {
 	float cur = health("current_hp"_f);
@@ -24,8 +26,9 @@ void monster_boss::update_phase() {
 }
 
 bool monster_boss::minions_alive() const {
+	if (!world_ref) return false;
 	for (auto id : minion_ids) {
-		auto* e = world_ref.entity_from_id(id);
+		auto* e = world_ref->entity_from_id(id);
 		if (e) {
 			auto* a = dynamic_cast<engine::actor*>(e);
 			if (a && !a->is_dead()) return true;
@@ -35,7 +38,7 @@ bool monster_boss::minions_alive() const {
 }
 
 void monster_boss::ranged_attack_slow() {
-	if (!target_ptr) return;
+	if (!target_ptr || !world_ref || !boss_map_ref) return;
 
 	math::vec2 dir = dir_to_target();
 	float base_angle = std::atan2(dir("y"_f), dir("x"_f));
@@ -44,17 +47,23 @@ void monster_boss::ranged_attack_slow() {
 	for (int i = 0; i < projectile_count; ++i) {
 		float a = start + projectile_spread * static_cast<float>(i);
 		math::vec2 shot_dir{std::cos(a), std::sin(a)};
-		math::vec2 target_pos = (*target_ptr)("pos"_f);
-		math::vec2 to_target = target_pos - pos;
-		float dot = math::vec2::dot_product(to_target, shot_dir);
+		math::vec2 spawn_pos = pos + shot_dir * 20.0f;
 
-		if (dot > 0.0f) {
-			math::vec2 closest = pos + shot_dir * dot;
-			math::vec2 offset = target_pos - closest;
-			if (offset.sqr_len() < 16.0f * 16.0f) {
-				target_ptr->take_damage(attack_damage * 0.5f);
-				target_ptr->add_effect(std::make_unique<combat::slowed>(2.0f, 30));
-			}
+		auto proj = std::make_unique<engine::projectile>(
+			spawn_pos, z_pos, 29, 0.5f,
+			shot_dir, 250.0f, attack_damage * 0.5f, 5.0f,
+			engine::faction::enemy);
+
+		auto* raw = &*proj;
+		raw->world_ref = world_ref;
+		raw->map_ref = boss_map_ref;
+
+		auto eid = world_ref->register_entity(std::move(proj));
+		raw->self_id = eid;
+
+		if (boss_map_ref->root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
+			auto sub_id = boss_map_ref->get_subsector_id(spawn_pos);
+			boss_map_ref->subsectors[sub_id].add_sprite(raw);
 		}
 	}
 }
@@ -91,6 +100,7 @@ void monster_boss::update_charge(float dt) {
 }
 
 void monster_boss::start_channel() {
+	if (!world_ref) return;
 	is_channeling = true;
 	channel_timer = 0.0f;
 	flash_timer = 0.0f;
@@ -109,9 +119,9 @@ void monster_boss::start_channel() {
 		auto id = world_ref->register_entity(std::move(minion));
 		minion_ids.push_back(id);
 
-		if (map_ref) {
-			auto sub_id = map_ref->get_subsector_id(spawn_pos);
-			map_ref->subsectors[sub_id].add_sprite(raw);
+		if (boss_map_ref) {
+			auto sub_id = boss_map_ref->get_subsector_id(spawn_pos);
+			boss_map_ref->subsectors[sub_id].add_sprite(raw);
 		}
 	}
 }

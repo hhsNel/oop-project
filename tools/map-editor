@@ -1050,8 +1050,6 @@ class Editor:
 
     # ── Panel construction ─────────────────────────────────────────────────────
 
-<<<<<<< HEAD
-=======
     def _init_fields(self):
         """Create persistent input fields (survive panel rebuilds)."""
         self.fi_monster_type = TextInput(pygame.Rect(0,0,1,1), "2", numeric=True)
@@ -1071,7 +1069,6 @@ class Editor:
         self.fi_mid          = TextInput(pygame.Rect(0,0,1,1), "1", numeric=True)
         self.fi_lower        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
 
->>>>>>> 247620f (map-edit)
     def _build_panel(self):
         px = CANVAS_W + 10
         pw = PANEL_W - 20
@@ -1103,14 +1100,6 @@ class Editor:
             y += h+4
             return b
 
-<<<<<<< HEAD
-        def field(val="", num=False, h=28):
-            nonlocal y
-            f = TextInput(pygame.Rect(px, y, pw, h), val, numeric=num)
-            self.widgets.append(f)
-            y += h+4
-            return f
-=======
         def field(val="", num=False, h=24):
             nonlocal y
             f = TextInput(pygame.Rect(px, y, pw, h), val, numeric=num)
@@ -1123,7 +1112,6 @@ class Editor:
             fi.rect = pygame.Rect(px, y, pw, h)
             self.widgets.append(fi)
             y += h+3
->>>>>>> 247620f (map-edit)
 
         self.widgets = []
 
@@ -1140,46 +1128,6 @@ class Editor:
         self.tb_line.active = True
         sep()
 
-<<<<<<< HEAD
-        # ── Monster props ─────────────────────────────────────────────────────
-        lbl("  MONSTER", color=TEXT_DIM); y += 2
-        lbl("Type ID (0-12):")
-        self.fi_monster_type = field("2", num=True)
-        lbl("Z height:")
-        self.fi_monster_z = field("0.0", num=True)
-
-        sep()
-
-        # ── Pickup props ──────────────────────────────────────────────────────
-        lbl("  PICKUP", color=TEXT_DIM); y += 2
-        lbl(f"Type ID (0-{len(PICKUP_NAMES)-1}):")
-        self.fi_pickup_type = field("0", num=True)
-        lbl(f"Subtype (0-{len(WEAPON_SUBTYPE_NAMES)-1}):")
-        self.fi_pickup_subtype = field("0", num=True)
-        lbl("Z height:")
-        self.fi_pickup_z = field("0.0", num=True)
-
-        sep()
-
-        # ── Sector props ──────────────────────────────────────────────────────
-        lbl("  SECTOR", color=TEXT_DIM); y += 2
-        lbl("Index:")
-        self.fi_sec_idx = field("0", num=True)
-        self.btn_new_sec = btn("+ New Sector")
-        lbl("Floor height:")
-        self.fi_floor_h  = field("0.0", num=True)
-        lbl("Ceiling height:")
-        self.fi_ceil_h   = field("128.0", num=True)
-        lbl("Floor tex ID:")
-        self.fi_floor_tex= field("0", num=True)
-        lbl("Ceiling tex ID:")
-        self.fi_ceil_tex = field("0", num=True)
-        lbl("Light (0-255):")
-        self.fi_light    = field("200", num=True)
-        self.btn_apply   = btn("Apply Sector", accent=True)
-
-        sep()
-=======
         if self.tool == TOOL_MONSTER:
             # ── Monster props ─────────────────────────────────────────────────
             lbl("  MONSTER", color=TEXT_DIM); y += 2
@@ -1188,7 +1136,6 @@ class Editor:
             lbl("Z height:")
             place(self.fi_monster_z)
             sep()
->>>>>>> 247620f (map-edit)
 
         elif self.tool == TOOL_PICKUP:
             # ── Pickup props ──────────────────────────────────────────────────
@@ -1886,6 +1833,7 @@ class Editor:
             for tb in self._tool_btns: tb.active=False
             btn.active=True; self.tool=btn.tool_id
             if btn.tool_id!=TOOL_LINE: self.line_start=None
+            self._build_panel()
 
     # ── Main loop ──────────────────────────────────────────────────────────────
 

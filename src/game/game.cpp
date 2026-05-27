@@ -6,15 +6,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
-<<<<<<< HEAD
-=======
-#include <numbers>
->>>>>>> 1cb461d (testing)
 
 #include "rendering/drm-kms/backend.h"
 #include "audio/alsa/backend.h"
 #include "input/evdev/backend.h"
 #include "entities/monster-factory.h"
+#include "entities/monsters/monster-boss.h"
 #include "world_objects/pickup-factory.h"
 #include "combat/weapons/pistol.h"
 
@@ -254,7 +251,7 @@ namespace game {
 
 		// Give player a starting pistol (slot 0)
 		player_ptr->weapons.resize(7);
-		player_ptr->weapons[0] = std::make_unique<combat::weapons::pistol>(md, w);
+		player_ptr->weapons[0] = std::make_unique<combat::weapons::pistol>(md, w, mix, am);
 		player_ptr->current_weapon_index = 0;
 		player_ptr->map_ref = &md;
 		player_ptr->world_ref = &w;
@@ -271,6 +268,10 @@ namespace game {
 				auto* raw = &*m;
 				raw->target_ptr = player_ptr;
 				raw->map_ref = &md;
+				raw->world_ref = &w;
+				if (auto* boss = dynamic_cast<entities::monster_boss*>(raw)) {
+					boss->boss_map_ref = &md;
+				}
 				auto sub_id = has_bsp ? md.get_subsector_id(spawn("pos"_f)) : 1;
 				w.register_entity(std::move(m));
 				md.subsectors[sub_id].add_sprite(raw);
@@ -283,7 +284,7 @@ namespace game {
 			auto pk = world_object::make_pickup(
 				spawn("type"_f), spawn("subtype"_f),
 				spawn("pos"_f), spawn("z"_f),
-				*player_ptr, md, sub_id, w);
+				*player_ptr, md, sub_id, w, mix, am);
 			if (pk) {
 				auto* raw = &*pk;
 				w.register_entity(std::move(pk));
@@ -377,6 +378,11 @@ namespace game {
 
 		// HUD element scale (4x)
 		constexpr int SCALE = 4;
+
+		// ── Crosshair (center of screen) ──────────────────────────────
+		auto const& ch_tex = am.ui_tx_by_id(9);  // crosshair2.btx
+		int const ch_size = 32 * 2;  // 64px on screen
+		r2d.draw_texture(ch_tex, sw / 2 - ch_size / 2, sh / 2 - ch_size / 2, ch_size, ch_size);
 
 		// ── HP / Armor HUD (left bottom) ──────────────────────────────
 		auto const& hp_tex = am.ui_tx_by_id(6);  // HP-Arm-HUD.btx

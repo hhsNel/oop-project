@@ -1,7 +1,9 @@
 #pragma once
 
 #include "engine/actor.h"
+#include "assets/ids.h"
 
+namespace engine { class world; }
 namespace geometry { class map_data; }
 namespace game { class game; }
 
@@ -11,6 +13,7 @@ namespace entities {
 	protected:
 		engine::actor* target_ptr = nullptr;
 		geometry::map_data* map_ref = nullptr;
+		engine::world* world_ref = nullptr;
 		float attack_cooldown;
 		float attack_range;
 		float detection_radius;
@@ -24,6 +27,7 @@ namespace entities {
 		void move_away_from_target(float speed, float dt);
 		void strafe(float speed, float dt);
 		void melee_attack(float damage);
+		void ranged_attack(float damage, assets::texture_id tex, float speed);
 
 	public:
 

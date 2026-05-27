@@ -15,7 +15,7 @@ void monster_ranged::update(float dt) {
         move_toward_target(movement_speed, dt);
 
     if (dist <= attack_range && attack_cooldown <= 0.0f) {
-        melee_attack(attack_damage);
+        ranged_attack(attack_damage, 29, 200.0f);
         attack_cooldown = attack_cd_max;
     }
 }

@@ -1,4 +1,6 @@
 #include "entities/monster.h"
+#include "engine/projectile.h"
+#include "engine/world.h"
 #include "geometry/map-data.h"
 #include <cmath>
 
@@ -41,6 +43,35 @@ namespace entities {
 
 	void monster::melee_attack(float damage) {
 		if (target_ptr) target_ptr->take_damage(damage);
+	}
+
+	void monster::ranged_attack(float damage, assets::texture_id tex, float speed) {
+		if (!target_ptr) return;
+		// fallback to direct damage if world/map not available
+		if (!world_ref || !map_ref) {
+			melee_attack(damage);
+			return;
+		}
+
+		math::vec2 dir = dir_to_target();
+		math::vec2 spawn_pos = pos + dir * 20.0f;
+
+		auto proj = std::make_unique<engine::projectile>(
+			spawn_pos, z_pos, tex, 0.5f,
+			dir, speed, damage, 5.0f,
+			engine::faction::enemy);
+
+		auto* raw = &*proj;
+		raw->world_ref = world_ref;
+		raw->map_ref = map_ref;
+
+		auto eid = world_ref->register_entity(std::move(proj));
+		raw->self_id = eid;
+
+		if (map_ref->root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
+			auto sub_id = map_ref->get_subsector_id(spawn_pos);
+			map_ref->subsectors[sub_id].add_sprite(raw);
+		}
 	}
 
 	void monster::update(float dt) {

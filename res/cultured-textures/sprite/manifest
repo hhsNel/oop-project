@@ -26,3 +26,5 @@ common/pickups/rifle-ammo.btx
 common/pickups/shotgun-ammo.btx
 common/pickups/sniper-ammo.btx
 common/pickups/plasma-ammo.btx
+common/projectiles/plasma.btx
+common/projectiles/slug.btx

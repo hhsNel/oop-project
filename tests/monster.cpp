@@ -132,9 +132,7 @@ int main() {
 			result(m.armor());
 
 		} else if (cmd == "boss_stats") {
-			engine::world bw;
-			geometry::map_data bmd;
-			auto m = inspect<entities::monster_boss>(ORIGIN, 0.0f, bw, bmd);
+			auto m = inspect<entities::monster_boss>(ORIGIN, 0.0f);
 			result(m.hp());
 			result(m.armor());
 
