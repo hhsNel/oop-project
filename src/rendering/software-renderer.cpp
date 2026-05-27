@@ -23,12 +23,12 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
 
 		geometry::subsector const& sub = current_map.subsectors[subsector_id];
 
-		/* TODO: not sure if sprites should be queued first ? */
 		std::uint8_t sub_light = 255;
 		if (!sub.lines.empty()) {
 			auto const& first_line = current_map.linedefs[sub.lines[0]];
 			sub_light = current_map.sectors[current_map.sidedefs[first_line.front].facing_sector].light_level;
 		}
+		
 		for(auto const& sprite : sub.sprites) {
 			add_vissprite(sprite.get(), sub_light, frd);
 		}
