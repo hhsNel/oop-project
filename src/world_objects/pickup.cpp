@@ -4,22 +4,22 @@
 
 namespace world_object {
 
-pickup::pickup(math::vec2 pos, entities::player& p, engine::world& w,
-               util::indexed_storage<std::unique_ptr<engine::entity>>::id_t id,
+pickup::pickup(math::vec2 position, float z, assets::texture_id tex,
+               entities::player& pl, geometry::map_data& md,
+               util::indexed_storage<geometry::subsector>::id_t sub_id,
                float radius)
-    : position(pos), pickup_radius(radius), player_ref(p), world_ref(w), self_id(id) {}
+    : renderable_entity(position, z, tex, 1.0f),
+      pickup_radius(radius), player_ref(pl), map_ref(md), subsector_id(sub_id) {}
 
 void pickup::update(float) {
     auto* spr = dynamic_cast<rendering::sprite*>(&player_ref);
-    if (spr && in_range((*spr)("pos"_f))) {
-        on_pickup(player_ref);
-        world_ref.delete_entity(self_id);
-    }
-}
+    if (!spr) return;
 
-bool pickup::in_range(math::vec2 player_pos) const {
-    math::vec2 diff = player_pos - position;
-    return diff.sqr_len() < pickup_radius * pickup_radius;
+    math::vec2 diff = (*spr)("pos"_f) - (*this)("pos"_f);
+    if (diff.sqr_len() >= pickup_radius * pickup_radius) return;
+
+    on_pickup(player_ref);
+    map_ref.subsectors[subsector_id].remove_sprite(this);
 }
 
 }
