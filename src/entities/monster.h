@@ -7,13 +7,19 @@ namespace engine { class world; }
 namespace geometry { class map_data; }
 namespace game { class game; }
 
+namespace geometry { class map_data; }
+namespace game { class game; }
+
 namespace entities {
 	class monster : public engine::actor {
 		friend class game::game;
 	protected:
 		engine::actor* target_ptr = nullptr;
 		geometry::map_data* map_ref = nullptr;
+<<<<<<< HEAD
 		engine::world* world_ref = nullptr;
+=======
+>>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 		float attack_cooldown;
 		float attack_range;
 		float detection_radius;

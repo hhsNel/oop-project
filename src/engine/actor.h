@@ -23,7 +23,10 @@ namespace engine {
 		friend class combat::charmed;
 		friend class combat::slowed;
 		friend class game::game;
+<<<<<<< HEAD
 		friend class projectile;
+=======
+>>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 
 	public:
 		actor(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float const hp, float const shield, float const move_speed, faction const this_team)

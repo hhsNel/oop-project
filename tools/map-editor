@@ -1773,6 +1773,8 @@ class Editor:
     # ── Button actions ─────────────────────────────────────────────────────────
 
     def _btn_action(self, btn):
+        if not hasattr(self, 'btn_new_sec'): self.btn_new_sec=None
+        if not hasattr(self, 'btn_apply'):   self.btn_apply=None
         if btn==self.btn_new_sec:
             ci=len(self.map.sectors)%len(DEFAULT_SECTOR_COLORS)
             self.map.sectors.append(Sector(color_idx=ci))
@@ -1830,8 +1832,7 @@ class Editor:
             self._rebuild_bsp(); self.status="Map cleared."
 
         elif isinstance(btn, ToolButton):
-            for tb in self._tool_btns: tb.active=False
-            btn.active=True; self.tool=btn.tool_id
+            self.tool=btn.tool_id
             if btn.tool_id!=TOOL_LINE: self.line_start=None
             self._build_panel()
 

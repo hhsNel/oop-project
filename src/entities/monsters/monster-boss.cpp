@@ -119,9 +119,15 @@ void monster_boss::start_channel() {
 		auto id = world_ref->register_entity(std::move(minion));
 		minion_ids.push_back(id);
 
+<<<<<<< HEAD
 		if (boss_map_ref) {
 			auto sub_id = boss_map_ref->get_subsector_id(spawn_pos);
 			boss_map_ref->subsectors[sub_id].add_sprite(raw);
+=======
+		if (map_ref) {
+			auto sub_id = map_ref->get_subsector_id(spawn_pos);
+			map_ref->subsectors[sub_id].add_sprite(raw);
+>>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 		}
 	}
 }
