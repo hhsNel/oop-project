@@ -969,8 +969,12 @@ class Editor:
         # Edit state
         self.sel_verts  = []
         self.sel_lines  = []
+        self.sel_sector = None
+        self.sel_subsector = None
         self.hov_vert   = None
         self.hov_line   = None
+        self.hov_sector = None
+        self.hov_subsector = None
         self.line_start = None
         self.cur_sector = 0
         self.hov_monster = None
