@@ -2,10 +2,15 @@
 
 #include "engine/actor.h"
 
+namespace geometry { class map_data; }
+namespace game { class game; }
+
 namespace entities {
 	class monster : public engine::actor {
+		friend class game::game;
 	protected:
 		engine::actor* target_ptr = nullptr;
+		geometry::map_data* map_ref = nullptr;
 		float attack_cooldown;
 		float attack_range;
 		float detection_radius;

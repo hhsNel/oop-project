@@ -16,6 +16,7 @@ namespace rendering {
 		float z_pos;
 		assets::texture_id tex_id;
 		std::uint8_t light_level;
+		bool flash_red;
 
 		std::vector<int> upper_clip;
 		std::vector<int> lower_clip;

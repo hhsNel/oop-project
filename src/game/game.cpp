@@ -13,6 +13,7 @@
 #include "input/evdev/backend.h"
 #include "entities/monster-factory.h"
 #include "world_objects/pickup-factory.h"
+#include "combat/weapons/pistol.h"
 
 namespace game {
 
@@ -245,18 +246,31 @@ namespace game {
 		constexpr float MOUSE_SENS  = 0.002f;
 
 		auto p = std::make_unique<entities::player>(
-			math::vec2{256.0f, 128.0f}, 0.0f, 0, 1.0f,
+			math::vec2{0.0f, 0.0f}, 0.0f, 0, 1.0f,
 			100.0f, 50.0f, 120.0f, 1.0f);
 		player_ptr = &*p;
+
+		// Give player a starting pistol (slot 0)
+		player_ptr->weapons.resize(7);
+		player_ptr->weapons[0] = std::make_unique<combat::weapons::pistol>(md, w);
+		player_ptr->current_weapon_index = 0;
+
 		w.register_entity(std::move(p));
 
 		bool has_bsp = md.root_node_id != util::indexed_storage<geometry::bsp_node>::nullid;
 
+		std::vector<entities::monster*> alive_monsters;
+
 		for (auto const& spawn : md.monster_spawns) {
 			auto m = entities::make_monster(spawn("type"_f), spawn("pos"_f), spawn("z"_f));
 			if (m) {
+				auto* raw = &*m;
+				raw->target_ptr = player_ptr;
+				raw->map_ref = &md;
 				auto sub_id = has_bsp ? md.get_subsector_id(spawn("pos"_f)) : 1;
-				md.subsectors[sub_id].add_sprite(std::move(m));
+				w.register_entity(std::move(m));
+				md.subsectors[sub_id].add_sprite(raw);
+				alive_monsters.push_back(raw);
 			}
 		}
 
@@ -266,11 +280,15 @@ namespace game {
 				spawn("type"_f), spawn("subtype"_f),
 				spawn("pos"_f), spawn("z"_f),
 				*player_ptr, md, sub_id, w);
-			if (pk)
-				md.subsectors[sub_id].add_sprite(std::move(pk));
+			if (pk) {
+				auto* raw = &*pk;
+				w.register_entity(std::move(pk));
+				md.subsectors[sub_id].add_sprite(raw);
+			}
 		}
 
 		int prev_mouse_x = 0;
+		bool prev_r = false;
 		auto last_tick = std::chrono::high_resolution_clock::now();
 
 		while(1) {
@@ -299,13 +317,36 @@ namespace game {
 			if (delta_x != 0)
 				player_ptr->rotate(static_cast<float>(-delta_x) * MOUSE_SENS);
 
+			// weapon switching (1-7)
+			if (input->is_key_down(input::key::n1)) player_ptr->switch_weapons(0);
+			if (input->is_key_down(input::key::n2)) player_ptr->switch_weapons(1);
+			if (input->is_key_down(input::key::n3)) player_ptr->switch_weapons(2);
+			if (input->is_key_down(input::key::n4)) player_ptr->switch_weapons(3);
+			if (input->is_key_down(input::key::n5)) player_ptr->switch_weapons(4);
+			if (input->is_key_down(input::key::n6)) player_ptr->switch_weapons(5);
+			if (input->is_key_down(input::key::n7)) player_ptr->switch_weapons(6);
+
 			// shooting
 			if (mouse.left)
 				player_ptr->shoot();
-			if (input->is_key_down(input::key::r))
+			bool cur_r = input->is_key_down(input::key::r);
+			if (cur_r && !prev_r)
 				player_ptr->reload();
+			prev_r = cur_r;
 
 			w.update(dt);
+
+			// remove dead monsters from subsectors (stop rendering them)
+			for (auto it = alive_monsters.begin(); it != alive_monsters.end(); ) {
+				if ((*it)->is_dead()) {
+					auto* spr = static_cast<rendering::sprite*>(*it);
+					auto sub_id = has_bsp ? md.get_subsector_id((*spr)("pos"_f)) : 1;
+					md.subsectors[sub_id].remove_sprite(spr);
+					it = alive_monsters.erase(it);
+				} else {
+					++it;
+				}
+			}
 
 			// render
 			auto& spr = static_cast<util::componentized<rendering::sprite>&>(*player_ptr);
@@ -314,11 +355,108 @@ namespace game {
 
 			sr.render_bsp(spr("pos"_f), CAM_HEIGHT, spr("angle"_f), fov);
 
+			draw_hud();
+
 			rb->flush();
 
 			mix.step(static_cast<int>(48000.0f * dt));
 
 			rb->wait_for_vsync();
+		}
+	}
+
+	void game::draw_hud() {
+		if (!player_ptr) return;
+
+		int const sw = (*rb)("width"_f);
+		int const sh = (*rb)("height"_f);
+
+		// HUD element scale (4x)
+		constexpr int SCALE = 4;
+
+		// ── HP / Armor HUD (left bottom) ──────────────────────────────
+		auto const& hp_tex = am.ui_tx_by_id(6);  // HP-Arm-HUD.btx
+		int const hp_w = hp_tex("width"_f) * SCALE;   // 64*4 = 256
+		int const hp_h = hp_tex("height"_f) * SCALE;  // 32*4 = 128
+		int const hp_x = 0;
+		int const hp_y = sh - hp_h;
+
+		r2d.draw_texture(hp_tex, hp_x, hp_y, hp_w, hp_h);
+
+		// HP bar: to the right of the heart icon
+		float hp_frac = player_ptr->health("current_hp"_f) / player_ptr->health("max_hp"_f);
+		if (hp_frac < 0.0f) hp_frac = 0.0f;
+		if (hp_frac > 1.0f) hp_frac = 1.0f;
+		int const bar_max_w = 46 * SCALE;
+		int const bar_h = 10 * SCALE;
+		int const hp_bar_x = hp_x + 18 * SCALE;
+		int const hp_bar_y = hp_y + 3 * SCALE;
+		r2d.draw_rect(hp_bar_x, hp_bar_y, static_cast<int>(bar_max_w * hp_frac), bar_h, 0xFFFF0000);
+
+		// Armor bar: to the right of the shield icon
+		float arm_frac = 0.0f;
+		if (player_ptr->health("max_armor"_f) > 0.0f)
+			arm_frac = player_ptr->health("armor"_f) / player_ptr->health("max_armor"_f);
+		if (arm_frac < 0.0f) arm_frac = 0.0f;
+		if (arm_frac > 1.0f) arm_frac = 1.0f;
+		int const arm_bar_x = hp_x + 18 * SCALE;
+		int const arm_bar_y = hp_y + 19 * SCALE;
+		r2d.draw_rect(arm_bar_x, arm_bar_y, static_cast<int>(bar_max_w * arm_frac), bar_h, 0xFF4488FF);
+
+		// ── Mag HUD (right bottom) ────────────────────────────────────
+		auto const& mag_tex = am.ui_tx_by_id(7);  // Mag_HUD.btx
+		int const mag_w = mag_tex("width"_f) * SCALE;   // 32*4 = 128
+		int const mag_h = mag_tex("height"_f) * SCALE;  // 32*4 = 128
+		int const mag_x = sw - mag_w;
+		int const mag_y = sh - mag_h;
+
+		r2d.draw_texture(mag_tex, mag_x, mag_y, mag_w, mag_h);
+
+		// Draw ammo count and reserve mags
+		if (player_ptr->current_weapon_index >= 0 &&
+			player_ptr->current_weapon_index < static_cast<int>(player_ptr->weapons.size())) {
+			auto const& wpn = player_ptr->weapons[player_ptr->current_weapon_index];
+			if (wpn) {
+				std::string ammo_str = std::to_string(wpn->ammo_count);
+				std::string mags_str = std::to_string(wpn->reserve_mags);
+				int const char_w = 12;
+				int const char_h = 16;
+				// Ammo count centered in upper area
+				r2d.draw_text(ammo_str, mag_x + mag_w / 2 - static_cast<int>(ammo_str.size()) * char_w / 2, mag_y + 4 * SCALE, char_w, char_h, 0xFFFFFF);
+				// Reserve mags below
+				r2d.draw_text(mags_str, mag_x + mag_w / 2 - static_cast<int>(mags_str.size()) * char_w / 2, mag_y + mag_h - char_h - 2 * SCALE, char_w, char_h, 0xCCCCCC);
+			}
+		}
+
+		// ── Weapon Inventory (left of Mag HUD) ───────────────────────
+		auto const& inv_tex = am.ui_tx_by_id(8);  // Weapon_inventory.btx
+		int const inv_w = inv_tex("width"_f) * SCALE;   // 64*4 = 256
+		int const inv_h = inv_tex("height"_f) * SCALE;  // 32*4 = 128
+		int const inv_x = mag_x - inv_w;
+		int const inv_y = sh - inv_h;
+
+		r2d.draw_texture(inv_tex, inv_x, inv_y, inv_w, inv_h);
+
+		// Draw weapon sprites next to their slot numbers
+		// Texture layout: 2 columns x 4 rows, numbers 1-4 left column, 5-7 right column
+		// Each cell is ~32x8 pixels in the 64x32 source
+		int const cell_w = 32 * SCALE;
+		int const cell_h = 8 * SCALE;
+		int const sprite_size = 6 * SCALE;
+
+		for (int i = 0; i < static_cast<int>(player_ptr->weapons.size()) && i < 7; ++i) {
+			if (!player_ptr->weapons[i]) continue;
+			int col = i / 4;
+			int row = i % 4;
+			int slot_x = inv_x + col * cell_w + 10 * SCALE;
+			int slot_y = inv_y + row * cell_h;
+			// weapon sprite IDs: 15=pistol, 16=smg, 17=rifle, 18=shotgun, 19=sniper, 20=plasma, 21=katana
+			auto const& weapon_sprite = am.sprite_tx_by_id(15 + i);
+			r2d.draw_texture(weapon_sprite, slot_x, slot_y + 1 * SCALE, sprite_size, sprite_size);
+			// Highlight current weapon
+			if (i == player_ptr->current_weapon_index) {
+				r2d.draw_rect(slot_x - 1, slot_y, sprite_size + 2, cell_h, 0x80FFFF00);
+			}
 		}
 	}
 

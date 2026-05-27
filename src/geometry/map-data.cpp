@@ -29,21 +29,11 @@ namespace geometry {
 		auto old_sub_id = get_subsector_id((*spr)("pos"_f));
 		auto new_sub_id = get_subsector_id(new_pos);
 
-		if (old_sub_id == new_sub_id) {
-			(*spr)("pos"_f) = new_pos;
-			return;
-		}
+		(*spr)("pos"_f) = new_pos;
 
-		auto& old_sub = subsectors[old_sub_id];
-		auto& new_sub = subsectors[new_sub_id];
-
-		auto owned = old_sub.remove_sprite(spr);
-
-		if (owned) {
-			(*owned)("pos"_f) = new_pos;
-			new_sub.add_sprite(std::move(owned));
-		} else {
-			(*spr)("pos"_f) = new_pos;
+		if (old_sub_id != new_sub_id) {
+			subsectors[old_sub_id].remove_sprite(spr);
+			subsectors[new_sub_id].add_sprite(spr);
 		}
 	}
 

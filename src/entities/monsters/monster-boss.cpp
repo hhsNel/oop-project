@@ -113,19 +113,13 @@ void monster_boss::start_channel() {
 
 		auto minion = std::make_unique<monster_basic>(spawn_pos, z_pos, target_ptr);
 
+		auto* raw = &*minion;
+		auto id = world_ref->register_entity(std::move(minion));
+		minion_ids.push_back(id);
+
 		if (map_ref) {
 			auto sub_id = map_ref->get_subsector_id(spawn_pos);
-			auto* raw = &*minion;
-			auto id = world_ref->register_entity(std::move(minion));
-			minion_ids.push_back(id);
-
-			auto spr_copy = std::make_unique<rendering::sprite>(
-				spawn_pos, z_pos, 2, 1.0f);
-			map_ref->subsectors[sub_id].add_sprite(std::move(spr_copy));
-			(void)raw;
-		} else {
-			auto id = world_ref->register_entity(std::move(minion));
-			minion_ids.push_back(id);
+			map_ref->subsectors[sub_id].add_sprite(raw);
 		}
 	}
 }

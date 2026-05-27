@@ -169,10 +169,10 @@ int main() {
     auto ld1_r2 = add_line(1024.0f, 1024.0f, 0.0f, 1024.0f, sd_portal_back_id, sd_portal_front_id);
 
 	/* SUBSECTORS */
-    geometry::subsector ss1({ld0, ld1, ld2, ld3}, {});
+    geometry::subsector ss1({ld0, ld1, ld2, ld3});
     auto ss1_id = map.subsectors.add(std::move(ss1));
 
-    geometry::subsector ss2({ld1_r2, ld4, ld5, ld6}, {});
+    geometry::subsector ss2({ld1_r2, ld4, ld5, ld6});
     auto ss2_id = map.subsectors.add(std::move(ss2));
 
 	/* BSP TREE */
