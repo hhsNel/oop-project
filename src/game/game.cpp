@@ -6,19 +6,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
-<<<<<<< HEAD
-=======
-#include <numbers>
->>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 
 #include "rendering/drm-kms/backend.h"
 #include "audio/alsa/backend.h"
 #include "input/evdev/backend.h"
 #include "entities/monster-factory.h"
-<<<<<<< HEAD
 #include "entities/monsters/monster-boss.h"
-=======
->>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 #include "world_objects/pickup-factory.h"
 #include "combat/weapons/pistol.h"
 
@@ -262,15 +255,10 @@ namespace game {
 
 		// Give player a starting pistol (slot 0)
 		player_ptr->weapons.resize(7);
-<<<<<<< HEAD
 		player_ptr->weapons[0] = std::make_unique<combat::weapons::pistol>(md, w, mix, am);
 		player_ptr->current_weapon_index = 0;
 		player_ptr->map_ref = &md;
 		player_ptr->world_ref = &w;
-=======
-		player_ptr->weapons[0] = std::make_unique<combat::weapons::pistol>(md, w);
-		player_ptr->current_weapon_index = 0;
->>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 
 		w.register_entity(std::move(p));
 
@@ -284,13 +272,10 @@ namespace game {
 				auto* raw = &*m;
 				raw->target_ptr = player_ptr;
 				raw->map_ref = &md;
-<<<<<<< HEAD
 				raw->world_ref = &w;
 				if (auto* boss = dynamic_cast<entities::monster_boss*>(raw)) {
 					boss->boss_map_ref = &md;
 				}
-=======
->>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 				auto sub_id = has_bsp ? md.get_subsector_id(spawn("pos"_f)) : 1;
 				w.register_entity(std::move(m));
 				md.subsectors[sub_id].add_sprite(raw);
@@ -303,11 +288,7 @@ namespace game {
 			auto pk = world_object::make_pickup(
 				spawn("type"_f), spawn("subtype"_f),
 				spawn("pos"_f), spawn("z"_f),
-<<<<<<< HEAD
 				*player_ptr, md, sub_id, w, mix, am);
-=======
-				*player_ptr, md, sub_id, w);
->>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 			if (pk) {
 				auto* raw = &*pk;
 				w.register_entity(std::move(pk));
@@ -402,14 +383,11 @@ namespace game {
 		// HUD element scale (4x)
 		constexpr int SCALE = 4;
 
-<<<<<<< HEAD
 		// ── Crosshair (center of screen) ──────────────────────────────
 		auto const& ch_tex = am.ui_tx_by_id(9);  // crosshair2.btx
 		int const ch_size = 32 * 2;  // 64px on screen
 		r2d.draw_texture(ch_tex, sw / 2 - ch_size / 2, sh / 2 - ch_size / 2, ch_size, ch_size);
 
-=======
->>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 		// ── HP / Armor HUD (left bottom) ──────────────────────────────
 		auto const& hp_tex = am.ui_tx_by_id(6);  // HP-Arm-HUD.btx
 		int const hp_w = hp_tex("width"_f) * SCALE;   // 64*4 = 256
@@ -455,7 +433,6 @@ namespace game {
 			if (wpn) {
 				std::string ammo_str = std::to_string(wpn->ammo_count);
 				std::string mags_str = std::to_string(wpn->reserve_mags);
-<<<<<<< HEAD
 				// Large ammo count in upper half
 				int const ammo_cw = 20;
 				int const ammo_ch = 28;
@@ -468,14 +445,6 @@ namespace game {
 				int mags_tx = mag_x + mag_w / 2 - static_cast<int>(mags_str.size()) * mag_cw / 2;
 				int mags_ty = mag_y + mag_h - mag_ch - 3 * SCALE;
 				r2d.draw_text(mags_str, mags_tx, mags_ty, mag_cw, mag_ch, 0xCCCCCC);
-=======
-				int const char_w = 12;
-				int const char_h = 16;
-				// Ammo count centered in upper area
-				r2d.draw_text(ammo_str, mag_x + mag_w / 2 - static_cast<int>(ammo_str.size()) * char_w / 2, mag_y + 4 * SCALE, char_w, char_h, 0xFFFFFF);
-				// Reserve mags below
-				r2d.draw_text(mags_str, mag_x + mag_w / 2 - static_cast<int>(mags_str.size()) * char_w / 2, mag_y + mag_h - char_h - 2 * SCALE, char_w, char_h, 0xCCCCCC);
->>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 			}
 		}
 
