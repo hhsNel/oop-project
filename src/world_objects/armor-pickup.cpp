@@ -3,8 +3,12 @@
 
 namespace world_object {
 
-armor_pickup::armor_pickup(math::vec2 pos, float amount, float radius)
-    : pickup(pos, radius), armor_amount(amount) {}
+armor_pickup::armor_pickup(math::vec2 position, float z, assets::texture_id tex,
+                           float amount, entities::player& pl,
+                           geometry::map_data& md,
+                           util::indexed_storage<geometry::subsector>::id_t sub_id,
+                           float radius)
+    : pickup(position, z, tex, pl, md, sub_id, radius), armor_amount(amount) {}
 
 void armor_pickup::on_pickup(entities::player& p) {
     p.add_shield(armor_amount);

@@ -12,6 +12,7 @@
 #include "audio/alsa/backend.h"
 #include "input/evdev/backend.h"
 #include "entities/monster-factory.h"
+#include "world_objects/pickup-factory.h"
 
 namespace game {
 
@@ -255,6 +256,16 @@ namespace game {
 				auto sub_id = md.get_subsector_id(spawn("pos"_f));
 				md.subsectors[sub_id].add_sprite(std::move(m));
 			}
+		}
+
+		for (auto const& spawn : md.pickup_spawns) {
+			auto sub_id = md.get_subsector_id(spawn("pos"_f));
+			auto pk = world_object::make_pickup(
+				spawn("type"_f), spawn("subtype"_f),
+				spawn("pos"_f), spawn("z"_f),
+				*player_ptr, md, sub_id, w);
+			if (pk)
+				md.subsectors[sub_id].add_sprite(std::move(pk));
 		}
 
 		int prev_mouse_x = 0;
