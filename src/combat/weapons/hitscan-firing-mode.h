@@ -21,7 +21,7 @@ namespace combat {
             hitscan_firing_mode(geometry::map_data const& map,
                             engine::world const& world,
                             float range  = 8192.0f,
-                            float radius = 16.0f);
+                            float radius = 32.0f);
 
             void spawn_bullet(math::vec2 pos, float angle, float damage) override;
         };

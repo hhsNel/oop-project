@@ -4,6 +4,7 @@
 #include "systems/health_systems.h"
 
 namespace combat { class charmed; class slowed; }
+namespace game { class game; }
 
 namespace engine {
 
@@ -21,6 +22,7 @@ namespace engine {
 
 		friend class combat::charmed;
 		friend class combat::slowed;
+		friend class game::game;
 
 	public:
 		actor(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float const hp, float const shield, float const move_speed, faction const this_team)

@@ -10,6 +10,7 @@
 namespace world_object {
 	class weapon_pickup;
 }
+namespace game { class game; }
 
 namespace entities {
 	class player : public engine::actor {
@@ -44,5 +45,6 @@ namespace entities {
 		}
 
 		friend class world_object::weapon_pickup;
+		friend class game::game;
 	};
 }

@@ -39,6 +39,7 @@ namespace game {
 		void show_main_menu();
 		void show_options();
 		void loop();
+		void draw_hud();
 	public:
 		game();
 		void run();

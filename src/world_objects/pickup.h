@@ -13,6 +13,7 @@ namespace world_object {
 		entities::player& player_ref;
 		geometry::map_data& map_ref;
 		util::indexed_storage<geometry::subsector>::id_t subsector_id;
+		bool consumed = false;
 
 	public:
 		pickup(math::vec2 pos, float z, assets::texture_id tex,
@@ -21,6 +22,7 @@ namespace world_object {
 		       float radius = 20.0f);
 
 		void update(float dt) override;
+		bool is_consumed() const { return consumed; }
 
 		virtual void on_pickup(entities::player& p) = 0;
 		virtual ~pickup() = default;

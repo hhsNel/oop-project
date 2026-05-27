@@ -16,6 +16,7 @@ namespace rendering {
 		[[=util::ref_component_field{}]] float angle;
 		assets::texture_id tex_id;
 		float inherent_scale;
+		float hit_flash = 0.0f;
 
 	public:
 

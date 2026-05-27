@@ -11,6 +11,7 @@ namespace entities {
 
 	void player::switch_weapons(int index) {
 		if (index < 0 || index >= static_cast<int>(weapons.size())) return;
+		if (!weapons[index]) return;
 		current_weapon_index = index;
 	}
 

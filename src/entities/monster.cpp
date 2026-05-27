@@ -1,4 +1,5 @@
 #include "entities/monster.h"
+#include "geometry/map-data.h"
 #include <cmath>
 
 namespace entities {
@@ -20,16 +21,22 @@ namespace entities {
 	}
 
 	void monster::move_toward_target(float speed, float dt) {
-		pos += dir_to_target() * (speed * dt);
+		math::vec2 new_pos = pos + dir_to_target() * (speed * dt);
+		if (map_ref) map_ref->move_to(this, new_pos);
+		else pos = new_pos;
 	}
 
 	void monster::move_away_from_target(float speed, float dt) {
-		pos -= dir_to_target() * (speed * dt);
+		math::vec2 new_pos = pos - dir_to_target() * (speed * dt);
+		if (map_ref) map_ref->move_to(this, new_pos);
+		else pos = new_pos;
 	}
 
 	void monster::strafe(float speed, float dt) {
 		math::vec2 perp = dir_to_target().perpendicular();
-		pos += perp * (speed * dt);
+		math::vec2 new_pos = pos + perp * (speed * dt);
+		if (map_ref) map_ref->move_to(this, new_pos);
+		else pos = new_pos;
 	}
 
 	void monster::melee_attack(float damage) {
@@ -37,6 +44,7 @@ namespace entities {
 	}
 
 	void monster::update(float dt) {
+		if (is_dead()) return;
 		actor::update(dt);
 		if (attack_cooldown > 0.0f) attack_cooldown -= dt;
 	}

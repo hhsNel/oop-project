@@ -9,10 +9,13 @@
 namespace audio { class audio_mixer; }
 namespace assets { class asset_manager; }
 
+namespace game { class game; }
+
 namespace combat
 {
 	namespace weapons {
 		class weapon {
+			friend class game::game;
 		protected:
 			std::unique_ptr<firing_mode> ammo;
 			int ammo_count;

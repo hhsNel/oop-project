@@ -12,6 +12,8 @@ pickup::pickup(math::vec2 position, float z, assets::texture_id tex,
       pickup_radius(radius), player_ref(pl), map_ref(md), subsector_id(sub_id) {}
 
 void pickup::update(float) {
+    if (consumed) return;
+
     auto* spr = dynamic_cast<rendering::sprite*>(&player_ref);
     if (!spr) return;
 
@@ -20,6 +22,7 @@ void pickup::update(float) {
 
     on_pickup(player_ref);
     map_ref.subsectors[subsector_id].remove_sprite(this);
+    consumed = true;
 }
 
 }
