@@ -35,7 +35,7 @@ namespace input {
 			void update() override;
 			bool is_key_down(key k) const override;
 			mouse_state get_mouse_state() const override;
-			void reset_mouse_state() override;
+			void reset_mouse_state(int nx, int ny) override;
 		};
 	}
 }
