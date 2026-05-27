@@ -12,7 +12,7 @@ namespace combat {
             : map(m), world_ref(w), max_range(range), hit_radius(radius) {}
 
         void hitscan_firing_mode::spawn_bullet(math::vec2 pos, float angle, float damage) {
-            math::vec2 dir{std::cos(angle), std::sin(angle)};
+            math::vec2 dir{-std::sin(angle), std::cos(angle)};
             math::ray2 ray{pos, dir};
 
             float wall_dist = max_range;
