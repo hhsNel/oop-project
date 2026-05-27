@@ -22,6 +22,10 @@
 #include "world_objects/pickup-factory.h"
 #include "combat/weapons/pistol.h"
 
+
+//changes before rebase
+
+
 namespace game {
 
 	game::game() :
