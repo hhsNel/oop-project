@@ -5,8 +5,8 @@ cultured-textures/ui/button.btx
 cultured-textures/ui/background.btx
 cultured-textures/ui/logo.btx
 cultured-textures/ui/options-bg.btx
-
-common/ui/HP-Arm-HUD.btx
-common/ui/Mag_HUD.btx
+common/ui/hp-armor.btx
+common/ui/mag.btx
 common/ui/Weapon_inventory.btx
 common/ui/crosshair2.btx
+
