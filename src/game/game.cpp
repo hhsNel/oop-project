@@ -5,6 +5,7 @@
 #include <thread>
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
 
 #include "rendering/drm-kms/backend.h"
 #include "audio/alsa/backend.h"
@@ -57,7 +58,7 @@ namespace game {
 		int const screen_w = (*rb)("width"_f);
 		int const screen_h = (*rb)("height"_f);
 
-		int const horizon_y    = screen_h / 4;
+		int const horizon_y    = screen_h / 8;
 		int const base_char_w  = 32;
 		int const base_char_h  = 48;
 		int const line_spacing = 60;
@@ -81,12 +82,12 @@ namespace game {
 				if (flat_y <= horizon_y || flat_y > screen_h + line_spacing)
 					continue;
 
-				float scale  = (flat_y - horizon_y) / static_cast<float>(screen_h - horizon_y);
-				int   char_w = static_cast<int>(base_char_w * scale);
-				int   char_h = static_cast<int>(base_char_h * scale);
+				float time = (flat_y - horizon_y) / static_cast<float>(screen_h - horizon_y);
+				float scale = std::pow(time, 0.6666f);
+				int char_w = static_cast<int>(base_char_w * scale);
+				int char_h = static_cast<int>(base_char_h * scale);
 
-				if (char_w == 0 || char_h == 0)
-					continue;
+				if (char_w == 0 || char_h == 0) continue;
 
 				int draw_x = (screen_w - static_cast<int>(text[i].length()) * char_w) / 2;
 				int draw_y = static_cast<int>(flat_y);
@@ -96,9 +97,9 @@ namespace game {
 
 			rb->flush();
 
-			auto now      = std::chrono::high_resolution_clock::now();
+			auto now = std::chrono::high_resolution_clock::now();
 			float dt_secs = std::chrono::duration<float>(now - last_tick).count();
-			last_tick     = now;
+			last_tick = now;
 
 			mix.step(static_cast<int>(48000 * dt_secs));
 			rb->wait_for_vsync();
@@ -122,8 +123,7 @@ namespace game {
 		std::string_view::size_type pos = 0;
 		while (pos < content.size()) {
 			auto nl = content.find('\n', pos);
-			if (nl == std::string_view::npos)
-				nl = content.size();
+			if (nl == std::string_view::npos) nl = content.size();
 			lines.emplace_back(content.substr(pos, nl - pos));
 			pos = nl + 1;
 		}

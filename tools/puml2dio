@@ -1,0 +1,394 @@
+#!/usr/bin/env python3
+
+"""
+puml_to_drawio.py — Convert a PlantUML class diagram to draw.io XML.
+
+Generates namespace background rectangles and class boxes (name / fields /
+methods rows), laid out in a simple grid.  Connections and colours are left
+for manual editing inside draw.io.
+
+Usage:
+    python puml_to_drawio.py input.puml output.drawio
+
+Supported PUML constructs:
+    namespace Foo {
+        class Bar { … }
+        abstract class Baz { … }
+        enum Qux { … }
+        interface Quux { … }
+    }
+
+    class TopLevel { … }        ← classes without a namespace
+
+Inside a class body:
+    + publicField : Type
+    - privateField : Type
+    # protectedField : Type
+    {static} + staticField : Type
+    + method(args) : RetType
+    --                          ← separators (ignored / treated as section break)
+    ..
+"""
+
+import re
+import sys
+import uuid
+import html
+import textwrap
+from dataclasses import dataclass, field
+from typing import Optional
+import xml.etree.ElementTree as ET
+
+
+# ── Layout constants ────────────────────────────────────────────────────────
+
+# Class box dimensions
+CLASS_W         = 380
+FIELD_ROW_H     = 20   # per-line height inside field / method sections
+MIN_SECTION_H   = 20   # minimum height even when section is empty
+NAME_ROW_H      = 25   # height of the class-name row
+
+# Grid / spacing
+CLASSES_PER_ROW = 5
+CLASS_COL_GAP   = 40
+CLASS_ROW_GAP   = 60
+
+# Namespace padding around its children
+NS_PAD_TOP    = 50   # space above first class row (for the label area)
+NS_PAD_SIDE   = 30
+NS_PAD_BOTTOM = 30
+NS_ROW_GAP    = 80   # vertical gap between namespace blocks
+
+
+# ── Data model ──────────────────────────────────────────────────────────────
+
+@dataclass
+class ClassDef:
+    namespace: Optional[str]
+    name: str                       # simple name (no namespace prefix)
+    stereotype: str = "class"       # class | abstract | enum | interface
+    fields: list[str] = field(default_factory=list)
+    methods: list[str] = field(default_factory=list)
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.namespace}::{self.name}" if self.namespace else self.name
+
+
+# ── PUML parser ─────────────────────────────────────────────────────────────
+
+_SEPARATORS = re.compile(r"^(-{2,}|\.{2,})$")
+_MEMBER     = re.compile(r"^([+\-#~]|{[^}]+})")
+
+
+def _looks_like_method(line: str) -> bool:
+    """Heuristic: contains '(' or ends with ':' followed by a type."""
+    return "(" in line
+
+
+def parse_puml(text: str) -> list[ClassDef]:
+    classes: list[ClassDef] = []
+
+    # Normalise line endings, strip comments
+    lines = []
+    for ln in text.splitlines():
+        ln = ln.strip()
+        if ln.startswith("'") or ln.startswith("@"):
+            continue
+        lines.append(ln)
+
+    i = 0
+    current_ns: Optional[str] = None
+
+    while i < len(lines):
+        ln = lines[i]
+
+        # ── namespace block ──────────────────────────────────────────────
+        m = re.match(r"^namespace\s+(\S+)\s*\{?\s*$", ln)
+        if m:
+            current_ns = m.group(1)
+            if not ln.endswith("{"):
+                # find the opening brace
+                while i < len(lines) and "{" not in lines[i]:
+                    i += 1
+            i += 1
+            continue
+
+        # end of namespace block
+        if ln == "}" and current_ns is not None:
+            current_ns = None
+            i += 1
+            continue
+
+        # ── class / interface / enum / abstract ──────────────────────────
+        m = re.match(
+            r"^(abstract\s+class|abstract|interface|enum|class)\s+"
+            r"([^\s<{]+)"          # name (stop at generics or brace)
+            r"(?:\s*<[^>]*>)?"     # optional generic params
+            r"(?:\s+(?:extends|implements)\s+[^\s{]+)*"   # extends/implements
+            r"\s*\{?\s*$",
+            ln,
+            re.IGNORECASE,
+        )
+        if m:
+            raw_stereo, raw_name = m.group(1).strip(), m.group(2).strip()
+            stereo = "abstract" if "abstract" in raw_stereo.lower() else raw_stereo.lower()
+
+            # strip any namespace prefix already on the name
+            if "::" in raw_name:
+                parts = raw_name.rsplit("::", 1)
+                inferred_ns, simple_name = parts[0], parts[1]
+                effective_ns = current_ns or inferred_ns
+            else:
+                simple_name = raw_name
+                effective_ns = current_ns
+
+            cd = ClassDef(namespace=effective_ns, name=simple_name, stereotype=stereo)
+
+            # collect body if brace not on same line
+            if not ln.endswith("{"):
+                while i < len(lines) and "{" not in lines[i]:
+                    i += 1
+            i += 1
+
+            # parse members until closing "}"
+            while i < len(lines):
+                body_ln = lines[i].strip()
+                if body_ln == "}":
+                    i += 1
+                    break
+                if body_ln and not _SEPARATORS.match(body_ln):
+                    if _MEMBER.match(body_ln):
+                        if _looks_like_method(body_ln):
+                            cd.methods.append(body_ln)
+                        else:
+                            cd.fields.append(body_ln)
+                    # lines without visibility markers go to methods (e.g. bare constructor)
+                    elif body_ln:
+                        cd.methods.append(body_ln)
+                i += 1
+
+            classes.append(cd)
+            continue
+
+        i += 1
+
+    return classes
+
+
+# ── draw.io XML builder ──────────────────────────────────────────────────────
+
+def _uid() -> str:
+    return str(uuid.uuid4()).replace("-", "")[:20]
+
+
+def _esc(text: str) -> str:
+    """HTML-escape for draw.io cell values (they allow <br> style HTML)."""
+    return html.escape(str(text), quote=False).replace("\n", "<br>")
+
+
+def _make_cell(
+    parent: ET.Element,
+    cell_id: str,
+    value: str,
+    x: float,
+    y: float,
+    w: float,
+    h: float,
+    style: str,
+    vertex: bool = True,
+    parent_id: str = "1",
+) -> ET.Element:
+    cell = ET.SubElement(parent, "mxCell")
+    cell.set("id", cell_id)
+    cell.set("value", value)
+    cell.set("style", style)
+    cell.set("parent", parent_id)
+    if vertex:
+        cell.set("vertex", "1")
+    geo = ET.SubElement(cell, "mxGeometry")
+    geo.set("x", str(x))
+    geo.set("y", str(y))
+    geo.set("width", str(w))
+    geo.set("height", str(h))
+    geo.set("as", "geometry")
+    return cell
+
+
+_STYLE_NS   = (
+    "rounded=1;whiteSpace=wrap;html=1;"
+    "fillColor=#dae8fc;strokeColor=#6c8ebf;"
+    "verticalAlign=top;fontSize=11;fontStyle=1;"
+)
+_STYLE_NAME = "rounded=0;whiteSpace=wrap;html=1;fontStyle=1;"
+_STYLE_BODY = "rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;"
+
+
+def _class_height(cd: ClassDef) -> float:
+    field_h  = max(MIN_SECTION_H, len(cd.fields)  * FIELD_ROW_H)
+    method_h = max(MIN_SECTION_H, len(cd.methods) * FIELD_ROW_H)
+    return NAME_ROW_H + field_h + method_h
+
+
+def build_drawio(classes: list[ClassDef]) -> ET.Element:
+    # Group by namespace
+    ns_groups: dict[Optional[str], list[ClassDef]] = {}
+    for cd in classes:
+        ns_groups.setdefault(cd.namespace, []).append(cd)
+
+    root_el = ET.Element("mxfile")
+    root_el.set("host", "puml_to_drawio.py")
+    diagram = ET.SubElement(root_el, "diagram")
+    diagram.set("name", "Page-1")
+    diagram.set("id", _uid())
+    graph = ET.SubElement(diagram, "mxGraphModel")
+    for k, v in [
+        ("grid", "1"), ("page", "0"), ("gridSize", "10"), ("guides", "1"),
+        ("tooltips", "1"), ("connect", "1"), ("arrows", "1"), ("fold", "1"),
+        ("pageScale", "1"), ("pageWidth", "1654"), ("pageHeight", "1169"),
+        ("math", "0"), ("shadow", "0"),
+    ]:
+        graph.set(k, v)
+    xml_root = ET.SubElement(graph, "root")
+    ET.SubElement(xml_root, "mxCell").set("id", "0")
+    cell1 = ET.SubElement(xml_root, "mxCell")
+    cell1.set("id", "1")
+    cell1.set("parent", "0")
+
+    # Layout: stack namespace blocks vertically; classes grid inside each
+    cursor_y = 20.0
+
+    for ns, ns_classes in ns_groups.items():
+        # ── compute positions of each class box ──────────────────────────
+        positions: list[tuple[float, float]] = []   # (x, y) relative to ns origin
+        col_x = NS_PAD_SIDE
+        row_y = NS_PAD_TOP
+        col   = 0
+        max_row_h = 0.0
+
+        for cd in ns_classes:
+            h = _class_height(cd)
+            positions.append((col_x, row_y))
+            max_row_h = max(max_row_h, h)
+            col += 1
+            if col >= CLASSES_PER_ROW:
+                col   = 0
+                row_y += max_row_h + CLASS_ROW_GAP
+                col_x  = NS_PAD_SIDE
+                max_row_h = 0.0
+            else:
+                col_x += CLASS_W + CLASS_COL_GAP
+
+        # total namespace box size
+        num_rows    = (len(ns_classes) - 1) // CLASSES_PER_ROW + 1
+        ns_content_w = min(len(ns_classes), CLASSES_PER_ROW) * (CLASS_W + CLASS_COL_GAP) - CLASS_COL_GAP
+        ns_w = ns_content_w + 2 * NS_PAD_SIDE
+
+        # recompute ns_h properly by iterating rows
+        row_heights: list[float] = []
+        for row_idx in range(num_rows):
+            row_start = row_idx * CLASSES_PER_ROW
+            row_end   = min(row_start + CLASSES_PER_ROW, len(ns_classes))
+            rh = max(_class_height(cd) for cd in ns_classes[row_start:row_end])
+            row_heights.append(rh)
+        ns_h = NS_PAD_TOP + sum(row_heights) + CLASS_ROW_GAP * (num_rows - 1) + NS_PAD_BOTTOM
+
+        ns_x = 20.0
+
+        # ── namespace rectangle ───────────────────────────────────────────
+        ns_label = ns if ns else "(global)"
+        if ns:
+            _make_cell(
+                xml_root, _uid(), _esc(ns_label),
+                ns_x, cursor_y, ns_w, ns_h,
+                _STYLE_NS,
+            )
+
+        # ── class boxes ───────────────────────────────────────────────────
+        for cd, (rel_x, rel_y) in zip(ns_classes, positions):
+            abs_x = (ns_x + rel_x) if ns else (ns_x + rel_x)
+            abs_y = cursor_y + rel_y
+
+            field_h  = max(MIN_SECTION_H, len(cd.fields)  * FIELD_ROW_H)
+            method_h = max(MIN_SECTION_H, len(cd.methods) * FIELD_ROW_H)
+
+            # name row
+            stereo_prefix = ""
+            if cd.stereotype in ("abstract", "interface", "enum"):
+                stereo_prefix = f"«{cd.stereotype}»<br>"
+            name_value = stereo_prefix + _esc(cd.full_name)
+            _make_cell(
+                xml_root, _uid(), name_value,
+                abs_x, abs_y, CLASS_W, NAME_ROW_H,
+                _STYLE_NAME,
+            )
+
+            # fields row
+            fields_value = "<br>".join(_esc(f) for f in cd.fields) if cd.fields else ""
+            _make_cell(
+                xml_root, _uid(), fields_value,
+                abs_x, abs_y + NAME_ROW_H, CLASS_W, field_h,
+                _STYLE_BODY,
+            )
+
+            # methods row
+            methods_value = "<br>".join(_esc(m) for m in cd.methods) if cd.methods else ""
+            _make_cell(
+                xml_root, _uid(), methods_value,
+                abs_x, abs_y + NAME_ROW_H + field_h, CLASS_W, method_h,
+                _STYLE_BODY,
+            )
+
+        cursor_y += ns_h + NS_ROW_GAP
+
+    return root_el
+
+
+# ── Entry point ──────────────────────────────────────────────────────────────
+
+def indent(elem: ET.Element, level: int = 0) -> None:
+    """In-place pretty-print."""
+    pad = "\n" + "  " * level
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = pad + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = pad
+        for child in elem:
+            indent(child, level + 1)
+        if not child.tail or not child.tail.strip():  # type: ignore[possibly-undefined]
+            child.tail = pad
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = pad
+
+
+def main() -> None:
+    if len(sys.argv) < 3:
+        print("Usage: python puml_to_drawio.py <input.puml> <output.drawio>")
+        sys.exit(1)
+
+    puml_path, out_path = sys.argv[1], sys.argv[2]
+
+    with open(puml_path, encoding="utf-8") as fh:
+        puml_text = fh.read()
+
+    classes = parse_puml(puml_text)
+    if not classes:
+        print("WARNING: no classes were parsed.  Check your PUML syntax.")
+
+    print(f"Parsed {len(classes)} class(es) across "
+          f"{len({c.namespace for c in classes})} namespace(s).")
+
+    root_el = build_drawio(classes)
+    indent(root_el)
+
+    tree = ET.ElementTree(root_el)
+    ET.indent(tree, space="  ")          # Python ≥ 3.9
+    tree.write(out_path, encoding="unicode", xml_declaration=False)
+
+    print(f"Written: {out_path}")
+
+
+if __name__ == "__main__":
+    main()
