@@ -198,12 +198,33 @@ def _build_bsp(line_indices, all_lines, verts, nodes, subsectors, depth=0):
     if len(line_indices) <= 3 or depth > 24:
         si = len(subsectors); subsectors.append(list(line_indices)); return si | LEAF_FLAG
 
-    splitter = None
-    for idx in line_indices:
-        l = all_lines[idx]
-        if abs(verts[l.v1].x-verts[l.v0].x)<1 or abs(verts[l.v1].y-verts[l.v0].y)<1:
-            splitter = idx; break
-    if splitter is None: splitter = line_indices[0]
+    # Score candidate splitters — pick the one with the most balanced split
+    # Convention: C++ is_pt_front_side returns cross(dir,delta)<=0 as "front",
+    # so _seg_side <= 0 means front, _seg_side > 0 means back.
+    EPS = 1e-4
+    best_splitter = None
+    best_score = float('inf')
+    for cand in line_indices:
+        cl = all_lines[cand]
+        cax,cay = verts[cl.v0].x,verts[cl.v0].y
+        cbx,cby = verts[cl.v1].x,verts[cl.v1].y
+        cdx,cdy = cbx-cax,cby-cay
+        if math.hypot(cdx,cdy) < 1e-6: continue
+        fc,bc,splits = 0,0,0
+        for idx in line_indices:
+            l = all_lines[idx]
+            s0 = _seg_side(cax,cay,cbx,cby, verts[l.v0].x,verts[l.v0].y)
+            s1 = _seg_side(cax,cay,cbx,cby, verts[l.v1].x,verts[l.v1].y)
+            if s0 <= EPS and s1 <= EPS: fc += 1
+            elif s0 >= -EPS and s1 >= -EPS: bc += 1
+            else: splits += 1; fc += 1; bc += 1
+        if fc == 0 or bc == 0: continue  # degenerate — skip
+        score = abs(fc - bc) + splits * 4
+        if score < best_score:
+            best_score = score; best_splitter = cand
+    if best_splitter is None:
+        si = len(subsectors); subsectors.append(list(line_indices)); return si | LEAF_FLAG
+    splitter = best_splitter
 
     sl = all_lines[splitter]
     ax,ay = verts[sl.v0].x, verts[sl.v0].y
@@ -214,15 +235,14 @@ def _build_bsp(line_indices, all_lines, verts, nodes, subsectors, depth=0):
         si = len(subsectors); subsectors.append(list(line_indices)); return si | LEAF_FLAG
     ndx,ndy = dx/ln, dy/ln
 
-    EPS = 1e-4
     front_idx, back_idx = [], []
     for idx in line_indices:
         l = all_lines[idx]
         s0 = _seg_side(ax,ay,bx,by, verts[l.v0].x,verts[l.v0].y)
         s1 = _seg_side(ax,ay,bx,by, verts[l.v1].x,verts[l.v1].y)
-        if s0 >= -EPS and s1 >= -EPS:
+        if s0 <= EPS and s1 <= EPS:
             front_idx.append(idx)
-        elif s0 <= EPS and s1 <= EPS:
+        elif s0 >= -EPS and s1 >= -EPS:
             back_idx.append(idx)
         else:
             lx = verts[l.v1].x-verts[l.v0].x; ly = verts[l.v1].y-verts[l.v0].y
@@ -231,8 +251,8 @@ def _build_bsp(line_indices, all_lines, verts, nodes, subsectors, depth=0):
             t = (dx*(verts[l.v0].y-ay) - dy*(verts[l.v0].x-ax)) / denom
             ix = verts[l.v0].x + t*lx; iy = verts[l.v0].y + t*ly
             mi = len(verts); verts.append(Vertex(ix,iy))
-            nf = Linedef(l.v0 if s0>=0 else mi, mi if s0>=0 else l.v1, l.front, l.back)
-            nb = Linedef(l.v0 if s0< 0 else mi, mi if s0< 0 else l.v1, l.front, l.back)
+            nf = Linedef(l.v0 if s0<=0 else mi, mi if s0<=0 else l.v1, l.front, l.back)
+            nb = Linedef(l.v0 if s0> 0 else mi, mi if s0> 0 else l.v1, l.front, l.back)
             nfi = len(all_lines); all_lines.append(nf); front_idx.append(nfi)
             nbi = len(all_lines); all_lines.append(nb); back_idx.append(nbi)
 
@@ -261,6 +281,24 @@ def build_bsp(md: MapData):
     nodes=[]; subs=[]
     if lines:
         _build_bsp(list(range(len(lines))), lines, verts, nodes, subs)
+    # C++ expects root = last node. Python builds root at index 0.
+    # Reverse node order and remap child references.
+    if nodes:
+        n = len(nodes)
+        remap = {i: n - 1 - i for i in range(n)}
+        new_nodes = [None] * n
+        for old_i, nd in enumerate(nodes):
+            if nd is None: continue
+            fc = nd.front_child
+            bc = nd.back_child
+            if not (fc & LEAF_FLAG): fc = remap[fc]
+            if not (bc & LEAF_FLAG): bc = remap[bc]
+            new_nodes[remap[old_i]] = BSPNode(
+                nd.pl_x, nd.pl_y, nd.dir_x, nd.dir_y,
+                nd.f_top, nd.f_bot, nd.f_left, nd.f_right,
+                nd.b_top, nd.b_bot, nd.b_left, nd.b_right,
+                fc, bc)
+        nodes = new_nodes
     return nodes, subs, lines, verts
 
 # ══════════════════════════════════════════════════════════════════════════════
