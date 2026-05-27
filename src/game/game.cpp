@@ -256,6 +256,8 @@ namespace game {
 		player_ptr->weapons.resize(7);
 		player_ptr->weapons[0] = std::make_unique<combat::weapons::pistol>(md, w);
 		player_ptr->current_weapon_index = 0;
+		player_ptr->map_ref = &md;
+		player_ptr->world_ref = &w;
 
 		w.register_entity(std::move(p));
 
@@ -421,12 +423,18 @@ namespace game {
 			if (wpn) {
 				std::string ammo_str = std::to_string(wpn->ammo_count);
 				std::string mags_str = std::to_string(wpn->reserve_mags);
-				int const char_w = 12;
-				int const char_h = 16;
-				// Ammo count centered in upper area
-				r2d.draw_text(ammo_str, mag_x + mag_w / 2 - static_cast<int>(ammo_str.size()) * char_w / 2, mag_y + 4 * SCALE, char_w, char_h, 0xFFFFFF);
-				// Reserve mags below
-				r2d.draw_text(mags_str, mag_x + mag_w / 2 - static_cast<int>(mags_str.size()) * char_w / 2, mag_y + mag_h - char_h - 2 * SCALE, char_w, char_h, 0xCCCCCC);
+				// Large ammo count in upper half
+				int const ammo_cw = 20;
+				int const ammo_ch = 28;
+				int ammo_tx = mag_x + mag_w / 2 - static_cast<int>(ammo_str.size()) * ammo_cw / 2;
+				int ammo_ty = mag_y + 2 * SCALE;
+				r2d.draw_text(ammo_str, ammo_tx, ammo_ty, ammo_cw, ammo_ch, 0xFFFFFF);
+				// Smaller reserve count in lower half
+				int const mag_cw = 14;
+				int const mag_ch = 20;
+				int mags_tx = mag_x + mag_w / 2 - static_cast<int>(mags_str.size()) * mag_cw / 2;
+				int mags_ty = mag_y + mag_h - mag_ch - 3 * SCALE;
+				r2d.draw_text(mags_str, mags_tx, mags_ty, mag_cw, mag_ch, 0xCCCCCC);
 			}
 		}
 

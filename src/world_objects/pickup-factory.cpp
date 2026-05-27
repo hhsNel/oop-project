@@ -48,7 +48,7 @@ namespace world_object {
 			default: return nullptr;
 		}
 
-		return std::make_unique<weapon_pickup>(pos, z, tex, std::move(w), player, md, sub_id);
+		return std::make_unique<weapon_pickup>(pos, z, tex, std::move(w), static_cast<int>(subtype), player, md, sub_id);
 	}
 
 	static std::unique_ptr<pickup> make_ammo_pickup(

@@ -7,6 +7,8 @@
 #include "math/vec2.h"
 #include "combat/weapons/weapon.h"
 
+namespace geometry { class map_data; }
+namespace engine { class world; }
 namespace world_object {
 	class weapon_pickup;
 }
@@ -18,6 +20,9 @@ namespace entities {
 		std::vector<std::unique_ptr<combat::weapons::weapon>> weapons;
 		float sensitivity;
 		int current_weapon_index;
+		geometry::map_data* map_ref = nullptr;
+		engine::world* world_ref = nullptr;
+		float collision_radius = 16.0f;
 	public:
 
 		player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens)
