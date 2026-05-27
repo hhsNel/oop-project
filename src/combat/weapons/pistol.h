@@ -9,7 +9,9 @@ namespace combat {
 		class pistol : public weapon {
 		public:
 			explicit pistol(geometry::map_data const& map,
-			                engine::world const& world);
+			                engine::world const& world,
+			                audio::audio_mixer& mix,
+			                assets::asset_manager const& am);
 		};
 	}
 }

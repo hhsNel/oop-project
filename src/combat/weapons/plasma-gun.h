@@ -9,7 +9,9 @@ namespace combat {
 		class plasma_gun : public weapon {
 		public:
 			explicit plasma_gun(geometry::map_data const& map,
-			                    engine::world const& world);
+			                    engine::world const& world,
+			                    audio::audio_mixer& mix,
+			                    assets::asset_manager const& am);
 		};
 	}
 }

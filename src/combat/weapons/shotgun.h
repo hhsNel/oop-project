@@ -13,7 +13,9 @@ namespace combat {
 			static constexpr float spread       = 0.2618f; // ~15 degrees total
 
 			explicit shotgun(geometry::map_data const& map,
-			                 engine::world const& world);
+			                 engine::world const& world,
+			                 audio::audio_mixer& mix,
+			                 assets::asset_manager const& am);
 			void fire(math::vec2 pos, float angle) override;
 		};
 	}

@@ -45,6 +45,8 @@
 #include "assets/asset-manager.h"
 #include "geometry/map-data.h"
 #include "engine/world.h"
+#include "audio/audio-mixer.h"
+#include "audio/alsa/backend.h"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -120,6 +122,10 @@ int main() {
 
     rendering::renderer_2d r2d(*r_back, tex_mgr, tex_mgr.flat_tx_by_id(0));
 
+    // ── Audio ────────────────────────────────────────────────────────────────
+    auto a_back = std::make_unique<audio::alsa::backend>();
+    audio::audio_mixer mix(*a_back, audio::audio_format{48000, 2, 16});
+
     // ── Layout ───────────────────────────────────────────────────────────────
     const int HUD_H = 210;
     const int HUD_Y = SH - HUD_H;
@@ -178,13 +184,13 @@ int main() {
                          false, melee, is_auto });
     };
 
-    add_weapon(std::make_unique<combat::weapons::pistol>(md, w),       "Pistol",  1.5f);
-    add_weapon(std::make_unique<combat::weapons::smg>(md, w),         "SMG",     2.5f, false, true);
-    add_weapon(std::make_unique<combat::weapons::rifle>(md, w),       "Rifle",   2.0f, false, true);
-    add_weapon(std::make_unique<combat::weapons::shotgun>(md, w),     "Shotgun", 3.0f);
-    add_weapon(std::make_unique<combat::weapons::sniper_rifle>(md, w),"Sniper",  3.5f);
-    add_weapon(std::make_unique<combat::weapons::plasma_gun>(md, w),  "Plasma",  2.0f);
-    add_weapon(std::make_unique<combat::weapons::katana>(),      "Katana",  0.0f, true);
+    add_weapon(std::make_unique<combat::weapons::pistol>(md, w, mix, tex_mgr),        "Pistol",  1.5f);
+    add_weapon(std::make_unique<combat::weapons::smg>(md, w, mix, tex_mgr),           "SMG",     2.5f, false, true);
+    add_weapon(std::make_unique<combat::weapons::rifle>(md, w, mix, tex_mgr),         "Rifle",   2.0f, false, true);
+    add_weapon(std::make_unique<combat::weapons::shotgun>(md, w, mix, tex_mgr),       "Shotgun", 3.0f);
+    add_weapon(std::make_unique<combat::weapons::sniper_rifle>(md, w, mix, tex_mgr),  "Sniper",  3.5f);
+    add_weapon(std::make_unique<combat::weapons::plasma_gun>(md, w, mix, tex_mgr),    "Plasma",  2.0f);
+    add_weapon(std::make_unique<combat::weapons::katana>(mix, tex_mgr),                "Katana",  0.0f, true);
 
     pool[0].in_loadout = true;  // start with Pistol equipped
 
@@ -311,6 +317,7 @@ int main() {
                     && cur_slot->ref->*(&wp::reserve_mags) > 0
                     && cur_slot->reload_timer <= 0.0f)
                 {
+                    cur_slot->ref->reload();
                     cur_slot->reload_timer = cur_slot->reload_duration;
                 }
                 prev_r = r_down;
@@ -366,20 +373,19 @@ int main() {
                 }
             }
 
-            // Tick reload timers; apply reload() when timer expires
+            // Tick reload timers
             for (auto& s : pool) {
                 if (s.reload_timer > 0.0f) {
                     s.reload_timer -= dt;
-                    if (s.reload_timer <= 0.0f) {
+                    if (s.reload_timer <= 0.0f)
                         s.reload_timer = 0.0f;
-                        s.ref->reload();
-                    }
                 }
             }
         }
 
         float hp_before = p.hp();
         p.update(dt);
+        mix.step(static_cast<unsigned long>(48000 * dt));
         if (p.hp() < hp_before)           // status effects (np. burning) zadaly obrazenia
             damage_flash_timer = FLASH_DURATION;
 
