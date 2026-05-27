@@ -1,17 +1,17 @@
 #include "weapon.h"
 #include "audio/audio-mixer.h"
-#include "assets/audio-clip.h"
+#include "assets/asset-manager.h"
 #include <algorithm>
 
 namespace combat {
 	namespace weapons {
 
 		weapon::weapon(std::unique_ptr<firing_mode> firing, int max, float rate, float dmg, int reserve,
-		               audio::audio_mixer* mix, assets::audio_clip const* fire_snd,
-		               assets::audio_clip const* reload_snd)
+		               audio::audio_mixer& mix, assets::asset_manager const& am,
+		               assets::audio_clip_id fire_snd, assets::audio_clip_id reload_snd)
 			: ammo(std::move(firing)), ammo_count(max),
 			  max_ammo(max), reserve_mags(reserve), fire_rate(rate), last_shot_time(0.0f), damage(dmg),
-			  mixer(mix), fire_sound(fire_snd), reload_sound(reload_snd) {}
+			  mixer(mix), assets(am), fire_sound_id(fire_snd), reload_sound_id(reload_snd) {}
 
 		bool weapon::can_fire() const {
 			return ammo_count > 0 && last_shot_time <= 0.0f;
@@ -30,12 +30,12 @@ namespace combat {
 			ammo->spawn_bullet(pos, angle, damage);
 			--ammo_count;
 			last_shot_time = 1.0f / fire_rate;
-			if (mixer && fire_sound) mixer->play(*fire_sound);
+			if (fire_sound_id >= 0) mixer.play(assets.audio_clip_by_id(fire_sound_id));
 		}
 
 		void weapon::reload() {
 			if (reserve_mags <= 0) return;
-			if (mixer && reload_sound) mixer->play(*reload_sound);
+			if (reload_sound_id >= 0) mixer.play(assets.audio_clip_by_id(reload_sound_id));
 			--reserve_mags;
 			ammo_count = max_ammo;
 		}

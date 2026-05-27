@@ -100,20 +100,13 @@ int main() {
 		                 0.0f, reload_dur, false, melee, is_auto });
 	};
 
-	add_weapon(std::make_unique<combat::weapons::pistol>(md, w, &mix,
-	               &tex_mgr.audio_clip_by_id(1), &tex_mgr.audio_clip_by_id(2)),       "Pistol",     1.5f);
-	add_weapon(std::make_unique<combat::weapons::smg>(md, w, &mix,
-	               &tex_mgr.audio_clip_by_id(3), &tex_mgr.audio_clip_by_id(4)),       "SMG",        2.5f, false, true);
-	add_weapon(std::make_unique<combat::weapons::rifle>(md, w, &mix,
-	               &tex_mgr.audio_clip_by_id(5), &tex_mgr.audio_clip_by_id(6)),       "Rifle",      2.0f, false, true);
-	add_weapon(std::make_unique<combat::weapons::shotgun>(md, w, &mix,
-	               &tex_mgr.audio_clip_by_id(7), &tex_mgr.audio_clip_by_id(8)),       "Shotgun",    3.0f);
-	add_weapon(std::make_unique<combat::weapons::sniper_rifle>(md, w, &mix,
-	               &tex_mgr.audio_clip_by_id(9), &tex_mgr.audio_clip_by_id(10)),      "Sniper",     3.5f);
-	add_weapon(std::make_unique<combat::weapons::plasma_gun>(md, w, &mix,
-	               &tex_mgr.audio_clip_by_id(11), &tex_mgr.audio_clip_by_id(12)),     "Plasma Gun", 2.0f);
-	add_weapon(std::make_unique<combat::weapons::katana>(&mix,
-	               &tex_mgr.audio_clip_by_id(13)),                                     "Katana",     0.0f, true);
+	add_weapon(std::make_unique<combat::weapons::pistol>(md, w, mix, tex_mgr),        "Pistol",     1.5f);
+	add_weapon(std::make_unique<combat::weapons::smg>(md, w, mix, tex_mgr),           "SMG",        2.5f, false, true);
+	add_weapon(std::make_unique<combat::weapons::rifle>(md, w, mix, tex_mgr),         "Rifle",      2.0f, false, true);
+	add_weapon(std::make_unique<combat::weapons::shotgun>(md, w, mix, tex_mgr),       "Shotgun",    3.0f);
+	add_weapon(std::make_unique<combat::weapons::sniper_rifle>(md, w, mix, tex_mgr),  "Sniper",     3.5f);
+	add_weapon(std::make_unique<combat::weapons::plasma_gun>(md, w, mix, tex_mgr),    "Plasma Gun", 2.0f);
+	add_weapon(std::make_unique<combat::weapons::katana>(mix, tex_mgr),                "Katana",     0.0f, true);
 
 	pool[0].in_loadout = true;  // start with pistol
 
