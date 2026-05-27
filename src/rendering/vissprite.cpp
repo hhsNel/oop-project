@@ -40,7 +40,7 @@ void rendering::vissprite::render(assets::asset_manager const& tex_manager, fram
 		/* occlusion culling */
 		if(clip_bot <= clip_top) continue;
 
-		float draw_top = std::max(static_cast<float>(clip_top), scr_y_top);
+		float draw_top = std::max(static_cast<float>(std::max(0, clip_top)), scr_y_top);
 		float draw_bot = std::min(static_cast<float>(clip_bot), scr_y_bot);
 
 		if(draw_bot <= draw_top) continue;
