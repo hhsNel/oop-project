@@ -105,6 +105,9 @@ PICKUP_NAMES = [
 WEAPON_SUBTYPE_NAMES = [
     "pistol", "smg", "rifle", "shotgun", "sniper", "plasma_gun", "katana",
 ]
+AMMO_SUBTYPE_NAMES = [
+    "pistol", "smg", "rifle", "shotgun", "sniper", "plasma_gun",
+]
 PICKUP_COL   = ( 80, 200, 255)
 PICKUP_HOV   = (180, 240, 255)
 
@@ -287,6 +290,7 @@ def export_bin(md: MapData, out_dir: str):
         for cnt,first in sub_recs:
             f.write(struct.pack("<II",cnt,first))
     with open(os.path.join(out_dir,"nodes.bin"),"wb") as f:
+        written = 0
         for n in nodes:
             if n is None: continue
             f.write(struct.pack("<ffffffffffff II",
@@ -294,6 +298,9 @@ def export_bin(md: MapData, out_dir: str):
                 n.f_top,n.f_bot,n.f_left,n.f_right,
                 n.b_top,n.b_bot,n.b_left,n.b_right,
                 n.front_child,n.back_child))
+            written += 1
+        if written == 0:
+            f.write(b'\x00')
     with open(os.path.join(out_dir,"monsters.bin"),"wb") as f:
         for m in md.monsters:
             f.write(struct.pack("<Iiif", m.monster_type, int(m.x), int(m.y), m.z))
@@ -1529,8 +1536,10 @@ class Editor:
             pygame.draw.rect(surf,col,(sx-r,sy-r,r*2,r*2))
             pygame.draw.rect(surf,(10,12,20),(sx-r,sy-r,r*2,r*2),1)
             name=PICKUP_NAMES[p.pickup_type] if p.pickup_type<len(PICKUP_NAMES) else "?"
-            if p.pickup_type in (2, 3) and p.subtype<len(WEAPON_SUBTYPE_NAMES):
+            if p.pickup_type==2 and p.subtype<len(WEAPON_SUBTYPE_NAMES):
                 name+=f"({WEAPON_SUBTYPE_NAMES[p.subtype]})"
+            elif p.pickup_type==3 and p.subtype<len(AMMO_SUBTYPE_NAMES):
+                name+=f"({AMMO_SUBTYPE_NAMES[p.subtype]})"
             txt=self.font_sm.render(name,True,col)
             surf.blit(txt,(sx-txt.get_width()//2,sy-r-14))
 
@@ -1727,11 +1736,17 @@ class Editor:
 
         elif t==TOOL_PICKUP:
             pt=max(0,min(len(PICKUP_NAMES)-1,self._int(self.fi_pickup_type,0)))
-            pst=max(0,min(len(WEAPON_SUBTYPE_NAMES)-1,self._int(self.fi_pickup_subtype,0)))
+            if pt==3:
+                pst=max(0,min(len(AMMO_SUBTYPE_NAMES)-1,self._int(self.fi_pickup_subtype,0)))
+            elif pt==2:
+                pst=max(0,min(len(WEAPON_SUBTYPE_NAMES)-1,self._int(self.fi_pickup_subtype,0)))
+            else:
+                pst=0
             pz=self._flt(self.fi_pickup_z,0.0)
             self.map.pickups.append(PickupSpawn(swx,swy,pt,pst,pz))
             name=PICKUP_NAMES[pt]
-            if pt in (2, 3): name+=f"({WEAPON_SUBTYPE_NAMES[pst]})"
+            if pt==2: name+=f"({WEAPON_SUBTYPE_NAMES[pst]})"
+            elif pt==3: name+=f"({AMMO_SUBTYPE_NAMES[pst]})"
             self.status=f"Pickup '{name}' placed at ({int(swx)},{int(swy)})"
 
         elif t==TOOL_MONSTER:

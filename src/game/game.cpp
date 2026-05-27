@@ -252,16 +252,18 @@ namespace game {
 		player_ptr = &*p;
 		w.register_entity(std::move(p));
 
+		bool has_bsp = md.root_node_id != util::indexed_storage<geometry::bsp_node>::nullid;
+
 		for (auto const& spawn : md.monster_spawns) {
 			auto m = entities::make_monster(spawn("type"_f), spawn("pos"_f), spawn("z"_f));
 			if (m) {
-				auto sub_id = md.get_subsector_id(spawn("pos"_f));
+				auto sub_id = has_bsp ? md.get_subsector_id(spawn("pos"_f)) : 1;
 				md.subsectors[sub_id].add_sprite(std::move(m));
 			}
 		}
 
 		for (auto const& spawn : md.pickup_spawns) {
-			auto sub_id = md.get_subsector_id(spawn("pos"_f));
+			auto sub_id = has_bsp ? md.get_subsector_id(spawn("pos"_f)) : 1;
 			auto pk = world_object::make_pickup(
 				spawn("type"_f), spawn("subtype"_f),
 				spawn("pos"_f), spawn("z"_f),
