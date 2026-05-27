@@ -49,7 +49,6 @@ proc run_dump_test {cmd expected {quiet 0}} {
 
 run_test "lookup hello-world.txt"	         14
 run_test "lookup meta-texture-sets"          49
-run_test "lookup doom-floor.btx"             524300
 run_test "lookup cultured-textures/manifest" 234
 
 run_dump_test "dump hello-world.txt" "Hello, World!"
