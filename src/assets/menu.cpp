@@ -43,10 +43,10 @@ namespace assets {
 	}
 
 	int menu::display(rendering::renderer_2d const &r2d, rendering::rendering_backend &rb, input::input_backend &in, std::vector<texture> const& ui_tx) const {
-		in.reset_mouse_state();
-
 		const int sw = static_cast<int>(rb("width"_f));
 		const int sh = static_cast<int>(rb("height"_f));
+
+		in.reset_mouse_state(sw / 2, sh / 2);
 
 		bool esc_debounce = in.is_key_down(input::key::esc);
 

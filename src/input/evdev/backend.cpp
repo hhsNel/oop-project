@@ -185,8 +185,9 @@ namespace input {
 
 		mouse_state backend::get_mouse_state() const { return mouse; }
 
-		void backend::reset_mouse_state() {
-			mouse.x = mouse.y = 0;
+		void backend::reset_mouse_state(int nx, int ny) {
+			mouse.x = nx;
+			mouse.y = ny;
 			mouse.left = mouse.right = mouse.middle = false;
 		}
 
