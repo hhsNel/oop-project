@@ -23,12 +23,12 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
 
 		geometry::subsector const& sub = current_map.subsectors[subsector_id];
 
-		/* TODO: not sure if sprites should be queued first ? */
 		std::uint8_t sub_light = 255;
 		if (!sub.lines.empty()) {
 			auto const& first_line = current_map.linedefs[sub.lines[0]];
 			sub_light = current_map.sectors[current_map.sidedefs[first_line.front].facing_sector].light_level;
 		}
+		
 		for(auto const& sprite : sub.sprites) {
 			add_vissprite(sprite.get(), sub_light, frd);
 		}
@@ -104,11 +104,10 @@ void software_renderer::project_and_draw_linedef(geometry::linedef line, frame_r
 		}
 
 		/* swap everything */
-//		std::swap(proj_x1, proj_x2);
-//		std::swap(z1, z2);
-//		std::swap(u1, u2);
-//		std::swap(line.front, line.back);
-		/* TODO: CRITICAL */
+		std::swap(proj_x1, proj_x2);
+		std::swap(tr_v1, tr_v2);
+		std::swap(u1, u2);
+		std::swap(line.front, line.back);
 	}
 
 	if (line.is_wall()) {
@@ -155,11 +154,11 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
 		int bot_y = frd.sh/2 - (int)((s.floor_height - frd.cam_height) * frd.fov_scale * inv_z);
 
 		/* crop to undendered space */
-		int cropped_top_y = std::max(top_y, upper_clip[x]);
+		int cropped_top_y = std::max(top_y, std::max(0, upper_clip[x]));
 		int cropped_bot_y = std::min(bot_y, lower_clip[x]);
 
 		/* draw ceiling from upper clip to wall top */
-		visplane::add_column(visplanes, x, upper_clip[x], cropped_top_y, frd.sw, s.ceiling_height, s.ceiling_tex, s.light_level);
+		visplane::add_column(visplanes, x, std::max(0, upper_clip[x]), cropped_top_y, frd.sw, s.ceiling_height, s.ceiling_tex, s.light_level);
 		/* draw floor from wall bottom to lower clip */
 		visplane::add_column(visplanes, x, cropped_bot_y, lower_clip[x], frd.sw, s.floor_height, s.floor_tex, s.light_level);
 
@@ -228,13 +227,13 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
 		int c_bf = frd.sh/2 - (int)((back.floor_height - frd.cam_height) * frd.fov_scale * inv_z);
 
 		/* draw ceiling from upper clip to wall top */
-		visplane::add_column(visplanes, x, upper_clip[x], std::max(c_fc, upper_clip[x]), frd.sw, front.ceiling_height, front.ceiling_tex, front.light_level);
+		visplane::add_column(visplanes, x, std::max(0, upper_clip[x]), std::max(c_fc, upper_clip[x]), frd.sw, front.ceiling_height, front.ceiling_tex, front.light_level);
 		/* draw floor from wall bottom to lower clip */
 		visplane::add_column(visplanes, x, std::min(c_ff, lower_clip[x]), lower_clip[x], frd.sw, front.floor_height, front.floor_tex, front.light_level);
 
 		/* draw loop if the front ceil has lower y than the back ceil (is higher) */
 		if (c_fc < c_bc) {
-			int draw_top = std::max(c_fc, upper_clip[x]);
+			int draw_top = std::max(c_fc, std::max(0, upper_clip[x]));
 			int draw_bot = std::min(c_bc, lower_clip[x]);
 
 			/* v scales linearly so pre-calculate step to avoid div */
@@ -254,7 +253,7 @@ void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, floa
 
 		/* same thing, but if the front floor is world lower than back floor (has higher y) */
 		if (c_ff > c_bf) {
-			int draw_top = std::max(c_bf, upper_clip[x]);
+			int draw_top = std::max(c_bf, std::max(0, upper_clip[x]));
 			int draw_bot = std::min(c_ff, lower_clip[x]);
 
 			/* v scales linearly so pre-calculate step to avoid div */
@@ -426,7 +425,7 @@ void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_hei
 		frd.cos_cam_angle = std::cos(frd.cam_angle);
 		frd.sin_cam_angle = std::sin(frd.cam_angle);
 
-		upper_clip.assign(frd.sw, 0);
+		upper_clip.assign(frd.sw, -1);
 		lower_clip.assign(frd.sw, frd.sh);
 
 		if (euclidian_dist_factor.size() != frd.sw) {
