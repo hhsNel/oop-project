@@ -6,12 +6,21 @@
 
 namespace entities {
 
-	player::player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens)
+	player::player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens, geometry::map_data* map, engine::world* world)
 		: engine::actor(p, z, tex, is, hp, shield, move_speed, engine::faction::player),
 		  sensitivity(sens),
 		  current_weapon_index(-1),
+		  map_ref(map),
+		  world_ref(world),
 		  walk_speed(move_speed),
 		  sprint_speed(move_speed * 1.5f) { weapons.resize(7); }
+
+	void player::equip(int slot, std::unique_ptr<combat::weapons::weapon> wpn) {
+		if (slot < 0 || slot >= static_cast<int>(weapons.size())) return;
+		if (weapons[slot]) return;
+		weapons[slot] = std::move(wpn);
+		if (current_weapon_index < 0) current_weapon_index = slot;
+	}
 
 	void player::update(float dt) {
 		actor::update(dt);

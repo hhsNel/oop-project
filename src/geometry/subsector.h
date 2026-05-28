@@ -9,8 +9,6 @@ namespace rendering {
 	class software_renderer;
 }
 
-namespace game { class game; }
-
 namespace geometry {
 	class linedef;
 
@@ -29,6 +27,5 @@ namespace geometry {
 		void add_sprite(rendering::sprite* spr);
 
 		friend rendering::software_renderer;
-		friend class game::game;
 	};
 }

@@ -9,14 +9,12 @@
 #include <functional>
 
 namespace geometry { class map_data; }
-namespace game { class game; }
 namespace combat { namespace weapons { class projectile_firing_mode; } }
 namespace entities { class monster; class monster_boss; }
 
 namespace engine {
 
 	class projectile : public renderable_entity {
-		friend class game::game;
 		friend class combat::weapons::projectile_firing_mode;
 		friend class entities::monster;
 		friend class entities::monster_boss;

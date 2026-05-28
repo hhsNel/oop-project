@@ -14,9 +14,7 @@ weapon_pickup::weapon_pickup(math::vec2 position, float z, assets::texture_id te
 
 void weapon_pickup::on_pickup(entities::player& p) {
     if (!provided_weapon) return;
-    if (slot < 0 || slot >= static_cast<int>(p.weapons.size())) return;
-    if (p.weapons[slot]) return;  // already has this weapon
-    p.weapons[slot] = std::move(provided_weapon);
+    p.equip(slot, std::move(provided_weapon));
 }
 
 }

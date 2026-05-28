@@ -1,0 +1,784 @@
+<mxfile host="puml_to_drawio.py">
+  <diagram name="Page-1" id="79d460e7ecc944719350">
+    <mxGraphModel grid="1" page="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="0cc935d29b1c4ca381b3" value="«abstract»&lt;br&gt;resource" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="70.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="6360a8a3500745288759" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="95.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="033ebe3b15de4c65b2db" value="+ {abstract} ~resource()&lt;br&gt;+ {abstract} operator()(component_tag&amp;lt;&quot;beginning&quot;&amp;gt;) : void const* const&lt;br&gt;+ {abstract} operator()(component_tag&amp;lt;&quot;end&quot;&amp;gt;) : void const* const&lt;br&gt;+ {abstract} operator()(component_tag&amp;lt;&quot;size&quot;&amp;gt;) : std::size_t const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="115.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="a53d550c281a4bcda97d" value="file_resource" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="70.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="cc45bfbd89fb40e09bf4" value="- file_data : std::vector&amp;lt;std::byte&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="95.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="1352e1967bd749a68374" value="+ explicit file_resource(data : std::vector&amp;lt;std::byte&amp;gt;)&lt;br&gt;+ ~file_resource() override&lt;br&gt;+ operator()(component_tag&amp;lt;&quot;beginning&quot;&amp;gt;) : void const* const override&lt;br&gt;+ operator()(component_tag&amp;lt;&quot;end&quot;&amp;gt;) : void const* const override&lt;br&gt;+ operator()(component_tag&amp;lt;&quot;size&quot;&amp;gt;) : std::size_t const override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="115.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="c462552b376b45858a7f" value="binary_resource" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="70.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="3a409201d6ad4e458039" value="- begin_ptr : void const*&lt;br&gt;- end_ptr : void const*&lt;br&gt;- byte_size : std::size_t" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="95.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="649dd1833e2f4c5d8654" value="+ binary_resource(begin : void const*, end : void const*)&lt;br&gt;+ ~binary_resource() override&lt;br&gt;+ operator()(component_tag&amp;lt;&quot;beginning&quot;&amp;gt;) : void const* const override&lt;br&gt;+ operator()(component_tag&amp;lt;&quot;end&quot;&amp;gt;) : void const* const override&lt;br&gt;+ operator()(component_tag&amp;lt;&quot;size&quot;&amp;gt;) : std::size_t const override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="155.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="d8de19a8556b44b6a8b8" value="resource_loader" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="70.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="afbdf69a44d84273a3fe" value="- symbol_cache : std::unordered_map&amp;lt;std::string, void*&amp;gt;&lt;br&gt;- resource_cache : std::unordered_map&amp;lt;std::string, std::unique_ptr&amp;lt;resource&amp;gt;&amp;gt;&lt;br&gt;- cache_mutex : mutable std::shared_mutex" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="95.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eb4226b436524761a2cc" value="- lookup_binary(resource_name : std::string_view) : void*&lt;br&gt;- load_file(resource_name : std::string_view) : std::unique_ptr&amp;lt;resource&amp;gt; const&lt;br&gt;- lookup_resource_runtime(resource_name : std::string_view) : resource*&lt;br&gt;- constexpr make_symbol_name(resource_name : std::string_view) : std::string const&lt;br&gt;- {static} consteval count_res_members() : std::size_t&lt;br&gt;- {static} consteval get_res_members_array() : info_array&amp;lt;N&amp;gt;&lt;br&gt;- constexpr get_by_symbol_reflection(symbol_name : std::string_view) : resource const* const&lt;br&gt;+ resource_loader()&lt;br&gt;+ ~resource_loader()&lt;br&gt;+ resource_loader(const&amp;amp;) = delete&lt;br&gt;+ operator=(const&amp;amp;) = delete&lt;br&gt;+ constexpr lookup_resource(resource_name : std::string_view) : resource*" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="155.0" width="380" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="8d3a32a791074b10a97d" value="vec2" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="70.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="9ead434928bf4925ab35" value="- x : float&lt;br&gt;- y : float&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="95.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="bcfb89a288fc44daa671" value="+ constexpr inline vec2(float const X = 0, float const Y = 0)&lt;br&gt;+ vec2(vec3 const&amp;amp; vec)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec2 operator+(vec2 const other) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec2 operator-(vec2 const other) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec2 operator-() const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec2 operator*(float const scalar) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec2 operator/(float const scalar) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec2 &amp;amp;operator+=(vec2 const other)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec2 &amp;amp;operator-=(vec2 const other)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec2 &amp;amp;operator*=(float const scalar)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec2 &amp;amp;operator/=(float const scalar)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline bool operator==(vec2 const other) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline bool operator!=(vec2 const other) const&lt;br&gt;+ {static} float dot_product(vec2 const first, vec2 const second)&lt;br&gt;+ {static} float cross_product(vec2 const first, vec2 const second)&lt;br&gt;+ float len() const&lt;br&gt;+ float sqr_len() const&lt;br&gt;+ vec2 const normalized() const&lt;br&gt;+ vec2 const perpendicular() const&lt;br&gt;+ float angle() const&lt;br&gt;+ {static} float angle_between(vec2 const first, vec2 const second)&lt;br&gt;+ {static} vec2 const rotate(vec2 const vec, float const angle)&lt;br&gt;+ {static} vec2 const rotate_with_known_trig(vec2 const vec, float const cos, float const sin)&lt;br&gt;friend util::componentized&amp;lt;vec2&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="155.0" width="380" height="480" as="geometry" />
+        </mxCell>
+        <mxCell id="7c7a0de636864e1fa2b1" value="vec3" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="695.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="efc32f05bc1148e487fc" value="- x : float&lt;br&gt;- y : float&lt;br&gt;- z : float&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="720.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="132af31e74834957828d" value="+ constexpr inline vec3(float const X = 0, float const Y = 0, float const Z = 0)&lt;br&gt;+ constexpr inline vec3(vec2 const flat, float const Z = 0)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec3 const operator+(vec3 const other) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec3 const operator-(vec3 const other) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec3 const operator-() const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec3 const operator*(float const scalar) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec3 const operator/(float const scalar) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec3 &amp;amp;operator+=(vec3 const other)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec3 &amp;amp;operator-=(vec3 const other)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec3 &amp;amp;operator*=(float const scalar)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline vec3 &amp;amp;operator/=(float const scalar)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline bool operator==(vec3 const other) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline bool operator!=(vec3 const other) const&lt;br&gt;+ {static} constexpr float dot_product(vec3 const first, vec3 const second)&lt;br&gt;+ {static} constexpr vec3 const cross_product(vec3 const first, vec3 const second)&lt;br&gt;+ constexpr float len() const&lt;br&gt;+ constexpr float sqr_len() const&lt;br&gt;+ constexpr vec3 const normalized() const&lt;br&gt;friend util::componentized&amp;lt;vec3&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="800.0" width="380" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="9c89bbd00c0340aeb136" value="segment" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="695.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="1462fac874344876b434" value="- point0 : vec2&lt;br&gt;- point1 : vec2&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="720.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="10e6836bfee445198e6a" value="+ constexpr segment(vec2 const p0, vec2 const p1)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline bool operator==(segment const other) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline bool operator!=(segment const other) const&lt;br&gt;+ float angle() const&lt;br&gt;+ constexpr vec2 const midpoint() const&lt;br&gt;+ float len() const&lt;br&gt;+ float sqr_len() const&lt;br&gt;friend util::componentized&amp;lt;segment&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="780.0" width="380" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="fabfe133e71a41b8b768" value="ray2" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="695.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="9874a7768f7a4cbeb52a" value="+ end : vec2&lt;br&gt;+ direction : vec2" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="720.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c206679fd4fe491a9f4d" value="+ constexpr ray2(vec2 const e, vec2 const d)&lt;br&gt;+ __attribute__((always_inline)) constexpr inline bool operator==(ray2 const other) const&lt;br&gt;+ __attribute__((always_inline)) constexpr inline bool operator!=(ray2 const other) const&lt;br&gt;+ {static} ray2 const rotate(ray2 const ray, float const angle)&lt;br&gt;+ bool intersects(segment const seg, vec2 &amp;amp;hit_point, float &amp;amp;distance, float &amp;amp;seg_len) const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="760.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="68b4fdeba1a64bd19dd6" value="«abstract»&lt;br&gt;audio_backend" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="695.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="3b1b9f1c59a8419387a8" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="720.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e505dd85e72e452dbe4d" value="+ {abstract} ~audio_backend()&lt;br&gt;+ {abstract} open(fmt : audio_format const&amp;amp;) : bool&lt;br&gt;+ {abstract} close() : void&lt;br&gt;+ {abstract} write(data : void const*, frames : unsigned long) : long&lt;br&gt;+ {abstract} drain() : void&lt;br&gt;+ {abstract} pause() : void&lt;br&gt;+ {abstract} resume() : void&lt;br&gt;+ {abstract} operator()(tag : util::component_tag&amp;lt;&quot;current_format&quot;&amp;gt;) : audio_format const&lt;br&gt;+ {abstract} bad() : bool" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="740.0" width="380" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="faccf9a89e6a4002be09" value="audio_mixer" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="695.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="e16bf414aa81459e9c7f" value="- target : audio_backend &amp;amp;&lt;br&gt;- mix_format : audio_format&lt;br&gt;- active_sounds : std::vector&amp;lt;playing_sound&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="720.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ff8ef1a17088459e84c0" value="+ explicit audio_mixer(tgt : audio_backend &amp;amp;, fmt : audio_format const&amp;amp;)&lt;br&gt;+ play(clip : assets::audio_clip const&amp;amp;) : void&lt;br&gt;+ stop_all() : void&lt;br&gt;+ step(frames_to_mix : unsigned long) : void&lt;br&gt;+ is_silent() : bool" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="780.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="458f34a3fda4436db9ec" value="backend" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="1240.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="46a1f028546c4a9c96a4" value="- is_bad : bool&lt;br&gt;- pcm_handle : snd_pcm_t*&lt;br&gt;- fmt : audio_format&lt;br&gt;- paused : bool" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="1265.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="64c34245a0344916b70f" value="- to_alsa_format(bits : unsigned int) : snd_pcm_format_t const&lt;br&gt;- configure_hw_params() : bool&lt;br&gt;+ backend()&lt;br&gt;+ ~backend() override&lt;br&gt;+ open(format : audio_format const&amp;amp;) : bool override&lt;br&gt;+ close() : void override&lt;br&gt;+ write(data : void const*, frames : unsigned long) : long override&lt;br&gt;+ drain() : void override&lt;br&gt;+ pause() : void override&lt;br&gt;+ resume() : void override&lt;br&gt;+ operator()(tag : util::component_tag&amp;lt;&quot;current_format&quot;&amp;gt;) : audio_format const override&lt;br&gt;+ bad() : bool override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="1345.0" width="380" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="4e2bc70feab348d08e23" value="audio_clip" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="1240.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="b71d7c758e434555a6c9" value="- pcm_data : std::vector&amp;lt;std::uint8_t&amp;gt;&lt;br&gt;- format : audio::audio_format&lt;br&gt;- total_frames : unsigned long" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="1265.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="889422c928454980a552" value="- audio_clip(data : std::vector&amp;lt;std::uint8_t&amp;gt; const&amp;amp;, fmt : audio::audio_format const&amp;amp;)&lt;br&gt;+ {static} load_from_bin(res : util::resource const&amp;amp;) : audio_clip const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="1325.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="355ae903022742a5a014" value="texture" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="1240.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="5014b5b94a194f408721" value="- pixels : std::vector&amp;lt;std::uint32_t&amp;gt;&lt;br&gt;- width : std::uint32_t&lt;br&gt;- height : std::uint32_t&lt;br&gt;- has_transparency : bool" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="1265.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="3f70697a539b4b7abdeb" value="- texture(t : std::vector&amp;lt;std::uint32_t&amp;gt; const&amp;amp;, w : std::uint32_t const, h : std::uint32_t const, transparent : bool)&lt;br&gt;+ {static} load_from_bin(res : util::resource const&amp;amp;) : texture const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="1345.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cdb8e82e370342288b18" value="menu_element" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="1240.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="d892c019b2614ef2abc8" value="- function : int&lt;br&gt;- begin_x : float const&lt;br&gt;- begin_y : float const&lt;br&gt;- end_x : float const&lt;br&gt;- end_y : float const&lt;br&gt;- bg : texture_id const&lt;br&gt;- fmt_template : std::string&lt;br&gt;- char_w : int&lt;br&gt;- char_h : int&lt;br&gt;- col_r : std::uint8_t&lt;br&gt;- col_g : std::uint8_t&lt;br&gt;- col_b : std::uint8_t&lt;br&gt;- relative_left_margin : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="1265.0" width="380" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="c2ea4f1993554b8fa4c4" value="- formatter : std::function&amp;lt;std::string(std::string_view)&amp;gt;&lt;br&gt;- menu_element(f : int, bx : float, by : float, ex : float, ey : float, b : texture_id const, s : std::string, cw : int, ch : int, r : std::uint8_t, g : std::uint8_t, b_col : std::uint8_t, rlm : float)&lt;br&gt;- resolve_text() : std::string const&lt;br&gt;- text_color() : std::uint32_t const&lt;br&gt;- selective_fmt(key_filter : std::string_view, fn : std::function&amp;lt;std::string(std::string_view)&amp;gt;) : void&lt;br&gt;- render(r2d : rendering::renderer_2d const&amp;amp;, ui_tx : std::vector&amp;lt;texture&amp;gt; const&amp;amp;, sw : int, sh : int, ms : input::mouse_state const&amp;amp;) : int const&lt;br&gt;+ {static} load_from_bin(res : util::resource const&amp;amp;) : menu_element" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="1525.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="c13add453ba74adc9644" value="menu" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="1240.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="ad4c8e84042249f78ceb" value="- elements : std::vector&amp;lt;menu_element&amp;gt;&lt;br&gt;- bg : texture_id const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="1265.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="3f5b8e5393584765b287" value="- menu(els : std::vector&amp;lt;menu_element&amp;gt;, b : texture_id const)&lt;br&gt;+ {static} load_from_bin(resld : util::resource_loader &amp;amp;, res : util::resource const&amp;amp;) : menu&lt;br&gt;+ selective_formatter(key_filter : std::string_view, fn : std::function&amp;lt;std::string(std::string_view)&amp;gt;) : void&lt;br&gt;+ formatter_all(fn : std::function&amp;lt;std::string(std::string_view)&amp;gt;) : void&lt;br&gt;+ display(r2d : rendering::renderer_2d const&amp;amp;, rb : rendering::rendering_backend &amp;amp;, in : input::input_backend &amp;amp;, ui_tx : std::vector&amp;lt;texture&amp;gt; const&amp;amp;) : int const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="1305.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="0e5bac6032d04ef89383" value="asset_pack" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="1725.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="ec21fb6ee69f4730aafe" value="- wall_textures : std::vector&amp;lt;texture&amp;gt;&lt;br&gt;- sprite_textures : std::vector&amp;lt;texture&amp;gt;&lt;br&gt;- flat_textures : std::vector&amp;lt;texture&amp;gt;&lt;br&gt;- ui_textures : std::vector&amp;lt;texture&amp;gt;&lt;br&gt;- menus : std::vector&amp;lt;menu&amp;gt;&lt;br&gt;- audio_clips : std::vector&amp;lt;audio_clip&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="1750.0" width="380" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="138276bff26e4875a26a" value="- asset_pack(walls : std::vector&amp;lt;texture&amp;gt;, sprites : std::vector&amp;lt;texture&amp;gt;, flats : std::vector&amp;lt;texture&amp;gt;, ui : std::vector&amp;lt;texture&amp;gt;, ms : std::vector&amp;lt;menu&amp;gt;, clips : std::vector&amp;lt;audio_clip&amp;gt;)&lt;br&gt;- {static} tx_from_meta(resld : util::resource_loader &amp;amp;, meta_path : std::string_view) : std::vector&amp;lt;texture&amp;gt;&lt;br&gt;- {static} menus_from_meta(resld : util::resource_loader &amp;amp;, meta_path : std::string_view) : std::vector&amp;lt;menu&amp;gt;&lt;br&gt;- {static} clips_from_meta(resld : util::resource_loader &amp;amp;, meta_path : std::string_view) : std::vector&amp;lt;audio_clip&amp;gt;&lt;br&gt;- {static} parse_meta_keys(content : std::string const&amp;amp;) : std::unordered_map&amp;lt;std::string, std::string&amp;gt;&lt;br&gt;+ {static} load(resld : util::resource_loader &amp;amp;, pack_meta_path : std::string_view) : asset_pack&lt;br&gt;+ wall_tx_by_id(id : texture_id const) : texture const&amp;amp; const&lt;br&gt;+ sprite_tx_by_id(id : texture_id const) : texture const&amp;amp; const&lt;br&gt;+ flat_tx_by_id(id : texture_id const) : texture const&amp;amp; const&lt;br&gt;+ ui_tx_by_id(id : texture_id const) : texture const&amp;amp; const&lt;br&gt;+ menu_by_id(id : menu_id const) : menu &amp;amp;&lt;br&gt;+ audio_clip_by_id(id : audio_clip_id const) : audio_clip const&amp;amp; const&lt;br&gt;+ display_menu(id : menu_id const, r2d : rendering::renderer_2d const&amp;amp;, rb : rendering::rendering_backend &amp;amp;, in : input::input_backend &amp;amp;) : int" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="1870.0" width="380" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="cdc040e1ced74647a90e" value="asset_manager" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="1725.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="f4242b58e4794d5e856c" value="- rl : util::resource_loader &amp;amp;&lt;br&gt;- asset_packs : std::vector&amp;lt;asset_pack&amp;gt;&lt;br&gt;- cur_set : unsigned int" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="1750.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cd12fda25ed644759ef8" value="- asset_manager(resld : util::resource_loader &amp;amp;, packs : std::vector&amp;lt;asset_pack&amp;gt;)&lt;br&gt;+ {static} load(resld : util::resource_loader &amp;amp;) : asset_manager&lt;br&gt;+ cycle_set() : void&lt;br&gt;+ wall_tx_by_id(id : texture_id const) : texture const&amp;amp; const&lt;br&gt;+ sprite_tx_by_id(id : texture_id const) : texture const&amp;amp; const&lt;br&gt;+ flat_tx_by_id(id : texture_id const) : texture const&amp;amp; const&lt;br&gt;+ ui_tx_by_id(id : texture_id const) : texture const&amp;amp; const&lt;br&gt;+ menu_by_id(id : menu_id const) : menu &amp;amp;&lt;br&gt;+ audio_clip_by_id(id : audio_clip_id const) : audio_clip const&amp;amp; const&lt;br&gt;+ display_menu(id : menu_id const, r2d : rendering::renderer_2d const&amp;amp;, rb : rendering::rendering_backend &amp;amp;, in : input::input_backend &amp;amp;) : int" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="1810.0" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="300f69aadfc74f568de2" value="lighting" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="1725.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="ab08ac478609481086d9" value="+ {static} dl_start : float const = 64.0f&lt;br&gt;+ {static} dl_density : float const = 0.25f" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="1750.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="b76722d9f54c4a3fbebd" value="+ {static} calculate(sector_light_level : std::uint8_t const, depth : float const) : int&lt;br&gt;+ {static} apply(orig : std::uint32_t const, light : int) : std::uint32_t" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="1790.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e304b28f4e0846fe8ef4" value="rendering_mode" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="1725.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="e4ad0d3e4bdf4eab979c" value="-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="1750.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="a68e87d2a9ef4af1b0cd" value="+ {abstract} ~rendering_mode()&lt;br&gt;+ {abstract} operator()(util::component_tag&amp;lt;&quot;x_res&quot;&amp;gt;) : unsigned int const&lt;br&gt;+ {abstract} operator()(util::component_tag&amp;lt;&quot;y_res&quot;&amp;gt;) : unsigned int const&lt;br&gt;+ {abstract} operator()(util::component_tag&amp;lt;&quot;refresh_hz&quot;&amp;gt;) : unsigned int const&lt;br&gt;+ {abstract} operator()(util::component_tag&amp;lt;&quot;has_vsync&quot;&amp;gt;) : bool const&lt;br&gt;friend util::componentized&amp;lt;rendering_mode&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="1770.0" width="380" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="06ca1a3cad3b4e86b97f" value="«abstract»&lt;br&gt;rendering_backend" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="1725.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="cc7fd064a8f947b7b76e" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="1750.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="1b5fd64add734522b44d" value="+ {abstract} bad() : bool const&lt;br&gt;+ {abstract} operator()(util::component_tag&amp;lt;&quot;modes&quot;&amp;gt;) : std::vector&amp;lt;std::unique_ptr&amp;lt;rendering_mode const&amp;gt;&amp;gt;&lt;br&gt;+ {abstract} push_mode(mode : std::unique_ptr&amp;lt;rendering_mode const&amp;gt;) : void&lt;br&gt;+ {abstract} operator()(util::component_tag&amp;lt;&quot;width&quot;&amp;gt;) : unsigned int&lt;br&gt;+ {abstract} operator()(util::component_tag&amp;lt;&quot;height&quot;&amp;gt;) : unsigned int&lt;br&gt;+ {abstract} operator()(util::component_tag&amp;lt;&quot;pitch&quot;&amp;gt;) : unsigned int&lt;br&gt;+ {abstract} operator()(util::component_tag&amp;lt;&quot;mmio&quot;&amp;gt;) : std::uint32_t*&lt;br&gt;+ {abstract} wait_for_vsync() : void&lt;br&gt;+ {abstract} flush() : void&lt;br&gt;+ {abstract} ~rendering_backend()" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="1770.0" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="c49ab343156743a9add8" value="sprite" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="2190.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="bd542b82ffdf4bef8aca" value="# pos : math::vec2&lt;br&gt;# z_pos : float&lt;br&gt;# angle : float&lt;br&gt;# tex_id : assets::texture_id&lt;br&gt;# inherent_scale : float&lt;br&gt;# hit_flash : float&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="2215.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="1d6fce2c764e42eb8590" value="+ sprite(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const)&lt;br&gt;+ virtual ~sprite()&lt;br&gt;friend util::componentized&amp;lt;sprite&amp;gt;&lt;br&gt;friend software_renderer&lt;br&gt;friend vissprite" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="2355.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="b3d3214623434733ba49" value="vissprite" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="2190.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c99e5476519146eb887d" value="- depth : float&lt;br&gt;- cx1 : int&lt;br&gt;- cx2 : int&lt;br&gt;- proj_x : float&lt;br&gt;- scale : float&lt;br&gt;- z_pos : float&lt;br&gt;- tex_id : assets::texture_id&lt;br&gt;- light_level : std::uint8_t&lt;br&gt;- upper_clip : std::vector&amp;lt;int&amp;gt;&lt;br&gt;- lower_clip : std::vector&amp;lt;int&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="2215.0" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="e6eb87a59136494787ea" value="+ vissprite(sprite : sprite const&amp;amp;, z : float const, clamped_x1 : int const, clamped_x2 : int const, px : float const, sc : float const, light : std::uint8_t const, uc : std::vector&amp;lt;int&amp;gt; const&amp;amp;, lc : std::vector&amp;lt;int&amp;gt; const&amp;amp;)&lt;br&gt;+ {static} pa_sort(vec : std::vector&amp;lt;vissprite&amp;gt; &amp;amp;) : void&lt;br&gt;+ render(tex_manager : assets::asset_manager const&amp;amp;, frd : frame_rendering_data const&amp;amp;) : void const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="2415.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="55748d0b68e54450b7e3" value="visplane" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="2190.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="6bd9127cb8344f8f9941" value="- height : float&lt;br&gt;- tex_id : assets::texture_id&lt;br&gt;- light_level : std::uint8_t&lt;br&gt;- min_x : int&lt;br&gt;- max_x : int&lt;br&gt;- top : std::vector&amp;lt;int&amp;gt;&lt;br&gt;- bottom : std::vector&amp;lt;int&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="2215.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="e1167816fd794a958056" value="+ visplane(sw : unsigned int const, h : float const, tid : assets::texture_id const, light : std::uint8_t const)&lt;br&gt;+ {static} add_column(pool : std::vector&amp;lt;visplane&amp;gt;&amp;amp;, x : int, y_start : int, y_end : int, sw : unsigned int, flat_height : float, tex_id : assets::texture_id, light_level : std::uint8_t) : void&lt;br&gt;+ render(tex_manager : assets::asset_manager const&amp;amp;, frd : frame_rendering_data const&amp;amp;) : void const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="2355.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="06a8a9ae8e2c4360b4fe" value="renderer_2d" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="2190.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="a27ba551079844218bf4" value="- target : rendering_backend &amp;amp;&lt;br&gt;- tex_manager : assets::asset_manager const&amp;amp;&lt;br&gt;- font_texture : assets::texture const&amp;amp;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="2215.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="d7a43e62d4274775a5bd" value="+ renderer_2d(tgt : rendering_backend &amp;amp;, tm : assets::asset_manager const&amp;amp;, font_tex : assets::texture const&amp;amp;)&lt;br&gt;+ draw_texture(tex : assets::texture const&amp;amp;, x : int, y : int, w : int, h : int) : void const&lt;br&gt;+ draw_text(text : std::string_view, x : int, y : int, char_w : int, char_h : int, color : std::uint32_t const) : void const&lt;br&gt;+ draw_rect(x : int, y : int, w : int, h : int, color : std::uint32_t) : void const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="2275.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="bb1a002d1df1485197e8" value="software_renderer" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="2190.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="9cb8c58d56de4dcd9934" value="- target : rendering_backend &amp;amp;&lt;br&gt;- tex_manager : assets::asset_manager const&amp;amp;&lt;br&gt;- current_map : geometry::map_data const&amp;amp;&lt;br&gt;- {static} constexpr near_z : float = 0.1f&lt;br&gt;- upper_clip : std::vector&amp;lt;int&amp;gt;&lt;br&gt;- lower_clip : std::vector&amp;lt;int&amp;gt;&lt;br&gt;- visplanes : std::vector&amp;lt;visplane&amp;gt;&lt;br&gt;- vissprites : std::vector&amp;lt;vissprite&amp;gt;&lt;br&gt;- euclidian_dist_factor : std::vector&amp;lt;float&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="2215.0" width="380" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="d03cd0dae010443c95b2" value="- render_bsp_node(node_id : util::indexed_storage&amp;lt;geometry::bsp_node&amp;gt;::id_t, frd : frame_rendering_data const&amp;amp;) : void&lt;br&gt;- project_and_draw_linedef(line : geometry::linedef, frd : frame_rendering_data const&amp;amp;) : void&lt;br&gt;- draw_solid_wall_span(proj_x1 : float, proj_x2 : float, z1 : float, z2 : float, u1 : float, u2 : float, line : geometry::linedef const&amp;amp;, frd : frame_rendering_data const&amp;amp;) : void&lt;br&gt;- draw_portal_wall_span(proj_x1 : float, proj_x2 : float, z1 : float, z2 : float, u1 : float, u2 : float, line : geometry::linedef const&amp;amp;, frd : frame_rendering_data const&amp;amp;) : void&lt;br&gt;- render_visplanes(frd : frame_rendering_data const&amp;amp;) : void&lt;br&gt;- add_vissprite(s : sprite *const, light : std::uint8_t, frd : frame_rendering_data const&amp;amp;) : void&lt;br&gt;- render_vissprites(frd : frame_rendering_data const&amp;amp;) : void&lt;br&gt;- is_box_visible(box : geometry::bsp_node::bounding_box const&amp;amp;, frd : frame_rendering_data const&amp;amp;) : bool&lt;br&gt;+ software_renderer(tgt : rendering_backend &amp;amp;, tm : assets::asset_manager const&amp;amp;, map : geometry::map_data const&amp;amp;)&lt;br&gt;+ render_bsp(cam_pos : math::vec2 const, cam_height : float const, cam_angle : float, fov : float) : void" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="2395.0" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="4e9121efe5904f65943f" value="device_context" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="2655.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="aeb12b4a1eca461c8501" value="- fd : int" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="2680.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="13e09da23e9942f0a735" value="+ device_context(path : std::string const&amp;amp;)&lt;br&gt;+ ~device_context()&lt;br&gt;+ is_valid() : bool const&lt;br&gt;+ ioctl(request : unsigned long, arg : void*) : int const&lt;br&gt;+ mmap(addr : void *, len : size_t, prot : int, flags : int, off : off_t) : void * const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="2700.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="f2369fbdc9d8498fa5b4" value="crtc" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="2655.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="9d66c85e8ad74ca2ab5a" value="- dev : device_context const&amp;amp;&lt;br&gt;- crtc_id : std::uint32_t" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="2680.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="712531cbca1b42c292e9" value="+ crtc(d : device_context const&amp;amp;, id : uint32_t)&lt;br&gt;+ set_config(fb_id : uint32_t, conn_id : uint32_t, m : mode const&amp;amp;) : bool&lt;br&gt;+ page_flip(fb_id : uint32_t) : bool const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="2720.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="345513ddc99d4f3e8cf6" value="mode" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="2655.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="520d93e9f9c546898f2e" value="- kernel_mode : drm_mode_modeinfo" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="2680.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="2113c442b92342b8a99b" value="+ mode(info : drm_mode_modeinfo const&amp;amp;)&lt;br&gt;+ ~mode() override&lt;br&gt;+ create_crtc_req(crtc_id : std::uint32_t const, fb_id : std::uint32_t const, conn_id : std::uint32_t const *const) : drm_mode_crtc const&lt;br&gt;+ operator()(util::component_tag&amp;lt;&quot;x_res&quot;&amp;gt;) : unsigned int override&lt;br&gt;+ operator()(util::component_tag&amp;lt;&quot;y_res&quot;&amp;gt;) : unsigned int override&lt;br&gt;+ operator()(util::component_tag&amp;lt;&quot;refresh_hz&quot;&amp;gt;) : unsigned int override&lt;br&gt;+ operator()(util::component_tag&amp;lt;&quot;has_vsync&quot;&amp;gt;) : bool override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="2700.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="7f3ae878dc3e43079a24" value="framebuffer" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="2655.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c3ae6a25761c42ca996c" value="- dev : device_context const&amp;amp;&lt;br&gt;- handle : uint32_t&lt;br&gt;- fb_id : uint32_t&lt;br&gt;- mmio_ptr : uint32_t*&lt;br&gt;- size : size_t&lt;br&gt;- pitch : uint32_t&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="2680.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="b37660e24a7a42deb1c9" value="+ framebuffer(d : device_context const&amp;amp;, width : uint32_t, height : uint32_t, success : bool *const)&lt;br&gt;+ ~framebuffer()&lt;br&gt;+ copy_from(src : uint32_t const*, pixel_count : size_t) : void const&lt;br&gt;+ flip_onto(c : crtc const&amp;amp;) : bool const&lt;br&gt;+ apply_config(c : crtc &amp;amp;, connector_id : std::uint32_t const, m : mode const&amp;amp;) : bool const&lt;br&gt;friend connector&lt;br&gt;friend backend" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="2820.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="ffc4f2f7a96547509c5f" value="connector" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="2655.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="929262cbb1e148c99af5" value="- dev : device_context const&amp;amp;&lt;br&gt;- connector_id : uint32_t&lt;br&gt;- encoder_id : uint32_t" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="2680.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="f7594729d424404bb015" value="+ connector(d : device_context const&amp;amp;, id : uint32_t, success : bool* const)&lt;br&gt;+ probe_modes() : std::vector&amp;lt;std::unique_ptr&amp;lt;mode const&amp;gt;&amp;gt;&lt;br&gt;+ apply_config(c : crtc&amp;amp;, fb : framebuffer const&amp;amp;, m : mode const&amp;amp;) : bool const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="2740.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5a90f4b20a3347e28b9d" value="backend" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="3020.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="744bf0067c004dfa8e9d" value="# dev : std::unique_ptr&amp;lt;device_context&amp;gt;&lt;br&gt;# active_connector : std::unique_ptr&amp;lt;connector&amp;gt;&lt;br&gt;# active_crtc : std::unique_ptr&amp;lt;crtc&amp;gt;&lt;br&gt;# is_bad : bool&lt;br&gt;# buffers : std::unique_ptr&amp;lt;framebuffer&amp;gt;[2]&lt;br&gt;# front_buffer_index : int&lt;br&gt;# shadow : std::vector&amp;lt;uint32_t&amp;gt;&lt;br&gt;# current_mode : std::unique_ptr&amp;lt;mode const&amp;gt;&lt;br&gt;# original_fb_id : uint32_t = 0&lt;br&gt;# original_connector_id : uint32_t = 0&lt;br&gt;# original_mode : drm_mode_modeinfo = {}&lt;br&gt;# has_original_state : bool = false" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="3045.0" width="380" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="0d95caa5207d4893b9c5" value="+ backend()&lt;br&gt;+ ~backend() override&lt;br&gt;+ bad() : bool const override&lt;br&gt;+ operator()(util::component_tag&amp;lt;&quot;modes&quot;&amp;gt;) : std::vector&amp;lt;std::unique_ptr&amp;lt;rendering_mode const&amp;gt;&amp;gt; override&lt;br&gt;+ push_mode(pushed_mode : std::unique_ptr&amp;lt;rendering_mode const&amp;gt;) : void override&lt;br&gt;+ operator()(util::component_tag&amp;lt;&quot;width&quot;&amp;gt;) : unsigned int override&lt;br&gt;+ operator()(util::component_tag&amp;lt;&quot;height&quot;&amp;gt;) : unsigned int override&lt;br&gt;+ operator()(util::component_tag&amp;lt;&quot;pitch&quot;&amp;gt;) : unsigned int override&lt;br&gt;+ operator()(util::component_tag&amp;lt;&quot;mmio&quot;&amp;gt;) : std::uint32_t * override&lt;br&gt;+ wait_for_vsync() : void override&lt;br&gt;+ flush() : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="3285.0" width="380" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="77c0ef0608d84d399dfd" value="«enum»&lt;br&gt;key" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="3020.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="b3c004499f894b06bbe7" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="3045.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="a2fcdbb7e75b43198568" value="unknown = 0&lt;br&gt;a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z&lt;br&gt;n0, n1, n2, n3, n4, n5, n6, n7, n8, n9&lt;br&gt;f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12&lt;br&gt;esc, tab, caps_lock, l_shift, l_ctrl, l_meta, l_alt, space, r_alt, r_meta, r_ctrl, r_shift, enter, backspace&lt;br&gt;print_screen, scroll_lock, pause, insert, home, page_up, del, end, page_down, up, down, left, right&lt;br&gt;backtick, hyphen, equals, open_bracket, close_bracket, backslash, semicolon, quote, comma, period, slash&lt;br&gt;num_lock, kp_slash, kp_asterisk, kp_minus, kp_plus, kp_enter, kp_dot, kp0, kp1, kp2, kp3, kp4, kp5, kp6, kp7, kp8, kp9" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="3065.0" width="380" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="781f26869d8a4dc784b8" value="«abstract»&lt;br&gt;input_backend" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="3020.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="e1f24924ff80462f949a" value="# bad : bool" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="3045.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="0712033598e84bbb913a" value="+ input_backend()&lt;br&gt;+ virtual ~input_backend()&lt;br&gt;+ {abstract} update() : void&lt;br&gt;+ {abstract} is_key_down(k : key) : bool const&lt;br&gt;+ {abstract} get_mouse_state() : mouse_state const&lt;br&gt;+ {abstract} reset_mouse_state(nx : int = 0, ny : int = 0) : void&lt;br&gt;+ virtual is_bad() : bool const&lt;br&gt;+ {static} to_key(c : char) : key" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="3065.0" width="380" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="9319826cf7224a53a63e" value="backend" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="3020.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c77abafd046144379d47" value="- devices : std::vector&amp;lt;device_node&amp;gt;&lt;br&gt;- key_map : std::bitset&amp;lt;KEY_CNT&amp;gt;&lt;br&gt;- mouse : mouse_state&lt;br&gt;- last_abs_x : int&lt;br&gt;- last_abs_y : int&lt;br&gt;- epoll_fd : int" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="3045.0" width="380" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="1e79088ea8474cf19ec8" value="- map_to_native(k : key) : uint16_t const&lt;br&gt;- probe_devices() : void&lt;br&gt;- probe_device(dev_name : std::string const&amp;amp;) : void&lt;br&gt;- process_event(ev : struct input_event const&amp;amp;) : void&lt;br&gt;+ backend()&lt;br&gt;+ ~backend() override&lt;br&gt;+ update() : void override&lt;br&gt;+ is_key_down(k : key) : bool const override&lt;br&gt;+ get_mouse_state() : mouse_state const override&lt;br&gt;+ reset_mouse_state(nx : int, ny : int) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="3165.0" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="3bb6dbf6a26e4d948927" value="health_system" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="3020.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="9d07ed6b36b44bf3902c" value="- current_hp : float&lt;br&gt;- max_hp : float&lt;br&gt;- armor : float&lt;br&gt;- max_armor : float&lt;br&gt;- active_effects : std::vector&amp;lt;std::unique_ptr&amp;lt;combat::status_effect&amp;gt;&amp;gt;&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="3045.0" width="380" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="ac1a34a0bd3c4f188532" value="+ health_system(hp : float, max : float, arm : float, max_arm : float)&lt;br&gt;+ apply_damage(amount : float) : void&lt;br&gt;+ apply_heal(amount : float) : void&lt;br&gt;+ apply_shield(amount : float) : void&lt;br&gt;+ apply_true_damage(amount : float) : void&lt;br&gt;+ add_effect(effect : std::unique_ptr&amp;lt;combat::status_effect&amp;gt;, owner : engine::actor&amp;amp;) : void&lt;br&gt;+ process_effects(dt : float, owner : engine::actor&amp;amp;) : void&lt;br&gt;+ is_dead() : bool const&lt;br&gt;friend class util::componentized&amp;lt;health_system&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="3165.0" width="380" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="9f9ab39432804b928a9d" value="«abstract»&lt;br&gt;entity" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="3565.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="727b34a9d0e3490dae0f" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="3590.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="2c912218dc074ac5a954" value="+ {abstract} update(dt : float const) : void&lt;br&gt;+ virtual ~entity()" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="3610.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="f3845ca772ae4745b777" value="renderable_entity" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="3565.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="602d14f6cb3a44679383" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="3590.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="8c0f0c9fe1fc4dabb7db" value="+ renderable_entity(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const)&lt;br&gt;+ ~renderable_entity() override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="3610.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="865566e511b84074a0a3" value="«enum»&lt;br&gt;faction" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="3565.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="2d08ee7a30944cd7b194" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="3590.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="934d09d252204feea08b" value="player&lt;br&gt;enemy&lt;br&gt;neutral" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="3610.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e170a36d878e4d4fba26" value="actor" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="3565.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="621d926557a245d8b4df" value="# health : systems::health_system&lt;br&gt;# movement_speed : float&lt;br&gt;# team : faction&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="3590.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="8ccc41c0d2e342319454" value="+ actor(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const, hp : float const, shield : float const, move_speed : float const, this_team : faction const)&lt;br&gt;+ virtual take_damage(dmg : float const) : void&lt;br&gt;+ virtual take_true_damage(dmg : float const) : void&lt;br&gt;+ virtual heal(amount : float const) : void&lt;br&gt;+ virtual add_shield(amount : float const) : void&lt;br&gt;+ virtual add_effect(effect : std::unique_ptr&amp;lt;combat::status_effect&amp;gt;) : void&lt;br&gt;+ is_dead() : bool const&lt;br&gt;+ update(dt : float) : void override&lt;br&gt;friend class combat::charmed&lt;br&gt;friend class combat::slowed&lt;br&gt;friend class game::game&lt;br&gt;friend class projectile" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="3670.0" width="380" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="21c5634b43fb44b899fe" value="projectile" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="3565.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="4e2d1c6ce8b44b6b9df1" value="# direction : math::vec2&lt;br&gt;# speed : float&lt;br&gt;# damage : float&lt;br&gt;# lifetime : float&lt;br&gt;# hit_radius : float&lt;br&gt;# team : faction&lt;br&gt;# world_ref : world*&lt;br&gt;# map_ref : geometry::map_data*&lt;br&gt;# self_id : util::indexed_storage&amp;lt;std::unique_ptr&amp;lt;entity&amp;gt;&amp;gt;::id_t&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="3590.0" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="19fb04b17c044c638063" value="# on_hit_effect : std::function&amp;lt;std::unique_ptr&amp;lt;combat::status_effect&amp;gt;()&amp;gt;&lt;br&gt;+ projectile(pos : math::vec2, z : float, tex : assets::texture_id, scale : float, dir : math::vec2, spd : float, dmg : float, life : float, f : faction, radius : float = 8.0f)&lt;br&gt;+ update(dt : float) : void override&lt;br&gt;friend class game::game&lt;br&gt;friend class combat::weapons::projectile_firing_mode&lt;br&gt;friend class entities::monster&lt;br&gt;friend class entities::monster_boss" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="3790.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="294120daf70d4a8ca915" value="world" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="3990.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="f4c23ab6eb3f441b8fb9" value="- entities : util::indexed_storage&amp;lt;std::unique_ptr&amp;lt;entity&amp;gt;&amp;gt;&lt;br&gt;- deleted_entities : std::vector&amp;lt;util::indexed_storage&amp;lt;std::unique_ptr&amp;lt;entity&amp;gt;&amp;gt;::id_t&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="4015.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ddb2cd9e0cf94e3a8b8b" value="+ world()&lt;br&gt;+ world(const world&amp;amp;) = delete&lt;br&gt;+ operator=(const world&amp;amp;) = delete&lt;br&gt;+ update(dt : float const) : void&lt;br&gt;+ operator[](id : util::indexed_storage&amp;lt;std::unique_ptr&amp;lt;entity&amp;gt;&amp;gt;::id_t const) : entity&amp;amp;&lt;br&gt;+ operator[](id : util::indexed_storage&amp;lt;std::unique_ptr&amp;lt;entity&amp;gt;&amp;gt;::id_t const) : entity const&amp;amp; const&lt;br&gt;+ get_entities() : util::indexed_storage&amp;lt;std::unique_ptr&amp;lt;entity&amp;gt;&amp;gt; const&amp;amp;&lt;br&gt;+ register_entity(e : std::unique_ptr&amp;lt;entity&amp;gt;) : util::indexed_storage&amp;lt;std::unique_ptr&amp;lt;entity&amp;gt;&amp;gt;::id_t&lt;br&gt;+ delete_entity(id : util::indexed_storage&amp;lt;std::unique_ptr&amp;lt;entity&amp;gt;&amp;gt;::id_t const) : void&lt;br&gt;+ entity_from_id(id : util::indexed_storage&amp;lt;std::unique_ptr&amp;lt;entity&amp;gt;&amp;gt;::id_t const) : entity* const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="4055.0" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="c0127b0ecbd64c6f87b1" value="status_effect" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="3990.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="6734d19737fe4de2bf4b" value="# duration : float&lt;br&gt;# intensity : unsigned int&lt;br&gt;# tick_interval : float&lt;br&gt;# tick_timer : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="4015.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="95f195ff83c441048428" value="+ status_effect(dur : float const, tick_inter : float, intens : unsigned int)&lt;br&gt;+ virtual on_apply(target : engine::actor&amp;amp;) : void&lt;br&gt;+ virtual on_expire(target : engine::actor&amp;amp;) : void&lt;br&gt;+ virtual affect(target : engine::actor&amp;amp;) : void&lt;br&gt;+ virtual ~status_effect()&lt;br&gt;+ tick(dt : float) : bool&lt;br&gt;+ is_expired() : bool const" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="4095.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="f564d950dfec4a7caecd" value="burning" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="3990.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="ee7effba7c944492ab4e" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="4015.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="9b63d1fc90fd496f9424" value="+ burning(dur : float const, intens : unsigned int)&lt;br&gt;+ affect(target : engine::actor&amp;amp;) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="4035.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="b715b43550c74990a1e5" value="charmed" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="3990.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="89dd28a7d8aa46a89244" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="4015.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="961bb0d0662a4b879952" value="+ charmed(dur : float const, intens : unsigned int)&lt;br&gt;+ on_apply(target : engine::actor&amp;amp;) : void override&lt;br&gt;+ on_expire(target : engine::actor&amp;amp;) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="4035.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="2a41405dc8df40a9be45" value="slowed" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="3990.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="cb6011a1d7454b93bb27" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="4015.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="96a363c539f548da8575" value="+ slowed(dur : float const, intens : unsigned int)&lt;br&gt;+ on_apply(target : engine::actor&amp;amp;) : void override&lt;br&gt;+ on_expire(target : engine::actor&amp;amp;) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="4035.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="de2b471e1af243928a22" value="«abstract»&lt;br&gt;firing_mode" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="4315.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="b328ab645bad42cba4f7" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="4340.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="d99e7564d07c4abba2a3" value="+ {abstract} spawn_bullet(pos : math::vec2, angle : float, damage : float) : void&lt;br&gt;+ virtual ~firing_mode()" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="4360.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="15255f037b6344d3aa33" value="hitscan_firing_mode" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="4315.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="630e8f418bb14597ac94" value="- map : geometry::map_data const&amp;amp;&lt;br&gt;- world_ref : engine::world const&amp;amp;&lt;br&gt;- max_range : float&lt;br&gt;- hit_radius : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="4340.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="579298dae0614395aa35" value="+ hitscan_firing_mode(map : geometry::map_data const&amp;amp;, world : engine::world const&amp;amp;, range : float = 8192.0f, radius : float = 32.0f)&lt;br&gt;+ spawn_bullet(pos : math::vec2, angle : float, damage : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="4420.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="398045d98ac44002af32" value="projectile_firing_mode" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="4315.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="1db1a9c107bd4566b149" value="- world_ref : engine::world&amp;amp;&lt;br&gt;- map_ref : geometry::map_data&amp;amp;&lt;br&gt;- team : engine::faction&lt;br&gt;- projectile_tex : assets::texture_id&lt;br&gt;- projectile_speed : float&lt;br&gt;- projectile_lifetime : float&lt;br&gt;- projectile_scale : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="4340.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="f3b9a6dea4bb4b579ae6" value="+ projectile_firing_mode(w : engine::world&amp;amp;, md : geometry::map_data&amp;amp;, f : engine::faction, tex : assets::texture_id, spd : float, lifetime : float = 5.0f, scale : float = 0.5f)&lt;br&gt;+ spawn_bullet(pos : math::vec2, angle : float, damage : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="4480.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="b04bf09e96454273950c" value="weapon" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="4315.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="4d2dfe47f8eb4872a42d" value="# ammo : std::unique_ptr&amp;lt;firing_mode&amp;gt;&lt;br&gt;# ammo_count : int&lt;br&gt;# max_ammo : int&lt;br&gt;# reserve_mags : int&lt;br&gt;# fire_rate : float&lt;br&gt;# last_shot_time : float&lt;br&gt;# damage : float&lt;br&gt;# mixer : audio::audio_mixer&amp;amp;&lt;br&gt;# assets : assets::asset_manager const&amp;amp;&lt;br&gt;# fire_sound_id : assets::audio_clip_id&lt;br&gt;# reload_sound_id : assets::audio_clip_id&lt;br&gt;# reload_duration : float&lt;br&gt;# reload_timer : float&lt;br&gt;# reloading : bool&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="4340.0" width="380" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="61350c8faf344db3befc" value="# finish_reload() : void&lt;br&gt;# weapon(firing : std::unique_ptr&amp;lt;firing_mode&amp;gt;, max : int, rate : float, dmg : float, reserve : int, mix : audio::audio_mixer&amp;amp;, am : assets::asset_manager const&amp;amp;, fire_snd : assets::audio_clip_id = -1, reload_snd : assets::audio_clip_id = -1, reload_dur : float = 1.5f)&lt;br&gt;+ virtual can_fire() : bool const&lt;br&gt;+ tick(dt : float) : void&lt;br&gt;+ resupply(amount : int) : void&lt;br&gt;+ virtual fire(pos : math::vec2, angle : float) : void&lt;br&gt;+ virtual reload() : void&lt;br&gt;+ virtual ~weapon()&lt;br&gt;friend class game::game" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="4640.0" width="380" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="44909537569b4eeba4be" value="pistol" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="4315.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="6cf375b2a69a4108a377" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="4340.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="41242d7e257b4c52a3ff" value="+ pistol(map : geometry::map_data const&amp;amp;, world : engine::world const&amp;amp;, mix : audio::audio_mixer&amp;amp;, am : assets::asset_manager const&amp;amp;)" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="4360.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="3d59588440dd45bca43a" value="smg" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="4880.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="f46a5a5a00cd4a358f23" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="4905.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="4912876464784252a5be" value="+ smg(map : geometry::map_data const&amp;amp;, world : engine::world const&amp;amp;, mix : audio::audio_mixer&amp;amp;, am : assets::asset_manager const&amp;amp;)" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="4925.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c90ad30c08a443c789ac" value="rifle" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="4880.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="46407007cbf74af3bf7f" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="4905.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="b7e4315a98dc49ffaafd" value="+ rifle(map : geometry::map_data const&amp;amp;, world : engine::world const&amp;amp;, mix : audio::audio_mixer&amp;amp;, am : assets::asset_manager const&amp;amp;)" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="4925.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="9b09782715334c379fd4" value="shotgun" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="4880.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="9551338cae974b3e94cf" value="+ {static} constexpr pellet_count : int = 8&lt;br&gt;+ {static} constexpr spread : float = 0.2618f" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="4905.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a434e21e8400470ab8c2" value="+ shotgun(map : geometry::map_data const&amp;amp;, world : engine::world const&amp;amp;, mix : audio::audio_mixer&amp;amp;, am : assets::asset_manager const&amp;amp;)&lt;br&gt;+ fire(pos : math::vec2, angle : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="4945.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="7360694f2d064100b37b" value="sniper_rifle" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="4880.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="b709cdfca4ad4c5588f4" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="4905.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="afb41a4eddfd4d3a8b36" value="+ sniper_rifle(map : geometry::map_data const&amp;amp;, world : engine::world const&amp;amp;, mix : audio::audio_mixer&amp;amp;, am : assets::asset_manager const&amp;amp;)" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="4925.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c58a718919054c2a8124" value="plasma_gun" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="4880.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c59493cdbec94339b93a" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="4905.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c6d1032d67654304991f" value="+ plasma_gun(map : geometry::map_data&amp;amp;, world : engine::world&amp;amp;, mix : audio::audio_mixer&amp;amp;, am : assets::asset_manager const&amp;amp;)" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="4925.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="20edeed1dc864bd2bdc3" value="katana" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="5045.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="34cea7c14c514118b85c" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="5070.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="bd5b605933bc4002bc88" value="+ katana(mix : audio::audio_mixer&amp;amp;, am : assets::asset_manager const&amp;amp;)&lt;br&gt;+ can_fire() : bool const override&lt;br&gt;+ fire(pos : math::vec2, angle : float) : void override&lt;br&gt;+ reload() : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="5090.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="5fa93d33b281448c9415" value="subsector" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="5045.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="58f788b15df04b0383a5" value="- lines : std::vector&amp;lt;util::indexed_storage&amp;lt;linedef&amp;gt;::id_t&amp;gt;&lt;br&gt;- sprites : std::vector&amp;lt;rendering::sprite*&amp;gt;&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="5070.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="72eafd51405a4992a067" value="+ add_sprite(spr : rendering::sprite*) : void&lt;br&gt;+ remove_sprite(spr : rendering::sprite*) : void&lt;br&gt;+ {static} load_from_bin(res : util::resource const&amp;amp;) : std::vector&amp;lt;subsector&amp;gt;&lt;br&gt;friend rendering::software_renderer" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="5130.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="824cd358ff1c47ee8e4e" value="sector" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="5045.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="e16b1c355b8b49439172" value="- floor_height : float&lt;br&gt;- ceiling_height : float&lt;br&gt;- floor_tex : assets::texture_id&lt;br&gt;- ceiling_tex : assets::texture_id&lt;br&gt;- light_level : std::uint8_t&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="5070.0" width="380" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="aba0d3a9116c434fbc43" value="+ sector(fh : float, ch : float, ft : assets::texture_id, ct : assets::texture_id, light : std::uint8_t)&lt;br&gt;+ {static} load_from_bin(res : util::resource const&amp;amp;) : std::vector&amp;lt;sector&amp;gt;&lt;br&gt;friend rendering::software_renderer" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="5190.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="6e4ef0f66cb1457ca53a" value="sidedef" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="5045.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="405664c6bb314b1fa2eb" value="- facing_sector : util::indexed_storage&amp;lt;sector&amp;gt;::id_t&lt;br&gt;- upper_tex : assets::texture_id&lt;br&gt;- middle_tex : assets::texture_id&lt;br&gt;- lower_tex : assets::texture_id&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="5070.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="05c7095116f040519edf" value="+ sidedef(sector : id_t, ut : assets::texture_id, mt : assets::texture_id, lt : assets::texture_id)&lt;br&gt;+ {static} load_from_bin(res : util::resource const&amp;amp;) : std::vector&amp;lt;sidedef&amp;gt;&lt;br&gt;friend rendering::software_renderer" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="5170.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="eeeadcfbf6c44d8faeef" value="bsp_node" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="5045.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="b46580b5305442b580a1" value="- pl_coord : math::vec2&lt;br&gt;- pl_dir : math::vec2&lt;br&gt;- front_box : bounding_box&lt;br&gt;- back_box : bounding_box&lt;br&gt;- front : util::indexed_storage&amp;lt;bsp_node&amp;gt;::id_t&lt;br&gt;- back : util::indexed_storage&amp;lt;bsp_node&amp;gt;::id_t&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="5070.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="a5e230c0f2d348bfbd73" value="+ is_front_leaf() : bool const&lt;br&gt;+ is_back_leaf() : bool const&lt;br&gt;+ get_front_index() : id_t const&lt;br&gt;+ get_back_index() : id_t const&lt;br&gt;+ is_pt_front_side(point : math::vec2 const&amp;amp;) : bool&lt;br&gt;+ {static} load_from_bin(res : util::resource const&amp;amp;) : std::vector&amp;lt;bsp_node&amp;gt;&lt;br&gt;friend rendering::software_renderer" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="5210.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="4580f518b37b4fc9ac02" value="linedef" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="5410.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="fe5fe524940649898835" value="- seg : math::segment&lt;br&gt;- front : util::indexed_storage&amp;lt;sidedef&amp;gt;::id_t&lt;br&gt;- back : util::indexed_storage&amp;lt;sidedef&amp;gt;::id_t&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="5435.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="99312a2ab8524e9da0c5" value="+ linedef(p0 : math::vec2 const, p1 : math::vec2 const, f : id_t, b : id_t)&lt;br&gt;+ {static} load_from_bin(res : util::resource const&amp;amp;) : std::vector&amp;lt;linedef&amp;gt;&lt;br&gt;+ is_wall() : bool const&lt;br&gt;+ is_portal() : bool const&lt;br&gt;+ dir() : math::vec2 const&lt;br&gt;+ len() : float const&lt;br&gt;friend util::componentized&amp;lt;linedef&amp;gt;&lt;br&gt;friend rendering::software_renderer" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="5515.0" width="380" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="42d212cb2b214dc4a1df" value="monster_spawn" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="5410.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="950d946aa8e34f64bb3d" value="- type : std::uint32_t&lt;br&gt;- pos : math::vec2&lt;br&gt;- z : float&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="5435.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="c3813cb0df5647d2a9c7" value="+ monster_spawn(t : std::uint32_t, p : math::vec2, height : float)&lt;br&gt;+ {static} load_from_bin(res : util::resource const&amp;amp;) : std::vector&amp;lt;monster_spawn&amp;gt;&lt;br&gt;friend util::componentized&amp;lt;monster_spawn&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="5515.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="8f1effcdbf1d4570850c" value="pickup_spawn" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="5410.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="1eef25f6795c461aa348" value="- type : std::uint32_t&lt;br&gt;- subtype : std::uint32_t&lt;br&gt;- pos : math::vec2&lt;br&gt;- z : float&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="5435.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="cc04d34597c9433dac3b" value="+ pickup_spawn(t : std::uint32_t, st : std::uint32_t, p : math::vec2, height : float)&lt;br&gt;+ {static} load_from_bin(res : util::resource const&amp;amp;) : std::vector&amp;lt;pickup_spawn&amp;gt;&lt;br&gt;friend util::componentized&amp;lt;pickup_spawn&amp;gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="5535.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="5710dda0e20b4db6a6c0" value="map_data" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="5410.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="7c0b7175a88742bf85ba" value="+ sectors : util::indexed_storage&amp;lt;sector&amp;gt;&lt;br&gt;+ sidedefs : util::indexed_storage&amp;lt;sidedef&amp;gt;&lt;br&gt;+ linedefs : util::indexed_storage&amp;lt;linedef&amp;gt;&lt;br&gt;+ subsectors : util::indexed_storage&amp;lt;subsector&amp;gt;&lt;br&gt;+ nodes : util::indexed_storage&amp;lt;bsp_node&amp;gt;&lt;br&gt;+ monster_spawns : std::vector&amp;lt;monster_spawn&amp;gt;&lt;br&gt;+ pickup_spawns : std::vector&amp;lt;pickup_spawn&amp;gt;&lt;br&gt;+ root_node_id : util::indexed_storage&amp;lt;bsp_node&amp;gt;::id_t" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="5435.0" width="380" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="5c37675c809942869a6c" value="+ get_subsector_id(pt : math::vec2 const&amp;amp;) : id_t const&lt;br&gt;+ move_to(spr : rendering::sprite*, new_pos : math::vec2 const&amp;amp;) : void&lt;br&gt;+ {static} load_from_bin(...) : map_data" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="5595.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="3876de2b976c4b80a16e" value="player" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="5410.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="266b5e3a04ef49cfa2b3" value="# weapons : std::vector&amp;lt;std::unique_ptr&amp;lt;combat::weapons::weapon&amp;gt;&amp;gt;&lt;br&gt;# sensitivity : float&lt;br&gt;# current_weapon_index : int&lt;br&gt;# map_ref : geometry::map_data*&lt;br&gt;# world_ref : engine::world*&lt;br&gt;# collision_radius : float&lt;br&gt;# walk_speed : float&lt;br&gt;# sprint_speed : float&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="5435.0" width="380" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="204b66db332d4a3a9c31" value="+ player(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const, hp : float, shield : float, move_speed : float, sens : float)&lt;br&gt;+ update(dt : float) : void override&lt;br&gt;+ move(direction : math::vec2) : void&lt;br&gt;+ rotate(yaw : float) : void&lt;br&gt;+ shoot() : void&lt;br&gt;+ reload() : void&lt;br&gt;+ switch_weapons(index : int) : void&lt;br&gt;+ start_sprint() : void&lt;br&gt;+ stop_sprint() : void&lt;br&gt;+ resupply&amp;lt;WeaponT&amp;gt;(amount : int) : bool&lt;br&gt;friend class world_object::weapon_pickup&lt;br&gt;friend class game::game" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="5615.0" width="380" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="6b19457119ca473e83c8" value="slug_projectile" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="5915.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="bc6b8e7691d44286953d" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="5940.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="164b61c7ce674a06bd69" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="5960.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="277c1d4528f74974a331" value="plasma_projectile" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="5915.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="3a8b43f6004e4c88b56e" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="5940.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="b1e7ef6ab7224efd971f" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="5960.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="9aa14a18bbc54cfcb6df" value="monster" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="5915.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="41bb221e7eab4ea08379" value="# target_ptr : engine::actor*&lt;br&gt;# map_ref : geometry::map_data*&lt;br&gt;# world_ref : engine::world*&lt;br&gt;# attack_cooldown : float&lt;br&gt;# attack_range : float&lt;br&gt;# detection_radius : float&lt;br&gt;# attack_damage : float&lt;br&gt;# attack_cd_max : float&lt;br&gt;# collision_radius : float&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="5940.0" width="380" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="2c8a7ecf3fd6432397ce" value="# has_target() : bool const&lt;br&gt;# dist_to_target() : float const&lt;br&gt;# dir_to_target() : math::vec2 const&lt;br&gt;# apply_wall_collision(new_pos : math::vec2&amp;amp;) : void const&lt;br&gt;# move_toward_target(speed : float, dt : float) : void&lt;br&gt;# move_away_from_target(speed : float, dt : float) : void&lt;br&gt;# strafe(speed : float, dt : float) : void&lt;br&gt;# melee_attack(damage : float) : void&lt;br&gt;# ranged_attack(damage : float, tex : assets::texture_id, speed : float) : void&lt;br&gt;+ monster(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const, hp : float, shield : float, move_speed : float, atk_range : float, det_radius : float, atk_dmg : float, atk_cd : float, target : engine::actor* = nullptr)&lt;br&gt;+ update(dt : float) : void override&lt;br&gt;friend class game::game" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="6140.0" width="380" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="f6333c31c5f44abbae3e" value="monster_basic" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="5915.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="7a9b881903834ad5b940" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="5940.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="e9260777dee0463fb5b3" value="+ monster_basic(p : math::vec2 const, z : float const, target : engine::actor* = nullptr)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="5960.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ed51bfcd63914f269def" value="monster_all_rounder" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="5915.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="487d769092b64f75a86b" value="- melee_mode : bool&lt;br&gt;- melee_threshold : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="5940.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="1a216ee168f14083aa3c" value="+ monster_all_rounder(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="5980.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ae9bbf2516da4cddb98d" value="monster_ranged" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="6440.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="7df12d4e6e8948c39035" value="- preferred_dist : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="6465.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c021fa0c54cf4c6d9f44" value="+ monster_ranged(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="6485.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="19b58b9a7e0e42b4b8ea" value="monster_sniper" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="6440.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="f496be8bb05e4ced8da0" value="- shoot_interval : float&lt;br&gt;- aim_timer : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="6465.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="23ade89e1ec34979b6f9" value="+ monster_sniper(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="6505.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="61725c5e370347fa8f86" value="monster_assault" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="6440.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="8dd3cc2710554dae8849" value="- burst_size : int&lt;br&gt;- burst_interval : float&lt;br&gt;- burst_remaining : int&lt;br&gt;- burst_timer : float&lt;br&gt;- burst_cooldown : float&lt;br&gt;- strafe_sign : float&lt;br&gt;- strafe_timer : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="6465.0" width="380" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="566a4c44f2994ea6b9a5" value="+ monster_assault(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="6605.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c4fa320d44ec42c0a665" value="monster_magic" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="6440.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="96481f1a558a415d9ced" value="- charge_time : float&lt;br&gt;- charge_timer : float&lt;br&gt;- is_charging : bool&lt;br&gt;- post_fire_cooldown : float&lt;br&gt;- sidestep_timer : float&lt;br&gt;- sidestep_sign : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="6465.0" width="380" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="a2b0f51d57bf46fc9b3b" value="+ monster_magic(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="6585.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="9aab9d732c484e2486ae" value="monster_Maly_Szybki" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="6440.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="fc0225a5085644dd9f1d" value="- is_dashing : bool&lt;br&gt;- dash_timer : float&lt;br&gt;- dash_cooldown : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="6465.0" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="778aac39f2ec446caa72" value="+ monster_Maly_Szybki(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="6525.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="7fe573370c3340618c38" value="monster_elite_swift" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="6705.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="a4abc1e710ba49f2a238" value="- charge_speed : float&lt;br&gt;- is_charging : bool&lt;br&gt;- charge_timer : float&lt;br&gt;- charge_cd : float&lt;br&gt;- circle_angle : float&lt;br&gt;- circle_radius : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="6730.0" width="380" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="3eb1087444da49b2b590" value="+ monster_elite_swift(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="6850.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="76c749cb0c4942a2adf5" value="monster_Duzy_Gruby" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="6705.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="85b5bf1db8814068b9f5" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="6730.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="4eef07509bad41a4afb3" value="+ monster_Duzy_Gruby(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="6750.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="523a9007ad2c407c8769" value="monster_elite_tank" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="6705.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="1a5788dacd074631a6ef" value="- melee_mode : bool&lt;br&gt;- melee_threshold : float&lt;br&gt;- heavy_timer : float&lt;br&gt;- heavy_cd : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="6730.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="26aaece1e19b432d9cfd" value="+ monster_elite_tank(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="6810.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="6ada5a5912ac44579809" value="monster_trapper" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="6705.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="0f1390c3bfc04a2e8ede" value="- max_traps : int&lt;br&gt;- traps_placed : int&lt;br&gt;- trap_timer : float&lt;br&gt;- trap_interval : float&lt;br&gt;- wander_timer : float&lt;br&gt;- wander_sign : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="6730.0" width="380" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="736f7b34ac83477e980e" value="+ monster_trapper(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="6850.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="60e80fceae59408eaf11" value="monster_spawner" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="6705.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="06b66fc9768644bdb8f6" value="- max_spawns : int&lt;br&gt;- current_spawns : int&lt;br&gt;- spawn_interval : float&lt;br&gt;- spawn_timer : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="6730.0" width="380" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="bb60461619a246579612" value="+ monster_spawner(p : math::vec2 const, z : float const)&lt;br&gt;+ update(dt : float) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="6810.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="b65e0333f47b478cb84f" value="monster_boss" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="6950.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="cefe340d8f924c0d87f8" value="- current_phase : int&lt;br&gt;- max_hp_val : float&lt;br&gt;- ranged_cooldown : float&lt;br&gt;- is_charging : bool&lt;br&gt;- charge_timer : float&lt;br&gt;- charge_cooldown : float&lt;br&gt;- post_charge_stun : float&lt;br&gt;- charge_dir : math::vec2&lt;br&gt;- is_channeling : bool&lt;br&gt;- channel_timer : float&lt;br&gt;- flash_timer : float&lt;br&gt;- phase3_debuffed : bool&lt;br&gt;- minion_ids : std::vector&amp;lt;id_t&amp;gt;&lt;br&gt;- wants_melee : bool&lt;br&gt;- stance_timer : float&lt;br&gt;- boss_map_ref : geometry::map_data*&lt;br&gt;-- Friends --" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="6975.0" width="380" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="576b209a59154078b1d7" value="- hp_ratio() : float const&lt;br&gt;- update_phase() : void&lt;br&gt;- phase1_ai(dt : float, dist : float) : void&lt;br&gt;- phase2_ai(dt : float, dist : float) : void&lt;br&gt;- phase3_ai(dt : float, dist : float) : void&lt;br&gt;- ranged_attack_slow() : void&lt;br&gt;- melee_attack_burn() : void&lt;br&gt;- start_charge() : void&lt;br&gt;- update_charge(dt : float) : void&lt;br&gt;- start_channel() : void&lt;br&gt;- minions_alive() : bool const&lt;br&gt;+ monster_boss(p : math::vec2 const, z : float const)&lt;br&gt;+ channeling() : bool const&lt;br&gt;+ flash_phase() : float const&lt;br&gt;+ update(dt : float) : void override&lt;br&gt;friend class game::game" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="7315.0" width="380" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="5dabaa43ee684759ad78" value="«abstract»&lt;br&gt;pickup" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="6950.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="2d88cb5d502b4985917a" value="- pickup_radius : float&lt;br&gt;- player_ref : entities::player&amp;amp;&lt;br&gt;- map_ref : geometry::map_data&amp;amp;&lt;br&gt;- subsector_id : util::indexed_storage&amp;lt;geometry::subsector&amp;gt;::id_t&lt;br&gt;- consumed : bool" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="6975.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="af6eaf34e27648dd8afb" value="+ pickup(pos : math::vec2, z : float, tex : assets::texture_id, p : entities::player&amp;amp;, md : geometry::map_data&amp;amp;, sub_id : id_t, radius : float = 20.0f, scale : float = 1.0f)&lt;br&gt;+ update(dt : float) : void override&lt;br&gt;+ is_consumed() : bool const&lt;br&gt;+ {abstract} on_pickup(p : entities::player&amp;amp;) : void&lt;br&gt;+ virtual ~pickup()" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="470.0" y="7075.0" width="380" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="132ca87d7bfd41f9b839" value="weapon_pickup" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="6950.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="e606d9c4d87c45a8b180" value="- provided_weapon : std::unique_ptr&amp;lt;combat::weapons::weapon&amp;gt;&lt;br&gt;- slot : int" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="6975.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="6f33669d278e423aa3d8" value="+ weapon_pickup(pos : math::vec2, z : float, tex : assets::texture_id, w : std::unique_ptr&amp;lt;combat::weapons::weapon&amp;gt;, weapon_slot : int, p : entities::player&amp;amp;, md : geometry::map_data&amp;amp;, sub_id : id_t, radius : float = 25.0f, scale : float = 0.4f)&lt;br&gt;+ on_pickup(p : entities::player&amp;amp;) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="890.0" y="7015.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="27721120ba0b45ec9303" value="armor_pickup" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="6950.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="396a7237ee484b18bcf8" value="- armor_amount : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="6975.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="f1a86142b288449e8263" value="+ armor_pickup(pos : math::vec2, z : float, tex : assets::texture_id, amount : float, p : entities::player&amp;amp;, md : geometry::map_data&amp;amp;, sub_id : id_t, radius : float = 20.0f)&lt;br&gt;+ on_pickup(p : entities::player&amp;amp;) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1310.0" y="6995.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="24f2dbf7d025499fa0de" value="health_pickup" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="6950.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="c22415d6d1b94377a296" value="- heal_amount : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="6975.0" width="380" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="a8a4ac84243647cead93" value="+ health_pickup(pos : math::vec2, z : float, tex : assets::texture_id, amount : float, p : entities::player&amp;amp;, md : geometry::map_data&amp;amp;, sub_id : id_t, radius : float = 20.0f)&lt;br&gt;+ on_pickup(p : entities::player&amp;amp;) : void override" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="1730.0" y="6995.0" width="380" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="4e102eb77cf3487e8bcc" value="game" style="rounded=0;whiteSpace=wrap;html=1;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="7695.0" width="380" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="eb95fd7a345944cab964" value="- rl : util::resource_loader&lt;br&gt;- am : assets::asset_manager&lt;br&gt;- input : std::unique_ptr&amp;lt;input::input_backend&amp;gt;&lt;br&gt;- rb : std::unique_ptr&amp;lt;rendering::rendering_backend&amp;gt;&lt;br&gt;- ab : std::unique_ptr&amp;lt;audio::audio_backend&amp;gt;&lt;br&gt;- md : geometry::map_data&lt;br&gt;- mix : audio::audio_mixer&lt;br&gt;- r2d : rendering::renderer_2d&lt;br&gt;- sr : rendering::software_renderer&lt;br&gt;- w : engine::world&lt;br&gt;- player_ptr : entities::player*&lt;br&gt;- fov : float" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="7720.0" width="380" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="81e5cbf8603e40539027" value="- text_scroll(text : std::vector&amp;lt;std::string&amp;gt; const&amp;amp;, aid : assets::audio_clip_id const) : void&lt;br&gt;- ts_from_resource(res_name : std::string const&amp;amp;, aid : assets::audio_clip_id const) : void&lt;br&gt;- opening() : void&lt;br&gt;- ending() : void&lt;br&gt;- credits() : void&lt;br&gt;- show_main_menu() : void&lt;br&gt;- show_options() : void&lt;br&gt;- loop() : void&lt;br&gt;- draw_hud() : void&lt;br&gt;+ game()&lt;br&gt;+ run() : void" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=4;" parent="1" vertex="1">
+          <mxGeometry x="50.0" y="7960.0" width="380" height="220" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

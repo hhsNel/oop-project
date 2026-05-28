@@ -8,9 +8,9 @@
 
 namespace entities {
 
-monster_boss::monster_boss(math::vec2 const p, float const z)
-	: monster(p, z, 3, 1.0f, 1000.0f, 300.0f, 70.0f, 350.0f, 500.0f, 20.0f, 1.0f),
-	  max_hp_val(1000.0f) {}
+monster_boss::monster_boss(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
+	: monster(p, z, 3, 1.0f, 1000.0f, 300.0f, 70.0f, 350.0f, 500.0f, 20.0f, 1.0f, target, map, world),
+	  max_hp_val(1000.0f), boss_map_ref(map) {}
 
 bool monster_boss::channeling() const { return is_channeling; }
 float monster_boss::flash_phase() const { return flash_timer; }

@@ -5,22 +5,21 @@
 #include "math/vec2.h"
 #include "firing-mode.h"
 #include "assets/ids.h"
+#include "util/componentized.h"
 
 namespace audio { class audio_mixer; }
 namespace assets { class asset_manager; }
 
-namespace game { class game; }
-
 namespace combat
 {
 	namespace weapons {
-		class weapon {
-			friend class game::game;
+		class weapon : public util::componentized<weapon> {
+			friend class util::componentized<weapon>;
 		protected:
 			std::unique_ptr<firing_mode> ammo;
-			int ammo_count;
+			[[=util::component_field{}]] int ammo_count;
 			int max_ammo;
-			int reserve_mags;
+			[[=util::component_field{}]] int reserve_mags;
 			float fire_rate;
 			float last_shot_time;
 			float damage;
@@ -28,9 +27,9 @@ namespace combat
 			assets::asset_manager const& assets;
 			assets::audio_clip_id fire_sound_id;
 			assets::audio_clip_id reload_sound_id;
-			float reload_duration;
-			float reload_timer;
-			bool reloading;
+			[[=util::component_field{}]] float reload_duration;
+			[[=util::component_field{}]] float reload_timer;
+			[[=util::component_field{}]] bool reloading;
 
 			void finish_reload();
 		public:

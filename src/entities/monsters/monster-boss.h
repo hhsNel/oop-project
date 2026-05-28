@@ -8,7 +8,6 @@
 namespace entities {
 
 	class monster_boss : public monster {
-		friend class game::game;
 		// phase tracking
 		int current_phase = 1;
 		float max_hp_val;
@@ -46,7 +45,6 @@ namespace entities {
 		bool  wants_melee    = false;
 		float stance_timer   = 10.0f;
 
-		// map ref for boss-specific spawning (set via game::game friend)
 		geometry::map_data* boss_map_ref = nullptr;
 
 		float hp_ratio() const;
@@ -62,7 +60,7 @@ namespace entities {
 		bool  minions_alive() const;
 
 	public:
-		monster_boss(math::vec2 const p, float const z);
+		monster_boss(math::vec2 const p, float const z, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
 
 		bool channeling() const;
 		float flash_phase() const;

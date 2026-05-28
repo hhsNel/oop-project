@@ -7,7 +7,7 @@ namespace entities {
 	class monster_ranged : public monster {
 		float preferred_dist;
 	public:
-		monster_ranged(math::vec2 const p, float const z);
+		monster_ranged(math::vec2 const p, float const z, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
 		void update(float dt) override;
 	};
 

@@ -248,13 +248,10 @@ namespace game {
 
 		auto p = std::make_unique<entities::player>(
 			math::vec2{0.0f, 0.0f}, 0.0f, 0, 1.0f,
-			100.0f, 50.0f, 120.0f, 1.0f);
+			100.0f, 50.0f, 120.0f, 1.0f, &md, &w);
 		player_ptr = &*p;
 
-		player_ptr->weapons[0] = std::make_unique<combat::weapons::pistol>(md, w, mix, am);
-		player_ptr->current_weapon_index = 0;
-		player_ptr->map_ref = &md;
-		player_ptr->world_ref = &w;
+		player_ptr->equip(0, std::make_unique<combat::weapons::pistol>(md, w, mix, am));
 
 		w.register_entity(std::move(p));
 
@@ -264,16 +261,11 @@ namespace game {
 		entities::monster_boss* boss_ptr = nullptr;
 
 		for (auto const& spawn : md.monster_spawns) {
-			auto m = entities::make_monster(spawn("type"_f), spawn("pos"_f), spawn("z"_f));
+			auto m = entities::make_monster(spawn("type"_f), spawn("pos"_f), spawn("z"_f), player_ptr, &md, &w);
 			if (m) {
 				auto* raw = &*m;
-				raw->target_ptr = player_ptr;
-				raw->map_ref = &md;
-				raw->world_ref = &w;
-				if (auto* boss = dynamic_cast<entities::monster_boss*>(raw)) {
-					boss->boss_map_ref = &md;
+				if (auto* boss = dynamic_cast<entities::monster_boss*>(raw))
 					boss_ptr = boss;
-				}
 				auto sub_id = has_bsp ? md.get_subsector_id(spawn("pos"_f)) : 1;
 				w.register_entity(std::move(m));
 				md.subsectors[sub_id].add_sprite(raw);
@@ -299,7 +291,7 @@ namespace game {
 		bool boss_dead = false;
 		float boss_dead_timer = 0.0f;
 		float damage_flash = 0.0f;
-		float prev_hp = player_ptr->health("current_hp"_f);
+		float prev_hp = (*player_ptr)("health"_f)("current_hp"_f);
 		auto last_tick = std::chrono::high_resolution_clock::now();
 
 		while(1) {
@@ -346,7 +338,7 @@ namespace game {
 
 			w.update(dt);
 
-			float cur_hp = player_ptr->health("current_hp"_f);
+			float cur_hp = (*player_ptr)("health"_f)("current_hp"_f);
 			if (cur_hp < prev_hp)
 				damage_flash = 0.25f;
 			prev_hp = cur_hp;
@@ -438,15 +430,16 @@ namespace game {
 		r2d.draw_texture(ch_tex, sw / 2 - ch_size / 2, sh / 2 - ch_size / 2, ch_size, ch_size);
 
 		// Reload bar
-		if (player_ptr->current_weapon_index >= 0 &&
-			player_ptr->current_weapon_index < static_cast<int>(player_ptr->weapons.size())) {
-			auto const& wpn = player_ptr->weapons[player_ptr->current_weapon_index];
-			if (wpn && wpn->reloading) {
+		auto const& p_weapons = (*player_ptr)("weapons"_f);
+		int const p_wpn_idx = (*player_ptr)("current_weapon_index"_f);
+		if (p_wpn_idx >= 0 && p_wpn_idx < static_cast<int>(p_weapons.size())) {
+			auto const& wpn = p_weapons[p_wpn_idx];
+			if (wpn && (*wpn)("reloading"_f)) {
 				int const bar_w = 80;
 				int const bar_h = 8;
 				int const bar_x = sw / 2 - bar_w / 2;
 				int const bar_y = sh / 2 + ch_size / 2 + 8;
-				float frac = wpn->reload_timer / wpn->reload_duration;
+				float frac = (*wpn)("reload_timer"_f) / (*wpn)("reload_duration"_f);
 				if (frac > 1.0f) frac = 1.0f;
 				r2d.draw_rect(bar_x, bar_y, bar_w, bar_h, 0x80333333);
 				r2d.draw_rect(bar_x, bar_y, static_cast<int>(bar_w * frac), bar_h, 0xFFFFFFFF);
@@ -463,7 +456,8 @@ namespace game {
 		r2d.draw_texture(hp_tex, hp_x, hp_y, hp_w, hp_h);
 
 		// HP bar
-		float hp_frac = player_ptr->health("current_hp"_f) / player_ptr->health("max_hp"_f);
+		auto const& p_health = (*player_ptr)("health"_f);
+		float hp_frac = p_health("current_hp"_f) / p_health("max_hp"_f);
 		if (hp_frac < 0.0f) hp_frac = 0.0f;
 		if (hp_frac > 1.0f) hp_frac = 1.0f;
 		int const bar_max_w = 46 * hud_scale;
@@ -474,8 +468,8 @@ namespace game {
 
 		// Armor bar
 		float arm_frac = 0.0f;
-		if (player_ptr->health("max_armor"_f) > 0.0f)
-			arm_frac = player_ptr->health("armor"_f) / player_ptr->health("max_armor"_f);
+		if (p_health("max_armor"_f) > 0.0f)
+			arm_frac = p_health("armor"_f) / p_health("max_armor"_f);
 		if (arm_frac < 0.0f) arm_frac = 0.0f;
 		if (arm_frac > 1.0f) arm_frac = 1.0f;
 		int const arm_bar_x = hp_x + 18 * hud_scale;
@@ -492,12 +486,11 @@ namespace game {
 		r2d.draw_texture(mag_tex, mag_x, mag_y, mag_w, mag_h);
 
 		// Ammo and reserve mags
-		if (player_ptr->current_weapon_index >= 0 &&
-			player_ptr->current_weapon_index < static_cast<int>(player_ptr->weapons.size())) {
-			auto const& wpn = player_ptr->weapons[player_ptr->current_weapon_index];
+		if (p_wpn_idx >= 0 && p_wpn_idx < static_cast<int>(p_weapons.size())) {
+			auto const& wpn = p_weapons[p_wpn_idx];
 			if (wpn) {
-				std::string ammo_str = std::to_string(wpn->ammo_count);
-				std::string mags_str = std::to_string(wpn->reserve_mags);
+				std::string ammo_str = std::to_string((*wpn)("ammo_count"_f));
+				std::string mags_str = std::to_string((*wpn)("reserve_mags"_f));
 				int const ammo_cw = 20;
 				int const ammo_ch = 28;
 				int ammo_tx = mag_x + mag_w / 2 - static_cast<int>(ammo_str.size()) * ammo_cw / 2;
@@ -525,8 +518,8 @@ namespace game {
 		int const cell_h = 8 * hud_scale;
 		int const sprite_size = 6 * hud_scale;
 
-		for (int i = 0; i < static_cast<int>(player_ptr->weapons.size()) && i < 7; ++i) {
-			if (!player_ptr->weapons[i]) continue;
+		for (int i = 0; i < static_cast<int>(p_weapons.size()) && i < 7; ++i) {
+			if (!p_weapons[i]) continue;
 			int col = i / 4;
 			int row = i % 4;
 			int slot_x = inv_x + col * cell_w + 10 * hud_scale;
@@ -534,7 +527,7 @@ namespace game {
 			auto const& weapon_sprite = am.sprite_tx_by_id(15 + i);
 			r2d.draw_texture(weapon_sprite, slot_x, slot_y + 1 * hud_scale, sprite_size, sprite_size);
 
-			if (i == player_ptr->current_weapon_index) {
+			if (i == p_wpn_idx) {
 				r2d.draw_rect(slot_x - 1, slot_y, sprite_size + 2, cell_h, 0x80FFFF00);
 			}
 		}

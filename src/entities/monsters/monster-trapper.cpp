@@ -2,8 +2,8 @@
 
 namespace entities {
 
-monster_trapper::monster_trapper(math::vec2 const p, float const z)
-	: monster(p, z, 12, 1.0f, 45.0f, 15.0f, 100.0f, 60.0f, 200.0f, 15.0f, 1.0f),
+monster_trapper::monster_trapper(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
+	: monster(p, z, 12, 1.0f, 45.0f, 15.0f, 100.0f, 60.0f, 200.0f, 15.0f, 1.0f, target, map, world),
 	  max_traps(3), traps_placed(0),
 	  trap_timer(0.0f), trap_interval(2.0f),
 	  wander_timer(0.0f), wander_sign(1.0f) {}

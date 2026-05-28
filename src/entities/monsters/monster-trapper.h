@@ -13,7 +13,7 @@ namespace entities {
 		float wander_sign;
 
 	public:
-		monster_trapper(math::vec2 const p, float const z);
+		monster_trapper(math::vec2 const p, float const z, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
 		void update(float dt) override;
 	};
 

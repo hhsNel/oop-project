@@ -5,11 +5,9 @@
 
 namespace engine { class world; }
 namespace geometry { class map_data; }
-namespace game { class game; }
 
 namespace entities {
 	class monster : public engine::actor {
-		friend class game::game;
 	protected:
 		engine::actor* target_ptr = nullptr;
 		geometry::map_data* map_ref = nullptr;
@@ -33,7 +31,7 @@ namespace entities {
 
 	public:
 
-		monster(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float atk_range, float det_radius, float atk_dmg, float atk_cd, engine::actor* target = nullptr);
+		monster(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float atk_range, float det_radius, float atk_dmg, float atk_cd, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
 
 		void update(float dt) override;
 	};

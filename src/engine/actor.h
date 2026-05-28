@@ -2,9 +2,9 @@
 
 #include "renderable-entity.h"
 #include "systems/health_systems.h"
+#include "util/componentized.h"
 
 namespace combat { class charmed; class slowed; }
-namespace game { class game; }
 
 namespace engine {
 
@@ -14,15 +14,18 @@ namespace engine {
 		neutral
 	};
 
-	class actor : public renderable_entity {
+	class actor : public renderable_entity, public util::componentized<actor> {
+	public:
+		using util::componentized<actor>::operator();
+		using rendering::sprite::operator();
 	protected:
-		systems::health_system health;
+		[[=util::component_field{}]] systems::health_system health;
 		float	  movement_speed;
 		faction	  team;
 
+		friend class util::componentized<actor>;
 		friend class combat::charmed;
 		friend class combat::slowed;
-		friend class game::game;
 		friend class projectile;
 
 	public:
