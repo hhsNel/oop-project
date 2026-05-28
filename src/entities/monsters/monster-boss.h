@@ -42,8 +42,11 @@ namespace entities {
 		// spawned minions tracking
 		std::vector<util::indexed_storage<std::unique_ptr<engine::entity>>::id_t> minion_ids;
 
-		// world + map refs for spawning (set via game::game friend)
-		engine::world*    world_ref = nullptr;
+		// combat stance
+		bool  wants_melee    = false;
+		float stance_timer   = 10.0f;
+
+		// map ref for boss-specific spawning (set via game::game friend)
 		geometry::map_data* boss_map_ref = nullptr;
 
 		float hp_ratio() const;

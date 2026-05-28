@@ -1252,20 +1252,15 @@ class Editor:
     def _trace_polygon(self, edges, verts_lookup):
         """
         Given a list of (v0, v1) edges and a callable verts_lookup(i)->(x,y),
-        attempt to chain them into an ordered polygon by following connections.
-        Falls back to convex-hull angle sort only when the chain is broken.
-        Returns list of (x,y) or None.
+        trace a single closed polygon. Returns list of (x,y) or None.
         """
         if not edges: return None
 
-        # Build adjacency: vertex -> list of connected vertices
         adj = {}
         for a, b in edges:
             adj.setdefault(a, []).append(b)
             adj.setdefault(b, []).append(a)
 
-        # Try to walk a closed chain starting from the vertex with lowest degree
-        # (or any vertex). We pick a start and greedily follow unvisited neighbours.
         all_verts = list(adj.keys())
         if len(all_verts) < 3: return None
 
@@ -1274,10 +1269,9 @@ class Editor:
         visited_edges = set()
         cur = start
 
+        closed = False
         while True:
             neighbours = adj.get(cur, [])
-            # prefer unvisited edge; among those prefer the one that continues
-            # the current direction (avoids doubling back on T-junctions)
             nxt = None
             for nb in neighbours:
                 key = (min(cur,nb), max(cur,nb))
@@ -1289,27 +1283,85 @@ class Editor:
             key = (min(cur,nxt), max(cur,nxt))
             visited_edges.add(key)
             if nxt == start:
-                break   # closed the loop
+                closed = True
+                break
             if nxt in chain:
-                # hit a vertex we already visited but haven't closed — give up
                 break
             chain.append(nxt)
             cur = nxt
 
-        if len(chain) < 3:
+        if not closed or len(chain) < 3:
             return None
 
         return [verts_lookup(i) for i in chain]
 
+    def _trace_all_polygons(self, edges, verts_lookup):
+        """
+        Trace all closed polygons from a set of edges (handles disconnected
+        components). Returns a list of polygons, each polygon being a list
+        of (x,y) points.
+        """
+        if not edges: return []
+
+        adj = {}
+        for a, b in edges:
+            adj.setdefault(a, []).append(b)
+            adj.setdefault(b, []).append(a)
+
+        visited_edges = set()
+        visited_verts = set()
+        polys = []
+
+        for start in adj:
+            if start in visited_verts:
+                continue
+
+            chain = [start]
+            cur = start
+            closed = False
+
+            while True:
+                neighbours = adj.get(cur, [])
+                nxt = None
+                for nb in neighbours:
+                    key = (min(cur,nb), max(cur,nb))
+                    if key not in visited_edges:
+                        nxt = nb
+                        break
+                if nxt is None:
+                    break
+                key = (min(cur,nxt), max(cur,nxt))
+                visited_edges.add(key)
+                if nxt == start:
+                    closed = True
+                    break
+                if nxt in chain:
+                    break
+                chain.append(nxt)
+                cur = nxt
+
+            for v in chain:
+                visited_verts.add(v)
+
+            if closed and len(chain) >= 3:
+                polys.append([verts_lookup(i) for i in chain])
+
+        return polys
+
     def _sector_polygon(self, si):
-        """Return world-space polygon for sector si (or None)."""
+        """Return first closed polygon for sector si (or None)."""
+        polys = self._sector_polygons(si)
+        return polys[0] if polys else None
+
+    def _sector_polygons(self, si):
+        """Return all closed polygons for sector si."""
         edges = []
         for l in self.map.linedefs:
             if l.front!=NULL_ID and l.front<len(self.map.sidedefs):
                 if self.map.sidedefs[l.front].facing_sector == si:
                     edges.append((l.v0, l.v1))
         def lookup(i): return (self.map.vertices[i].x, self.map.vertices[i].y)
-        return self._trace_polygon(edges, lookup)
+        return self._trace_all_polygons(edges, lookup)
 
     def _subsector_polygon(self, si):
         """Return world-space polygon for BSP subsector si (or None)."""
@@ -1410,7 +1462,6 @@ class Editor:
 
     def _draw_sector_fills(self, surf):
         alpha = pygame.Surface((CANVAS_W,CANVAS_H), pygame.SRCALPHA)
-        # collect edges per sector
         sec_edges = {}
         for l in self.map.linedefs:
             if l.front!=NULL_ID and l.front<len(self.map.sidedefs):
@@ -1466,7 +1517,7 @@ class Editor:
                 p1=self.w2s(self.bsp_verts[l.v1].x,self.bsp_verts[l.v1].y)
                 pygame.draw.line(alpha,(*base_col,200),p0,p1,2)
 
-        # partition planes
+        # partition planes (disabled — too noisy)
         for ni,n in enumerate(self.bsp_nodes):
             if n is None: continue
             col=(*DEFAULT_SUBSEC_COLORS[ni%len(DEFAULT_SUBSEC_COLORS)],35)
@@ -1734,13 +1785,6 @@ class Editor:
             elif pt==3: name+=f"({AMMO_SUBTYPE_NAMES[pst]})"
             self.status=f"Pickup '{name}' placed at ({int(swx)},{int(swy)})"
 
-        elif t==TOOL_MONSTER:
-            mt=max(0,min(len(MONSTER_NAMES)-1,self._int(self.fi_monster_type,2)))
-            mz=self._flt(self.fi_monster_z,0.0)
-            self.map.monsters.append(MonsterSpawn(swx,swy,mt,mz))
-            name=MONSTER_NAMES[mt]
-            self.status=f"Monster '{name}' placed at ({int(swx)},{int(swy)})"
-
         elif t==TOOL_DELETE:
             mi=self.near_monster(wx,wy,14)
             pi=self.near_pickup(wx,wy,14)
@@ -1906,7 +1950,10 @@ class Editor:
             try:
                 idx=int(float(self.fi_sec_idx.text))
                 if not self.fi_sec_idx.active and idx!=self.cur_sector:
-                    self.cur_sector=idx; self._sync_sector_fields()
+                    idx=max(0, min(idx, len(self.map.sectors)-1))
+                    if len(self.map.sectors)>0:
+                        self.cur_sector=idx; self._sync_sector_fields()
+                        self.fi_sec_idx.set(idx)
             except: pass
 
             # ── Render ─────────────────────────────────────────────────────────

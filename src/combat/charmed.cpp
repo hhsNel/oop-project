@@ -3,9 +3,6 @@
 
 namespace combat
 {
-	//charmed zmienia frakcję celu na gracza (player) przy nałożeniu,
-	//przywraca orginalną frakcję po wygaśnięciu
-	//tick_interval = 0.0f - efekt nie tickuje, działa wyłącznie przez on_apply/on_expire
 
 	void charmed::on_apply(engine::actor& target)
 	{

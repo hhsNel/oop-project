@@ -18,7 +18,6 @@ namespace combat {
 		void projectile_firing_mode::spawn_bullet(math::vec2 pos, float angle, float damage) {
 			math::vec2 dir{-std::sin(angle), std::cos(angle)};
 
-			// offset spawn slightly forward so it doesn't collide with shooter
 			math::vec2 spawn_pos = pos + dir * 20.0f;
 
 			auto proj = std::make_unique<engine::projectile>(

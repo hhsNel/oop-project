@@ -4,6 +4,7 @@ namespace entities {
 
 void monster_ranged::update(float dt) {
     monster::update(dt);
+    if (is_dead()) return;
     if (!has_target()) return;
 
     float dist = dist_to_target();
@@ -15,7 +16,7 @@ void monster_ranged::update(float dt) {
         move_toward_target(movement_speed, dt);
 
     if (dist <= attack_range && attack_cooldown <= 0.0f) {
-        ranged_attack(attack_damage, 29, 200.0f);
+        ranged_attack(attack_damage, 30, 200.0f);
         attack_cooldown = attack_cd_max;
     }
 }

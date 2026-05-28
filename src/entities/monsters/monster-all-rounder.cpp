@@ -4,6 +4,7 @@ namespace entities {
 
 void monster_all_rounder::update(float dt) {
     monster::update(dt);
+    if (is_dead()) return;
     if (!has_target()) return;
 
     float dist = dist_to_target();
@@ -24,7 +25,7 @@ void monster_all_rounder::update(float dt) {
         else if (dist > preferred + 1.0f) move_toward_target(movement_speed, dt);
 
         if (dist <= attack_range && attack_cooldown <= 0.0f) {
-            melee_attack(attack_damage);
+            ranged_attack(attack_damage, 30, 250.0f);
             attack_cooldown = attack_cd_max;
         }
     }

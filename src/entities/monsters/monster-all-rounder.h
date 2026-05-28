@@ -10,8 +10,8 @@ namespace entities {
 
 	public:
 		monster_all_rounder(math::vec2 const p, float const z)
-			: monster(p, z, 0, 1.0f, 80.0f, 20.0f, 2.0f, 5.0f, 10.0f, 10.0f, 1.0f),
-			  melee_mode(false), melee_threshold(2.5f) {}
+			: monster(p, z, 0, 1.0f, 80.0f, 20.0f, 80.0f, 100.0f, 250.0f, 10.0f, 1.0f),
+			  melee_mode(false), melee_threshold(60.0f) {}
 		void update(float dt) override;
 	};
 

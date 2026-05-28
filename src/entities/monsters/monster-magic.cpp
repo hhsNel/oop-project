@@ -4,6 +4,7 @@ namespace entities {
 
 void monster_magic::update(float dt) {
     monster::update(dt);
+    if (is_dead()) return;
     if (!has_target()) return;
 
     float dist = dist_to_target();
@@ -29,7 +30,7 @@ void monster_magic::update(float dt) {
 
     charge_timer += dt;
     if (charge_timer >= charge_time && dist <= attack_range && attack_cooldown <= 0.0f) {
-        melee_attack(attack_damage);
+        ranged_attack(attack_damage, 30, 200.0f);
         attack_cooldown    = attack_cd_max;
         is_charging        = false;
         charge_timer       = 0.0f;

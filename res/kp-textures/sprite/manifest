@@ -13,13 +13,13 @@ kp-textures/sprite/spawner.btx
 kp-textures/sprite/trapper.btx
 common/pickups/health.btx
 common/pickups/armor.btx
-common/weapons/Pistol.btx
-common/weapons/SMG.btx
-common/weapons/Rifle.btx
-common/weapons/Shotgun.btx
-common/weapons/Sniper.btx
-common/weapons/Plasma_Gun.btx
-common/weapons/Katana.btx
+common/weapons/pistol.btx
+common/weapons/smg.btx
+common/weapons/rifle.btx
+common/weapons/shotgun.btx
+common/weapons/sniper.btx
+common/weapons/plasma-gun.btx
+common/weapons/katana.btx
 common/pickups/pistol-ammo.btx
 common/pickups/smg-ammo.btx
 common/pickups/rifle-ammo.btx
@@ -28,3 +28,4 @@ common/pickups/sniper-ammo.btx
 common/pickups/plasma-ammo.btx
 common/projectiles/plasma.btx
 common/projectiles/slug.btx
+common/projectiles/plasma-proj.btx

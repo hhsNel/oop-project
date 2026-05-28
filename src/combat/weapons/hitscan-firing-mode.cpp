@@ -33,7 +33,7 @@ namespace combat {
                 if (!entity_ptr) continue;
                 auto* a = dynamic_cast<engine::actor*>(&*entity_ptr);
                 if (!a || a->is_dead()) continue;
-                // skip the shooter (distance ~0)
+                // skip the shooter (distance 0)
                 math::vec2 self_diff = (*a)("pos"_f) - pos;
                 if (self_diff.sqr_len() < 1.0f) continue;
 

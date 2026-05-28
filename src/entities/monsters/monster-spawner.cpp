@@ -4,6 +4,7 @@ namespace entities {
 
 void monster_spawner::update(float dt) {
     monster::update(dt);
+    if (is_dead()) return;
     if (current_spawns >= max_spawns) return;
 
     spawn_timer -= dt;

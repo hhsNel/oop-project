@@ -4,6 +4,7 @@ namespace entities {
 
 void monster_assault::update(float dt) {
     monster::update(dt);
+    if (is_dead()) return;
     if (!has_target()) return;
 
     float dist = dist_to_target();
@@ -25,7 +26,7 @@ void monster_assault::update(float dt) {
     if (burst_remaining > 0) {
         burst_timer -= dt;
         if (burst_timer <= 0.0f && dist <= attack_range) {
-            melee_attack(attack_damage);
+            ranged_attack(attack_damage, 30, 300.0f);
             --burst_remaining;
             burst_timer = burst_interval;
         }

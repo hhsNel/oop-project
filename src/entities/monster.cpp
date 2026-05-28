@@ -1,10 +1,8 @@
 #include "entities/monster.h"
-<<<<<<< HEAD
 #include "engine/projectile.h"
 #include "engine/world.h"
-=======
->>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 #include "geometry/map-data.h"
+#include "geometry/linedef.h"
 #include <cmath>
 
 namespace entities {
@@ -25,14 +23,52 @@ namespace entities {
 		return d.normalized();
 	}
 
+
+	// Closest point on segment AB to point P
+	static math::vec2 closest_on_seg(math::vec2 a, math::vec2 b, math::vec2 p) {
+		math::vec2 ab = b - a;
+		float ab_sq = ab.sqr_len();
+		if (ab_sq < 1e-8f) return a;
+		float t = math::vec2::dot_product(p - a, ab) / ab_sq;
+		if (t < 0.0f) t = 0.0f;
+		if (t > 1.0f) t = 1.0f;
+		return a + ab * t;
+	}
+
+	void monster::apply_wall_collision(math::vec2& new_pos) const {
+		if (!map_ref) return;
+		float r = collision_radius;
+		float r2 = r * r;
+		for (int iter = 0; iter < 4; ++iter) {
+			bool pushed = false;
+			for (auto const& e : map_ref->linedefs) {
+				geometry::linedef const& ld = e.value;
+				if (ld.is_portal()) continue;
+				math::vec2 a = ld("seg"_f)("point0"_f);
+				math::vec2 b = ld("seg"_f)("point1"_f);
+				math::vec2 cp = closest_on_seg(a, b, new_pos);
+				math::vec2 diff = new_pos - cp;
+				float d2 = diff.sqr_len();
+				if (d2 < r2 && d2 > 1e-8f) {
+					float d = std::sqrt(d2);
+					new_pos += diff * ((r - d) / d);
+					pushed = true;
+				}
+			}
+			if (!pushed) break;
+		}
+	}
+
 	void monster::move_toward_target(float speed, float dt) {
 		math::vec2 new_pos = pos + dir_to_target() * (speed * dt);
+		apply_wall_collision(new_pos);
 		if (map_ref) map_ref->move_to(this, new_pos);
 		else pos = new_pos;
 	}
 
 	void monster::move_away_from_target(float speed, float dt) {
 		math::vec2 new_pos = pos - dir_to_target() * (speed * dt);
+		apply_wall_collision(new_pos);
 		if (map_ref) map_ref->move_to(this, new_pos);
 		else pos = new_pos;
 	}
@@ -40,6 +76,7 @@ namespace entities {
 	void monster::strafe(float speed, float dt) {
 		math::vec2 perp = dir_to_target().perpendicular();
 		math::vec2 new_pos = pos + perp * (speed * dt);
+		apply_wall_collision(new_pos);
 		if (map_ref) map_ref->move_to(this, new_pos);
 		else pos = new_pos;
 	}
@@ -60,7 +97,7 @@ namespace entities {
 		math::vec2 spawn_pos = pos + dir * 20.0f;
 
 		auto proj = std::make_unique<engine::projectile>(
-			spawn_pos, z_pos, tex, 0.5f,
+			spawn_pos, z_pos, tex, 1.5f,
 			dir, speed, damage, 5.0f,
 			engine::faction::enemy);
 

@@ -195,15 +195,15 @@ int main() {
 
 		// basic porusza się w stronę celu w zasięgu detekcji
 		} else if (cmd == "basic_moves") {
-			auto t = make_player({5.0f, 0.0f});
+			auto t = make_player({100.0f, 0.0f});
 			auto m = make_m<entities::monster_basic>();
 			m.target_ptr = &t;
 			m.update(1.0f);
 			result(as_sprite(m)("pos"_f)("x"_f) > 0.0f ? "YES" : "NO");
 
-		// basic NIE rusza się gdy cel poza detection_radius=8
+		// basic NIE rusza się gdy cel poza detection_radius=200
 		} else if (cmd == "basic_no_detect") {
-			auto t = make_player({10.0f, 0.0f});
+			auto t = make_player({300.0f, 0.0f});
 			auto m = make_m<entities::monster_basic>();
 			m.target_ptr = &t;
 			m.update(1.0f);
@@ -218,9 +218,9 @@ int main() {
 			m.update(1.0f);
 			result(as_sprite(m)("pos"_f)("x"_f) == 0.0f ? "YES" : "NO");
 
-		// ranged oddala się gdy cel za blisko (< preferred_dist=8)
+		// ranged oddala się gdy cel za blisko (< preferred_dist=200)
 		} else if (cmd == "ranged_retreats") {
-			auto t = make_player({3.0f, 0.0f});
+			auto t = make_player({100.0f, 0.0f});
 			auto m = make_m<entities::monster_ranged>();
 			m.target_ptr = &t;
 			m.update(1.0f);
@@ -228,7 +228,7 @@ int main() {
 
 		// ranged przybliża się gdy cel za daleko (> preferred_dist, w detection)
 		} else if (cmd == "ranged_advances") {
-			auto t = make_player({12.0f, 0.0f});
+			auto t = make_player({300.0f, 0.0f});
 			auto m = make_m<entities::monster_ranged>();
 			m.target_ptr = &t;
 			m.update(1.0f);
@@ -280,7 +280,7 @@ int main() {
 
 		// sniper nie strzela przed upływem shoot_interval=3s
 		} else if (cmd == "sniper_no_early") {
-			auto t = make_player({5.0f, 0.0f});
+			auto t = make_player({100.0f, 0.0f});
 			auto m = make_m<entities::monster_sniper>();
 			m.target_ptr = &t;
 			m.update(1.0f); // aim_timer=1.0 < shoot_interval=3.0
@@ -288,7 +288,7 @@ int main() {
 
 		// sniper strzela gdy aim_timer >= shoot_interval (30 dmg)
 		} else if (cmd == "sniper_fires") {
-			auto t = make_player({5.0f, 0.0f});
+			auto t = make_player({100.0f, 0.0f});
 			auto m = make_m<entities::monster_sniper>();
 			m.target_ptr = &t;
 			// aim_timer starts at 0, shoot_interval=3.0
@@ -298,7 +298,7 @@ int main() {
 
 		// magic strzela po naladowaniu charge_time=2s (40 dmg)
 		} else if (cmd == "magic_fires") {
-			auto t = make_player({5.0f, 0.0f});
+			auto t = make_player({100.0f, 0.0f});
 			auto m = make_m<entities::monster_magic>();
 			m.target_ptr = &t;
 			// Pierwszy update ustawia is_charging=true, charge_timer rośnie

@@ -16,8 +16,6 @@
 #include "combat/weapons/pistol.h"
 
 
-//changes before rebase
-
 
 namespace game {
 
@@ -253,7 +251,6 @@ namespace game {
 			100.0f, 50.0f, 120.0f, 1.0f);
 		player_ptr = &*p;
 
-		// Give player a starting pistol (slot 0)
 		player_ptr->weapons.resize(7);
 		player_ptr->weapons[0] = std::make_unique<combat::weapons::pistol>(md, w, mix, am);
 		player_ptr->current_weapon_index = 0;
@@ -265,6 +262,7 @@ namespace game {
 		bool has_bsp = md.root_node_id != util::indexed_storage<geometry::bsp_node>::nullid;
 
 		std::vector<entities::monster*> alive_monsters;
+		entities::monster_boss* boss_ptr = nullptr;
 
 		for (auto const& spawn : md.monster_spawns) {
 			auto m = entities::make_monster(spawn("type"_f), spawn("pos"_f), spawn("z"_f));
@@ -275,6 +273,7 @@ namespace game {
 				raw->world_ref = &w;
 				if (auto* boss = dynamic_cast<entities::monster_boss*>(raw)) {
 					boss->boss_map_ref = &md;
+					boss_ptr = boss;
 				}
 				auto sub_id = has_bsp ? md.get_subsector_id(spawn("pos"_f)) : 1;
 				w.register_entity(std::move(m));
@@ -298,6 +297,10 @@ namespace game {
 
 		int prev_mouse_x = 0;
 		bool prev_r = false;
+		bool boss_dead = false;
+		float boss_dead_timer = 0.0f;
+		float damage_flash = 0.0f;
+		float prev_hp = player_ptr->health("current_hp"_f);
 		auto last_tick = std::chrono::high_resolution_clock::now();
 
 		while(1) {
@@ -316,17 +319,17 @@ namespace game {
 			if (input->is_key_down(input::key::s)) strafe += dt;
 			if (input->is_key_down(input::key::a)) fwd    -= dt;
 			if (input->is_key_down(input::key::d)) fwd    += dt;
+			if (input->is_key_down(input::key::v)) player_ptr->movement_speed=180.0f;
+			if (input->is_key_down(input::key::c)) player_ptr->movement_speed=120.0f;
 			if (fwd != 0.0f || strafe != 0.0f)
 				player_ptr->move({strafe, fwd});
 
-			// mouse rotation
 			auto mouse   = input->get_mouse_state();
 			int delta_x  = mouse.x - prev_mouse_x;
 			prev_mouse_x = mouse.x;
 			if (delta_x != 0)
 				player_ptr->rotate(static_cast<float>(-delta_x) * MOUSE_SENS);
 
-			// weapon switching (1-7)
 			if (input->is_key_down(input::key::n1)) player_ptr->switch_weapons(0);
 			if (input->is_key_down(input::key::n2)) player_ptr->switch_weapons(1);
 			if (input->is_key_down(input::key::n3)) player_ptr->switch_weapons(2);
@@ -335,7 +338,6 @@ namespace game {
 			if (input->is_key_down(input::key::n6)) player_ptr->switch_weapons(5);
 			if (input->is_key_down(input::key::n7)) player_ptr->switch_weapons(6);
 
-			// shooting
 			if (mouse.left)
 				player_ptr->shoot();
 			bool cur_r = input->is_key_down(input::key::r);
@@ -344,6 +346,13 @@ namespace game {
 			prev_r = cur_r;
 
 			w.update(dt);
+
+			float cur_hp = player_ptr->health("current_hp"_f);
+			if (cur_hp < prev_hp)
+				damage_flash = 0.25f;
+			prev_hp = cur_hp;
+			if (damage_flash > 0.0f)
+				damage_flash -= dt;
 
 			// remove dead monsters from subsectors (stop rendering them)
 			for (auto it = alive_monsters.begin(); it != alive_monsters.end(); ) {
@@ -357,6 +366,43 @@ namespace game {
 				}
 			}
 
+			if (boss_ptr && boss_ptr->is_dead() && !boss_dead) {
+				boss_dead = true;
+				boss_dead_timer = 10.0f;
+			}
+			if (boss_dead) {
+				boss_dead_timer -= dt;
+				if (boss_dead_timer <= 0.0f) {
+					ending();
+					break;
+				}
+			}
+
+			// player death → game over screen
+			if (player_ptr->is_dead()) {
+				int const sw = (*rb)("width"_f);
+				int const sh = (*rb)("height"_f);
+				std::memset(const_cast<std::uint32_t*>((*rb)("mmio"_f)), 0x00,
+					static_cast<std::size_t>(sh) * (*rb)("pitch"_f));
+				int const cw = 48;
+				int const ch = 72;
+				std::string_view text = "GAME OVER";
+				int tx = sw / 2 - static_cast<int>(text.size()) * cw / 2;
+				int ty = sh / 2 - ch / 2;
+				r2d.draw_text(text, tx, ty, cw, ch, 0xFF0000);
+				rb->flush();
+
+				while (true) {
+					input->update();
+					if (input->is_key_down(input::key::esc) ||
+						input->is_key_down(input::key::enter) ||
+						input->is_key_down(input::key::space))
+						break;
+					rb->wait_for_vsync();
+				}
+				break;
+			}
+
 			// render
 			auto& spr = static_cast<util::componentized<rendering::sprite>&>(*player_ptr);
 			std::memset(const_cast<std::uint32_t*>((*rb)("mmio"_f)), 0x00,
@@ -365,6 +411,14 @@ namespace game {
 			sr.render_bsp(spr("pos"_f), CAM_HEIGHT, spr("angle"_f), fov);
 
 			draw_hud();
+
+			if (damage_flash > 0.0f) {
+				int const sw = (*rb)("width"_f);
+				int const sh = (*rb)("height"_f);
+				std::uint32_t alpha = static_cast<std::uint32_t>(
+					(damage_flash / 0.25f) * 100.0f);
+				r2d.draw_rect(0, 0, sw, sh, (alpha << 24) | 0xFF0000);
+			}
 
 			rb->flush();
 
@@ -380,24 +434,40 @@ namespace game {
 		int const sw = (*rb)("width"_f);
 		int const sh = (*rb)("height"_f);
 
-		// HUD element scale (4x)
+		// HUD scale
 		constexpr int SCALE = 4;
 
-		// ── Crosshair (center of screen) ──────────────────────────────
-		auto const& ch_tex = am.ui_tx_by_id(9);  // crosshair2.btx
-		int const ch_size = 32 * 2;  // 64px on screen
+		// Crosshair
+		auto const& ch_tex = am.ui_tx_by_id(9);
+		int const ch_size = 32 * 2;
 		r2d.draw_texture(ch_tex, sw / 2 - ch_size / 2, sh / 2 - ch_size / 2, ch_size, ch_size);
 
-		// ── HP / Armor HUD (left bottom) ──────────────────────────────
-		auto const& hp_tex = am.ui_tx_by_id(6);  // HP-Arm-HUD.btx
-		int const hp_w = hp_tex("width"_f) * SCALE;   // 64*4 = 256
-		int const hp_h = hp_tex("height"_f) * SCALE;  // 32*4 = 128
+		// Reload bar
+		if (player_ptr->current_weapon_index >= 0 &&
+			player_ptr->current_weapon_index < static_cast<int>(player_ptr->weapons.size())) {
+			auto const& wpn = player_ptr->weapons[player_ptr->current_weapon_index];
+			if (wpn && wpn->reloading) {
+				int const bar_w = 80;
+				int const bar_h = 8;
+				int const bar_x = sw / 2 - bar_w / 2;
+				int const bar_y = sh / 2 + ch_size / 2 + 8;
+				float frac = wpn->reload_timer / wpn->reload_duration;
+				if (frac > 1.0f) frac = 1.0f;
+				r2d.draw_rect(bar_x, bar_y, bar_w, bar_h, 0x80333333);
+				r2d.draw_rect(bar_x, bar_y, static_cast<int>(bar_w * frac), bar_h, 0xFFFFFFFF);
+			}
+		}
+
+		// HP HUD
+		auto const& hp_tex = am.ui_tx_by_id(6);
+		int const hp_w = hp_tex("width"_f) * SCALE;
+		int const hp_h = hp_tex("height"_f) * SCALE;
 		int const hp_x = 0;
 		int const hp_y = sh - hp_h;
 
 		r2d.draw_texture(hp_tex, hp_x, hp_y, hp_w, hp_h);
 
-		// HP bar: to the right of the heart icon
+		// HP bar
 		float hp_frac = player_ptr->health("current_hp"_f) / player_ptr->health("max_hp"_f);
 		if (hp_frac < 0.0f) hp_frac = 0.0f;
 		if (hp_frac > 1.0f) hp_frac = 1.0f;
@@ -407,7 +477,7 @@ namespace game {
 		int const hp_bar_y = hp_y + 3 * SCALE;
 		r2d.draw_rect(hp_bar_x, hp_bar_y, static_cast<int>(bar_max_w * hp_frac), bar_h, 0xFFFF0000);
 
-		// Armor bar: to the right of the shield icon
+		// Armor bar
 		float arm_frac = 0.0f;
 		if (player_ptr->health("max_armor"_f) > 0.0f)
 			arm_frac = player_ptr->health("armor"_f) / player_ptr->health("max_armor"_f);
@@ -417,29 +487,27 @@ namespace game {
 		int const arm_bar_y = hp_y + 19 * SCALE;
 		r2d.draw_rect(arm_bar_x, arm_bar_y, static_cast<int>(bar_max_w * arm_frac), bar_h, 0xFF4488FF);
 
-		// ── Mag HUD (right bottom) ────────────────────────────────────
-		auto const& mag_tex = am.ui_tx_by_id(7);  // Mag_HUD.btx
-		int const mag_w = mag_tex("width"_f) * SCALE;   // 32*4 = 128
-		int const mag_h = mag_tex("height"_f) * SCALE;  // 32*4 = 128
+		// Mag HUD
+		auto const& mag_tex = am.ui_tx_by_id(7);
+		int const mag_w = mag_tex("width"_f) * SCALE;
+		int const mag_h = mag_tex("height"_f) * SCALE;
 		int const mag_x = sw - mag_w;
 		int const mag_y = sh - mag_h;
 
 		r2d.draw_texture(mag_tex, mag_x, mag_y, mag_w, mag_h);
 
-		// Draw ammo count and reserve mags
+		// Ammo and reserve mags
 		if (player_ptr->current_weapon_index >= 0 &&
 			player_ptr->current_weapon_index < static_cast<int>(player_ptr->weapons.size())) {
 			auto const& wpn = player_ptr->weapons[player_ptr->current_weapon_index];
 			if (wpn) {
 				std::string ammo_str = std::to_string(wpn->ammo_count);
 				std::string mags_str = std::to_string(wpn->reserve_mags);
-				// Large ammo count in upper half
 				int const ammo_cw = 20;
 				int const ammo_ch = 28;
 				int ammo_tx = mag_x + mag_w / 2 - static_cast<int>(ammo_str.size()) * ammo_cw / 2;
 				int ammo_ty = mag_y + 2 * SCALE;
 				r2d.draw_text(ammo_str, ammo_tx, ammo_ty, ammo_cw, ammo_ch, 0xFFFFFF);
-				// Smaller reserve count in lower half
 				int const mag_cw = 14;
 				int const mag_ch = 20;
 				int mags_tx = mag_x + mag_w / 2 - static_cast<int>(mags_str.size()) * mag_cw / 2;
@@ -448,18 +516,16 @@ namespace game {
 			}
 		}
 
-		// ── Weapon Inventory (left of Mag HUD) ───────────────────────
-		auto const& inv_tex = am.ui_tx_by_id(8);  // Weapon_inventory.btx
-		int const inv_w = inv_tex("width"_f) * SCALE;   // 64*4 = 256
-		int const inv_h = inv_tex("height"_f) * SCALE;  // 32*4 = 128
+		// Weapon inventory
+		auto const& inv_tex = am.ui_tx_by_id(8);
+		int const inv_w = inv_tex("width"_f) * SCALE;
+		int const inv_h = inv_tex("height"_f) * SCALE;
 		int const inv_x = mag_x - inv_w;
 		int const inv_y = sh - inv_h;
 
 		r2d.draw_texture(inv_tex, inv_x, inv_y, inv_w, inv_h);
 
-		// Draw weapon sprites next to their slot numbers
-		// Texture layout: 2 columns x 4 rows, numbers 1-4 left column, 5-7 right column
-		// Each cell is ~32x8 pixels in the 64x32 source
+		// Draw weapon sprites (almost) next to their slot numbers
 		int const cell_w = 32 * SCALE;
 		int const cell_h = 8 * SCALE;
 		int const sprite_size = 6 * SCALE;
@@ -470,10 +536,9 @@ namespace game {
 			int row = i % 4;
 			int slot_x = inv_x + col * cell_w + 10 * SCALE;
 			int slot_y = inv_y + row * cell_h;
-			// weapon sprite IDs: 15=pistol, 16=smg, 17=rifle, 18=shotgun, 19=sniper, 20=plasma, 21=katana
 			auto const& weapon_sprite = am.sprite_tx_by_id(15 + i);
 			r2d.draw_texture(weapon_sprite, slot_x, slot_y + 1 * SCALE, sprite_size, sprite_size);
-			// Highlight current weapon
+
 			if (i == player_ptr->current_weapon_index) {
 				r2d.draw_rect(slot_x - 1, slot_y, sprite_size + 2, cell_h, 0x80FFFF00);
 			}
@@ -481,7 +546,7 @@ namespace game {
 	}
 
 	void game::run() {
-//		opening();
+		//opening();
 		show_main_menu();
 	}
 

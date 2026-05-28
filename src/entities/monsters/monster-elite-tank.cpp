@@ -4,6 +4,7 @@ namespace entities {
 
 void monster_elite_tank::update(float dt) {
     monster::update(dt);
+    if (is_dead()) return;
     if (!has_target()) return;
 
     float dist = dist_to_target();

@@ -8,9 +8,6 @@ namespace engine { class world; }
 
 namespace combat {
     namespace weapons {
-        // Hitscan — natychmiastowy strzal rozwiazywany raycastem.
-        // Rzuca promien z pozycji strzalu, zatrzymuje sie na najblizszej solidnej scianie,
-        // i zadaje obrazenia najblizszemu aktorowi trafionemu przed ta sciana.
         class hitscan_firing_mode : public firing_mode {
             geometry::map_data const& map;
             engine::world const&      world_ref;

@@ -67,6 +67,7 @@ void projectile::update(float dt) {
 			math::vec2 diff = (*a)("pos"_f) - new_pos;
 			if (diff.sqr_len() < hit_radius * hit_radius) {
 				a->take_damage(damage);
+				if (on_hit_effect) a->add_effect(on_hit_effect());
 				remove_and_delete();
 				return;
 			}

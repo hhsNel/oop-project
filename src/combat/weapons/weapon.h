@@ -30,6 +30,11 @@ namespace combat
 			assets::asset_manager const& assets;
 			assets::audio_clip_id fire_sound_id;
 			assets::audio_clip_id reload_sound_id;
+			float reload_duration;
+			float reload_timer;
+			bool reloading;
+
+			void finish_reload();
 		public:
 			virtual bool can_fire() const;
 			void tick(float dt);
@@ -45,7 +50,8 @@ namespace combat
 			       audio::audio_mixer& mix,
 			       assets::asset_manager const& am,
 			       assets::audio_clip_id fire_snd = -1,
-			       assets::audio_clip_id reload_snd = -1);
+			       assets::audio_clip_id reload_snd = -1,
+			       float reload_dur = 1.5f);
 		};
 	}
 }

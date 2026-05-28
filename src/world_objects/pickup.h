@@ -19,7 +19,7 @@ namespace world_object {
 		pickup(math::vec2 pos, float z, assets::texture_id tex,
 		       entities::player& p, geometry::map_data& md,
 		       util::indexed_storage<geometry::subsector>::id_t sub_id,
-		       float radius = 20.0f);
+		       float radius = 20.0f, float scale = 1.0f);
 
 		void update(float dt) override;
 		bool is_consumed() const { return consumed; }

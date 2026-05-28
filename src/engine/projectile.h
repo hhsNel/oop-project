@@ -4,6 +4,9 @@
 #include "actor.h"
 #include "world.h"
 #include "math/vec2.h"
+#include "combat/status-effect.h"
+#include <memory>
+#include <functional>
 
 namespace geometry { class map_data; }
 namespace game { class game; }
@@ -24,6 +27,7 @@ namespace engine {
 		float lifetime;
 		float hit_radius;
 		faction team;
+		std::function<std::unique_ptr<combat::status_effect>()> on_hit_effect;
 
 		world* world_ref = nullptr;
 		geometry::map_data* map_ref = nullptr;

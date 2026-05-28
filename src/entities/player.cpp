@@ -30,7 +30,6 @@ namespace entities {
 		if (w) w->reload();
 	}
 
-	// Closest point on segment AB to point P
 	static math::vec2 closest_on_seg(math::vec2 a, math::vec2 b, math::vec2 p) {
 		math::vec2 ab = b - a;
 		float ab_sq = ab.sqr_len();
@@ -54,7 +53,7 @@ namespace entities {
 			float r = collision_radius;
 			float r2 = r * r;
 
-			// Wall collision — slide along walls
+			// Wall collision
 			for (int iter = 0; iter < 4; ++iter) {
 				bool pushed = false;
 				for (auto const& e : map_ref->linedefs) {
@@ -102,7 +101,6 @@ namespace entities {
 
 	void player::rotate(float yaw) {
 		angle += yaw * sensitivity;
-		// keep angle in [0, 2π)
 		angle = std::fmod(angle, 2.0f * std::numbers::pi_v<float>);
 		if (angle < 0.0f) angle += 2.0f * std::numbers::pi_v<float>;
 	}

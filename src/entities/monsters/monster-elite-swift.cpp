@@ -1,10 +1,12 @@
 #include "monster-elite-swift.h"
+#include "geometry/map-data.h"
 #include <cmath>
 
 namespace entities {
 
 void monster_elite_swift::update(float dt) {
     monster::update(dt);
+    if (is_dead()) return;
     if (!has_target()) return;
 
     float dist = dist_to_target();
@@ -33,8 +35,13 @@ void monster_elite_swift::update(float dt) {
 
     circle_angle += movement_speed * dt;
     if (target_ptr) {
-        pos("x"_f) = (*target_ptr)("pos"_f)("x"_f) + std::cos(circle_angle) * circle_radius;
-        pos("y"_f) = (*target_ptr)("pos"_f)("y"_f) + std::sin(circle_angle) * circle_radius;
+        math::vec2 new_pos{
+            (*target_ptr)("pos"_f)("x"_f) + std::cos(circle_angle) * circle_radius,
+            (*target_ptr)("pos"_f)("y"_f) + std::sin(circle_angle) * circle_radius
+        };
+        apply_wall_collision(new_pos);
+        if (map_ref) map_ref->move_to(this, new_pos);
+        else pos = new_pos;
     }
 
     if (dist <= attack_range && attack_cooldown <= 0.0f) {

@@ -7,28 +7,24 @@ namespace engine { class world; }
 namespace geometry { class map_data; }
 namespace game { class game; }
 
-namespace geometry { class map_data; }
-namespace game { class game; }
-
 namespace entities {
 	class monster : public engine::actor {
 		friend class game::game;
 	protected:
 		engine::actor* target_ptr = nullptr;
 		geometry::map_data* map_ref = nullptr;
-<<<<<<< HEAD
 		engine::world* world_ref = nullptr;
-=======
->>>>>>> 118b11eca7c34dd1debab28313e8436d01ca5361
 		float attack_cooldown;
 		float attack_range;
 		float detection_radius;
 		float attack_damage;
 		float attack_cd_max;
+		float collision_radius = 16.0f;
 
 		bool has_target() const;
 		float dist_to_target() const;
 		math::vec2 dir_to_target() const;
+		void apply_wall_collision(math::vec2& new_pos) const;
 		void move_toward_target(float speed, float dt);
 		void move_away_from_target(float speed, float dt);
 		void strafe(float speed, float dt);
