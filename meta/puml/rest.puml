@@ -1,0 +1,603 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam monochrome true
+
+' ==========================================
+' PACKAGES & CLASSES DEFINITIONS
+' ==========================================
+
+package util {
+    class "componentized<T>" as componentized {
+    }
+    class "indexed_storage<T>" as indexed_storage {
+    }
+    class "indexed_storage::id_t" as id_t << (D,#FF7700) typedef >>
+    class resource_loader {
+    }
+}
+
+package assets {
+    class asset_manager {
+    }
+    class audio_clip_id << (D,#FF7700) typedef >>
+    class texture_id << (D,#FF7700) typedef >>
+}
+
+package input {
+    abstract class input_backend {
+    }
+}
+
+package rendering {
+    abstract class rendering_backend {
+    }
+    class renderer_2d {
+    }
+    class software_renderer {
+    }
+    class sprite {
+    }
+}
+
+package audio {
+    abstract class audio_backend {
+    }
+    class audio_mixer {
+    }
+}
+
+package math {
+    class vec2 {
+    }
+}
+
+package geometry {
+    class map_data {
+    }
+}
+
+package engine {
+    abstract class entity {
+        + {abstract} update(dt : float const) : void
+        + virtual ~entity()
+    }
+
+    class renderable_entity {
+        + renderable_entity(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const)
+        + ~renderable_entity() override
+    }
+
+    enum faction {
+        player
+        enemy
+        neutral
+    }
+
+    class actor {
+        # health : systems::health_system
+        # angle : float
+        # movement_speed : float
+        # team : faction
+        + actor(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const, hp : float const, shield : float const, move_speed : float const, this_team : faction const)
+        + virtual take_damage(dmg : float const) : void
+        + virtual take_true_damage(dmg : float const) : void
+        + virtual heal(amount : float const) : void
+        + virtual add_shield(amount : float const) : void
+        + virtual add_effect(effect : std::unique_ptr<combat::status_effect>) : void
+        + is_dead() : bool const
+        + update(dt : float) : void override
+        -- Friends --
+        friend class combat::charmed
+        friend class combat::slowed
+    }
+
+    class world {
+        - entities : util::indexed_storage<std::unique_ptr<entity>>
+        - deleted_entities : std::vector<util::indexed_storage<std::unique_ptr<entity>>::id_t>
+        + world()
+        + world(const world&) = delete
+        + operator=(const world&) = delete
+        + update(dt : float const) : void
+        + operator[](id : util::indexed_storage<std::unique_ptr<entity>>::id_t const) : entity&
+        + operator[](id : util::indexed_storage<std::unique_ptr<entity>>::id_t const) : entity const&
+        + get_entities() : util::indexed_storage<std::unique_ptr<entity>> const&
+        + register_entity(e : std::unique_ptr<entity>) : util::indexed_storage<std::unique_ptr<entity>>::id_t
+        + delete_entity(id : util::indexed_storage<std::unique_ptr<entity>>::id_t const) : void
+        + entity_from_id(id : util::indexed_storage<std::unique_ptr<entity>>::id_t const) : entity* const
+    }
+    
+    class projectile {
+    }
+}
+
+package systems {
+    class health_system {
+        - current_hp : float
+        - max_hp : float
+        - armor : float
+        - max_armor : float
+        - active_effects : std::vector<std::unique_ptr<combat::status_effect>>
+        + health_system(hp : float, max : float, arm : float, max_arm : float)
+        + apply_damage(amount : float) : void
+        + apply_heal(amount : float) : void
+        + apply_shield(amount : float) : void
+        + apply_true_damage(amount : float) : void
+        + add_effect(effect : std::unique_ptr<combat::status_effect>, owner : engine::actor&) : void
+        + process_effects(dt : float, owner : engine::actor&) : void
+        + is_dead() : bool const
+        -- Friends --
+        friend class util::componentized<health_system>
+    }
+}
+
+package combat {
+    class status_effect {
+        # duration : float
+        # intensity : unsigned int
+        # tick_interval : float
+        # tick_timer : float
+        + status_effect(dur : float const, tick_inter : float, intens : unsigned int)
+        + virtual on_apply(target : engine::actor&) : void
+        + virtual on_expire(target : engine::actor&) : void
+        + virtual affect(target : engine::actor&) : void
+        + virtual ~status_effect()
+        + tick(dt : float) : bool
+        + is_expired() : bool const
+    }
+
+    class burning {
+        + burning(dur : float const, intens : unsigned int)
+        + affect(target : engine::actor&) : void override
+    }
+
+    class charmed {
+        + charmed(dur : float const, intens : unsigned int)
+        + on_apply(target : engine::actor&) : void override
+        + on_expire(target : engine::actor&) : void override
+    }
+
+    class slowed {
+        + slowed(dur : float const, intens : unsigned int)
+        + on_apply(target : engine::actor&) : void override
+        + on_expire(target : engine::actor&) : void override
+    }
+
+    package weapons {
+        abstract class firing_mode {
+            + {abstract} spawn_bullet(pos : math::vec2, angle : float, damage : float) : void
+            + virtual ~firing_mode()
+        }
+
+        class hitscan_firing_mode {
+            - map : geometry::map_data const&
+            - world_ref : engine::world const&
+            - max_range : float
+            - hit_radius : float
+            + hitscan_firing_mode(map : geometry::map_data const&, world : engine::world const&, range : float = 8192.0f, radius : float = 16.0f)
+            + spawn_bullet(pos : math::vec2, angle : float, damage : float) : void override
+        }
+
+        class weapon {
+            # ammo : std::unique_ptr<firing_mode>
+            # ammo_count : int
+            # max_ammo : int
+            # reserve_mags : int
+            # fire_rate : float
+            # last_shot_time : float
+            # damage : float
+            # mixer : audio::audio_mixer&
+            # assets : assets::asset_manager const&
+            # fire_sound_id : assets::audio_clip_id
+            # reload_sound_id : assets::audio_clip_id
+            # weapon(firing : std::unique_ptr<firing_mode>, max : int, rate : float, dmg : float, reserve : int, mix : audio::audio_mixer&, am : assets::asset_manager const&, fire_snd : assets::audio_clip_id = -1, reload_snd : assets::audio_clip_id = -1)
+            + virtual can_fire() : bool const
+            + tick(dt : float) : void
+            + resupply(amount : int) : void
+            + virtual fire(pos : math::vec2, angle : float) : void
+            + virtual reload() : void
+            + virtual ~weapon()
+        }
+
+        class pistol {
+            + pistol(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+        }
+
+        class smg {
+            + smg(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+        }
+
+        class rifle {
+            + rifle(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+        }
+
+        class shotgun {
+            + {static} constexpr pellet_count : int = 8
+            + {static} constexpr spread : float = 0.2618f
+            + shotgun(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+            + fire(pos : math::vec2, angle : float) : void override
+        }
+
+        class sniper_rifle {
+            + sniper_rifle(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+        }
+
+        class plasma_gun {
+            + plasma_gun(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+        }
+
+        class katana {
+            + katana(mix : audio::audio_mixer&, am : assets::asset_manager const&)
+            + can_fire() : bool const override
+            + fire(pos : math::vec2, angle : float) : void override
+            + reload() : void override
+        }
+    }
+}
+
+package world_object {
+    abstract class pickup {
+        - position : math::vec2
+        - pickup_radius : float
+        - player_ref : entities::player&
+        - world_ref : engine::world&
+        - self_id : util::indexed_storage<std::unique_ptr<engine::entity>>::id_t
+        + pickup(pos : math::vec2, p : entities::player&, w : engine::world&, id : util::indexed_storage<std::unique_ptr<engine::entity>>::id_t, radius : float = 20.0f)
+        + update(dt : float) : void override
+        + in_range(player_pos : math::vec2) : bool const
+        + {abstract} on_pickup(p : entities::player&) : void
+        + virtual ~pickup()
+    }
+
+    class weapon_pickup {
+        - provided_weapon : std::unique_ptr<combat::weapons::weapon>
+        + weapon_pickup(pos : math::vec2, w : std::unique_ptr<combat::weapons::weapon>, p : entities::player&, world : engine::world&, id : util::indexed_storage<std::unique_ptr<engine::entity>>::id_t, radius : float = 25.0f)
+        + on_pickup(p : entities::player&) : void override
+    }
+
+    class armor_pickup {
+        - armor_amount : float
+        + armor_pickup(pos : math::vec2, amount : float, p : entities::player&, w : engine::world&, id : util::indexed_storage<std::unique_ptr<engine::entity>>::id_t, radius : float = 20.0f)
+        + on_pickup(p : entities::player&) : void override
+    }
+
+    class health_pickup {
+        - heal_amount : float
+        + health_pickup(pos : math::vec2, amount : float, p : entities::player&, w : engine::world&, id : util::indexed_storage<std::unique_ptr<engine::entity>>::id_t, radius : float = 20.0f)
+        + on_pickup(p : entities::player&) : void override
+    }
+
+    class "ammo_pickup<WeaponT>" as ammo_pickup {
+        - amount : int
+        + ammo_pickup(pos : math::vec2, amt : int, radius : float = 20.0f)
+        + on_pickup(p : entities::player&) : void override
+    }
+}
+
+package entities {
+    class player {
+        # weapons : std::vector<std::unique_ptr<combat::weapons::weapon>>
+        # sensitivity : float
+        # current_weapon_index : int
+        + player(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const, hp : float, shield : float, move_speed : float, sens : float)
+        + update(dt : float) : void override
+        + move(direction : math::vec2) : void
+        + rotate(yaw : float) : void
+        + shoot() : void
+        + reload() : void
+        + switch_weapons(index : int) : void
+        + resupply<WeaponT>(amount : int) : bool
+        -- Friends --
+        friend class world_object::weapon_pickup
+    }
+
+    class slug_projectile {
+    }
+
+    class plasma_projectile {
+        + speed : float
+        + damage : int
+    }
+
+    class monster {
+        # target_ptr : engine::actor*
+        # attack_cooldown : float
+        # attack_range : float
+        # detection_radius : float
+        # attack_damage : float
+        # attack_cd_max : float
+        # has_target() : bool const
+        # dist_to_target() : bool const
+        # dir_to_target() : math::vec2 const
+        # move_toward_target(speed : float, dt : float) : void
+        # move_away_from_target(speed : float, dt : float) : void
+        # strafe(speed : float, dt : float) : void
+        # melee_attack(damage : float) : void
+        + monster(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const, hp : float, shield : float, move_speed : float, atk_range : float, det_radius : float, atk_dmg : float, atk_cd : float, target : engine::actor* = nullptr)
+        + update(dt : float) : void override
+    }
+
+    package monsters {
+        class monster_basic {
+            + monster_basic(p : math::vec2 const, z : float const, target : engine::actor* = nullptr)
+            + update(dt : float) : void override
+        }
+
+        class monster_all_rounder {
+            - melee_mode : bool
+            - melee_threshold : float
+            + monster_all_rounder(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_ranged {
+            - preferred_dist : float
+            + monster_ranged(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_sniper {
+            - shoot_interval : float
+            - aim_timer : float
+            + monster_sniper(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_assault {
+            - burst_size : int
+            - burst_interval : float
+            - burst_remaining : int
+            - burst_timer : float
+            - burst_cooldown : float
+            - strafe_sign : float
+            - strafe_timer : float
+            + monster_assault(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_magic {
+            - charge_time : float
+            - charge_timer : float
+            - is_charging : bool
+            - post_fire_cooldown : float
+            - sidestep_timer : float
+            - sidestep_sign : float
+            + monster_magic(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_Maly_Szybki {
+            - is_dashing : bool
+            - dash_timer : float
+            - dash_cooldown : float
+            + monster_Maly_Szybki(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_elite_swift {
+            - charge_speed : float
+            - is_charging : bool
+            - charge_timer : float
+            - charge_cd : float
+            - circle_angle : float
+            - circle_radius : float
+            + monster_elite_swift(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_Duzy_Gruby {
+            + monster_Duzy_Gruby(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_elite_tank {
+            - melee_mode : bool
+            - melee_threshold : float
+            - heavy_timer : float
+            - heavy_cd : float
+            + monster_elite_tank(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_trapper {
+            - max_traps : int
+            - traps_placed : int
+            - trap_timer : float
+            - trap_interval : float
+            - wander_timer : float
+            - wander_sign : float
+            + monster_trapper(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_spawner {
+            - max_spawns : int
+            - current_spawns : int
+            - spawn_interval : float
+            - spawn_timer : float
+            + monster_spawner(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_boss {
+            - current_phase : int = 1
+            - max_hp_val : float
+            - ranged_cooldown : float = 0.0f
+            - {static} ranged_cd_max : float = 3.0f
+            - {static} projectile_count : int = 4
+            - {static} projectile_spread : float = 0.15f
+            - is_charging : bool = false
+            - charge_timer : float = 0.0f
+            - charge_cooldown : float = 0.0f
+            - post_charge_stun : float = 0.0f
+            - charge_dir : math::vec2
+            - {static} charge_speed_mult : float = 5.0f
+            - {static} charge_duration : float = 1.2f
+            - {static} charge_cd_max : float = 6.0f
+            - {static} stun_duration : float = 2.0f
+            - is_channeling : bool = false
+            - channel_timer : float = 0.0f
+            - flash_timer : float = 0.0f
+            - phase3_debuffed : bool = false
+            - minion_ids : std::vector<util::indexed_storage<std::unique_ptr<engine::entity>>::id_t>
+            - world_ref : engine::world&
+            - map_ref : geometry::map_data&
+            - hp_ratio() : float const
+            - update_phase() : void
+            - phase1_ai(dt : float, dist : float) : void
+            - phase2_ai(dt : float, dist : float) : void
+            - phase3_ai(dt : float, dist : float) : void
+            - ranged_attack_slow() : void
+            - melee_attack_burn() : void
+            - start_charge() : void
+            - update_charge(dt : float) : void
+            - start_channel() : void
+            - minions_alive() : bool const
+            + monster_boss(p : math::vec2 const, z : float const, w : engine::world&, md : geometry::map_data&)
+            + channeling() : bool const
+            + flash_phase() : float const
+            + update(dt : float) : void override
+        }
+    }
+}
+
+package game {
+    class game {
+        - rl : util::resource_loader
+        - am : assets::asset_manager
+        - input : std::unique_ptr<input::input_backend>
+        - rb : std::unique_ptr<rendering::rendering_backend>
+        - ab : std::unique_ptr<audio::audio_backend>
+        - md : geometry::map_data
+        - mix : audio::audio_mixer
+        - r2d : rendering::renderer_2d
+        - sr : rendering::software_renderer
+        - w : engine::world
+        - fov : float
+        - text_scroll(text : std::vector<std::string> const&, aid : assets::audio_clip_id const) : void
+        - ts_from_resource(res_name : std::string const&, aid : assets::audio_clip_id const) : void
+        - opening() : void
+        - ending() : void
+        - credits() : void
+        - show_main_menu() : void
+        - show_options() : void
+        - loop() : void
+        + game()
+        + run() : void
+    }
+}
+
+
+' ==========================================
+' RELATIONSHIPS & ARCHITECTURE MAP
+' ==========================================
+
+'' --- Core Inheritances (Engine & Frameworks) ---
+rendering::sprite <|-- engine::renderable_entity
+engine::entity <|-- engine::renderable_entity
+engine::renderable_entity <|-- engine::actor
+engine::entity <|-- world_object::pickup
+systems::health_system --|> util::componentized
+
+'' --- Projectile Hierarchies ---
+engine::projectile <|-- entities::slug_projectile
+engine::projectile <|-- entities::plasma_projectile
+
+'' --- Main Actor Hierarchies ---
+engine::actor <|-- entities::player
+engine::actor <|-- entities::monster
+
+'' --- Monster Sub-Class Implementations ---
+entities::monster <|-- entities::monsters::monster_basic
+entities::monster <|-- entities::monsters::monster_all_rounder
+entities::monster <|-- entities::monsters::monster_ranged
+entities::monster <|-- entities::monsters::monster_sniper
+entities::monster <|-- entities::monsters::monster_assault
+entities::monster <|-- entities::monsters::monster_magic
+entities::monster <|-- entities::monsters::monster_Maly_Szybki
+entities::monster <|-- entities::monsters::monster_elite_swift
+entities::monster <|-- entities::monsters::monster_Duzy_Gruby
+entities::monster <|-- entities::monsters::monster_elite_tank
+entities::monster <|-- entities::monsters::monster_trapper
+entities::monster <|-- entities::monsters::monster_spawner
+entities::monster <|-- entities::monsters::monster_boss
+
+'' --- Combat Status Effects Inheritance ---
+combat::status_effect <|-- combat::burning
+combat::status_effect <|-- combat::charmed
+combat::status_effect <|-- combat::slowed
+
+'' --- Combat Firing Mode Strategy & Inheritance ---
+combat::weapons::firing_mode <|-- combat::weapons::hitscan_firing_mode
+combat::weapons::weapon *-- combat::weapons::firing_mode : maintains ammo/logic
+
+'' --- Combat Weapons Inheritance ---
+combat::weapons::weapon <|-- combat::weapons::pistol
+combat::weapons::weapon <|-- combat::weapons::smg
+combat::weapons::weapon <|-- combat::weapons::rifle
+combat::weapons::weapon <|-- combat::weapons::shotgun
+combat::weapons::weapon <|-- combat::weapons::sniper_rifle
+combat::weapons::weapon <|-- combat::weapons::plasma_gun
+combat::weapons::weapon <|-- combat::weapons::katana
+
+'' --- World Object Pickups Hierarchy ---
+world_object::pickup <|-- world_object::weapon_pickup
+world_object::pickup <|-- world_object::armor_pickup
+world_object::pickup <|-- world_object::health_pickup
+world_object::pickup <|-- world_object::ammo_pickup
+
+'' --- Structural Compositions & Dependencies ---
+engine::actor *-- engine::faction : uses
+engine::actor *-- systems::health_system : maintains
+systems::health_system *-- "many" combat::status_effect : maintains active effects
+entities::player *-- combat::weapons::weapon : coordinates inventory
+world_object::pickup *-- math::vec2 : tracks spatial coordinates
+world_object::weapon_pickup *-- combat::weapons::weapon : wraps weapon resource item
+
+'' --- System Storage & Management Network ---
+engine::world *-- util::indexed_storage : manages
+engine::world ..> util::id_t : tracks identifiers
+engine::world --> "many" engine::entity : coordinates lifecycle
+
+'' --- Game Facade / Orchestrator Composition ---
+game::game *-- util::resource_loader
+game::game *-- assets::asset_manager
+game::game *-- input::input_backend : manages polymorphically
+game::game *-- rendering::rendering_backend : manages polymorphically
+game::game *-- audio::audio_backend : manages polymorphically
+game::game *-- geometry::map_data
+game::game *-- audio::audio_mixer
+game::game *-- rendering::renderer_2d
+game::game *-- rendering::software_renderer
+game::game *-- engine::world
+game::game ..> assets::audio_clip_id : uses
+
+'' --- Cross-System & Association Links ---
+systems::health_system ..> engine::actor : affects owner entity
+entities::monster o-- engine::actor : keeps target tracker
+world_object::pickup o-- entities::player : queries proximity against player
+world_object::pickup o-- engine::world : interacts with tracking registry
+world_object::pickup ..> util::id_t : holds self identifier key
+entities::monsters::monster_boss o-- engine::world : interacts with simulation
+entities::monsters::monster_boss o-- geometry::map_data : accesses raycasts/navigation
+
+'' --- Audio, Graphics & Geometry Links ---
+combat::weapons::firing_mode ..> math::vec2 : geometry
+combat::weapons::hitscan_firing_mode o-- geometry::map_data : accesses
+combat::weapons::hitscan_firing_mode o-- engine::world : accesses
+combat::weapons::weapon o-- audio::audio_mixer : plays sounds
+combat::weapons::weapon o-- assets::asset_manager : accesses assets
+combat::weapons::weapon ..> assets::audio_clip_id : uses audio keys
+engine::actor ..> combat::status_effect : processes
+engine::actor ..> math::vec2 : positional geometry
+engine::actor ..> assets::texture_id : graphics texture map
+engine::renderable_entity ..> math::vec2
+engine::renderable_entity ..> assets::texture_id
+
+'' --- Cross-Boundary Friend Declarations ---
+engine::actor ..> combat::charmed : allows friend access
+engine::actor ..> combat::slowed : allows friend access
+entities::player ..> world_object::weapon_pickup : grants layout access
+entities::player -- world_object::weapon_pickup : friend
+
+@enduml

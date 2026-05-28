@@ -1,0 +1,88 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam monochrome true
+
+package input {
+
+    '' ========================================================
+    '' input-backend.h (Types)
+    '' ========================================================
+    enum key {
+        unknown = 0
+        a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
+        n0, n1, n2, n3, n4, n5, n6, n7, n8, n9
+        f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12
+        esc, tab, caps_lock, l_shift, l_ctrl, l_meta, l_alt, space, r_alt, r_meta, r_ctrl, r_shift, enter, backspace
+        print_screen, scroll_lock, pause, insert, home, page_up, del, end, page_down, up, down, left, right
+        backtick, hyphen, equals, open_bracket, close_bracket, backslash, semicolon, quote, comma, period, slash
+        num_lock, kp_slash, kp_asterisk, kp_minus, kp_plus, kp_enter, kp_dot, kp0, kp1, kp2, kp3, kp4, kp5, kp6, kp7, kp8, kp9
+    }
+
+    struct mouse_state {
+        + x : int
+        + y : int
+        + left : bool
+        + right : bool
+        + middle : bool
+    }
+
+    '' ========================================================
+    '' input-backend.h (Base Class)
+    '' ========================================================
+    abstract class input_backend {
+        # bad : bool
+        + input_backend()
+        + virtual ~input_backend()
+        + {abstract} update() : void
+        + {abstract} is_key_down(k : key) : bool const
+        + {abstract} get_mouse_state() : mouse_state const
+        + {abstract} reset_mouse_state(nx : int = 0, ny : int = 0) : void
+        + virtual is_bad() : bool const
+        + {static} to_key(c : char) : key
+    }
+
+    package evdev {
+
+        '' ========================================================
+        '' evdev/backend.h
+        '' ========================================================
+        class backend {
+            - devices : std::vector<device_node>
+            - key_map : std::bitset<KEY_CNT>
+            - mouse : mouse_state
+            - last_abs_x : int
+            - last_abs_y : int
+            - epoll_fd : int
+            - map_to_native(k : key) : uint16_t const
+            - probe_devices() : void
+            - probe_device(dev_name : std::string const&) : void
+            - process_event(ev : struct input_event const&) : void
+            + backend()
+            + ~backend() override
+            + update() : void override
+            + is_key_down(k : key) : bool const override
+            + get_mouse_state() : mouse_state const override
+            + reset_mouse_state(nx : int, ny : int) : void override
+        }
+
+        struct device_node << (S,#FF7700) internal >> {
+            + fd : int
+            + is_keyboard : bool
+            + is_mouse : bool
+        }
+    }
+}
+
+'' Nesting relationships
+input::evdev::backend +-- input::evdev::device_node
+
+'' Inheritance relationship
+input::evdev::backend --|> input::input_backend
+
+'' Composition & Dependencies
+input::input_backend ..> input::key : handles
+input::input_backend ..> input::mouse_state : provides
+input::evdev::backend *-- input::mouse_state : maintains current state
+
+@enduml
