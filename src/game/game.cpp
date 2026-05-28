@@ -243,15 +243,14 @@ namespace game {
 	}
 
 	void game::loop() {
-		constexpr float CAM_HEIGHT  = 48.0f;
-		constexpr float MOUSE_SENS  = 0.002f;
+		constexpr float cam_height  = 48.0f;
+		constexpr float mouse_sens  = 0.002f;
 
 		auto p = std::make_unique<entities::player>(
 			math::vec2{0.0f, 0.0f}, 0.0f, 0, 1.0f,
 			100.0f, 50.0f, 120.0f, 1.0f);
 		player_ptr = &*p;
 
-		player_ptr->weapons.resize(7);
 		player_ptr->weapons[0] = std::make_unique<combat::weapons::pistol>(md, w, mix, am);
 		player_ptr->current_weapon_index = 0;
 		player_ptr->map_ref = &md;
@@ -319,8 +318,8 @@ namespace game {
 			if (input->is_key_down(input::key::s)) strafe += dt;
 			if (input->is_key_down(input::key::a)) fwd    -= dt;
 			if (input->is_key_down(input::key::d)) fwd    += dt;
-			if (input->is_key_down(input::key::v)) player_ptr->movement_speed=180.0f;
-			if (input->is_key_down(input::key::c)) player_ptr->movement_speed=120.0f;
+			if (input->is_key_down(input::key::v)) player_ptr->start_sprint();
+			if (input->is_key_down(input::key::c)) player_ptr->stop_sprint();
 			if (fwd != 0.0f || strafe != 0.0f)
 				player_ptr->move({strafe, fwd});
 
@@ -328,7 +327,7 @@ namespace game {
 			int delta_x  = mouse.x - prev_mouse_x;
 			prev_mouse_x = mouse.x;
 			if (delta_x != 0)
-				player_ptr->rotate(static_cast<float>(-delta_x) * MOUSE_SENS);
+				player_ptr->rotate(static_cast<float>(-delta_x) * mouse_sens);
 
 			if (input->is_key_down(input::key::n1)) player_ptr->switch_weapons(0);
 			if (input->is_key_down(input::key::n2)) player_ptr->switch_weapons(1);
@@ -354,7 +353,6 @@ namespace game {
 			if (damage_flash > 0.0f)
 				damage_flash -= dt;
 
-			// remove dead monsters from subsectors (stop rendering them)
 			for (auto it = alive_monsters.begin(); it != alive_monsters.end(); ) {
 				if ((*it)->is_dead()) {
 					auto* spr = static_cast<rendering::sprite*>(*it);
@@ -403,12 +401,9 @@ namespace game {
 				break;
 			}
 
-			// render
 			auto& spr = static_cast<util::componentized<rendering::sprite>&>(*player_ptr);
-			std::memset(const_cast<std::uint32_t*>((*rb)("mmio"_f)), 0x00,
-				static_cast<std::size_t>((*rb)("height"_f)) * (*rb)("pitch"_f));
 
-			sr.render_bsp(spr("pos"_f), CAM_HEIGHT, spr("angle"_f), fov);
+			sr.render_bsp(spr("pos"_f), cam_height, spr("angle"_f), fov);
 
 			draw_hud();
 
@@ -435,7 +430,7 @@ namespace game {
 		int const sh = (*rb)("height"_f);
 
 		// HUD scale
-		constexpr int SCALE = 4;
+		constexpr int hud_scale = 4;
 
 		// Crosshair
 		auto const& ch_tex = am.ui_tx_by_id(9);
@@ -460,8 +455,8 @@ namespace game {
 
 		// HP HUD
 		auto const& hp_tex = am.ui_tx_by_id(6);
-		int const hp_w = hp_tex("width"_f) * SCALE;
-		int const hp_h = hp_tex("height"_f) * SCALE;
+		int const hp_w = hp_tex("width"_f) * hud_scale;
+		int const hp_h = hp_tex("height"_f) * hud_scale;
 		int const hp_x = 0;
 		int const hp_y = sh - hp_h;
 
@@ -471,10 +466,10 @@ namespace game {
 		float hp_frac = player_ptr->health("current_hp"_f) / player_ptr->health("max_hp"_f);
 		if (hp_frac < 0.0f) hp_frac = 0.0f;
 		if (hp_frac > 1.0f) hp_frac = 1.0f;
-		int const bar_max_w = 46 * SCALE;
-		int const bar_h = 10 * SCALE;
-		int const hp_bar_x = hp_x + 18 * SCALE;
-		int const hp_bar_y = hp_y + 3 * SCALE;
+		int const bar_max_w = 46 * hud_scale;
+		int const bar_h = 10 * hud_scale;
+		int const hp_bar_x = hp_x + 18 * hud_scale;
+		int const hp_bar_y = hp_y + 3 * hud_scale;
 		r2d.draw_rect(hp_bar_x, hp_bar_y, static_cast<int>(bar_max_w * hp_frac), bar_h, 0xFFFF0000);
 
 		// Armor bar
@@ -483,14 +478,14 @@ namespace game {
 			arm_frac = player_ptr->health("armor"_f) / player_ptr->health("max_armor"_f);
 		if (arm_frac < 0.0f) arm_frac = 0.0f;
 		if (arm_frac > 1.0f) arm_frac = 1.0f;
-		int const arm_bar_x = hp_x + 18 * SCALE;
-		int const arm_bar_y = hp_y + 19 * SCALE;
+		int const arm_bar_x = hp_x + 18 * hud_scale;
+		int const arm_bar_y = hp_y + 19 * hud_scale;
 		r2d.draw_rect(arm_bar_x, arm_bar_y, static_cast<int>(bar_max_w * arm_frac), bar_h, 0xFF4488FF);
 
 		// Mag HUD
 		auto const& mag_tex = am.ui_tx_by_id(7);
-		int const mag_w = mag_tex("width"_f) * SCALE;
-		int const mag_h = mag_tex("height"_f) * SCALE;
+		int const mag_w = mag_tex("width"_f) * hud_scale;
+		int const mag_h = mag_tex("height"_f) * hud_scale;
 		int const mag_x = sw - mag_w;
 		int const mag_y = sh - mag_h;
 
@@ -506,38 +501,38 @@ namespace game {
 				int const ammo_cw = 20;
 				int const ammo_ch = 28;
 				int ammo_tx = mag_x + mag_w / 2 - static_cast<int>(ammo_str.size()) * ammo_cw / 2;
-				int ammo_ty = mag_y + 2 * SCALE;
+				int ammo_ty = mag_y + 2 * hud_scale;
 				r2d.draw_text(ammo_str, ammo_tx, ammo_ty, ammo_cw, ammo_ch, 0xFFFFFF);
 				int const mag_cw = 14;
 				int const mag_ch = 20;
 				int mags_tx = mag_x + mag_w / 2 - static_cast<int>(mags_str.size()) * mag_cw / 2;
-				int mags_ty = mag_y + mag_h - mag_ch - 3 * SCALE;
+				int mags_ty = mag_y + mag_h - mag_ch - 3 * hud_scale;
 				r2d.draw_text(mags_str, mags_tx, mags_ty, mag_cw, mag_ch, 0xCCCCCC);
 			}
 		}
 
 		// Weapon inventory
 		auto const& inv_tex = am.ui_tx_by_id(8);
-		int const inv_w = inv_tex("width"_f) * SCALE;
-		int const inv_h = inv_tex("height"_f) * SCALE;
+		int const inv_w = inv_tex("width"_f) * hud_scale;
+		int const inv_h = inv_tex("height"_f) * hud_scale;
 		int const inv_x = mag_x - inv_w;
 		int const inv_y = sh - inv_h;
 
 		r2d.draw_texture(inv_tex, inv_x, inv_y, inv_w, inv_h);
 
 		// Draw weapon sprites (almost) next to their slot numbers
-		int const cell_w = 32 * SCALE;
-		int const cell_h = 8 * SCALE;
-		int const sprite_size = 6 * SCALE;
+		int const cell_w = 32 * hud_scale;
+		int const cell_h = 8 * hud_scale;
+		int const sprite_size = 6 * hud_scale;
 
 		for (int i = 0; i < static_cast<int>(player_ptr->weapons.size()) && i < 7; ++i) {
 			if (!player_ptr->weapons[i]) continue;
 			int col = i / 4;
 			int row = i % 4;
-			int slot_x = inv_x + col * cell_w + 10 * SCALE;
+			int slot_x = inv_x + col * cell_w + 10 * hud_scale;
 			int slot_y = inv_y + row * cell_h;
 			auto const& weapon_sprite = am.sprite_tx_by_id(15 + i);
-			r2d.draw_texture(weapon_sprite, slot_x, slot_y + 1 * SCALE, sprite_size, sprite_size);
+			r2d.draw_texture(weapon_sprite, slot_x, slot_y + 1 * hud_scale, sprite_size, sprite_size);
 
 			if (i == player_ptr->current_weapon_index) {
 				r2d.draw_rect(slot_x - 1, slot_y, sprite_size + 2, cell_h, 0x80FFFF00);

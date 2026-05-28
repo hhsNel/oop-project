@@ -22,7 +22,7 @@ namespace world_object {
 		       float radius = 20.0f, float scale = 1.0f);
 
 		void update(float dt) override;
-		bool is_consumed() const { return consumed; }
+		bool is_consumed() const;
 
 		virtual void on_pickup(entities::player& p) = 0;
 		virtual ~pickup() = default;

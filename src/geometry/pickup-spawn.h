@@ -16,8 +16,7 @@ namespace geometry {
 		friend class util::componentized<pickup_spawn>;
 
 	public:
-		pickup_spawn(std::uint32_t t, std::uint32_t st, math::vec2 p, float height)
-			: type(t), subtype(st), pos(p), z(height) {}
+		pickup_spawn(std::uint32_t t, std::uint32_t st, math::vec2 p, float height);
 
 		static std::vector<pickup_spawn> load_from_bin(util::resource const& res);
 	};

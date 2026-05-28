@@ -3,6 +3,8 @@
 
 namespace combat
 {
+	charmed::charmed(float const dur, unsigned int intens)
+		: status_effect(dur, 0.0f, intens) {}
 
 	void charmed::on_apply(engine::actor& target)
 	{

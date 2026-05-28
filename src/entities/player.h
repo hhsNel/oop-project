@@ -23,12 +23,11 @@ namespace entities {
 		geometry::map_data* map_ref = nullptr;
 		engine::world* world_ref = nullptr;
 		float collision_radius = 16.0f;
+		float walk_speed;
+		float sprint_speed;
 	public:
 
-		player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens)
-			: engine::actor(p, z, tex, is, hp, shield, move_speed, engine::faction::player),
-			  sensitivity(sens),
-			  current_weapon_index(-1) {}
+		player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens);
 
 		void update(float dt) override;
 		void move(math::vec2 direction);
@@ -36,6 +35,8 @@ namespace entities {
 		void shoot();
 		void reload();
 		void switch_weapons(int index);
+		void start_sprint();
+		void stop_sprint();
 
 		template<typename WeaponT>
 		bool resupply(int amount) {

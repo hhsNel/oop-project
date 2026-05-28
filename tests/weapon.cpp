@@ -66,12 +66,13 @@ int main() {
 			for (int i = 0; i < 12; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			result(before - p.ammo_count);
 
-		// pistol_reload — fire empty, reload: can_fire() = true, ammo_count = 8
+		// pistol_reload — fire empty, reload (timed 1.0s): can_fire() = true, ammo_count = 8
 		} else if (cmd == "pistol_reload") {
 			inspect<combat::weapons::pistol> p(md, w, ta.mixer, ta.am);
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			p.tick(1.0f);
 			p.reload();
+			p.tick(1.0f);
 			result(p.can_fire() ? 1 : 0);
 			result(p.ammo_count);
 
@@ -131,11 +132,12 @@ int main() {
 			p.tick(dt);
 			result(p.can_fire() ? "YES" : "NO");
 
-		// reload_check — fire pistol empty (mag=8), reload, report ammo_count
+		// reload_check — fire pistol empty (mag=8), reload (timed 1.0s), report ammo_count
 		} else if (cmd == "reload_check") {
 			inspect<combat::weapons::pistol> p(md, w, ta.mixer, ta.am);
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			p.reload();
+			p.tick(1.0f);
 			result(p.ammo_count);
 
 		// reload_no_reserve — exhaust all reserve mags, reload fails
@@ -145,10 +147,12 @@ int main() {
 			for (int m = 0; m < 5; ++m) {
 				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 				p.reload();
+				p.tick(1.0f);
 			}
 			// now fire empty again — no reserve mags left
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			p.reload();
+			p.tick(1.0f);
 			result(p.ammo_count);
 			result(p.reserve_mags);
 
@@ -159,12 +163,14 @@ int main() {
 			for (int m = 0; m < 5; ++m) {
 				for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 				p.reload();
+				p.tick(1.0f);
 			}
 			// empty again
 			for (int i = 0; i < 8; ++i) { p.fire({0.0f, 0.0f}, 0.0f); p.tick(1.0f); }
 			// resupply 2 mags, reload once
 			p.resupply(2);
 			p.reload();
+			p.tick(1.0f);
 			result(p.ammo_count);
 			result(p.reserve_mags);
 

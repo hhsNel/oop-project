@@ -6,3 +6,6 @@ manual-tests/*.out
 gmon.out
 .vscode
 perf.data
+__pycache__/
+*.pyc
+debug.log

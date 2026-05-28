@@ -6,6 +6,13 @@
 
 namespace entities {
 
+	player::player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens)
+		: engine::actor(p, z, tex, is, hp, shield, move_speed, engine::faction::player),
+		  sensitivity(sens),
+		  current_weapon_index(-1),
+		  walk_speed(move_speed),
+		  sprint_speed(move_speed * 1.5f) { weapons.resize(7); }
+
 	void player::update(float dt) {
 		actor::update(dt);
 		for (auto& w : weapons) if (w) w->tick(dt);
@@ -98,6 +105,9 @@ namespace entities {
 
 		pos = new_pos;
 	}
+
+	void player::start_sprint() { movement_speed = sprint_speed; }
+	void player::stop_sprint() { movement_speed = walk_speed; }
 
 	void player::rotate(float yaw) {
 		angle += yaw * sensitivity;

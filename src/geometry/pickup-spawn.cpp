@@ -1,6 +1,9 @@
 #include "geometry/pickup-spawn.h"
 
 namespace geometry {
+	pickup_spawn::pickup_spawn(std::uint32_t t, std::uint32_t st, math::vec2 p, float height)
+		: type(t), subtype(st), pos(p), z(height) {}
+
 	class bin_pickup_spawn {
 	public:
 		std::uint32_t type;

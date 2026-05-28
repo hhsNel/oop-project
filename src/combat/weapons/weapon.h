@@ -11,8 +11,6 @@ namespace assets { class asset_manager; }
 
 namespace game { class game; }
 
-namespace game { class game; }
-
 namespace combat
 {
 	namespace weapons {

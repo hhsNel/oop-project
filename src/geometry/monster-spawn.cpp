@@ -1,6 +1,9 @@
 #include "geometry/monster-spawn.h"
 
 namespace geometry {
+	monster_spawn::monster_spawn(std::uint32_t t, math::vec2 p, float height)
+		: type(t), pos(p), z(height) {}
+
 	class bin_monster_spawn {
 	public:
 		std::uint32_t type;

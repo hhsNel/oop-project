@@ -15,8 +15,7 @@ namespace geometry {
 		friend class util::componentized<monster_spawn>;
 
 	public:
-		monster_spawn(std::uint32_t t, math::vec2 p, float height)
-			: type(t), pos(p), z(height) {}
+		monster_spawn(std::uint32_t t, math::vec2 p, float height);
 
 		static std::vector<monster_spawn> load_from_bin(util::resource const& res);
 	};

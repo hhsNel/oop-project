@@ -7,6 +7,15 @@
 
 namespace entities {
 
+	monster::monster(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float atk_range, float det_radius, float atk_dmg, float atk_cd, engine::actor* target)
+		: engine::actor(p, z, tex, is, hp, shield, move_speed, engine::faction::enemy),
+		  target_ptr(target),
+		  attack_cooldown(0.0f),
+		  attack_range(atk_range),
+		  detection_radius(det_radius),
+		  attack_damage(atk_dmg),
+		  attack_cd_max(atk_cd) {}
+
 	bool monster::has_target() const {
 		return target_ptr && !target_ptr->is_dead();
 	}

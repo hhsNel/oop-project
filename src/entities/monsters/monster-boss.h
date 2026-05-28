@@ -64,8 +64,8 @@ namespace entities {
 	public:
 		monster_boss(math::vec2 const p, float const z);
 
-		bool channeling() const { return is_channeling; }
-		float flash_phase() const { return flash_timer; }
+		bool channeling() const;
+		float flash_phase() const;
 
 		void update(float dt) override;
 	};

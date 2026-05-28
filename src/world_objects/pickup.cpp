@@ -11,6 +11,8 @@ pickup::pickup(math::vec2 position, float z, assets::texture_id tex,
     : renderable_entity(position, z, tex, scale),
       pickup_radius(radius), player_ref(pl), map_ref(md), subsector_id(sub_id) {}
 
+bool pickup::is_consumed() const { return consumed; }
+
 void pickup::update(float) {
     if (consumed) return;
 

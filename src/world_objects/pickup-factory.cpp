@@ -24,11 +24,11 @@ namespace world_object {
 	// 15-21 = weapon pickups (pistol, smg, rifle, shotgun, sniper, plasma, katana)
 	// 22-27 = ammo pickups (pistol, smg, rifle, shotgun, sniper, plasma)
 
-	static constexpr assets::texture_id HEALTH_SPRITE = 13;
-	static constexpr assets::texture_id ARMOR_SPRITE  = 14;
+	static constexpr assets::texture_id health_sprite = 13;
+	static constexpr assets::texture_id armor_sprite  = 14;
 
-	static constexpr assets::texture_id WEAPON_SPRITE_BASE = 15;
-	static constexpr assets::texture_id AMMO_SPRITE_BASE   = 22;
+	static constexpr assets::texture_id weapon_sprite_base = 15;
+	static constexpr assets::texture_id ammo_sprite_base   = 22;
 
 	static std::unique_ptr<pickup> make_weapon_pickup(
 		std::uint32_t subtype, math::vec2 pos, float z,
@@ -38,7 +38,7 @@ namespace world_object {
 		audio::audio_mixer& mixer,
 		assets::asset_manager const& am)
 	{
-		assets::texture_id tex = WEAPON_SPRITE_BASE + static_cast<assets::texture_id>(subtype);
+		assets::texture_id tex = weapon_sprite_base + static_cast<assets::texture_id>(subtype);
 		std::unique_ptr<combat::weapons::weapon> w;
 
 		switch (subtype) {
@@ -60,7 +60,7 @@ namespace world_object {
 		entities::player& player, geometry::map_data& md,
 		util::indexed_storage<geometry::subsector>::id_t sub_id)
 	{
-		assets::texture_id tex = AMMO_SPRITE_BASE + static_cast<assets::texture_id>(subtype);
+		assets::texture_id tex = ammo_sprite_base + static_cast<assets::texture_id>(subtype);
 		constexpr int default_ammo = 1;
 
 		switch (subtype) {
@@ -84,8 +84,8 @@ namespace world_object {
 	                                    assets::asset_manager const& am)
 	{
 		switch (type) {
-			case 0: return std::make_unique<health_pickup>(pos, z, HEALTH_SPRITE, 25.0f, player, md, sub_id);
-			case 1: return std::make_unique<armor_pickup>(pos, z, ARMOR_SPRITE, 25.0f, player, md, sub_id);
+			case 0: return std::make_unique<health_pickup>(pos, z, health_sprite, 25.0f, player, md, sub_id);
+			case 1: return std::make_unique<armor_pickup>(pos, z, armor_sprite, 25.0f, player, md, sub_id);
 			case 2: return make_weapon_pickup(subtype, pos, z, player, md, sub_id, world, mixer, am);
 			case 3: return make_ammo_pickup(subtype, pos, z, player, md, sub_id);
 			default: return nullptr;
