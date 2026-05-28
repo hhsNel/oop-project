@@ -1,0 +1,93 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam monochrome true
+
+package util {
+    class resource_loader {
+    }
+}
+
+package assets {
+    class asset_manager {
+    }
+    class audio_clip_id << (D,#FF7700) typedef >>
+}
+
+package input {
+    abstract class input_backend {
+    }
+}
+
+package rendering {
+    abstract class rendering_backend {
+    }
+    class renderer_2d {
+    }
+    class software_renderer {
+    }
+}
+
+package audio {
+    abstract class audio_backend {
+    }
+    class audio_mixer {
+    }
+}
+
+package geometry {
+    class map_data {
+    }
+}
+
+package engine {
+    class world {
+    }
+}
+
+package game {
+
+    '' ========================================================
+    '' game.h
+    '' ========================================================
+    class game {
+        - rl : util::resource_loader
+        - am : assets::asset_manager
+        - input : std::unique_ptr<input::input_backend>
+        - rb : std::unique_ptr<rendering::rendering_backend>
+        - ab : std::unique_ptr<audio::audio_backend>
+        - md : geometry::map_data
+        - mix : audio::audio_mixer
+        - r2d : rendering::renderer_2d
+        - sr : rendering::software_renderer
+        - w : engine::world
+        - fov : float
+        - text_scroll(text : std::vector<std::string> const&, aid : assets::audio_clip_id const) : void
+        - ts_from_resource(res_name : std::string const&, aid : assets::audio_clip_id const) : void
+        - opening() : void
+        - ending() : void
+        - credits() : void
+        - show_main_menu() : void
+        - show_options() : void
+        - loop() : void
+        + game()
+        + run() : void
+    }
+}
+
+'' The game class acts as the central Facade/Orchestrator composed of all core sub-systems
+game::game *-- util::resource_loader
+game::game *-- assets::asset_manager
+game::game *-- input::input_backend : manages polymorphically
+game::game *-- rendering::rendering_backend : manages polymorphically
+game::game *-- audio::audio_backend : manages polymorphically
+game::game *-- geometry::map_data
+game::game *-- audio::audio_mixer
+game::game *-- rendering::renderer_2d
+game::game *-- rendering::software_renderer
+game::game *-- engine::world
+
+'' Method Parameter Dependencies
+game::game ..> assets::audio_clip_id : uses
+
+@enduml
