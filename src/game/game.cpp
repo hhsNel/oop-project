@@ -136,7 +136,7 @@ namespace game {
 	}
 
 	void game::opening() {
-		ts_from_resource("opening-scroll", 0);
+		ts_from_resource("opening-scroll", 14);
 	}
 
 	void game::ending() {
