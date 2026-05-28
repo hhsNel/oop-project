@@ -1,0 +1,7 @@
+wall: doomlike-textures/walls/manifest
+sprite: doomlike-textures/sprite/manifest
+flat: doomlike-textures/flat/manifest
+ui: doomlike-textures/ui/manifest
+menus: doomlike-textures/menus/manifest
+audio: doomlike-textures/audio/manifest
+
