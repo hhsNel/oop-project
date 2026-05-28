@@ -21,12 +21,12 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
 	if (geometry::bsp_node::is_leaf(node_id)) {
 		auto subsector_id = geometry::bsp_node::get_id(node_id);
 
-		geometry::subsector const& sub = current_map.subsectors[subsector_id];
+		geometry::subsector const& sub = current_map("subsectors"_f)[subsector_id];
 
 		std::uint8_t sub_light = 255;
 		if (!sub.lines.empty()) {
-			auto const& first_line = current_map.linedefs[sub.lines[0]];
-			sub_light = current_map.sectors[current_map.sidedefs[first_line.front].facing_sector].light_level;
+			auto const& first_line = current_map("linedefs"_f)[sub.lines[0]];
+			sub_light = current_map("sectors"_f)[current_map("sidedefs"_f)[first_line.front].facing_sector].light_level;
 		}
 		
 		for(auto const& sprite : sub.sprites) {
@@ -34,13 +34,13 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
 		}
 
 		for (auto const line_id : sub.lines) {
-			project_and_draw_linedef(current_map.linedefs[line_id], frd);
+			project_and_draw_linedef(current_map("linedefs"_f)[line_id], frd);
 		}
 		return;
 	}
 
 	/* if not a leaf, then a bsp node */
-	geometry::bsp_node const& node = current_map.nodes[node_id];
+	geometry::bsp_node const& node = current_map("nodes"_f)[node_id];
 
 	/* check if camera is in front */
 	bool is_front = node.is_pt_front_side(frd.cam_pos);
@@ -119,8 +119,8 @@ void software_renderer::project_and_draw_linedef(geometry::linedef line, frame_r
 
 void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const& frd) {
 	/* useful stuff */
-	geometry::sidedef const& sd = current_map.sidedefs[line.front];
-	geometry::sector const& s = current_map.sectors[sd.facing_sector];
+	geometry::sidedef const& sd = current_map("sidedefs"_f)[line.front];
+	geometry::sector const& s = current_map("sectors"_f)[sd.facing_sector];
 	assets::texture const& mt = tex_manager.wall_tx_by_id(sd.middle_tex); 
 
 	/* bounds as integers */
@@ -185,10 +185,10 @@ void software_renderer::draw_solid_wall_span(float proj_x1, float proj_x2, float
 
 void software_renderer::draw_portal_wall_span(float proj_x1, float proj_x2, float z1, float z2, float u1, float u2, geometry::linedef const& line, frame_rendering_data const& frd) {
 	/* useful stuff */
-	geometry::sidedef const& front_sd = current_map.sidedefs[line.front];
-	geometry::sidedef const& back_sd  = current_map.sidedefs[line.back];
-	geometry::sector const& front = current_map.sectors[front_sd.facing_sector];
-	geometry::sector const& back  = current_map.sectors[back_sd.facing_sector];
+	geometry::sidedef const& front_sd = current_map("sidedefs"_f)[line.front];
+	geometry::sidedef const& back_sd  = current_map("sidedefs"_f)[line.back];
+	geometry::sector const& front = current_map("sectors"_f)[front_sd.facing_sector];
+	geometry::sector const& back  = current_map("sectors"_f)[back_sd.facing_sector];
 	assets::texture const& ut = tex_manager.wall_tx_by_id(front_sd.upper_tex);
 	assets::texture const& lt = tex_manager.wall_tx_by_id(front_sd.lower_tex);
 	float inv_z1 = 1.0f / z1;
@@ -409,7 +409,7 @@ bool software_renderer::is_box_visible(geometry::bsp_node::bounding_box const& b
 
 void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_height, float cam_angle, float fov) {
 
-	if (current_map.root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
+	if (current_map("root_node_id"_f) != util::indexed_storage<geometry::bsp_node>::nullid) {
 		/* pre-calculate a bunch of things because calculating them per-pixel or even per-row is too slow */
 		frame_rendering_data frd;
 		frd.cam_pos	   = cam_pos;
@@ -438,7 +438,7 @@ void software_renderer::render_bsp(math::vec2 const cam_pos, float const cam_hei
 		}
 		frd.euclidian_dist_factor = &euclidian_dist_factor;
 
-		render_bsp_node(current_map.root_node_id, frd);
+		render_bsp_node(current_map("root_node_id"_f), frd);
 
 		render_visplanes(frd);
 		render_vissprites(frd);

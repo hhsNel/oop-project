@@ -17,7 +17,7 @@ namespace combat {
 
             float wall_dist = max_range;
 
-            for (auto const& e : map.linedefs) {
+            for (auto const& e : map("linedefs"_f)) {
                 geometry::linedef const& ld = e.value;
                 if (ld.is_portal()) continue;
                 math::vec2 hit;

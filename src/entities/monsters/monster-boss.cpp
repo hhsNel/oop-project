@@ -111,7 +111,7 @@ void monster_boss::start_channel() {
 
 		auto spr_copy = std::make_unique<rendering::sprite>(
 			spawn_pos, z_pos, 2, 1.0f);
-		map_ref.subsectors[sub_id].add_sprite(std::move(spr_copy));
+		map_ref("subsectors"_f)[sub_id].add_sprite(std::move(spr_copy));
 	}
 }
 
