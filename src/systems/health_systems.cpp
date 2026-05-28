@@ -6,6 +6,8 @@ namespace systems {
 	health_system::health_system(float hp, float max, float arm, float max_arm)
 		: current_hp(hp), max_hp(max), armor(arm), max_armor(max_arm) {}
 
+	bool health_system::is_dead() const { return current_hp <= 0.0f; }
+
 	void health_system::apply_damage(float amount) {
 		if (armor > 0.0f) {
 			float absorbed = std::min(armor, amount);

@@ -2,8 +2,13 @@
 
 namespace entities {
 
+monster_sniper::monster_sniper(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
+	: monster(p, z, 10, 1.0f, 40.0f, 0.0f, 40.0f, 500.0f, 600.0f, 30.0f, 3.0f, target, map, world),
+	  shoot_interval(3.0f), aim_timer(0.0f) {}
+
 void monster_sniper::update(float dt) {
     monster::update(dt);
+    if (is_dead()) return;
     if (!has_target()) return;
 
     float dist = dist_to_target();
@@ -11,7 +16,7 @@ void monster_sniper::update(float dt) {
 
     aim_timer += dt;
     if (aim_timer >= shoot_interval && dist <= attack_range && attack_cooldown <= 0.0f) {
-        melee_attack(attack_damage);
+        ranged_attack(attack_damage, 30, 350.0f);
         attack_cooldown = attack_cd_max;
         aim_timer       = 0.0f;
     }

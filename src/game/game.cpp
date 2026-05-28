@@ -10,6 +10,12 @@
 #include "rendering/drm-kms/backend.h"
 #include "audio/alsa/backend.h"
 #include "input/evdev/backend.h"
+#include "entities/monster-factory.h"
+#include "entities/monsters/monster-boss.h"
+#include "world_objects/pickup-factory.h"
+#include "combat/weapons/pistol.h"
+
+
 
 namespace game {
 
@@ -19,11 +25,19 @@ namespace game {
 		input(std::make_unique<input::evdev::backend>()),
 		rb(std::make_unique<rendering::drm_kms::backend>()),
 		ab(std::make_unique<audio::alsa::backend>()),
-		md{},
+		md(geometry::map_data::load_from_bin(
+			*rl.lookup_resource("map/sectors.bin"),
+			*rl.lookup_resource("map/sidedefs.bin"),
+			*rl.lookup_resource("map/linedefs.bin"),
+			*rl.lookup_resource("map/subsectors.bin"),
+			*rl.lookup_resource("map/nodes.bin"),
+			*rl.lookup_resource("map/monsters.bin"),
+			*rl.lookup_resource("map/pickups.bin"))),
 		mix(*ab, audio::audio_format{48000, 2, 16}),
 		r2d(*rb, am, am.ui_tx_by_id(0)),
 		sr(*rb, am, md),
-//		w(),
+		w(),
+		player_ptr(nullptr),
 
 		fov(1.55) {
 		if (input->is_bad()) {
@@ -229,14 +243,55 @@ namespace game {
 	}
 
 	void game::loop() {
-		/* TODO */
-//		math::vec2 cam_pos{0.0f, 0.0f};
-//		float cam_angle  = 0.0f;
-//		float cam_height = 0.0f;
-//		constexpr float MOVE_SPEED  = 3.0f;
-//		constexpr float TURN_SPEED  = 2.0f;
-		/* TODO */
+		constexpr float cam_height  = 48.0f;
+		constexpr float mouse_sens  = 0.002f;
 
+		auto p = std::make_unique<entities::player>(
+			math::vec2{0.0f, 0.0f}, 0.0f, 0, 1.0f,
+			100.0f, 50.0f, 120.0f, 1.0f, &md, &w);
+		player_ptr = &*p;
+
+		player_ptr->equip(0, std::make_unique<combat::weapons::pistol>(md, w, mix, am));
+
+		w.register_entity(std::move(p));
+
+		bool has_bsp = md.root_node_id != util::indexed_storage<geometry::bsp_node>::nullid;
+
+		std::vector<entities::monster*> alive_monsters;
+		entities::monster_boss* boss_ptr = nullptr;
+
+		for (auto const& spawn : md.monster_spawns) {
+			auto m = entities::make_monster(spawn("type"_f), spawn("pos"_f), spawn("z"_f), player_ptr, &md, &w);
+			if (m) {
+				auto* raw = &*m;
+				if (auto* boss = dynamic_cast<entities::monster_boss*>(raw))
+					boss_ptr = boss;
+				auto sub_id = has_bsp ? md.get_subsector_id(spawn("pos"_f)) : 1;
+				w.register_entity(std::move(m));
+				md.subsectors[sub_id].add_sprite(raw);
+				alive_monsters.push_back(raw);
+			}
+		}
+
+		for (auto const& spawn : md.pickup_spawns) {
+			auto sub_id = has_bsp ? md.get_subsector_id(spawn("pos"_f)) : 1;
+			auto pk = world_object::make_pickup(
+				spawn("type"_f), spawn("subtype"_f),
+				spawn("pos"_f), spawn("z"_f),
+				*player_ptr, md, sub_id, w, mix, am);
+			if (pk) {
+				auto* raw = &*pk;
+				w.register_entity(std::move(pk));
+				md.subsectors[sub_id].add_sprite(raw);
+			}
+		}
+
+		int prev_mouse_x = 0;
+		bool prev_r = false;
+		bool boss_dead = false;
+		float boss_dead_timer = 0.0f;
+		float damage_flash = 0.0f;
+		float prev_hp = (*player_ptr)("health"_f)("current_hp"_f);
 		auto last_tick = std::chrono::high_resolution_clock::now();
 
 		while(1) {
@@ -244,32 +299,113 @@ namespace game {
 			float dt = std::chrono::duration<float>(now - last_tick).count();
 			last_tick = now;
 
-			/* guard */
 			if (dt > 0.5f) dt = 0.5f;
 
 			input->update();
 			if (input->is_key_down(input::key::esc)) break;
 
-			/* TODO */
-//			if (input->is_key_down(input::key::d))
-//				cam_angle -= TURN_SPEED * dt;
-//			if (input->is_key_down(input::key::a))
-//				cam_angle += TURN_SPEED * dt;
-//			float dx = std::cos(cam_angle);
-//			float dy = std::sin(cam_angle);
-//			if (input->is_key_down(input::key::w)) {
-//				cam_pos.x += dx * MOVE_SPEED * dt;
-//				cam_pos.y += dy * MOVE_SPEED * dt;
-//			}
-//			if (input->is_key_down(input::key::s)) {
-//				cam_pos.x -= dx * MOVE_SPEED * dt;
-//				cam_pos.y -= dy * MOVE_SPEED * dt;
-//			}
-			/* TODO */
+			// movement
+			float fwd = 0.0f, strafe = 0.0f;
+			if (input->is_key_down(input::key::w)) strafe -= dt;
+			if (input->is_key_down(input::key::s)) strafe += dt;
+			if (input->is_key_down(input::key::a)) fwd    -= dt;
+			if (input->is_key_down(input::key::d)) fwd    += dt;
+			if (input->is_key_down(input::key::v)) player_ptr->start_sprint();
+			if (input->is_key_down(input::key::c)) player_ptr->stop_sprint();
+			if (fwd != 0.0f || strafe != 0.0f)
+				player_ptr->move({strafe, fwd});
+
+			auto mouse   = input->get_mouse_state();
+			int delta_x  = mouse.x - prev_mouse_x;
+			prev_mouse_x = mouse.x;
+			if (delta_x != 0)
+				player_ptr->rotate(static_cast<float>(-delta_x) * mouse_sens);
+
+			if (input->is_key_down(input::key::n1)) player_ptr->switch_weapons(0);
+			if (input->is_key_down(input::key::n2)) player_ptr->switch_weapons(1);
+			if (input->is_key_down(input::key::n3)) player_ptr->switch_weapons(2);
+			if (input->is_key_down(input::key::n4)) player_ptr->switch_weapons(3);
+			if (input->is_key_down(input::key::n5)) player_ptr->switch_weapons(4);
+			if (input->is_key_down(input::key::n6)) player_ptr->switch_weapons(5);
+			if (input->is_key_down(input::key::n7)) player_ptr->switch_weapons(6);
+
+			if (mouse.left)
+				player_ptr->shoot();
+			bool cur_r = input->is_key_down(input::key::r);
+			if (cur_r && !prev_r)
+				player_ptr->reload();
+			prev_r = cur_r;
 
 			w.update(dt);
 
-			//sr.render_bsp(cam_pos, cam_height, cam_angle, fov);
+			float cur_hp = (*player_ptr)("health"_f)("current_hp"_f);
+			if (cur_hp < prev_hp)
+				damage_flash = 0.25f;
+			prev_hp = cur_hp;
+			if (damage_flash > 0.0f)
+				damage_flash -= dt;
+
+			for (auto it = alive_monsters.begin(); it != alive_monsters.end(); ) {
+				if ((*it)->is_dead()) {
+					auto* spr = static_cast<rendering::sprite*>(*it);
+					auto sub_id = has_bsp ? md.get_subsector_id((*spr)("pos"_f)) : 1;
+					md.subsectors[sub_id].remove_sprite(spr);
+					it = alive_monsters.erase(it);
+				} else {
+					++it;
+				}
+			}
+
+			if (boss_ptr && boss_ptr->is_dead() && !boss_dead) {
+				boss_dead = true;
+				boss_dead_timer = 10.0f;
+			}
+			if (boss_dead) {
+				boss_dead_timer -= dt;
+				if (boss_dead_timer <= 0.0f) {
+					ending();
+					break;
+				}
+			}
+
+			// player death → game over screen
+			if (player_ptr->is_dead()) {
+				int const sw = (*rb)("width"_f);
+				int const sh = (*rb)("height"_f);
+				std::memset(const_cast<std::uint32_t*>((*rb)("mmio"_f)), 0x00,
+					static_cast<std::size_t>(sh) * (*rb)("pitch"_f));
+				int const cw = 48;
+				int const ch = 72;
+				std::string_view text = "GAME OVER";
+				int tx = sw / 2 - static_cast<int>(text.size()) * cw / 2;
+				int ty = sh / 2 - ch / 2;
+				r2d.draw_text(text, tx, ty, cw, ch, 0xFF0000);
+				rb->flush();
+
+				while (true) {
+					input->update();
+					if (input->is_key_down(input::key::esc) ||
+						input->is_key_down(input::key::enter) ||
+						input->is_key_down(input::key::space))
+						break;
+					rb->wait_for_vsync();
+				}
+				break;
+			}
+
+			auto& spr = static_cast<util::componentized<rendering::sprite>&>(*player_ptr);
+
+			sr.render_bsp(spr("pos"_f), cam_height, spr("angle"_f), fov);
+
+			draw_hud();
+
+			if (damage_flash > 0.0f) {
+				int const sw = (*rb)("width"_f);
+				int const sh = (*rb)("height"_f);
+				std::uint32_t alpha = static_cast<std::uint32_t>(
+					(damage_flash / 0.25f) * 100.0f);
+				r2d.draw_rect(0, 0, sw, sh, (alpha << 24) | 0xFF0000);
+			}
 
 			rb->flush();
 
@@ -279,8 +415,126 @@ namespace game {
 		}
 	}
 
+	void game::draw_hud() {
+		if (!player_ptr) return;
+
+		int const sw = (*rb)("width"_f);
+		int const sh = (*rb)("height"_f);
+
+		// HUD scale
+		constexpr int hud_scale = 4;
+
+		// Crosshair
+		auto const& ch_tex = am.ui_tx_by_id(9);
+		int const ch_size = 32 * 2;
+		r2d.draw_texture(ch_tex, sw / 2 - ch_size / 2, sh / 2 - ch_size / 2, ch_size, ch_size);
+
+		// Reload bar
+		auto const& p_weapons = (*player_ptr)("weapons"_f);
+		int const p_wpn_idx = (*player_ptr)("current_weapon_index"_f);
+		if (p_wpn_idx >= 0 && p_wpn_idx < static_cast<int>(p_weapons.size())) {
+			auto const& wpn = p_weapons[p_wpn_idx];
+			if (wpn && (*wpn)("reloading"_f)) {
+				int const bar_w = 80;
+				int const bar_h = 8;
+				int const bar_x = sw / 2 - bar_w / 2;
+				int const bar_y = sh / 2 + ch_size / 2 + 8;
+				float frac = (*wpn)("reload_timer"_f) / (*wpn)("reload_duration"_f);
+				if (frac > 1.0f) frac = 1.0f;
+				r2d.draw_rect(bar_x, bar_y, bar_w, bar_h, 0x80333333);
+				r2d.draw_rect(bar_x, bar_y, static_cast<int>(bar_w * frac), bar_h, 0xFFFFFFFF);
+			}
+		}
+
+		// HP HUD
+		auto const& hp_tex = am.ui_tx_by_id(6);
+		int const hp_w = hp_tex("width"_f) * hud_scale;
+		int const hp_h = hp_tex("height"_f) * hud_scale;
+		int const hp_x = 0;
+		int const hp_y = sh - hp_h;
+
+		r2d.draw_texture(hp_tex, hp_x, hp_y, hp_w, hp_h);
+
+		// HP bar
+		auto const& p_health = (*player_ptr)("health"_f);
+		float hp_frac = p_health("current_hp"_f) / p_health("max_hp"_f);
+		if (hp_frac < 0.0f) hp_frac = 0.0f;
+		if (hp_frac > 1.0f) hp_frac = 1.0f;
+		int const bar_max_w = 46 * hud_scale;
+		int const bar_h = 10 * hud_scale;
+		int const hp_bar_x = hp_x + 18 * hud_scale;
+		int const hp_bar_y = hp_y + 3 * hud_scale;
+		r2d.draw_rect(hp_bar_x, hp_bar_y, static_cast<int>(bar_max_w * hp_frac), bar_h, 0xFFFF0000);
+
+		// Armor bar
+		float arm_frac = 0.0f;
+		if (p_health("max_armor"_f) > 0.0f)
+			arm_frac = p_health("armor"_f) / p_health("max_armor"_f);
+		if (arm_frac < 0.0f) arm_frac = 0.0f;
+		if (arm_frac > 1.0f) arm_frac = 1.0f;
+		int const arm_bar_x = hp_x + 18 * hud_scale;
+		int const arm_bar_y = hp_y + 19 * hud_scale;
+		r2d.draw_rect(arm_bar_x, arm_bar_y, static_cast<int>(bar_max_w * arm_frac), bar_h, 0xFF4488FF);
+
+		// Mag HUD
+		auto const& mag_tex = am.ui_tx_by_id(7);
+		int const mag_w = mag_tex("width"_f) * hud_scale;
+		int const mag_h = mag_tex("height"_f) * hud_scale;
+		int const mag_x = sw - mag_w;
+		int const mag_y = sh - mag_h;
+
+		r2d.draw_texture(mag_tex, mag_x, mag_y, mag_w, mag_h);
+
+		// Ammo and reserve mags
+		if (p_wpn_idx >= 0 && p_wpn_idx < static_cast<int>(p_weapons.size())) {
+			auto const& wpn = p_weapons[p_wpn_idx];
+			if (wpn) {
+				std::string ammo_str = std::to_string((*wpn)("ammo_count"_f));
+				std::string mags_str = std::to_string((*wpn)("reserve_mags"_f));
+				int const ammo_cw = 20;
+				int const ammo_ch = 28;
+				int ammo_tx = mag_x + mag_w / 2 - static_cast<int>(ammo_str.size()) * ammo_cw / 2;
+				int ammo_ty = mag_y + 2 * hud_scale;
+				r2d.draw_text(ammo_str, ammo_tx, ammo_ty, ammo_cw, ammo_ch, 0xFFFFFF);
+				int const mag_cw = 14;
+				int const mag_ch = 20;
+				int mags_tx = mag_x + mag_w / 2 - static_cast<int>(mags_str.size()) * mag_cw / 2;
+				int mags_ty = mag_y + mag_h - mag_ch - 3 * hud_scale;
+				r2d.draw_text(mags_str, mags_tx, mags_ty, mag_cw, mag_ch, 0xCCCCCC);
+			}
+		}
+
+		// Weapon inventory
+		auto const& inv_tex = am.ui_tx_by_id(8);
+		int const inv_w = inv_tex("width"_f) * hud_scale;
+		int const inv_h = inv_tex("height"_f) * hud_scale;
+		int const inv_x = mag_x - inv_w;
+		int const inv_y = sh - inv_h;
+
+		r2d.draw_texture(inv_tex, inv_x, inv_y, inv_w, inv_h);
+
+		// Draw weapon sprites (almost) next to their slot numbers
+		int const cell_w = 32 * hud_scale;
+		int const cell_h = 8 * hud_scale;
+		int const sprite_size = 6 * hud_scale;
+
+		for (int i = 0; i < static_cast<int>(p_weapons.size()) && i < 7; ++i) {
+			if (!p_weapons[i]) continue;
+			int col = i / 4;
+			int row = i % 4;
+			int slot_x = inv_x + col * cell_w + 10 * hud_scale;
+			int slot_y = inv_y + row * cell_h;
+			auto const& weapon_sprite = am.sprite_tx_by_id(15 + i);
+			r2d.draw_texture(weapon_sprite, slot_x, slot_y + 1 * hud_scale, sprite_size, sprite_size);
+
+			if (i == p_wpn_idx) {
+				r2d.draw_rect(slot_x - 1, slot_y, sprite_size + 2, cell_h, 0x80FFFF00);
+			}
+		}
+	}
+
 	void game::run() {
-//		opening();
+		//opening();
 		show_main_menu();
 	}
 

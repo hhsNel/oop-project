@@ -173,24 +173,26 @@ int main() {
     auto ld6 = add_line(0.0f, 1024.0f, 0.0f, 2048.0f, sd_r2_solid_id, null_sd);       
     auto ld1_r2 = add_line(1024.0f, 1024.0f, 0.0f, 1024.0f, sd_portal_back_id, sd_portal_front_id);
 
-    geometry::subsector ss_south({ld_w_s, ld_s_s, ld_e_s, ld_p_s}, {});
-    ss_south.add_sprite(std::make_unique<rendering::sprite>(math::vec2(128.0f, 256.0f), 0.0f, 0, 2.0f));
+    geometry::subsector ss_south({ld_w_s, ld_s_s, ld_e_s, ld_p_s});
+    auto spr_south = std::make_unique<rendering::sprite>(math::vec2(128.0f, 256.0f), 0.0f, 0, 2.0f);
+    ss_south.add_sprite(spr_south.get());
     auto ss_south_id = map.subsectors.add(std::move(ss_south));
 
-    geometry::subsector ss_north({ld_w_n, ld_n_n, ld_e_n, ld_p_n}, {});
+    geometry::subsector ss_north({ld_w_n, ld_n_n, ld_e_n, ld_p_n});
     auto ss_north_id = map.subsectors.add(std::move(ss_north));
 
-    geometry::subsector ss_west({ld_w_w, ld_p_w}, {});
+    geometry::subsector ss_west({ld_w_w, ld_p_w});
     auto ss_west_id = map.subsectors.add(std::move(ss_west));
 
-    geometry::subsector ss_east({ld_e_e, ld_p_e}, {});
+    geometry::subsector ss_east({ld_e_e, ld_p_e});
     auto ss_east_id = map.subsectors.add(std::move(ss_east));
 
-    geometry::subsector ss_pillar({}, {});
+    geometry::subsector ss_pillar;
     auto ss_pillar_id = map.subsectors.add(std::move(ss_pillar));
 
-    geometry::subsector ss2({ld1_r2, ld4, ld5, ld6}, {});
-    ss2.add_sprite(std::make_unique<rendering::sprite>(math::vec2(768.0f, 1536.0f), 0.0f, 1, 2.0f));
+    geometry::subsector ss2({ld1_r2, ld4, ld5, ld6});
+    auto spr_ss2 = std::make_unique<rendering::sprite>(math::vec2(768.0f, 1536.0f), 0.0f, 1, 2.0f);
+    ss2.add_sprite(spr_ss2.get());
     auto ss2_id = map.subsectors.add(std::move(ss2));
 
     /* BSP TREE */

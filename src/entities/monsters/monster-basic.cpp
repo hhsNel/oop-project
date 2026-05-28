@@ -2,11 +2,12 @@
 
 namespace entities {
 
-monster_basic::monster_basic(math::vec2 const p, float const z, engine::actor* target)
-	: monster(p, z, 2, 1.0f, 30.0f, 0.0f, 1.5f, 1.5f, 8.0f, 10.0f, 1.0f, target) {}
+monster_basic::monster_basic(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
+	: monster(p, z, 2, 1.0f, 30.0f, 0.0f, 60.0f, 40.0f, 200.0f, 10.0f, 1.0f, target, map, world) {}
 
 void monster_basic::update(float dt) {
     monster::update(dt);
+    if (is_dead()) return;
     if (!has_target()) return;
 
     float dist = dist_to_target();

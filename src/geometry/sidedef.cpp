@@ -20,7 +20,8 @@ namespace geometry {
 		result.reserve(count);
 
 		for (size_t i = 0; i < count; ++i) {
-			result.emplace_back(data[i].facing_sector, data[i].upper_tex, data[i].middle_tex, data[i].lower_tex);
+			// binary uses 0-based indices; indexed_storage IDs start at 1
+			result.emplace_back(data[i].facing_sector + 1, data[i].upper_tex, data[i].middle_tex, data[i].lower_tex);
 		}
 		return result;
 	}

@@ -1,0 +1,42 @@
+#pragma once
+
+#include "renderable-entity.h"
+#include "actor.h"
+#include "world.h"
+#include "math/vec2.h"
+#include "combat/status-effect.h"
+#include <memory>
+#include <functional>
+
+namespace geometry { class map_data; }
+namespace combat { namespace weapons { class projectile_firing_mode; } }
+namespace entities { class monster; class monster_boss; }
+
+namespace engine {
+
+	class projectile : public renderable_entity {
+		friend class combat::weapons::projectile_firing_mode;
+		friend class entities::monster;
+		friend class entities::monster_boss;
+	protected:
+		math::vec2 direction;
+		float speed;
+		float damage;
+		float lifetime;
+		float hit_radius;
+		faction team;
+		std::function<std::unique_ptr<combat::status_effect>()> on_hit_effect;
+
+		world* world_ref = nullptr;
+		geometry::map_data* map_ref = nullptr;
+		util::indexed_storage<std::unique_ptr<entity>>::id_t self_id = 0;
+
+	public:
+		projectile(math::vec2 pos, float z, assets::texture_id tex, float scale,
+		           math::vec2 dir, float spd, float dmg, float life,
+		           faction f, float radius = 8.0f);
+
+		void update(float dt) override;
+	};
+
+}

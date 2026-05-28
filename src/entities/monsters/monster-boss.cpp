@@ -2,13 +2,18 @@
 #include "monster-basic.h"
 #include "combat/burning.h"
 #include "combat/slowed.h"
+#include "engine/projectile.h"
+#include "engine/world.h"
 #include <cmath>
 
 namespace entities {
 
-monster_boss::monster_boss(math::vec2 const p, float const z, engine::world& w, geometry::map_data& md)
-	: monster(p, z, 3, 1.0f, 1000.0f, 300.0f, 1.5f, 3.0f, 30.0f, 20.0f, 1.0f),
-	  max_hp_val(1000.0f), world_ref(w), map_ref(md) {}
+monster_boss::monster_boss(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
+	: monster(p, z, 3, 1.0f, 1000.0f, 300.0f, 70.0f, 350.0f, 500.0f, 20.0f, 1.0f, target, map, world),
+	  max_hp_val(1000.0f), boss_map_ref(map) {}
+
+bool monster_boss::channeling() const { return is_channeling; }
+float monster_boss::flash_phase() const { return flash_timer; }
 
 float monster_boss::hp_ratio() const {
 	float cur = health("current_hp"_f);
@@ -24,8 +29,9 @@ void monster_boss::update_phase() {
 }
 
 bool monster_boss::minions_alive() const {
+	if (!world_ref) return false;
 	for (auto id : minion_ids) {
-		auto* e = world_ref.entity_from_id(id);
+		auto* e = world_ref->entity_from_id(id);
 		if (e) {
 			auto* a = dynamic_cast<engine::actor*>(e);
 			if (a && !a->is_dead()) return true;
@@ -35,7 +41,7 @@ bool monster_boss::minions_alive() const {
 }
 
 void monster_boss::ranged_attack_slow() {
-	if (!target_ptr) return;
+	if (!target_ptr || !world_ref || !boss_map_ref) return;
 
 	math::vec2 dir = dir_to_target();
 	float base_angle = std::atan2(dir("y"_f), dir("x"_f));
@@ -44,17 +50,24 @@ void monster_boss::ranged_attack_slow() {
 	for (int i = 0; i < projectile_count; ++i) {
 		float a = start + projectile_spread * static_cast<float>(i);
 		math::vec2 shot_dir{std::cos(a), std::sin(a)};
-		math::vec2 target_pos = (*target_ptr)("pos"_f);
-		math::vec2 to_target = target_pos - pos;
-		float dot = math::vec2::dot_product(to_target, shot_dir);
+		math::vec2 spawn_pos = pos + shot_dir * 20.0f;
 
-		if (dot > 0.0f) {
-			math::vec2 closest = pos + shot_dir * dot;
-			math::vec2 offset = target_pos - closest;
-			if (offset.sqr_len() < 16.0f * 16.0f) {
-				target_ptr->take_damage(attack_damage * 0.5f);
-				target_ptr->add_effect(std::make_unique<combat::slowed>(2.0f, 30));
-			}
+		auto proj = std::make_unique<engine::projectile>(
+			spawn_pos, z_pos, 30, 0.5f,
+			shot_dir, 250.0f, attack_damage * 0.5f, 5.0f,
+			engine::faction::enemy);
+
+		auto* raw = &*proj;
+		raw->world_ref = world_ref;
+		raw->map_ref = boss_map_ref;
+		raw->on_hit_effect = []() { return std::make_unique<combat::slowed>(3.0f, 30); };
+
+		auto eid = world_ref->register_entity(std::move(proj));
+		raw->self_id = eid;
+
+		if (boss_map_ref->root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
+			auto sub_id = boss_map_ref->get_subsector_id(spawn_pos);
+			boss_map_ref->subsectors[sub_id].add_sprite(raw);
 		}
 	}
 }
@@ -73,7 +86,10 @@ void monster_boss::start_charge() {
 }
 
 void monster_boss::update_charge(float dt) {
-	pos += charge_dir * (movement_speed * charge_speed_mult * dt);
+	math::vec2 new_pos = pos + charge_dir * (movement_speed * charge_speed_mult * dt);
+	apply_wall_collision(new_pos);
+	if (boss_map_ref) boss_map_ref->move_to(this, new_pos);
+	else pos = new_pos;
 	charge_timer -= dt;
 
 	float dist = dist_to_target();
@@ -91,6 +107,7 @@ void monster_boss::update_charge(float dt) {
 }
 
 void monster_boss::start_channel() {
+	if (!world_ref) return;
 	is_channeling = true;
 	channel_timer = 0.0f;
 	flash_timer = 0.0f;
@@ -105,35 +122,44 @@ void monster_boss::start_channel() {
 
 		auto minion = std::make_unique<monster_basic>(spawn_pos, z_pos, target_ptr);
 
-		auto sub_id = map_ref.get_subsector_id(spawn_pos);
-		auto id = world_ref.register_entity(std::move(minion));
+		auto* raw = &*minion;
+		auto id = world_ref->register_entity(std::move(minion));
 		minion_ids.push_back(id);
 
-		auto spr_copy = std::make_unique<rendering::sprite>(
-			spawn_pos, z_pos, 2, 1.0f);
-		map_ref.subsectors[sub_id].add_sprite(std::move(spr_copy));
+		if (boss_map_ref) {
+			auto sub_id = boss_map_ref->get_subsector_id(spawn_pos);
+			boss_map_ref->subsectors[sub_id].add_sprite(raw);
+		}
 	}
 }
 
 void monster_boss::phase1_ai(float dt, float dist) {
-	// approach to preferred range
-	float preferred = attack_range * 0.7f;
-	if (dist > preferred + 1.5f)
-		move_toward_target(movement_speed, dt);
-	else if (dist < preferred - 1.5f)
-		move_away_from_target(movement_speed, dt);
-
-	// ranged attack
-	ranged_cooldown -= dt;
-	if (dist <= attack_range && ranged_cooldown <= 0.0f) {
-		ranged_attack_slow();
-		ranged_cooldown = ranged_cd_max;
+	stance_timer -= dt;
+	if (stance_timer <= 0.0f) {
+		wants_melee = !wants_melee;
+		stance_timer = 10.0f;
 	}
 
-	// melee with burn
-	if (dist <= attack_range * 0.3f && attack_cooldown <= 0.0f) {
-		melee_attack_burn();
-		attack_cooldown = attack_cd_max;
+	if (wants_melee) {
+		if (dist > 60.0f)
+			move_toward_target(movement_speed * 1.3f, dt);
+
+		if (dist <= 60.0f && attack_cooldown <= 0.0f) {
+			melee_attack_burn();
+			attack_cooldown = attack_cd_max;
+		}
+	} else {
+		float preferred = attack_range * 0.7f;
+		if (dist > preferred + 1.5f)
+			move_toward_target(movement_speed, dt);
+		else if (dist < preferred - 1.5f)
+			move_away_from_target(movement_speed, dt);
+
+		ranged_cooldown -= dt;
+		if (dist <= attack_range && ranged_cooldown <= 0.0f) {
+			ranged_attack_slow();
+			ranged_cooldown = ranged_cd_max;
+		}
 	}
 }
 
@@ -145,18 +171,18 @@ void monster_boss::phase2_ai(float dt, float dist) {
 		return;
 	}
 
-	// between charges: phase 1 behavior
+	// between charges, phase 1 behavior
 	phase1_ai(dt, dist);
 }
 
 void monster_boss::phase3_ai(float dt, float dist) {
-	// first time entering phase 3: start channel
+	// entering phase 3, start channel
 	if (!phase3_debuffed && !is_channeling) {
 		start_channel();
 		return;
 	}
 
-	// channeling: stand still, flash, wait for minions to die
+	// channeling
 	if (is_channeling) {
 		flash_timer += dt * 4.0f;
 		if (!minions_alive()) {
@@ -167,7 +193,7 @@ void monster_boss::phase3_ai(float dt, float dist) {
 		return;
 	}
 
-	// post-channel: melee walk + charge only (no ranged)
+	// post-channel
 	if (!is_charging && charge_cooldown <= 0.0f && dist > attack_range) {
 		start_charge();
 		charge_cooldown = charge_cd_max;
@@ -185,6 +211,7 @@ void monster_boss::phase3_ai(float dt, float dist) {
 
 void monster_boss::update(float dt) {
 	monster::update(dt);
+	if (is_dead()) return;
 	if (!has_target()) return;
 
 	update_phase();
@@ -204,7 +231,7 @@ void monster_boss::update(float dt) {
 		return;
 	}
 
-	// channeling (phase 3)
+	// channeling
 	if (is_channeling) {
 		phase3_ai(dt, dist);
 		return;

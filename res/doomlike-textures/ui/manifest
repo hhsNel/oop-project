@@ -8,3 +8,5 @@ doomlike-textures/ui/options-bg.btx
 
 common/ui/hp-armor.btx
 common/ui/mag.btx
+common/ui/Weapon_inventory.btx
+common/ui/crosshair2.btx

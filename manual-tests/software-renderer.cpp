@@ -138,7 +138,7 @@ int main() {
         )));
     }
 
-    geometry::subsector room_subsector(std::move(line_ids), {});
+    geometry::subsector room_subsector(std::move(line_ids));
     auto subsector_id = room_map.subsectors.add(std::move(room_subsector));
 
     room_map.root_node_id = 0x80000000 | subsector_id;

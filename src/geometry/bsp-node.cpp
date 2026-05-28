@@ -30,18 +30,25 @@ namespace geometry {
 
 		for (size_t i = 0; i < count; ++i) {
 			bounding_box front_box = {
-				float(data[i].f_top), float(data[i].f_bot), 
+				float(data[i].f_top), float(data[i].f_bot),
 				float(data[i].f_left), float(data[i].f_right)
 			};
 			bounding_box back_box = {
-				float(data[i].b_top), float(data[i].b_bot), 
+				float(data[i].b_top), float(data[i].b_bot),
 				float(data[i].b_left), float(data[i].b_right)
 			};
-			
+
 			math::vec2 pl_coord(float(data[i].pl_x), float(data[i].pl_y));
 			math::vec2 pl_dir(float(data[i].dir_x), float(data[i].dir_y));
-			
-			result.emplace_back(pl_coord, pl_dir, front_box, back_box, data[i].front_child, data[i].back_child);
+
+			// binary uses 0-based indices; indexed_storage IDs start at 1
+			auto fix_child = [](std::uint32_t raw) -> std::uint32_t {
+				if (raw & leaf_flag)
+					return leaf_flag | ((raw & ~leaf_flag) + 1);
+				return raw + 1;
+			};
+
+			result.emplace_back(pl_coord, pl_dir, front_box, back_box, fix_child(data[i].front_child), fix_child(data[i].back_child));
 		}
 		return result;
 	}

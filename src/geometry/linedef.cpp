@@ -17,7 +17,12 @@ namespace geometry {
 		auto const* data = reinterpret_cast<bin_linedef const*>(res("beginning"_f));
 
 		for (size_t i = 0; i < count; ++i) {
-			result.emplace_back(math::vec2(float(data[i].v1_x), float(data[i].v1_y)), math::vec2(float(data[i].v2_x), float(data[i].v2_y)), data[i].front, data[i].back);
+			// binary uses 0-based indices; indexed_storage IDs start at 1
+			auto front = data[i].front + 1;
+			auto back = (data[i].back == 0xFFFFFFFF)
+				? util::indexed_storage<sidedef>::nullid
+				: data[i].back + 1;
+			result.emplace_back(math::vec2(float(data[i].v1_x), float(data[i].v1_y)), math::vec2(float(data[i].v2_x), float(data[i].v2_y)), front, back);
 		}
 		return result;
 	}

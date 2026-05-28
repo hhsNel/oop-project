@@ -2,8 +2,14 @@
 
 namespace entities {
 
+monster_magic::monster_magic(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
+	: monster(p, z, 7, 1.0f, 50.0f, 30.0f, 60.0f, 250.0f, 350.0f, 40.0f, 2.0f, target, map, world),
+	  charge_time(2.0f), charge_timer(0.0f), is_charging(false),
+	  post_fire_cooldown(0.0f), sidestep_timer(0.0f), sidestep_sign(1.0f) {}
+
 void monster_magic::update(float dt) {
     monster::update(dt);
+    if (is_dead()) return;
     if (!has_target()) return;
 
     float dist = dist_to_target();
@@ -29,7 +35,7 @@ void monster_magic::update(float dt) {
 
     charge_timer += dt;
     if (charge_timer >= charge_time && dist <= attack_range && attack_cooldown <= 0.0f) {
-        melee_attack(attack_damage);
+        ranged_attack(attack_damage, 30, 200.0f);
         attack_cooldown    = attack_cd_max;
         is_charging        = false;
         charge_timer       = 0.0f;

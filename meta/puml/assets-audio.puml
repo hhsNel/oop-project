@@ -1,0 +1,186 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam monochrome true
+
+package util {
+    class "componentized<T>" as componentized {
+    }
+}
+
+package audio {
+    struct audio_format {
+        + sample_rate : unsigned int
+        + channels : unsigned int
+        + bits_per_sample : unsigned int
+    }
+
+    abstract class audio_backend {
+        + {abstract} ~audio_backend()
+        + {abstract} open(fmt : audio_format const&) : bool
+        + {abstract} close() : void
+        + {abstract} write(data : void const*, frames : unsigned long) : long
+        + {abstract} drain() : void
+        + {abstract} pause() : void
+        + {abstract} resume() : void
+        + {abstract} operator()(tag : util::component_tag<"current_format">) : audio_format const
+        + {abstract} bad() : bool
+    }
+
+    class audio_mixer {
+        - target : audio_backend &
+        - mix_format : audio_format
+        - active_sounds : std::vector<playing_sound>
+        + explicit audio_mixer(tgt : audio_backend &, fmt : audio_format const&)
+        + play(clip : assets::audio_clip const&) : void
+        + stop_all() : void
+        + step(frames_to_mix : unsigned long) : void
+        + is_silent() : bool
+    }
+
+    struct playing_sound << (S,#FF7700) internal >> {
+        + clip : assets::audio_clip const*
+        + current_frame : unsigned long
+    }
+
+    package alsa {
+        class backend {
+            - is_bad : bool
+            - pcm_handle : snd_pcm_t*
+            - fmt : audio_format
+            - paused : bool
+            - to_alsa_format(bits : unsigned int) : snd_pcm_format_t const
+            - configure_hw_params() : bool
+            + backend()
+            + ~backend() override
+            + open(format : audio_format const&) : bool override
+            + close() : void override
+            + write(data : void const*, frames : unsigned long) : long override
+            + drain() : void override
+            + pause() : void override
+            + resume() : void override
+            + operator()(tag : util::component_tag<"current_format">) : audio_format const override
+            + bad() : bool override
+        }
+    }
+}
+
+package assets {
+
+    class "ids.h (Typedefs)" as Ids << (D,#FF7700) typedef >> {
+        + texture_id : std::int32_t
+        + menu_id : std::int32_t
+        + audio_clip_id : std::int32_t
+    }
+
+    class audio_clip {
+        - pcm_data : std::vector<std::uint8_t>
+        - format : audio::audio_format
+        - total_frames : unsigned long
+        - audio_clip(data : std::vector<std::uint8_t> const&, fmt : audio::audio_format const&)
+        + {static} load_from_bin(res : util::resource const&) : audio_clip const
+    }
+
+    class texture {
+        - pixels : std::vector<std::uint32_t>
+        - width : std::uint32_t
+        - height : std::uint32_t
+        - has_transparency : bool
+        - texture(t : std::vector<std::uint32_t> const&, w : std::uint32_t const, h : std::uint32_t const, transparent : bool)
+        + {static} load_from_bin(res : util::resource const&) : texture const
+    }
+
+    class menu_element {
+        - function : int
+        - begin_x : float const
+        - begin_y : float const
+        - end_x : float const
+        - end_y : float const
+        - bg : texture_id const
+        - fmt_template : std::string
+        - formatter : std::function<std::string(std::string_view)>
+        - char_w : int
+        - char_h : int
+        - col_r : std::uint8_t
+        - col_g : std::uint8_t
+        - col_b : std::uint8_t
+        - relative_left_margin : float
+        - menu_element(f : int, bx : float, by : float, ex : float, ey : float, b : texture_id const, s : std::string, cw : int, ch : int, r : std::uint8_t, g : std::uint8_t, b_col : std::uint8_t, rlm : float)
+        - resolve_text() : std::string const
+        - text_color() : std::uint32_t const
+        - selective_fmt(key_filter : std::string_view, fn : std::function<std::string(std::string_view)>) : void
+        - render(r2d : rendering::renderer_2d const&, ui_tx : std::vector<texture> const&, sw : int, sh : int, ms : input::mouse_state const&) : int const
+        + {static} load_from_bin(res : util::resource const&) : menu_element
+    }
+
+    class menu {
+        - elements : std::vector<menu_element>
+        - bg : texture_id const
+        - menu(els : std::vector<menu_element>, b : texture_id const)
+        + {static} load_from_bin(resld : util::resource_loader &, res : util::resource const&) : menu
+        + selective_formatter(key_filter : std::string_view, fn : std::function<std::string(std::string_view)>) : void
+        + formatter_all(fn : std::function<std::string(std::string_view)>) : void
+        + display(r2d : rendering::renderer_2d const&, rb : rendering::rendering_backend &, in : input::input_backend &, ui_tx : std::vector<texture> const&) : int const
+    }
+
+    class asset_pack {
+        - wall_textures : std::vector<texture>
+        - sprite_textures : std::vector<texture>
+        - flat_textures : std::vector<texture>
+        - ui_textures : std::vector<texture>
+        - menus : std::vector<menu>
+        - audio_clips : std::vector<audio_clip>
+        - asset_pack(walls : std::vector<texture>, sprites : std::vector<texture>, flats : std::vector<texture>, ui : std::vector<texture>, ms : std::vector<menu>, clips : std::vector<audio_clip>)
+        - {static} tx_from_meta(resld : util::resource_loader &, meta_path : std::string_view) : std::vector<texture>
+        - {static} menus_from_meta(resld : util::resource_loader &, meta_path : std::string_view) : std::vector<menu>
+        - {static} clips_from_meta(resld : util::resource_loader &, meta_path : std::string_view) : std::vector<audio_clip>
+        - {static} parse_meta_keys(content : std::string const&) : std::unordered_map<std::string, std::string>
+        + {static} load(resld : util::resource_loader &, pack_meta_path : std::string_view) : asset_pack
+        + wall_tx_by_id(id : texture_id const) : texture const& const
+        + sprite_tx_by_id(id : texture_id const) : texture const& const
+        + flat_tx_by_id(id : texture_id const) : texture const& const
+        + ui_tx_by_id(id : texture_id const) : texture const& const
+        + menu_by_id(id : menu_id const) : menu &
+        + audio_clip_by_id(id : audio_clip_id const) : audio_clip const& const
+        + display_menu(id : menu_id const, r2d : rendering::renderer_2d const&, rb : rendering::rendering_backend &, in : input::input_backend &) : int
+    }
+
+    class asset_manager {
+        - rl : util::resource_loader &
+        - asset_packs : std::vector<asset_pack>
+        - cur_set : unsigned int
+        - asset_manager(resld : util::resource_loader &, packs : std::vector<asset_pack>)
+        + {static} load(resld : util::resource_loader &) : asset_manager
+        + cycle_set() : void
+        + wall_tx_by_id(id : texture_id const) : texture const& const
+        + sprite_tx_by_id(id : texture_id const) : texture const& const
+        + flat_tx_by_id(id : texture_id const) : texture const& const
+        + ui_tx_by_id(id : texture_id const) : texture const& const
+        + menu_by_id(id : menu_id const) : menu &
+        + audio_clip_by_id(id : audio_clip_id const) : audio_clip const& const
+        + display_menu(id : menu_id const, r2d : rendering::renderer_2d const&, rb : rendering::rendering_backend &, in : input::input_backend &) : int
+    }
+}
+
+'' Inheritance
+componentized <|-- audio_clip
+componentized <|-- texture
+audio::audio_backend <|-- audio::alsa::backend
+
+'' Dependencies
+audio::audio_mixer ..> audio::playing_sound
+audio::audio_mixer ..> audio::audio_backend
+audio::audio_mixer ..> audio::audio_format
+audio::alsa::backend ..> audio::audio_format
+audio_clip ..> audio::audio_format
+playing_sound ..> audio_clip
+menu_element ..> Ids
+texture ..> Ids
+menu ..> Ids
+menu ..> menu_element
+asset_pack ..> texture
+asset_pack ..> menu
+asset_pack ..> audio_clip
+asset_manager ..> asset_pack
+
+@enduml

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Doom-style Map Editor  —  pure pygame, no external UI library
-Exports: sectors.bin  sidedefs.bin  linedefs.bin  subsectors.bin  nodes.bin
+Exports: sectors.bin  sidedefs.bin  linedefs.bin  subsectors.bin  nodes.bin  monsters.bin  pickups.bin
 
 Binary layouts (packed, little-endian):
   bin_sector    : float fh, float ch, uint32 floor_tex, uint32 ceil_tex, uint8 light
@@ -11,6 +11,8 @@ Binary layouts (packed, little-endian):
   bin_bsp_node  : float pl_x,pl_y,dir_x,dir_y,
                   f_top,f_bot,f_left,f_right, b_top,b_bot,b_left,b_right,
                   uint32 front_child, uint32 back_child
+  bin_monster   : uint32 type, int x, int y, float z
+  bin_pickup    : uint32 type, uint32 subtype, int x, int y, float z
 """
 
 import sys, os, math, struct, json
@@ -22,8 +24,8 @@ import pygame
 #  Constants
 # ══════════════════════════════════════════════════════════════════════════════
 
-SCREEN_W, SCREEN_H = 1400, 900
-PANEL_W  = 250
+SCREEN_W, SCREEN_H = 1400, 1000
+PANEL_W  = 290
 CANVAS_W = SCREEN_W - PANEL_W
 CANVAS_H = SCREEN_H
 
@@ -86,6 +88,28 @@ TOOL_LINE   = "line"
 TOOL_SECTOR = "sector"
 TOOL_SELECT = "select"
 TOOL_DELETE = "delete"
+TOOL_MONSTER = "monster"
+TOOL_PICKUP  = "pickup"
+
+MONSTER_NAMES = [
+    "all_rounder", "assault", "basic", "boss", "duzy_gruby",
+    "elite_swift", "elite_tank", "magic", "maly_szybki",
+    "ranged", "sniper", "spawner", "trapper",
+]
+MONSTER_COL  = (255, 80, 80)
+MONSTER_HOV  = (255, 180, 180)
+
+PICKUP_NAMES = [
+    "health", "armor", "weapon", "ammo",
+]
+WEAPON_SUBTYPE_NAMES = [
+    "pistol", "smg", "rifle", "shotgun", "sniper", "plasma_gun", "katana",
+]
+AMMO_SUBTYPE_NAMES = [
+    "pistol", "smg", "rifle", "shotgun", "sniper", "plasma_gun",
+]
+PICKUP_COL   = ( 80, 200, 255)
+PICKUP_HOV   = (180, 240, 255)
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  Data model
@@ -124,17 +148,33 @@ class Linedef:
     back:  int = NULL_ID
 
 @dataclass
+class MonsterSpawn:
+    x: float; y: float
+    monster_type: int = 2   # default: basic
+    z: float = 0.0
+
+@dataclass
+class PickupSpawn:
+    x: float; y: float
+    pickup_type: int = 0   # default: health
+    subtype: int = 0       # for weapon: which weapon
+    z: float = 0.0
+
+@dataclass
 class MapData:
     vertices: list = field(default_factory=list)
     sectors:  list = field(default_factory=list)
     sidedefs: list = field(default_factory=list)
     linedefs: list = field(default_factory=list)
     subsector_colors: list = field(default_factory=list)  # per-subsector RGB
+    monsters: list = field(default_factory=list)
+    pickups:  list = field(default_factory=list)
 
     def clear(self):
         self.vertices.clear(); self.sectors.clear()
         self.sidedefs.clear(); self.linedefs.clear()
         self.subsector_colors.clear()
+        self.monsters.clear(); self.pickups.clear()
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  BSP builder
@@ -158,12 +198,33 @@ def _build_bsp(line_indices, all_lines, verts, nodes, subsectors, depth=0):
     if len(line_indices) <= 3 or depth > 24:
         si = len(subsectors); subsectors.append(list(line_indices)); return si | LEAF_FLAG
 
-    splitter = None
-    for idx in line_indices:
-        l = all_lines[idx]
-        if abs(verts[l.v1].x-verts[l.v0].x)<1 or abs(verts[l.v1].y-verts[l.v0].y)<1:
-            splitter = idx; break
-    if splitter is None: splitter = line_indices[0]
+    # Score candidate splitters — pick the one with the most balanced split
+    # Convention: C++ is_pt_front_side returns cross(dir,delta)<=0 as "front",
+    # so _seg_side <= 0 means front, _seg_side > 0 means back.
+    EPS = 1e-4
+    best_splitter = None
+    best_score = float('inf')
+    for cand in line_indices:
+        cl = all_lines[cand]
+        cax,cay = verts[cl.v0].x,verts[cl.v0].y
+        cbx,cby = verts[cl.v1].x,verts[cl.v1].y
+        cdx,cdy = cbx-cax,cby-cay
+        if math.hypot(cdx,cdy) < 1e-6: continue
+        fc,bc,splits = 0,0,0
+        for idx in line_indices:
+            l = all_lines[idx]
+            s0 = _seg_side(cax,cay,cbx,cby, verts[l.v0].x,verts[l.v0].y)
+            s1 = _seg_side(cax,cay,cbx,cby, verts[l.v1].x,verts[l.v1].y)
+            if s0 <= EPS and s1 <= EPS: fc += 1
+            elif s0 >= -EPS and s1 >= -EPS: bc += 1
+            else: splits += 1; fc += 1; bc += 1
+        if fc == 0 or bc == 0: continue  # degenerate — skip
+        score = abs(fc - bc) + splits * 4
+        if score < best_score:
+            best_score = score; best_splitter = cand
+    if best_splitter is None:
+        si = len(subsectors); subsectors.append(list(line_indices)); return si | LEAF_FLAG
+    splitter = best_splitter
 
     sl = all_lines[splitter]
     ax,ay = verts[sl.v0].x, verts[sl.v0].y
@@ -174,15 +235,14 @@ def _build_bsp(line_indices, all_lines, verts, nodes, subsectors, depth=0):
         si = len(subsectors); subsectors.append(list(line_indices)); return si | LEAF_FLAG
     ndx,ndy = dx/ln, dy/ln
 
-    EPS = 1e-4
     front_idx, back_idx = [], []
     for idx in line_indices:
         l = all_lines[idx]
         s0 = _seg_side(ax,ay,bx,by, verts[l.v0].x,verts[l.v0].y)
         s1 = _seg_side(ax,ay,bx,by, verts[l.v1].x,verts[l.v1].y)
-        if s0 >= -EPS and s1 >= -EPS:
+        if s0 <= EPS and s1 <= EPS:
             front_idx.append(idx)
-        elif s0 <= EPS and s1 <= EPS:
+        elif s0 >= -EPS and s1 >= -EPS:
             back_idx.append(idx)
         else:
             lx = verts[l.v1].x-verts[l.v0].x; ly = verts[l.v1].y-verts[l.v0].y
@@ -191,8 +251,8 @@ def _build_bsp(line_indices, all_lines, verts, nodes, subsectors, depth=0):
             t = (dx*(verts[l.v0].y-ay) - dy*(verts[l.v0].x-ax)) / denom
             ix = verts[l.v0].x + t*lx; iy = verts[l.v0].y + t*ly
             mi = len(verts); verts.append(Vertex(ix,iy))
-            nf = Linedef(l.v0 if s0>=0 else mi, mi if s0>=0 else l.v1, l.front, l.back)
-            nb = Linedef(l.v0 if s0< 0 else mi, mi if s0< 0 else l.v1, l.front, l.back)
+            nf = Linedef(l.v0 if s0<=0 else mi, mi if s0<=0 else l.v1, l.front, l.back)
+            nb = Linedef(l.v0 if s0> 0 else mi, mi if s0> 0 else l.v1, l.front, l.back)
             nfi = len(all_lines); all_lines.append(nf); front_idx.append(nfi)
             nbi = len(all_lines); all_lines.append(nb); back_idx.append(nbi)
 
@@ -221,6 +281,24 @@ def build_bsp(md: MapData):
     nodes=[]; subs=[]
     if lines:
         _build_bsp(list(range(len(lines))), lines, verts, nodes, subs)
+    # C++ expects root = last node. Python builds root at index 0.
+    # Reverse node order and remap child references.
+    if nodes:
+        n = len(nodes)
+        remap = {i: n - 1 - i for i in range(n)}
+        new_nodes = [None] * n
+        for old_i, nd in enumerate(nodes):
+            if nd is None: continue
+            fc = nd.front_child
+            bc = nd.back_child
+            if not (fc & LEAF_FLAG): fc = remap[fc]
+            if not (bc & LEAF_FLAG): bc = remap[bc]
+            new_nodes[remap[old_i]] = BSPNode(
+                nd.pl_x, nd.pl_y, nd.dir_x, nd.dir_y,
+                nd.f_top, nd.f_bot, nd.f_left, nd.f_right,
+                nd.b_top, nd.b_bot, nd.b_left, nd.b_right,
+                fc, bc)
+        nodes = new_nodes
     return nodes, subs, lines, verts
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -250,6 +328,7 @@ def export_bin(md: MapData, out_dir: str):
         for cnt,first in sub_recs:
             f.write(struct.pack("<II",cnt,first))
     with open(os.path.join(out_dir,"nodes.bin"),"wb") as f:
+        written = 0
         for n in nodes:
             if n is None: continue
             f.write(struct.pack("<ffffffffffff II",
@@ -257,7 +336,16 @@ def export_bin(md: MapData, out_dir: str):
                 n.f_top,n.f_bot,n.f_left,n.f_right,
                 n.b_top,n.b_bot,n.b_left,n.b_right,
                 n.front_child,n.back_child))
-    return len(md.sectors),len(md.linedefs),len(nodes),len(sub_recs)
+            written += 1
+        if written == 0:
+            f.write(b'\x00')
+    with open(os.path.join(out_dir,"monsters.bin"),"wb") as f:
+        for m in md.monsters:
+            f.write(struct.pack("<Iiif", m.monster_type, int(m.x), int(m.y), m.z))
+    with open(os.path.join(out_dir,"pickups.bin"),"wb") as f:
+        for p in md.pickups:
+            f.write(struct.pack("<IIiif", p.pickup_type, p.subtype, int(p.x), int(p.y), p.z))
+    return len(md.sectors),len(md.linedefs),len(nodes),len(sub_recs),len(md.monsters),len(md.pickups)
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  JSON save / load
@@ -273,7 +361,11 @@ def save_json(md,path):
                     "mid_tex":sd.mid_tex,"lower_tex":sd.lower_tex} for sd in md.sidedefs],
        "linedefs":[{"v0":l.v0,"v1":l.v1,"front":l.front,"back":l.back}
                    for l in md.linedefs],
-       "subsector_colors":[list(c) if c else None for c in md.subsector_colors]}
+       "subsector_colors":[list(c) if c else None for c in md.subsector_colors],
+       "monsters":[{"x":m.x,"y":m.y,"monster_type":m.monster_type,"z":m.z}
+                   for m in md.monsters],
+       "pickups":[{"x":p.x,"y":p.y,"pickup_type":p.pickup_type,"subtype":p.subtype,"z":p.z}
+                  for p in md.pickups]}
     with open(path,"w") as f: json.dump(d,f,indent=2)
 
 def load_json(path):
@@ -290,6 +382,8 @@ def load_json(path):
     md.linedefs=[Linedef(**l) for l in d["linedefs"]]
     sc = d.get("subsector_colors", [])
     md.subsector_colors = [tuple(c) if c else None for c in sc]
+    md.monsters=[MonsterSpawn(**m) for m in d.get("monsters",[])]
+    md.pickups=[PickupSpawn(**p) for p in d.get("pickups",[])]
     return md
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -917,28 +1011,32 @@ class Editor:
         self.panning   = False
         self.pan_start = (0,0); self.pan_cam = (0.0,0.0)
 
-        self.sel_verts     = []
-        self.sel_lines     = []
-        self.sel_sector    = None
+        # Edit state
+        self.sel_verts  = []
+        self.sel_lines  = []
+        self.sel_sector = None
         self.sel_subsector = None
-        self.hov_vert      = None
-        self.hov_line      = None
-        self.hov_sector    = None
+        self.hov_vert   = None
+        self.hov_line   = None
+        self.hov_sector = None
         self.hov_subsector = None
-        self.line_start    = None
-        self.cur_sector    = 0
+        self.line_start = None
+        self.cur_sector = 0
+        self.hov_monster = None
+        self.hov_pickup = None
 
         self.show_bsp  = False
         self.bsp_nodes = []; self.bsp_subs = []
         self.bsp_verts = []; self.bsp_lines = []
         self.bsp_nc    = 0;  self.bsp_sc   = 0
 
-        self.status = "F1 or ? for help  |  V=vertex  L=line  S=paint  E=select  D=delete  |  F5=export"
+        self.status = "V=vertex  L=line  S=paint sector  M=monster  P=pickup  E=select  D=delete  |  F5=export"
         self._flash_timer = 0
 
         self.color_picker = ColorPicker()
         self.props        = PropertiesPanel(self.color_picker)
 
+        self._init_fields()
         self._build_panel()
         self._rebuild_bsp()
 
@@ -952,6 +1050,25 @@ class Editor:
 
     # ── Panel construction ─────────────────────────────────────────────────────
 
+    def _init_fields(self):
+        """Create persistent input fields (survive panel rebuilds)."""
+        self.fi_monster_type = TextInput(pygame.Rect(0,0,1,1), "2", numeric=True)
+        self.fi_monster_z    = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.fi_pickup_type  = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_pickup_subtype = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_pickup_z     = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.btn_new_sec     = None
+        self.btn_apply       = None
+        self.fi_sec_idx      = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_floor_h      = TextInput(pygame.Rect(0,0,1,1), "0.0", numeric=True)
+        self.fi_ceil_h       = TextInput(pygame.Rect(0,0,1,1), "128.0", numeric=True)
+        self.fi_floor_tex    = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_ceil_tex     = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_light        = TextInput(pygame.Rect(0,0,1,1), "200", numeric=True)
+        self.fi_upper        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+        self.fi_mid          = TextInput(pygame.Rect(0,0,1,1), "1", numeric=True)
+        self.fi_lower        = TextInput(pygame.Rect(0,0,1,1), "0", numeric=True)
+
     def _build_panel(self):
         px = CANVAS_W + 10
         pw = PANEL_W - 20
@@ -963,17 +1080,17 @@ class Editor:
             self.widgets.append(s)
             y += extra*2+2
 
-        def lbl(text, dy=4, color=TEXT_LABEL):
+        def lbl(text, dy=2, color=TEXT_LABEL):
             nonlocal y
-            w = Label(pygame.Rect(px, y, pw, 18), text, color=color)
+            w = Label(pygame.Rect(px, y, pw, 16), text, color=color)
             self.widgets.append(w)
-            y += 18+dy
+            y += 16+dy
 
-        def btn(label, h=30, accent=False):
+        def btn(label, h=26, accent=False):
             nonlocal y
             b = Button(pygame.Rect(px, y, pw, h), label, accent=accent)
             self.widgets.append(b)
-            y += h+4
+            y += h+3
             return b
 
         def tbtn(label, tool_id, h=30):
@@ -983,54 +1100,80 @@ class Editor:
             y += h+4
             return b
 
-        def field(val="", num=False, h=28):
+        def field(val="", num=False, h=24):
             nonlocal y
             f = TextInput(pygame.Rect(px, y, pw, h), val, numeric=num)
             self.widgets.append(f)
-            y += h+4
+            y += h+3
             return f
+
+        def place(fi, h=24):
+            nonlocal y
+            fi.rect = pygame.Rect(px, y, pw, h)
+            self.widgets.append(fi)
+            y += h+3
 
         self.widgets = []
 
         lbl("  TOOLS", color=TEXT_DIM); y += 2
-        self.tb_vertex = tbtn("✦  Vertex",  TOOL_VERTEX)
-        self.tb_line   = tbtn("╱  Line",    TOOL_LINE)
-        self.tb_sector = tbtn("▣  Paint Sector", TOOL_SECTOR)
-        self.tb_select = tbtn("⊹  Select",  TOOL_SELECT)
-        self.tb_delete = tbtn("✕  Delete",  TOOL_DELETE)
+        self.tb_vertex  = tbtn("✦  Vertex",  TOOL_VERTEX, 26)
+        self.tb_line    = tbtn("╱  Line",    TOOL_LINE, 26)
+        self.tb_sector  = tbtn("▣  Paint Sector", TOOL_SECTOR, 26)
+        self.tb_monster = tbtn("☠  Monster", TOOL_MONSTER, 26)
+        self.tb_pickup  = tbtn("♦  Pickup",  TOOL_PICKUP, 26)
+        self.tb_select  = tbtn("⊹  Select",  TOOL_SELECT, 26)
+        self.tb_delete  = tbtn("✕  Delete",  TOOL_DELETE, 26)
         self._tool_btns = [self.tb_vertex,self.tb_line,self.tb_sector,
-                           self.tb_select,self.tb_delete]
+                           self.tb_monster,self.tb_pickup,self.tb_select,self.tb_delete]
         self.tb_line.active = True
-
         sep()
 
-        lbl("  SECTOR", color=TEXT_DIM); y += 2
-        lbl("Index:")
-        self.fi_sec_idx = field("0", num=True)
-        self.btn_new_sec = btn("+ New Sector")
-        lbl("Floor height:")
-        self.fi_floor_h  = field("0.0", num=True)
-        lbl("Ceiling height:")
-        self.fi_ceil_h   = field("128.0", num=True)
-        lbl("Floor tex ID:")
-        self.fi_floor_tex= field("0", num=True)
-        lbl("Ceiling tex ID:")
-        self.fi_ceil_tex = field("0", num=True)
-        lbl("Light (0-255):")
-        self.fi_light    = field("200", num=True)
-        self.btn_apply   = btn("Apply Sector", accent=True)
+        if self.tool == TOOL_MONSTER:
+            # ── Monster props ─────────────────────────────────────────────────
+            lbl("  MONSTER", color=TEXT_DIM); y += 2
+            lbl("Type ID (0-12):")
+            place(self.fi_monster_type)
+            lbl("Z height:")
+            place(self.fi_monster_z)
+            sep()
 
-        sep()
+        elif self.tool == TOOL_PICKUP:
+            # ── Pickup props ──────────────────────────────────────────────────
+            lbl("  PICKUP", color=TEXT_DIM); y += 2
+            lbl(f"Type ID (0-{len(PICKUP_NAMES)-1}):")
+            place(self.fi_pickup_type)
+            lbl(f"Subtype (0-{len(WEAPON_SUBTYPE_NAMES)-1}):")
+            place(self.fi_pickup_subtype)
+            lbl("Z height:")
+            place(self.fi_pickup_z)
+            sep()
 
-        lbl("  SIDEDEF TEXTURES", color=TEXT_DIM); y += 2
-        lbl("Upper tex:")
-        self.fi_upper = field("0", num=True)
-        lbl("Mid tex:")
-        self.fi_mid   = field("1", num=True)
-        lbl("Lower tex:")
-        self.fi_lower = field("0", num=True)
+        elif self.tool in (TOOL_LINE, TOOL_SECTOR, TOOL_SELECT):
+            # ── Sector props ──────────────────────────────────────────────────
+            lbl("  SECTOR", color=TEXT_DIM); y += 2
+            lbl("Index:")
+            place(self.fi_sec_idx)
+            self.btn_new_sec = btn("+ New Sector")
+            lbl("Floor height:")
+            place(self.fi_floor_h)
+            lbl("Ceiling height:")
+            place(self.fi_ceil_h)
+            lbl("Floor tex ID:")
+            place(self.fi_floor_tex)
+            lbl("Ceiling tex ID:")
+            place(self.fi_ceil_tex)
+            lbl("Light (0-255):")
+            place(self.fi_light)
+            self.btn_apply   = btn("Apply Sector", accent=True)
 
-        sep()
+            lbl("  SIDEDEF TEXTURES", color=TEXT_DIM); y += 2
+            lbl("Upper tex:")
+            place(self.fi_upper)
+            lbl("Mid tex:")
+            place(self.fi_mid)
+            lbl("Lower tex:")
+            place(self.fi_lower)
+            sep()
 
         lbl("  FILE / BSP", color=TEXT_DIM); y += 2
         self.btn_bsp    = btn("Show BSP Overlay")
@@ -1109,20 +1252,15 @@ class Editor:
     def _trace_polygon(self, edges, verts_lookup):
         """
         Given a list of (v0, v1) edges and a callable verts_lookup(i)->(x,y),
-        attempt to chain them into an ordered polygon by following connections.
-        Falls back to convex-hull angle sort only when the chain is broken.
-        Returns list of (x,y) or None.
+        trace a single closed polygon. Returns list of (x,y) or None.
         """
         if not edges: return None
 
-        # Build adjacency: vertex -> list of connected vertices
         adj = {}
         for a, b in edges:
             adj.setdefault(a, []).append(b)
             adj.setdefault(b, []).append(a)
 
-        # Try to walk a closed chain starting from the vertex with lowest degree
-        # (or any vertex). We pick a start and greedily follow unvisited neighbours.
         all_verts = list(adj.keys())
         if len(all_verts) < 3: return None
 
@@ -1131,10 +1269,9 @@ class Editor:
         visited_edges = set()
         cur = start
 
+        closed = False
         while True:
             neighbours = adj.get(cur, [])
-            # prefer unvisited edge; among those prefer the one that continues
-            # the current direction (avoids doubling back on T-junctions)
             nxt = None
             for nb in neighbours:
                 key = (min(cur,nb), max(cur,nb))
@@ -1146,27 +1283,85 @@ class Editor:
             key = (min(cur,nxt), max(cur,nxt))
             visited_edges.add(key)
             if nxt == start:
-                break   # closed the loop
+                closed = True
+                break
             if nxt in chain:
-                # hit a vertex we already visited but haven't closed — give up
                 break
             chain.append(nxt)
             cur = nxt
 
-        if len(chain) < 3:
+        if not closed or len(chain) < 3:
             return None
 
         return [verts_lookup(i) for i in chain]
 
+    def _trace_all_polygons(self, edges, verts_lookup):
+        """
+        Trace all closed polygons from a set of edges (handles disconnected
+        components). Returns a list of polygons, each polygon being a list
+        of (x,y) points.
+        """
+        if not edges: return []
+
+        adj = {}
+        for a, b in edges:
+            adj.setdefault(a, []).append(b)
+            adj.setdefault(b, []).append(a)
+
+        visited_edges = set()
+        visited_verts = set()
+        polys = []
+
+        for start in adj:
+            if start in visited_verts:
+                continue
+
+            chain = [start]
+            cur = start
+            closed = False
+
+            while True:
+                neighbours = adj.get(cur, [])
+                nxt = None
+                for nb in neighbours:
+                    key = (min(cur,nb), max(cur,nb))
+                    if key not in visited_edges:
+                        nxt = nb
+                        break
+                if nxt is None:
+                    break
+                key = (min(cur,nxt), max(cur,nxt))
+                visited_edges.add(key)
+                if nxt == start:
+                    closed = True
+                    break
+                if nxt in chain:
+                    break
+                chain.append(nxt)
+                cur = nxt
+
+            for v in chain:
+                visited_verts.add(v)
+
+            if closed and len(chain) >= 3:
+                polys.append([verts_lookup(i) for i in chain])
+
+        return polys
+
     def _sector_polygon(self, si):
-        """Return world-space polygon for sector si (or None)."""
+        """Return first closed polygon for sector si (or None)."""
+        polys = self._sector_polygons(si)
+        return polys[0] if polys else None
+
+    def _sector_polygons(self, si):
+        """Return all closed polygons for sector si."""
         edges = []
         for l in self.map.linedefs:
             if l.front!=NULL_ID and l.front<len(self.map.sidedefs):
                 if self.map.sidedefs[l.front].facing_sector == si:
                     edges.append((l.v0, l.v1))
         def lookup(i): return (self.map.vertices[i].x, self.map.vertices[i].y)
-        return self._trace_polygon(edges, lookup)
+        return self._trace_all_polygons(edges, lookup)
 
     def _subsector_polygon(self, si):
         """Return world-space polygon for BSP subsector si (or None)."""
@@ -1197,6 +1392,21 @@ class Editor:
         return raw if raw else DEFAULT_SUBSEC_COLORS[si % len(DEFAULT_SUBSEC_COLORS)]
 
     # ── Sector/sidedef helpers ─────────────────────────────────────────────────
+    def near_monster(self, wx, wy, r=14):
+        best=None; bd=r/self.zoom
+        for i,m in enumerate(self.map.monsters):
+            d=math.hypot(m.x-wx,m.y-wy)
+            if d<bd: best,bd=i,d
+        return best
+
+    def near_pickup(self, wx, wy, r=14):
+        best=None; bd=r/self.zoom
+        for i,p in enumerate(self.map.pickups):
+            d=math.hypot(p.x-wx,p.y-wy)
+            if d<bd: best,bd=i,d
+        return best
+
+    # ── Sector/sidedef helpers ────────────────────────────────────────────────
 
     def _ensure_sector(self):
         while len(self.map.sectors) <= self.cur_sector:
@@ -1252,7 +1462,6 @@ class Editor:
 
     def _draw_sector_fills(self, surf):
         alpha = pygame.Surface((CANVAS_W,CANVAS_H), pygame.SRCALPHA)
-        # collect edges per sector
         sec_edges = {}
         for l in self.map.linedefs:
             if l.front!=NULL_ID and l.front<len(self.map.sidedefs):
@@ -1308,7 +1517,7 @@ class Editor:
                 p1=self.w2s(self.bsp_verts[l.v1].x,self.bsp_verts[l.v1].y)
                 pygame.draw.line(alpha,(*base_col,200),p0,p1,2)
 
-        # partition planes
+        # partition planes (disabled — too noisy)
         for ni,n in enumerate(self.bsp_nodes):
             if n is None: continue
             col=(*DEFAULT_SUBSEC_COLORS[ni%len(DEFAULT_SUBSEC_COLORS)],35)
@@ -1344,6 +1553,32 @@ class Editor:
             pygame.draw.circle(surf,col,(sx,sy),r)
             pygame.draw.circle(surf,(10,12,20),(sx,sy),r,1)
 
+    def _draw_monsters(self, surf):
+        for i,m in enumerate(self.map.monsters):
+            sx,sy=self.w2s(m.x,m.y)
+            col=MONSTER_HOV if i==self.hov_monster else MONSTER_COL
+            r=7
+            pygame.draw.circle(surf,col,(sx,sy),r)
+            pygame.draw.circle(surf,(10,12,20),(sx,sy),r,1)
+            name=MONSTER_NAMES[m.monster_type] if m.monster_type<len(MONSTER_NAMES) else "?"
+            txt=self.font_sm.render(name,True,col)
+            surf.blit(txt,(sx-txt.get_width()//2,sy-r-14))
+
+    def _draw_pickups(self, surf):
+        for i,p in enumerate(self.map.pickups):
+            sx,sy=self.w2s(p.x,p.y)
+            col=PICKUP_HOV if i==self.hov_pickup else PICKUP_COL
+            r=7
+            pygame.draw.rect(surf,col,(sx-r,sy-r,r*2,r*2))
+            pygame.draw.rect(surf,(10,12,20),(sx-r,sy-r,r*2,r*2),1)
+            name=PICKUP_NAMES[p.pickup_type] if p.pickup_type<len(PICKUP_NAMES) else "?"
+            if p.pickup_type==2 and p.subtype<len(WEAPON_SUBTYPE_NAMES):
+                name+=f"({WEAPON_SUBTYPE_NAMES[p.subtype]})"
+            elif p.pickup_type==3 and p.subtype<len(AMMO_SUBTYPE_NAMES):
+                name+=f"({AMMO_SUBTYPE_NAMES[p.subtype]})"
+            txt=self.font_sm.render(name,True,col)
+            surf.blit(txt,(sx-txt.get_width()//2,sy-r-14))
+
     def _draw_preview(self, surf, mx, my):
         if self.line_start is None: return
         v=self.map.vertices[self.line_start]
@@ -1363,12 +1598,14 @@ class Editor:
         for w in self.widgets:
             w.draw(surf, self.font, self.font_sm)
 
-        y=SCREEN_H-195
+        y=SCREEN_H-175
         stats=[
             ("Vertices",  len(self.map.vertices)),
             ("Linedefs",  len(self.map.linedefs)),
             ("Sectors",   len(self.map.sectors)),
             ("Sidedefs",  len(self.map.sidedefs)),
+            ("Monsters",  len(self.map.monsters)),
+            ("Pickups",   len(self.map.pickups)),
             ("BSP nodes", self.bsp_nc),
             ("Subsectors",self.bsp_sc),
             ("Sector #",  self.cur_sector),
@@ -1389,7 +1626,9 @@ class Editor:
         pygame.draw.rect(surf,(12,14,22),(0,CANVAS_H-22,CANVAS_W,22))
         pygame.draw.line(surf,(40,45,65),(0,CANVAS_H-22),(CANVAS_W,CANVAS_H-22),1)
         tool_labels = {TOOL_VERTEX:"✦ VERTEX",TOOL_LINE:"╱ LINE",
-                       TOOL_SECTOR:"▣ PAINT",TOOL_SELECT:"⊹ SELECT",TOOL_DELETE:"✕ DELETE"}
+                       TOOL_SECTOR:"▣ PAINT",TOOL_MONSTER:"☠ MONSTER",
+                       TOOL_PICKUP:"♦ PICKUP",TOOL_SELECT:"⊹ SELECT",
+                       TOOL_DELETE:"✕ DELETE"}
         badge=self.font_hd.render(f" {tool_labels[self.tool]} ",True,(20,22,32))
         bs=badge.get_rect(); bs.inflate_ip(8,4)
         bs.topleft=(6,CANVAS_H-20)
@@ -1433,6 +1672,8 @@ class Editor:
                 self.hov_sector = self._find_sector_at(wx,wy) if self.tool==TOOL_SELECT else None
                 self.hov_subsector = (self._find_subsector_at(wx,wy)
                                       if self.tool==TOOL_SELECT and self.show_bsp else None)
+                self.hov_monster=self.near_monster(wx,wy,14)
+                self.hov_pickup=self.near_pickup(wx,wy,14)
 
         elif event.type==pygame.MOUSEWHEEL:
             fac=1.15 if event.y>0 else 1/1.15
@@ -1522,9 +1763,39 @@ class Editor:
                 else:
                     self.props.clear()
 
+        elif t==TOOL_MONSTER:
+            mt=max(0,min(len(MONSTER_NAMES)-1,self._int(self.fi_monster_type,2)))
+            mz=self._flt(self.fi_monster_z,0.0)
+            self.map.monsters.append(MonsterSpawn(swx,swy,mt,mz))
+            name=MONSTER_NAMES[mt]
+            self.status=f"Monster '{name}' placed at ({int(swx)},{int(swy)})"
+
+        elif t==TOOL_PICKUP:
+            pt=max(0,min(len(PICKUP_NAMES)-1,self._int(self.fi_pickup_type,0)))
+            if pt==3:
+                pst=max(0,min(len(AMMO_SUBTYPE_NAMES)-1,self._int(self.fi_pickup_subtype,0)))
+            elif pt==2:
+                pst=max(0,min(len(WEAPON_SUBTYPE_NAMES)-1,self._int(self.fi_pickup_subtype,0)))
+            else:
+                pst=0
+            pz=self._flt(self.fi_pickup_z,0.0)
+            self.map.pickups.append(PickupSpawn(swx,swy,pt,pst,pz))
+            name=PICKUP_NAMES[pt]
+            if pt==2: name+=f"({WEAPON_SUBTYPE_NAMES[pst]})"
+            elif pt==3: name+=f"({AMMO_SUBTYPE_NAMES[pst]})"
+            self.status=f"Pickup '{name}' placed at ({int(swx)},{int(swy)})"
+
         elif t==TOOL_DELETE:
+            mi=self.near_monster(wx,wy,14)
+            pi=self.near_pickup(wx,wy,14)
             vi=self.near_vert(wx,wy,14); li=self.near_line(wx,wy,8)
-            if vi is not None:
+            if mi is not None:
+                self.map.monsters.pop(mi)
+                self.status=f"Deleted monster #{mi}"
+            elif pi is not None:
+                self.map.pickups.pop(pi)
+                self.status=f"Deleted pickup #{pi}"
+            elif vi is not None:
                 self.map.linedefs=[l for l in self.map.linedefs if l.v0!=vi and l.v1!=vi]
                 self.map.vertices.pop(vi)
                 for i,l in enumerate(self.map.linedefs):
@@ -1546,6 +1817,8 @@ class Editor:
     # ── Button actions ─────────────────────────────────────────────────────────
 
     def _btn_action(self, btn):
+        if not hasattr(self, 'btn_new_sec'): self.btn_new_sec=None
+        if not hasattr(self, 'btn_apply'):   self.btn_apply=None
         if btn==self.btn_new_sec:
             ci=len(self.map.sectors)%len(DEFAULT_SECTOR_COLORS)
             self.map.sectors.append(Sector(color_idx=ci))
@@ -1575,8 +1848,8 @@ class Editor:
 
         elif btn==self.btn_export:
             try:
-                ns,nl,nb,nss=export_bin(self.map,"map_output")
-                self.status=f"Exported → map_output/  ({ns} sectors, {nl} lines, {nb} nodes, {nss} subs)"
+                ns,nl,nb,nss,nm,np=export_bin(self.map,"map_output")
+                self.status=f"Exported → map_output/  ({ns} sectors, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters, {np} pickups)"
             except Exception as e:
                 self.status=f"Export error: {e}"
 
@@ -1603,9 +1876,9 @@ class Editor:
             self._rebuild_bsp(); self.status="Map cleared."
 
         elif isinstance(btn, ToolButton):
-            for tb in self._tool_btns: tb.active=False
-            btn.active=True; self.tool=btn.tool_id
+            self.tool=btn.tool_id
             if btn.tool_id!=TOOL_LINE: self.line_start=None
+            self._build_panel()
 
     # ── Main loop ──────────────────────────────────────────────────────────────
 
@@ -1642,14 +1915,16 @@ class Editor:
                     elif k==pygame.K_v: self._btn_action(self.tb_vertex)
                     elif k==pygame.K_l: self._btn_action(self.tb_line)
                     elif k==pygame.K_s: self._btn_action(self.tb_sector)
+                    elif k==pygame.K_m: self._btn_action(self.tb_monster)
+                    elif k==pygame.K_p: self._btn_action(self.tb_pickup)
                     elif k==pygame.K_e: self._btn_action(self.tb_select)
                     elif k==pygame.K_d: self._btn_action(self.tb_delete)
                     elif k==pygame.K_b: self._btn_action(self.btn_bsp)
                     elif k==pygame.K_HOME: self.cam_x=0; self.cam_y=0; self.zoom=1.0
                     elif k==pygame.K_F5:
                         try:
-                            ns,nl,nb,nss=export_bin(self.map,"map_output")
-                            self.status=f"[F5] Exported: {ns} sec, {nl} lines, {nb} nodes, {nss} subs"
+                            ns,nl,nb,nss,nm,np=export_bin(self.map,"map_output")
+                            self.status=f"[F5] Exported: {ns} sec, {nl} lines, {nb} nodes, {nss} subs, {nm} monsters, {np} pickups"
                         except Exception as ex:
                             self.status=f"Export error: {ex}"
                     elif k==pygame.K_DELETE and self.sel_lines:
@@ -1675,7 +1950,10 @@ class Editor:
             try:
                 idx=int(float(self.fi_sec_idx.text))
                 if not self.fi_sec_idx.active and idx!=self.cur_sector:
-                    self.cur_sector=idx; self._sync_sector_fields()
+                    idx=max(0, min(idx, len(self.map.sectors)-1))
+                    if len(self.map.sectors)>0:
+                        self.cur_sector=idx; self._sync_sector_fields()
+                        self.fi_sec_idx.set(idx)
             except: pass
 
             # ── Render ─────────────────────────────────────────────────────────
@@ -1686,6 +1964,8 @@ class Editor:
             self._draw_lines(self.screen)
             if self.tool==TOOL_LINE: self._draw_preview(self.screen,mx,my)
             self._draw_verts(self.screen)
+            self._draw_monsters(self.screen)
+            self._draw_pickups(self.screen)
             self._draw_statusbar(self.screen)
             if mx<CANVAS_W: self._draw_coord(self.screen,mx,my)
             self._draw_panel(self.screen)
@@ -1721,11 +2001,15 @@ TOOLS  (keyboard shortcut in parentheses)
   S  Paint       Click near a linedef to assign the current sector
                  to its front or back side (determined by which side
                  of the line you click).
+  M  Monster     Click canvas to place a monster spawn point.
+                 Set type and Z in the panel.
+  P  Pickup      Click canvas to place a pickup spawn point.
+                 Set type and Z in the panel.
   E  Select      Click a vertex, linedef, sector fill, or (with BSP
                  overlay enabled) a subsector to select it.
                  Shift-click to add to the selection.
                  Selected items show in the Properties panel (top-right).
-  D  Delete      Click a vertex or linedef to delete it.
+  D  Delete      Click a vertex, linedef, monster, or pickup to delete it.
 
 PROPERTIES PANEL (top-right of canvas, appears on selection)
   Shows all editable fields for the selected object.
@@ -1739,7 +2023,7 @@ NAVIGATION
   Home           Reset camera to origin, zoom to 1x
 
 KEYBOARD SHORTCUTS
-  V / L / S / E / D   Switch tool
+  V / L / S / M / P / E / D   Switch tool
   B                   Toggle BSP overlay (required for subsector selection)
   F5                  Export binary files to map_output/
   Escape              Cancel current operation / deselect all
@@ -1780,6 +2064,17 @@ bin_bsp_node  (56 bytes)
   float  b_top, b_bot, b_left, b_right
   uint32 front_child
   uint32 back_child
+
+bin_monster  (16 bytes)
+  uint32 type
+  int32  x, y
+  float  z
+
+bin_pickup  (20 bytes)
+  uint32 type
+  uint32 subtype
+  int32  x, y
+  float  z
 """
 
 HELP_SECTIONS = [
@@ -1788,9 +2083,11 @@ HELP_SECTIONS = [
         "L  Line     — click start/end to draw a linedef; chains",
         "S  Paint    — click a line to assign current sector",
         "             (click front/back side to choose which)",
+        "M  Monster  — place a monster spawn point",
+        "P  Pickup   — place a pickup spawn point",
         "E  Select   — click vert/line/sector fill; Shift = multi",
         "             Enable BSP (B) to also select subsectors",
-        "D  Delete   — click vert/line to remove it",
+        "D  Delete   — click vert/line/monster/pickup to remove it",
     ]),
     ("PROPERTIES PANEL", [
         "Appears top-right of canvas when anything is selected",
@@ -1806,7 +2103,7 @@ HELP_SECTIONS = [
         "Home               Reset camera and zoom",
     ]),
     ("KEYBOARD", [
-        "V / L / S / E / D  Switch tool",
+        "V/L/S/M/P/E/D     Switch tool",
         "B                  Toggle BSP overlay",
         "F5                 Export binaries to map_output/",
         "Escape             Cancel / deselect",

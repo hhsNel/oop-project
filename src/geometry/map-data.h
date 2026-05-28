@@ -6,6 +6,8 @@
 #include "linedef.h"
 #include "subsector.h"
 #include "bsp-node.h"
+#include "monster-spawn.h"
+#include "pickup-spawn.h"
 #include "rendering/sprite.h"
 #include "util/indexed-storage.h"
 
@@ -17,6 +19,8 @@ namespace geometry {
 		util::indexed_storage<linedef> linedefs;
 		util::indexed_storage<subsector> subsectors;
 		util::indexed_storage<bsp_node> nodes;
+		std::vector<monster_spawn> monster_spawns;
+		std::vector<pickup_spawn> pickup_spawns;
 
 		util::indexed_storage<bsp_node>::id_t root_node_id;
 
@@ -24,7 +28,7 @@ namespace geometry {
 
 		void move_to(rendering::sprite* spr, math::vec2 const& new_pos);
 
-		static map_data load_from_bin(util::resource const& sectors_res, util::resource const& sidedefs_res, util::resource const& linedefs_res, util::resource const& subsectors_res, util::resource const& nodes_res);
+		static map_data load_from_bin(util::resource const& sectors_res, util::resource const& sidedefs_res, util::resource const& linedefs_res, util::resource const& subsectors_res, util::resource const& nodes_res, util::resource const& monsters_res, util::resource const& pickups_res);
 	};
 }
 
