@@ -1,0 +1,12 @@
+common/ui/font-atlas.btx
+doomlike-textures/ui/cursor.btx
+
+doomlike-textures/ui/button.btx
+doomlike-textures/ui/background.btx
+doomlike-textures/ui/logo.btx
+doomlike-textures/ui/options-bg.btx
+
+common/ui/hp-armor.btx
+common/ui/mag.btx
+common/ui/Weapon_inventory.btx
+common/ui/crosshair2.btx

@@ -1,4 +1,5 @@
 common/audio/credits.bau
+
 common/audio/weapons/pistol_shot.bau
 common/audio/weapons/pistol_reload.bau
 common/audio/weapons/smg_shot.bau
@@ -12,4 +13,6 @@ common/audio/weapons/sniper_rifle_reload.bau
 common/audio/weapons/plasma_gun_shot.bau
 common/audio/weapons/plasma_gun_reload.bau
 common/audio/weapons/katana_swing.bau
+
+common/audio/opening.bau
 

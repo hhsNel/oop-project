@@ -3484,38 +3484,87 @@
       "z": 0.0
     },
     {
-      "x": 1792,
-      "y": -1472,
-      "pickup_type": 2,
-      "subtype": 2,
-      "z": 0.0
-    },
-    {
-      "x": 1856,
-      "y": -1472,
-      "pickup_type": 2,
+      "x": 2112,
+      "y": 1088,
+      "pickup_type": 3,
       "subtype": 1,
       "z": 0.0
     },
     {
-      "x": 1920,
-      "y": -1472,
-      "pickup_type": 2,
-      "subtype": 3,
+      "x": 3264,
+      "y": 320,
+      "pickup_type": 3,
+      "subtype": 1,
       "z": 0.0
     },
     {
-      "x": 1984,
+      "x": 2016,
       "y": -1472,
-      "pickup_type": 2,
+      "pickup_type": 3,
       "subtype": 4,
       "z": 0.0
     },
     {
-      "x": 2112,
-      "y": 1088,
-      "pickup_type": 2,
+      "x": 1952,
+      "y": -1472,
+      "pickup_type": 3,
+      "subtype": 3,
+      "z": 0.0
+    },
+    {
+      "x": 1824,
+      "y": -1472,
+      "pickup_type": 3,
+      "subtype": 2,
+      "z": 0.0
+    },
+    {
+      "x": 1888,
+      "y": -1472,
+      "pickup_type": 3,
       "subtype": 1,
+      "z": 0.0
+    },
+    {
+      "x": 2752,
+      "y": -2432,
+      "pickup_type": 1,
+      "subtype": 0,
+      "z": 0.0
+    },
+    {
+      "x": 2112,
+      "y": -2432,
+      "pickup_type": 1,
+      "subtype": 0,
+      "z": 0.0
+    },
+    {
+      "x": 2688,
+      "y": -2688,
+      "pickup_type": 0,
+      "subtype": 0,
+      "z": 0.0
+    },
+    {
+      "x": 2176,
+      "y": -2688,
+      "pickup_type": 0,
+      "subtype": 0,
+      "z": 0.0
+    },
+    {
+      "x": 2176,
+      "y": -2176,
+      "pickup_type": 0,
+      "subtype": 0,
+      "z": 0.0
+    },
+    {
+      "x": 2688,
+      "y": -2176,
+      "pickup_type": 0,
+      "subtype": 0,
       "z": 0.0
     }
   ]
