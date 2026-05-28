@@ -1,0 +1,1582 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam monochrome true
+
+' ==========================================================================
+' util
+' ==========================================================================
+
+package util {
+
+    '' ========================================================
+    '' componentized.h
+    '' ========================================================
+    struct component_field {
+    }
+
+    struct ref_component_field {
+    }
+
+    class "fixed_string<std::size_t N>" as fixed_string {
+        + data : char[N]
+        + consteval fixed_string(s : char const (&)[N])
+        + consteval view() : std::string_view const
+    }
+
+    class "component_tag<fixed_string field>" as component_tag {
+    }
+
+    class "componentized<typename T>" as componentized {
+        - {static} consteval get_tagged_member() : std::meta::info
+        + operator()(component_tag<field>) : auto&
+        + operator()(component_tag<field>) : auto const& const
+    }
+
+    '' ========================================================
+    '' resource.h
+    '' ========================================================
+    abstract class resource {
+        + {abstract} ~resource()
+        + {abstract} operator()(component_tag<"beginning">) : void const* const
+        + {abstract} operator()(component_tag<"end">) : void const* const
+        + {abstract} operator()(component_tag<"size">) : std::size_t const
+    }
+
+    '' ========================================================
+    '' file-resource.h
+    '' ========================================================
+    class file_resource {
+        - file_data : std::vector<std::byte>
+        + explicit file_resource(data : std::vector<std::byte>)
+        + ~file_resource() override
+        + operator()(component_tag<"beginning">) : void const* const override
+        + operator()(component_tag<"end">) : void const* const override
+        + operator()(component_tag<"size">) : std::size_t const override
+    }
+
+    '' ========================================================
+    '' binary-resource.h
+    '' ========================================================
+    class binary_resource {
+        - begin_ptr : void const*
+        - end_ptr : void const*
+        - byte_size : std::size_t
+        + binary_resource(begin : void const*, end : void const*)
+        + ~binary_resource() override
+        + operator()(component_tag<"beginning">) : void const* const override
+        + operator()(component_tag<"end">) : void const* const override
+        + operator()(component_tag<"size">) : std::size_t const override
+    }
+
+    '' ========================================================
+    '' resource-loader.h
+    '' ========================================================
+    class resource_loader {
+        - symbol_cache : std::unordered_map<std::string, void*>
+        - resource_cache : std::unordered_map<std::string, std::unique_ptr<resource>>
+        - cache_mutex : mutable std::shared_mutex
+        - lookup_binary(resource_name : std::string_view) : void*
+        - load_file(resource_name : std::string_view) : std::unique_ptr<resource> const
+        - lookup_resource_runtime(resource_name : std::string_view) : resource*
+        - constexpr make_symbol_name(resource_name : std::string_view) : std::string const
+        - {static} consteval count_res_members() : std::size_t
+        - {static} consteval get_res_members_array() : info_array<N>
+        - constexpr get_by_symbol_reflection(symbol_name : std::string_view) : resource const* const
+        + resource_loader()
+        + ~resource_loader()
+        + resource_loader(const&) = delete
+        + operator=(const&) = delete
+        + constexpr lookup_resource(resource_name : std::string_view) : resource*
+    }
+
+    class "resource_loader::info_array<std::size_t N>" as info_array << (S,#FF7700) struct >> {
+        + data : std::meta::info[N > 0 ? N : 1]
+    }
+
+    '' ========================================================
+    '' indexed-storage.h
+    '' ========================================================
+    class "indexed_storage<typename T>" as indexed_storage {
+        + {static} constexpr nullid : id_t = 0
+        # objects : std::vector<T>
+        # lookup : std::vector<id_t>
+        # reverse : std::vector<size_t>
+        # next_id : id_t = 1
+        - init_from_objects() : void
+        + indexed_storage()
+        + explicit indexed_storage(initial_objects : std::vector<T> const&)
+        + explicit indexed_storage(initial_objects : std::vector<T>&&)
+        + size() : id_t const
+        + add(object : T const&) : id_t
+        + add(object : T&&) : id_t
+        + remove(id : id_t) : void
+        + operator[](id : id_t) : T&
+        + operator[](id : id_t) : T const& const
+        + begin() : iterator
+        + end() : iterator
+        + begin() : const_iterator const
+        + end() : const_iterator const
+        + cbegin() : const_iterator const
+        + cend() : const_iterator const
+        + erase(it : iterator) : iterator
+        + erase(it : const_iterator) : const_iterator
+        + contains(id : id_t) : bool const
+    }
+
+    class "indexed_storage::entry" as storage_entry << (S,#FF7700) struct >> {
+        + id : id_t
+        + value : T&
+    }
+
+    class "indexed_storage::const_entry" as storage_const_entry << (S,#FF7700) struct >> {
+        + id : id_t
+        + value : T const&
+    }
+
+    class "indexed_storage::iterator" as storage_iterator {
+        - storage : indexed_storage*
+        - index : size_t
+        - iterator(st : indexed_storage*, idx : size_t)
+        + iterator()
+        + operator*() : entry const
+        + operator++() : iterator&
+        + operator++(int) : iterator
+        + operator--() : iterator&
+        + operator--(int) : iterator
+        + operator==(other : iterator const&) : bool const
+        + operator!=(other : iterator const&) : bool const
+    }
+
+    class "indexed_storage::const_iterator" as storage_const_iterator {
+        - storage : indexed_storage const*
+        - index : size_t
+        - const_iterator(st : indexed_storage const*, idx : size_t)
+        + const_iterator()
+        + operator*() : const_entry const
+        + operator++() : const_iterator&
+        + operator++(int) : const_iterator
+        + operator--() : const_iterator&
+        + operator--(int) : const_iterator
+        + operator==(other : const_iterator const&) : bool const
+        + operator!=(other : const_iterator const&) : bool const
+    }
+}
+
+' ==========================================================================
+' math
+' ==========================================================================
+
+package math {
+
+    '' ========================================================
+    '' vec2.h
+    '' ========================================================
+    class vec2 {
+        - x : float
+        - y : float
+        + constexpr inline vec2(float const X = 0, float const Y = 0)
+        + vec2(vec3 const& vec)
+        + __attribute__((always_inline)) constexpr inline vec2 operator+(vec2 const other) const
+        + __attribute__((always_inline)) constexpr inline vec2 operator-(vec2 const other) const
+        + __attribute__((always_inline)) constexpr inline vec2 operator-() const
+        + __attribute__((always_inline)) constexpr inline vec2 operator*(float const scalar) const
+        + __attribute__((always_inline)) constexpr inline vec2 operator/(float const scalar) const
+        + __attribute__((always_inline)) constexpr inline vec2 &operator+=(vec2 const other)
+        + __attribute__((always_inline)) constexpr inline vec2 &operator-=(vec2 const other)
+        + __attribute__((always_inline)) constexpr inline vec2 &operator*=(float const scalar)
+        + __attribute__((always_inline)) constexpr inline vec2 &operator/=(float const scalar)
+        + __attribute__((always_inline)) constexpr inline bool operator==(vec2 const other) const
+        + __attribute__((always_inline)) constexpr inline bool operator!=(vec2 const other) const
+        + {static} float dot_product(vec2 const first, vec2 const second)
+        + {static} float cross_product(vec2 const first, vec2 const second)
+        + float len() const
+        + float sqr_len() const
+        + vec2 const normalized() const
+        + vec2 const perpendicular() const
+        + float angle() const
+        + {static} float angle_between(vec2 const first, vec2 const second)
+        + {static} vec2 const rotate(vec2 const vec, float const angle)
+        + {static} vec2 const rotate_with_known_trig(vec2 const vec, float const cos, float const sin)
+        -- Friends --
+        friend util::componentized<vec2>
+    }
+
+    '' ========================================================
+    '' vec3.h
+    '' ========================================================
+    class vec3 {
+        - x : float
+        - y : float
+        - z : float
+        + constexpr inline vec3(float const X = 0, float const Y = 0, float const Z = 0)
+        + constexpr inline vec3(vec2 const flat, float const Z = 0)
+        + __attribute__((always_inline)) constexpr inline vec3 const operator+(vec3 const other) const
+        + __attribute__((always_inline)) constexpr inline vec3 const operator-(vec3 const other) const
+        + __attribute__((always_inline)) constexpr inline vec3 const operator-() const
+        + __attribute__((always_inline)) constexpr inline vec3 const operator*(float const scalar) const
+        + __attribute__((always_inline)) constexpr inline vec3 const operator/(float const scalar) const
+        + __attribute__((always_inline)) constexpr inline vec3 &operator+=(vec3 const other)
+        + __attribute__((always_inline)) constexpr inline vec3 &operator-=(vec3 const other)
+        + __attribute__((always_inline)) constexpr inline vec3 &operator*=(float const scalar)
+        + __attribute__((always_inline)) constexpr inline vec3 &operator/=(float const scalar)
+        + __attribute__((always_inline)) constexpr inline bool operator==(vec3 const other) const
+        + __attribute__((always_inline)) constexpr inline bool operator!=(vec3 const other) const
+        + {static} constexpr float dot_product(vec3 const first, vec3 const second)
+        + {static} constexpr vec3 const cross_product(vec3 const first, vec3 const second)
+        + constexpr float len() const
+        + constexpr float sqr_len() const
+        + constexpr vec3 const normalized() const
+        -- Friends --
+        friend util::componentized<vec3>
+    }
+
+    '' ========================================================
+    '' segment.h
+    '' ========================================================
+    class segment {
+        - point0 : vec2
+        - point1 : vec2
+        + constexpr segment(vec2 const p0, vec2 const p1)
+        + __attribute__((always_inline)) constexpr inline bool operator==(segment const other) const
+        + __attribute__((always_inline)) constexpr inline bool operator!=(segment const other) const
+        + float angle() const
+        + constexpr vec2 const midpoint() const
+        + float len() const
+        + float sqr_len() const
+        -- Friends --
+        friend util::componentized<segment>
+    }
+
+    '' ========================================================
+    '' ray2.h
+    '' ========================================================
+    class ray2 {
+        + end : vec2
+        + direction : vec2
+        + constexpr ray2(vec2 const e, vec2 const d)
+        + __attribute__((always_inline)) constexpr inline bool operator==(ray2 const other) const
+        + __attribute__((always_inline)) constexpr inline bool operator!=(ray2 const other) const
+        + {static} ray2 const rotate(ray2 const ray, float const angle)
+        + bool intersects(segment const seg, vec2 &hit_point, float &distance, float &seg_len) const
+    }
+}
+
+' ==========================================================================
+' audio
+' ==========================================================================
+
+package audio {
+
+    struct audio_format {
+        + sample_rate : unsigned int
+        + channels : unsigned int
+        + bits_per_sample : unsigned int
+    }
+
+    abstract class audio_backend {
+        + {abstract} ~audio_backend()
+        + {abstract} open(fmt : audio_format const&) : bool
+        + {abstract} close() : void
+        + {abstract} write(data : void const*, frames : unsigned long) : long
+        + {abstract} drain() : void
+        + {abstract} pause() : void
+        + {abstract} resume() : void
+        + {abstract} operator()(tag : util::component_tag<"current_format">) : audio_format const
+        + {abstract} bad() : bool
+    }
+
+    class audio_mixer {
+        - target : audio_backend &
+        - mix_format : audio_format
+        - active_sounds : std::vector<playing_sound>
+        + explicit audio_mixer(tgt : audio_backend &, fmt : audio_format const&)
+        + play(clip : assets::audio_clip const&) : void
+        + stop_all() : void
+        + step(frames_to_mix : unsigned long) : void
+        + is_silent() : bool
+    }
+
+    struct playing_sound << (S,#FF7700) internal >> {
+        + clip : assets::audio_clip const*
+        + current_frame : unsigned long
+    }
+
+    package alsa {
+        class backend {
+            - is_bad : bool
+            - pcm_handle : snd_pcm_t*
+            - fmt : audio_format
+            - paused : bool
+            - to_alsa_format(bits : unsigned int) : snd_pcm_format_t const
+            - configure_hw_params() : bool
+            + backend()
+            + ~backend() override
+            + open(format : audio_format const&) : bool override
+            + close() : void override
+            + write(data : void const*, frames : unsigned long) : long override
+            + drain() : void override
+            + pause() : void override
+            + resume() : void override
+            + operator()(tag : util::component_tag<"current_format">) : audio_format const override
+            + bad() : bool override
+        }
+    }
+}
+
+' ==========================================================================
+' assets
+' ==========================================================================
+
+package assets {
+
+    class "ids.h (Typedefs)" as Ids << (D,#FF7700) typedef >> {
+        + texture_id : std::int32_t
+        + menu_id : std::int32_t
+        + audio_clip_id : std::int32_t
+    }
+
+    class audio_clip {
+        - pcm_data : std::vector<std::uint8_t>
+        - format : audio::audio_format
+        - total_frames : unsigned long
+        - audio_clip(data : std::vector<std::uint8_t> const&, fmt : audio::audio_format const&)
+        + {static} load_from_bin(res : util::resource const&) : audio_clip const
+    }
+
+    class texture {
+        - pixels : std::vector<std::uint32_t>
+        - width : std::uint32_t
+        - height : std::uint32_t
+        - has_transparency : bool
+        - texture(t : std::vector<std::uint32_t> const&, w : std::uint32_t const, h : std::uint32_t const, transparent : bool)
+        + {static} load_from_bin(res : util::resource const&) : texture const
+    }
+
+    class menu_element {
+        - function : int
+        - begin_x : float const
+        - begin_y : float const
+        - end_x : float const
+        - end_y : float const
+        - bg : texture_id const
+        - fmt_template : std::string
+        - formatter : std::function<std::string(std::string_view)>
+        - char_w : int
+        - char_h : int
+        - col_r : std::uint8_t
+        - col_g : std::uint8_t
+        - col_b : std::uint8_t
+        - relative_left_margin : float
+        - menu_element(f : int, bx : float, by : float, ex : float, ey : float, b : texture_id const, s : std::string, cw : int, ch : int, r : std::uint8_t, g : std::uint8_t, b_col : std::uint8_t, rlm : float)
+        - resolve_text() : std::string const
+        - text_color() : std::uint32_t const
+        - selective_fmt(key_filter : std::string_view, fn : std::function<std::string(std::string_view)>) : void
+        - render(r2d : rendering::renderer_2d const&, ui_tx : std::vector<texture> const&, sw : int, sh : int, ms : input::mouse_state const&) : int const
+        + {static} load_from_bin(res : util::resource const&) : menu_element
+    }
+
+    class menu {
+        - elements : std::vector<menu_element>
+        - bg : texture_id const
+        - menu(els : std::vector<menu_element>, b : texture_id const)
+        + {static} load_from_bin(resld : util::resource_loader &, res : util::resource const&) : menu
+        + selective_formatter(key_filter : std::string_view, fn : std::function<std::string(std::string_view)>) : void
+        + formatter_all(fn : std::function<std::string(std::string_view)>) : void
+        + display(r2d : rendering::renderer_2d const&, rb : rendering::rendering_backend &, in : input::input_backend &, ui_tx : std::vector<texture> const&) : int const
+    }
+
+    class asset_pack {
+        - wall_textures : std::vector<texture>
+        - sprite_textures : std::vector<texture>
+        - flat_textures : std::vector<texture>
+        - ui_textures : std::vector<texture>
+        - menus : std::vector<menu>
+        - audio_clips : std::vector<audio_clip>
+        - asset_pack(walls : std::vector<texture>, sprites : std::vector<texture>, flats : std::vector<texture>, ui : std::vector<texture>, ms : std::vector<menu>, clips : std::vector<audio_clip>)
+        - {static} tx_from_meta(resld : util::resource_loader &, meta_path : std::string_view) : std::vector<texture>
+        - {static} menus_from_meta(resld : util::resource_loader &, meta_path : std::string_view) : std::vector<menu>
+        - {static} clips_from_meta(resld : util::resource_loader &, meta_path : std::string_view) : std::vector<audio_clip>
+        - {static} parse_meta_keys(content : std::string const&) : std::unordered_map<std::string, std::string>
+        + {static} load(resld : util::resource_loader &, pack_meta_path : std::string_view) : asset_pack
+        + wall_tx_by_id(id : texture_id const) : texture const& const
+        + sprite_tx_by_id(id : texture_id const) : texture const& const
+        + flat_tx_by_id(id : texture_id const) : texture const& const
+        + ui_tx_by_id(id : texture_id const) : texture const& const
+        + menu_by_id(id : menu_id const) : menu &
+        + audio_clip_by_id(id : audio_clip_id const) : audio_clip const& const
+        + display_menu(id : menu_id const, r2d : rendering::renderer_2d const&, rb : rendering::rendering_backend &, in : input::input_backend &) : int
+    }
+
+    class asset_manager {
+        - rl : util::resource_loader &
+        - asset_packs : std::vector<asset_pack>
+        - cur_set : unsigned int
+        - asset_manager(resld : util::resource_loader &, packs : std::vector<asset_pack>)
+        + {static} load(resld : util::resource_loader &) : asset_manager
+        + cycle_set() : void
+        + wall_tx_by_id(id : texture_id const) : texture const& const
+        + sprite_tx_by_id(id : texture_id const) : texture const& const
+        + flat_tx_by_id(id : texture_id const) : texture const& const
+        + ui_tx_by_id(id : texture_id const) : texture const& const
+        + menu_by_id(id : menu_id const) : menu &
+        + audio_clip_by_id(id : audio_clip_id const) : audio_clip const& const
+        + display_menu(id : menu_id const, r2d : rendering::renderer_2d const&, rb : rendering::rendering_backend &, in : input::input_backend &) : int
+    }
+}
+
+' ==========================================================================
+' rendering
+' ==========================================================================
+
+package rendering {
+
+    '' ========================================================
+    '' frd.h
+    '' ========================================================
+    class frame_rendering_data << (S,#FF7700) struct >> {
+        + cam_pos : math::vec2
+        + cam_height : float
+        + cam_angle : float
+        + sw : unsigned int
+        + sh : unsigned int
+        + half_sw : float
+        + pitch : unsigned int
+        + mmio : std::uint32_t *__restrict
+        + fov_scale : float
+        + inv_fov_scale : float
+        + cos_cam_angle : float
+        + sin_cam_angle : float
+        + euclidian_dist_factor : std::vector<float> const*
+    }
+
+    '' ========================================================
+    '' lighting.h
+    '' ========================================================
+    class lighting {
+        + {static} dl_start : float const = 64.0f
+        + {static} dl_density : float const = 0.25f
+        + {static} calculate(sector_light_level : std::uint8_t const, depth : float const) : int
+        + {static} apply(orig : std::uint32_t const, light : int) : std::uint32_t
+    }
+
+    '' ========================================================
+    '' rendering-mode.h
+    '' ========================================================
+    class rendering_mode {
+        + {abstract} ~rendering_mode()
+        + {abstract} operator()(util::component_tag<"x_res">) : unsigned int const
+        + {abstract} operator()(util::component_tag<"y_res">) : unsigned int const
+        + {abstract} operator()(util::component_tag<"refresh_hz">) : unsigned int const
+        + {abstract} operator()(util::component_tag<"has_vsync">) : bool const
+        -- Friends --
+        friend util::componentized<rendering_mode>
+    }
+
+    '' ========================================================
+    '' rendering-backend.h
+    '' ========================================================
+    abstract class rendering_backend {
+        + {abstract} bad() : bool const
+        + {abstract} operator()(util::component_tag<"modes">) : std::vector<std::unique_ptr<rendering_mode const>>
+        + {abstract} push_mode(mode : std::unique_ptr<rendering_mode const>) : void
+        + {abstract} operator()(util::component_tag<"width">) : unsigned int
+        + {abstract} operator()(util::component_tag<"height">) : unsigned int
+        + {abstract} operator()(util::component_tag<"pitch">) : unsigned int
+        + {abstract} operator()(util::component_tag<"mmio">) : std::uint32_t*
+        + {abstract} wait_for_vsync() : void
+        + {abstract} flush() : void
+        + {abstract} ~rendering_backend()
+    }
+
+    '' ========================================================
+    '' sprite.h
+    '' ========================================================
+    class sprite {
+        # pos : math::vec2
+        # z_pos : float
+        # angle : float
+        # tex_id : assets::texture_id
+        # inherent_scale : float
+        # hit_flash : float
+        + sprite(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const)
+        + virtual ~sprite()
+        -- Friends --
+        friend util::componentized<sprite>
+        friend software_renderer
+        friend vissprite
+    }
+
+    '' ========================================================
+    '' vissprite.h
+    '' ========================================================
+    class vissprite {
+        - depth : float
+        - cx1 : int
+        - cx2 : int
+        - proj_x : float
+        - scale : float
+        - z_pos : float
+        - tex_id : assets::texture_id
+        - light_level : std::uint8_t
+        - upper_clip : std::vector<int>
+        - lower_clip : std::vector<int>
+        + vissprite(sprite : sprite const&, z : float const, clamped_x1 : int const, clamped_x2 : int const, px : float const, sc : float const, light : std::uint8_t const, uc : std::vector<int> const&, lc : std::vector<int> const&)
+        + {static} pa_sort(vec : std::vector<vissprite> &) : void
+        + render(tex_manager : assets::asset_manager const&, frd : frame_rendering_data const&) : void const
+    }
+
+    '' ========================================================
+    '' visplane.h
+    '' ========================================================
+    class visplane {
+        - height : float
+        - tex_id : assets::texture_id
+        - light_level : std::uint8_t
+        - min_x : int
+        - max_x : int
+        - top : std::vector<int>
+        - bottom : std::vector<int>
+        + visplane(sw : unsigned int const, h : float const, tid : assets::texture_id const, light : std::uint8_t const)
+        + {static} add_column(pool : std::vector<visplane>&, x : int, y_start : int, y_end : int, sw : unsigned int, flat_height : float, tex_id : assets::texture_id, light_level : std::uint8_t) : void
+        + render(tex_manager : assets::asset_manager const&, frd : frame_rendering_data const&) : void const
+    }
+
+    '' ========================================================
+    '' renderer-2d.h
+    '' ========================================================
+    class renderer_2d {
+        - target : rendering_backend &
+        - tex_manager : assets::asset_manager const&
+        - font_texture : assets::texture const&
+        + renderer_2d(tgt : rendering_backend &, tm : assets::asset_manager const&, font_tex : assets::texture const&)
+        + draw_texture(tex : assets::texture const&, x : int, y : int, w : int, h : int) : void const
+        + draw_text(text : std::string_view, x : int, y : int, char_w : int, char_h : int, color : std::uint32_t const) : void const
+        + draw_rect(x : int, y : int, w : int, h : int, color : std::uint32_t) : void const
+    }
+
+    '' ========================================================
+    '' software-renderer.h
+    '' ========================================================
+    class software_renderer {
+        - target : rendering_backend &
+        - tex_manager : assets::asset_manager const&
+        - current_map : geometry::map_data const&
+        - {static} constexpr near_z : float = 0.1f
+        - upper_clip : std::vector<int>
+        - lower_clip : std::vector<int>
+        - visplanes : std::vector<visplane>
+        - vissprites : std::vector<vissprite>
+        - euclidian_dist_factor : std::vector<float>
+        - render_bsp_node(node_id : util::indexed_storage<geometry::bsp_node>::id_t, frd : frame_rendering_data const&) : void
+        - project_and_draw_linedef(line : geometry::linedef, frd : frame_rendering_data const&) : void
+        - draw_solid_wall_span(proj_x1 : float, proj_x2 : float, z1 : float, z2 : float, u1 : float, u2 : float, line : geometry::linedef const&, frd : frame_rendering_data const&) : void
+        - draw_portal_wall_span(proj_x1 : float, proj_x2 : float, z1 : float, z2 : float, u1 : float, u2 : float, line : geometry::linedef const&, frd : frame_rendering_data const&) : void
+        - render_visplanes(frd : frame_rendering_data const&) : void
+        - add_vissprite(s : sprite *const, light : std::uint8_t, frd : frame_rendering_data const&) : void
+        - render_vissprites(frd : frame_rendering_data const&) : void
+        - is_box_visible(box : geometry::bsp_node::bounding_box const&, frd : frame_rendering_data const&) : bool
+        + software_renderer(tgt : rendering_backend &, tm : assets::asset_manager const&, map : geometry::map_data const&)
+        + render_bsp(cam_pos : math::vec2 const, cam_height : float const, cam_angle : float, fov : float) : void
+    }
+
+    '' ========================================================
+    '' DRM/KMS Sub-Package
+    '' ========================================================
+    package drm_kms {
+        class device_context {
+            - fd : int
+            + device_context(path : std::string const&)
+            + ~device_context()
+            + is_valid() : bool const
+            + ioctl(request : unsigned long, arg : void*) : int const
+            + mmap(addr : void *, len : size_t, prot : int, flags : int, off : off_t) : void * const
+        }
+
+        class crtc {
+            - dev : device_context const&
+            - crtc_id : std::uint32_t
+            + crtc(d : device_context const&, id : uint32_t)
+            + set_config(fb_id : uint32_t, conn_id : uint32_t, m : mode const&) : bool
+            + page_flip(fb_id : uint32_t) : bool const
+        }
+
+        class mode {
+            - kernel_mode : drm_mode_modeinfo
+            + mode(info : drm_mode_modeinfo const&)
+            + ~mode() override
+            + create_crtc_req(crtc_id : std::uint32_t const, fb_id : std::uint32_t const, conn_id : std::uint32_t const *const) : drm_mode_crtc const
+            + operator()(util::component_tag<"x_res">) : unsigned int override
+            + operator()(util::component_tag<"y_res">) : unsigned int override
+            + operator()(util::component_tag<"refresh_hz">) : unsigned int override
+            + operator()(util::component_tag<"has_vsync">) : bool override
+        }
+
+        class framebuffer {
+            - dev : device_context const&
+            - handle : uint32_t
+            - fb_id : uint32_t
+            - mmio_ptr : uint32_t*
+            - size : size_t
+            - pitch : uint32_t
+            + framebuffer(d : device_context const&, width : uint32_t, height : uint32_t, success : bool *const)
+            + ~framebuffer()
+            + copy_from(src : uint32_t const*, pixel_count : size_t) : void const
+            + flip_onto(c : crtc const&) : bool const
+            + apply_config(c : crtc &, connector_id : std::uint32_t const, m : mode const&) : bool const
+            -- Friends --
+            friend connector
+            friend backend
+        }
+
+        class connector {
+            - dev : device_context const&
+            - connector_id : uint32_t
+            - encoder_id : uint32_t
+            + connector(d : device_context const&, id : uint32_t, success : bool* const)
+            + probe_modes() : std::vector<std::unique_ptr<mode const>>
+            + apply_config(c : crtc&, fb : framebuffer const&, m : mode const&) : bool const
+        }
+
+        class backend {
+            # dev : std::unique_ptr<device_context>
+            # active_connector : std::unique_ptr<connector>
+            # active_crtc : std::unique_ptr<crtc>
+            # is_bad : bool
+            # buffers : std::unique_ptr<framebuffer>[2]
+            # front_buffer_index : int
+            # shadow : std::vector<uint32_t>
+            # current_mode : std::unique_ptr<mode const>
+            # original_fb_id : uint32_t = 0
+            # original_connector_id : uint32_t = 0
+            # original_mode : drm_mode_modeinfo = {}
+            # has_original_state : bool = false
+            + backend()
+            + ~backend() override
+            + bad() : bool const override
+            + operator()(util::component_tag<"modes">) : std::vector<std::unique_ptr<rendering_mode const>> override
+            + push_mode(pushed_mode : std::unique_ptr<rendering_mode const>) : void override
+            + operator()(util::component_tag<"width">) : unsigned int override
+            + operator()(util::component_tag<"height">) : unsigned int override
+            + operator()(util::component_tag<"pitch">) : unsigned int override
+            + operator()(util::component_tag<"mmio">) : std::uint32_t * override
+            + wait_for_vsync() : void override
+            + flush() : void override
+        }
+    }
+}
+
+' ==========================================================================
+' input
+' ==========================================================================
+
+package input {
+
+    '' ========================================================
+    '' input-backend.h (Types)
+    '' ========================================================
+    enum key {
+        unknown = 0
+        a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z
+        n0, n1, n2, n3, n4, n5, n6, n7, n8, n9
+        f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12
+        esc, tab, caps_lock, l_shift, l_ctrl, l_meta, l_alt, space, r_alt, r_meta, r_ctrl, r_shift, enter, backspace
+        print_screen, scroll_lock, pause, insert, home, page_up, del, end, page_down, up, down, left, right
+        backtick, hyphen, equals, open_bracket, close_bracket, backslash, semicolon, quote, comma, period, slash
+        num_lock, kp_slash, kp_asterisk, kp_minus, kp_plus, kp_enter, kp_dot, kp0, kp1, kp2, kp3, kp4, kp5, kp6, kp7, kp8, kp9
+    }
+
+    struct mouse_state {
+        + x : int
+        + y : int
+        + left : bool
+        + right : bool
+        + middle : bool
+    }
+
+    '' ========================================================
+    '' input-backend.h (Base Class)
+    '' ========================================================
+    abstract class input_backend {
+        # bad : bool
+        + input_backend()
+        + virtual ~input_backend()
+        + {abstract} update() : void
+        + {abstract} is_key_down(k : key) : bool const
+        + {abstract} get_mouse_state() : mouse_state const
+        + {abstract} reset_mouse_state(nx : int = 0, ny : int = 0) : void
+        + virtual is_bad() : bool const
+        + {static} to_key(c : char) : key
+    }
+
+    package evdev {
+        class backend {
+            - devices : std::vector<device_node>
+            - key_map : std::bitset<KEY_CNT>
+            - mouse : mouse_state
+            - last_abs_x : int
+            - last_abs_y : int
+            - epoll_fd : int
+            - map_to_native(k : key) : uint16_t const
+            - probe_devices() : void
+            - probe_device(dev_name : std::string const&) : void
+            - process_event(ev : struct input_event const&) : void
+            + backend()
+            + ~backend() override
+            + update() : void override
+            + is_key_down(k : key) : bool const override
+            + get_mouse_state() : mouse_state const override
+            + reset_mouse_state(nx : int, ny : int) : void override
+        }
+
+        struct device_node << (S,#FF7700) internal >> {
+            + fd : int
+            + is_keyboard : bool
+            + is_mouse : bool
+        }
+    }
+}
+
+' ==========================================================================
+' systems
+' ==========================================================================
+
+package systems {
+
+    '' ========================================================
+    '' health_systems.h
+    '' ========================================================
+    class health_system {
+        - current_hp : float
+        - max_hp : float
+        - armor : float
+        - max_armor : float
+        - active_effects : std::vector<std::unique_ptr<combat::status_effect>>
+        + health_system(hp : float, max : float, arm : float, max_arm : float)
+        + apply_damage(amount : float) : void
+        + apply_heal(amount : float) : void
+        + apply_shield(amount : float) : void
+        + apply_true_damage(amount : float) : void
+        + add_effect(effect : std::unique_ptr<combat::status_effect>, owner : engine::actor&) : void
+        + process_effects(dt : float, owner : engine::actor&) : void
+        + is_dead() : bool const
+        -- Friends --
+        friend class util::componentized<health_system>
+    }
+}
+
+' ==========================================================================
+' engine
+' ==========================================================================
+
+package engine {
+
+    abstract class entity {
+        + {abstract} update(dt : float const) : void
+        + virtual ~entity()
+    }
+
+    class renderable_entity {
+        + renderable_entity(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const)
+        + ~renderable_entity() override
+    }
+
+    enum faction {
+        player
+        enemy
+        neutral
+    }
+
+    class actor {
+        # health : systems::health_system
+        # movement_speed : float
+        # team : faction
+        + actor(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const, hp : float const, shield : float const, move_speed : float const, this_team : faction const)
+        + virtual take_damage(dmg : float const) : void
+        + virtual take_true_damage(dmg : float const) : void
+        + virtual heal(amount : float const) : void
+        + virtual add_shield(amount : float const) : void
+        + virtual add_effect(effect : std::unique_ptr<combat::status_effect>) : void
+        + is_dead() : bool const
+        + update(dt : float) : void override
+        -- Friends --
+        friend class combat::charmed
+        friend class combat::slowed
+        friend class game::game
+        friend class projectile
+    }
+
+    class projectile {
+        # direction : math::vec2
+        # speed : float
+        # damage : float
+        # lifetime : float
+        # hit_radius : float
+        # team : faction
+        # on_hit_effect : std::function<std::unique_ptr<combat::status_effect>()>
+        # world_ref : world*
+        # map_ref : geometry::map_data*
+        # self_id : util::indexed_storage<std::unique_ptr<entity>>::id_t
+        + projectile(pos : math::vec2, z : float, tex : assets::texture_id, scale : float, dir : math::vec2, spd : float, dmg : float, life : float, f : faction, radius : float = 8.0f)
+        + update(dt : float) : void override
+        -- Friends --
+        friend class game::game
+        friend class combat::weapons::projectile_firing_mode
+        friend class entities::monster
+        friend class entities::monster_boss
+    }
+
+    class world {
+        - entities : util::indexed_storage<std::unique_ptr<entity>>
+        - deleted_entities : std::vector<util::indexed_storage<std::unique_ptr<entity>>::id_t>
+        + world()
+        + world(const world&) = delete
+        + operator=(const world&) = delete
+        + update(dt : float const) : void
+        + operator[](id : util::indexed_storage<std::unique_ptr<entity>>::id_t const) : entity&
+        + operator[](id : util::indexed_storage<std::unique_ptr<entity>>::id_t const) : entity const& const
+        + get_entities() : util::indexed_storage<std::unique_ptr<entity>> const&
+        + register_entity(e : std::unique_ptr<entity>) : util::indexed_storage<std::unique_ptr<entity>>::id_t
+        + delete_entity(id : util::indexed_storage<std::unique_ptr<entity>>::id_t const) : void
+        + entity_from_id(id : util::indexed_storage<std::unique_ptr<entity>>::id_t const) : entity* const
+    }
+}
+
+' ==========================================================================
+' combat
+' ==========================================================================
+
+package combat {
+
+    class status_effect {
+        # duration : float
+        # intensity : unsigned int
+        # tick_interval : float
+        # tick_timer : float
+        + status_effect(dur : float const, tick_inter : float, intens : unsigned int)
+        + virtual on_apply(target : engine::actor&) : void
+        + virtual on_expire(target : engine::actor&) : void
+        + virtual affect(target : engine::actor&) : void
+        + virtual ~status_effect()
+        + tick(dt : float) : bool
+        + is_expired() : bool const
+    }
+
+    class burning {
+        + burning(dur : float const, intens : unsigned int)
+        + affect(target : engine::actor&) : void override
+    }
+
+    class charmed {
+        + charmed(dur : float const, intens : unsigned int)
+        + on_apply(target : engine::actor&) : void override
+        + on_expire(target : engine::actor&) : void override
+    }
+
+    class slowed {
+        + slowed(dur : float const, intens : unsigned int)
+        + on_apply(target : engine::actor&) : void override
+        + on_expire(target : engine::actor&) : void override
+    }
+
+    package weapons {
+
+        abstract class firing_mode {
+            + {abstract} spawn_bullet(pos : math::vec2, angle : float, damage : float) : void
+            + virtual ~firing_mode()
+        }
+
+        class hitscan_firing_mode {
+            - map : geometry::map_data const&
+            - world_ref : engine::world const&
+            - max_range : float
+            - hit_radius : float
+            + hitscan_firing_mode(map : geometry::map_data const&, world : engine::world const&, range : float = 8192.0f, radius : float = 32.0f)
+            + spawn_bullet(pos : math::vec2, angle : float, damage : float) : void override
+        }
+
+        class projectile_firing_mode {
+            - world_ref : engine::world&
+            - map_ref : geometry::map_data&
+            - team : engine::faction
+            - projectile_tex : assets::texture_id
+            - projectile_speed : float
+            - projectile_lifetime : float
+            - projectile_scale : float
+            + projectile_firing_mode(w : engine::world&, md : geometry::map_data&, f : engine::faction, tex : assets::texture_id, spd : float, lifetime : float = 5.0f, scale : float = 0.5f)
+            + spawn_bullet(pos : math::vec2, angle : float, damage : float) : void override
+        }
+
+        class weapon {
+            # ammo : std::unique_ptr<firing_mode>
+            # ammo_count : int
+            # max_ammo : int
+            # reserve_mags : int
+            # fire_rate : float
+            # last_shot_time : float
+            # damage : float
+            # mixer : audio::audio_mixer&
+            # assets : assets::asset_manager const&
+            # fire_sound_id : assets::audio_clip_id
+            # reload_sound_id : assets::audio_clip_id
+            # reload_duration : float
+            # reload_timer : float
+            # reloading : bool
+            # finish_reload() : void
+            # weapon(firing : std::unique_ptr<firing_mode>, max : int, rate : float, dmg : float, reserve : int, mix : audio::audio_mixer&, am : assets::asset_manager const&, fire_snd : assets::audio_clip_id = -1, reload_snd : assets::audio_clip_id = -1, reload_dur : float = 1.5f)
+            + virtual can_fire() : bool const
+            + tick(dt : float) : void
+            + resupply(amount : int) : void
+            + virtual fire(pos : math::vec2, angle : float) : void
+            + virtual reload() : void
+            + virtual ~weapon()
+            -- Friends --
+            friend class game::game
+        }
+
+        class pistol {
+            + pistol(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+        }
+
+        class smg {
+            + smg(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+        }
+
+        class rifle {
+            + rifle(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+        }
+
+        class shotgun {
+            + {static} constexpr pellet_count : int = 8
+            + {static} constexpr spread : float = 0.2618f
+            + shotgun(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+            + fire(pos : math::vec2, angle : float) : void override
+        }
+
+        class sniper_rifle {
+            + sniper_rifle(map : geometry::map_data const&, world : engine::world const&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+        }
+
+        class plasma_gun {
+            + plasma_gun(map : geometry::map_data&, world : engine::world&, mix : audio::audio_mixer&, am : assets::asset_manager const&)
+        }
+
+        class katana {
+            + katana(mix : audio::audio_mixer&, am : assets::asset_manager const&)
+            + can_fire() : bool const override
+            + fire(pos : math::vec2, angle : float) : void override
+            + reload() : void override
+        }
+    }
+}
+
+' ==========================================================================
+' geometry
+' ==========================================================================
+
+package geometry {
+
+    class subsector {
+        - lines : std::vector<util::indexed_storage<linedef>::id_t>
+        - sprites : std::vector<rendering::sprite*>
+        + add_sprite(spr : rendering::sprite*) : void
+        + remove_sprite(spr : rendering::sprite*) : void
+        + {static} load_from_bin(res : util::resource const&) : std::vector<subsector>
+        -- Friends --
+        friend rendering::software_renderer
+    }
+
+    class sector {
+        - floor_height : float
+        - ceiling_height : float
+        - floor_tex : assets::texture_id
+        - ceiling_tex : assets::texture_id
+        - light_level : std::uint8_t
+        + sector(fh : float, ch : float, ft : assets::texture_id, ct : assets::texture_id, light : std::uint8_t)
+        + {static} load_from_bin(res : util::resource const&) : std::vector<sector>
+        -- Friends --
+        friend rendering::software_renderer
+    }
+
+    class sidedef {
+        - facing_sector : util::indexed_storage<sector>::id_t
+        - upper_tex : assets::texture_id
+        - middle_tex : assets::texture_id
+        - lower_tex : assets::texture_id
+        + sidedef(sector : id_t, ut : assets::texture_id, mt : assets::texture_id, lt : assets::texture_id)
+        + {static} load_from_bin(res : util::resource const&) : std::vector<sidedef>
+        -- Friends --
+        friend rendering::software_renderer
+    }
+
+    struct "bsp_node::bounding_box" as bounding_box {
+        + top : float
+        + bottom : float
+        + left : float
+        + right : float
+    }
+
+    class bsp_node {
+        - pl_coord : math::vec2
+        - pl_dir : math::vec2
+        - front_box : bounding_box
+        - back_box : bounding_box
+        - front : util::indexed_storage<bsp_node>::id_t
+        - back : util::indexed_storage<bsp_node>::id_t
+        + is_front_leaf() : bool const
+        + is_back_leaf() : bool const
+        + get_front_index() : id_t const
+        + get_back_index() : id_t const
+        + is_pt_front_side(point : math::vec2 const&) : bool
+        + {static} load_from_bin(res : util::resource const&) : std::vector<bsp_node>
+        -- Friends --
+        friend rendering::software_renderer
+    }
+
+    class linedef {
+        - seg : math::segment
+        - front : util::indexed_storage<sidedef>::id_t
+        - back : util::indexed_storage<sidedef>::id_t
+        + linedef(p0 : math::vec2 const, p1 : math::vec2 const, f : id_t, b : id_t)
+        + {static} load_from_bin(res : util::resource const&) : std::vector<linedef>
+        + is_wall() : bool const
+        + is_portal() : bool const
+        + dir() : math::vec2 const
+        + len() : float const
+        -- Friends --
+        friend util::componentized<linedef>
+        friend rendering::software_renderer
+    }
+
+    class monster_spawn {
+        - type : std::uint32_t
+        - pos : math::vec2
+        - z : float
+        + monster_spawn(t : std::uint32_t, p : math::vec2, height : float)
+        + {static} load_from_bin(res : util::resource const&) : std::vector<monster_spawn>
+        -- Friends --
+        friend util::componentized<monster_spawn>
+    }
+
+    class pickup_spawn {
+        - type : std::uint32_t
+        - subtype : std::uint32_t
+        - pos : math::vec2
+        - z : float
+        + pickup_spawn(t : std::uint32_t, st : std::uint32_t, p : math::vec2, height : float)
+        + {static} load_from_bin(res : util::resource const&) : std::vector<pickup_spawn>
+        -- Friends --
+        friend util::componentized<pickup_spawn>
+    }
+
+    class map_data {
+        + sectors : util::indexed_storage<sector>
+        + sidedefs : util::indexed_storage<sidedef>
+        + linedefs : util::indexed_storage<linedef>
+        + subsectors : util::indexed_storage<subsector>
+        + nodes : util::indexed_storage<bsp_node>
+        + monster_spawns : std::vector<monster_spawn>
+        + pickup_spawns : std::vector<pickup_spawn>
+        + root_node_id : util::indexed_storage<bsp_node>::id_t
+        + get_subsector_id(pt : math::vec2 const&) : id_t const
+        + move_to(spr : rendering::sprite*, new_pos : math::vec2 const&) : void
+        + {static} load_from_bin(...) : map_data
+    }
+}
+
+' ==========================================================================
+' entities
+' ==========================================================================
+
+package entities {
+
+    class player {
+        # weapons : std::vector<std::unique_ptr<combat::weapons::weapon>>
+        # sensitivity : float
+        # current_weapon_index : int
+        # map_ref : geometry::map_data*
+        # world_ref : engine::world*
+        # collision_radius : float
+        # walk_speed : float
+        # sprint_speed : float
+        + player(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const, hp : float, shield : float, move_speed : float, sens : float)
+        + update(dt : float) : void override
+        + move(direction : math::vec2) : void
+        + rotate(yaw : float) : void
+        + shoot() : void
+        + reload() : void
+        + switch_weapons(index : int) : void
+        + start_sprint() : void
+        + stop_sprint() : void
+        + resupply<WeaponT>(amount : int) : bool
+        -- Friends --
+        friend class world_object::weapon_pickup
+        friend class game::game
+    }
+
+    class slug_projectile {
+    }
+
+    class plasma_projectile {
+    }
+
+    class monster {
+        # target_ptr : engine::actor*
+        # map_ref : geometry::map_data*
+        # world_ref : engine::world*
+        # attack_cooldown : float
+        # attack_range : float
+        # detection_radius : float
+        # attack_damage : float
+        # attack_cd_max : float
+        # collision_radius : float
+        # has_target() : bool const
+        # dist_to_target() : float const
+        # dir_to_target() : math::vec2 const
+        # apply_wall_collision(new_pos : math::vec2&) : void const
+        # move_toward_target(speed : float, dt : float) : void
+        # move_away_from_target(speed : float, dt : float) : void
+        # strafe(speed : float, dt : float) : void
+        # melee_attack(damage : float) : void
+        # ranged_attack(damage : float, tex : assets::texture_id, speed : float) : void
+        + monster(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const, hp : float, shield : float, move_speed : float, atk_range : float, det_radius : float, atk_dmg : float, atk_cd : float, target : engine::actor* = nullptr)
+        + update(dt : float) : void override
+        -- Friends --
+        friend class game::game
+    }
+
+    package monsters {
+
+        class monster_basic {
+            + monster_basic(p : math::vec2 const, z : float const, target : engine::actor* = nullptr)
+            + update(dt : float) : void override
+        }
+
+        class monster_all_rounder {
+            - melee_mode : bool
+            - melee_threshold : float
+            + monster_all_rounder(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_ranged {
+            - preferred_dist : float
+            + monster_ranged(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_sniper {
+            - shoot_interval : float
+            - aim_timer : float
+            + monster_sniper(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_assault {
+            - burst_size : int
+            - burst_interval : float
+            - burst_remaining : int
+            - burst_timer : float
+            - burst_cooldown : float
+            - strafe_sign : float
+            - strafe_timer : float
+            + monster_assault(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_magic {
+            - charge_time : float
+            - charge_timer : float
+            - is_charging : bool
+            - post_fire_cooldown : float
+            - sidestep_timer : float
+            - sidestep_sign : float
+            + monster_magic(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_Maly_Szybki {
+            - is_dashing : bool
+            - dash_timer : float
+            - dash_cooldown : float
+            + monster_Maly_Szybki(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_elite_swift {
+            - charge_speed : float
+            - is_charging : bool
+            - charge_timer : float
+            - charge_cd : float
+            - circle_angle : float
+            - circle_radius : float
+            + monster_elite_swift(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_Duzy_Gruby {
+            + monster_Duzy_Gruby(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_elite_tank {
+            - melee_mode : bool
+            - melee_threshold : float
+            - heavy_timer : float
+            - heavy_cd : float
+            + monster_elite_tank(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_trapper {
+            - max_traps : int
+            - traps_placed : int
+            - trap_timer : float
+            - trap_interval : float
+            - wander_timer : float
+            - wander_sign : float
+            + monster_trapper(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_spawner {
+            - max_spawns : int
+            - current_spawns : int
+            - spawn_interval : float
+            - spawn_timer : float
+            + monster_spawner(p : math::vec2 const, z : float const)
+            + update(dt : float) : void override
+        }
+
+        class monster_boss {
+            - current_phase : int
+            - max_hp_val : float
+            - ranged_cooldown : float
+            - is_charging : bool
+            - charge_timer : float
+            - charge_cooldown : float
+            - post_charge_stun : float
+            - charge_dir : math::vec2
+            - is_channeling : bool
+            - channel_timer : float
+            - flash_timer : float
+            - phase3_debuffed : bool
+            - minion_ids : std::vector<id_t>
+            - wants_melee : bool
+            - stance_timer : float
+            - boss_map_ref : geometry::map_data*
+            - hp_ratio() : float const
+            - update_phase() : void
+            - phase1_ai(dt : float, dist : float) : void
+            - phase2_ai(dt : float, dist : float) : void
+            - phase3_ai(dt : float, dist : float) : void
+            - ranged_attack_slow() : void
+            - melee_attack_burn() : void
+            - start_charge() : void
+            - update_charge(dt : float) : void
+            - start_channel() : void
+            - minions_alive() : bool const
+            + monster_boss(p : math::vec2 const, z : float const)
+            + channeling() : bool const
+            + flash_phase() : float const
+            + update(dt : float) : void override
+            -- Friends --
+            friend class game::game
+        }
+    }
+}
+
+' ==========================================================================
+' world_object
+' ==========================================================================
+
+package world_object {
+
+    abstract class pickup {
+        - pickup_radius : float
+        - player_ref : entities::player&
+        - map_ref : geometry::map_data&
+        - subsector_id : util::indexed_storage<geometry::subsector>::id_t
+        - consumed : bool
+        + pickup(pos : math::vec2, z : float, tex : assets::texture_id, p : entities::player&, md : geometry::map_data&, sub_id : id_t, radius : float = 20.0f, scale : float = 1.0f)
+        + update(dt : float) : void override
+        + is_consumed() : bool const
+        + {abstract} on_pickup(p : entities::player&) : void
+        + virtual ~pickup()
+    }
+
+    class weapon_pickup {
+        - provided_weapon : std::unique_ptr<combat::weapons::weapon>
+        - slot : int
+        + weapon_pickup(pos : math::vec2, z : float, tex : assets::texture_id, w : std::unique_ptr<combat::weapons::weapon>, weapon_slot : int, p : entities::player&, md : geometry::map_data&, sub_id : id_t, radius : float = 25.0f, scale : float = 0.4f)
+        + on_pickup(p : entities::player&) : void override
+    }
+
+    class armor_pickup {
+        - armor_amount : float
+        + armor_pickup(pos : math::vec2, z : float, tex : assets::texture_id, amount : float, p : entities::player&, md : geometry::map_data&, sub_id : id_t, radius : float = 20.0f)
+        + on_pickup(p : entities::player&) : void override
+    }
+
+    class health_pickup {
+        - heal_amount : float
+        + health_pickup(pos : math::vec2, z : float, tex : assets::texture_id, amount : float, p : entities::player&, md : geometry::map_data&, sub_id : id_t, radius : float = 20.0f)
+        + on_pickup(p : entities::player&) : void override
+    }
+
+    class "ammo_pickup<WeaponT>" as ammo_pickup {
+        - amount : int
+        + ammo_pickup(pos : math::vec2, z : float, tex : assets::texture_id, amt : int, p : entities::player&, md : geometry::map_data&, sub_id : id_t, radius : float = 20.0f)
+        + on_pickup(p : entities::player&) : void override
+    }
+}
+
+' ==========================================================================
+' game
+' ==========================================================================
+
+package game {
+
+    class game {
+        - rl : util::resource_loader
+        - am : assets::asset_manager
+        - input : std::unique_ptr<input::input_backend>
+        - rb : std::unique_ptr<rendering::rendering_backend>
+        - ab : std::unique_ptr<audio::audio_backend>
+        - md : geometry::map_data
+        - mix : audio::audio_mixer
+        - r2d : rendering::renderer_2d
+        - sr : rendering::software_renderer
+        - w : engine::world
+        - player_ptr : entities::player*
+        - fov : float
+        - text_scroll(text : std::vector<std::string> const&, aid : assets::audio_clip_id const) : void
+        - ts_from_resource(res_name : std::string const&, aid : assets::audio_clip_id const) : void
+        - opening() : void
+        - ending() : void
+        - credits() : void
+        - show_main_menu() : void
+        - show_options() : void
+        - loop() : void
+        - draw_hud() : void
+        + game()
+        + run() : void
+    }
+}
+
+
+' ==========================================================================
+' INHERITANCE
+' ==========================================================================
+
+'' util
+resource <|-- file_resource
+resource <|-- binary_resource
+
+'' math
+util::componentized <|-- vec2
+util::componentized <|-- vec3
+util::componentized <|-- segment
+
+'' audio
+audio::audio_backend <|-- audio::alsa::backend
+
+'' assets
+util::componentized <|-- audio_clip
+util::componentized <|-- texture
+
+'' rendering
+rendering::rendering_mode <|-- rendering::drm_kms::mode
+rendering::rendering_backend <|-- rendering::drm_kms::backend
+util::componentized <|-- rendering::sprite
+util::componentized <|-- rendering::rendering_mode
+
+'' input
+input::input_backend <|-- input::evdev::backend
+
+'' systems
+util::componentized <|-- systems::health_system
+
+'' engine
+rendering::sprite <|-- engine::renderable_entity
+engine::entity <|-- engine::renderable_entity
+engine::renderable_entity <|-- engine::actor
+engine::renderable_entity <|-- engine::projectile
+
+'' combat
+combat::status_effect <|-- combat::burning
+combat::status_effect <|-- combat::charmed
+combat::status_effect <|-- combat::slowed
+combat::weapons::firing_mode <|-- combat::weapons::hitscan_firing_mode
+combat::weapons::firing_mode <|-- combat::weapons::projectile_firing_mode
+combat::weapons::weapon <|-- combat::weapons::pistol
+combat::weapons::weapon <|-- combat::weapons::smg
+combat::weapons::weapon <|-- combat::weapons::rifle
+combat::weapons::weapon <|-- combat::weapons::shotgun
+combat::weapons::weapon <|-- combat::weapons::sniper_rifle
+combat::weapons::weapon <|-- combat::weapons::plasma_gun
+combat::weapons::weapon <|-- combat::weapons::katana
+
+'' geometry
+util::componentized <|-- linedef
+util::componentized <|-- monster_spawn
+util::componentized <|-- pickup_spawn
+
+'' entities
+engine::projectile <|-- entities::slug_projectile
+engine::projectile <|-- entities::plasma_projectile
+engine::actor <|-- entities::player
+engine::actor <|-- entities::monster
+entities::monster <|-- entities::monsters::monster_basic
+entities::monster <|-- entities::monsters::monster_all_rounder
+entities::monster <|-- entities::monsters::monster_ranged
+entities::monster <|-- entities::monsters::monster_sniper
+entities::monster <|-- entities::monsters::monster_assault
+entities::monster <|-- entities::monsters::monster_magic
+entities::monster <|-- entities::monsters::monster_Maly_Szybki
+entities::monster <|-- entities::monsters::monster_elite_swift
+entities::monster <|-- entities::monsters::monster_Duzy_Gruby
+entities::monster <|-- entities::monsters::monster_elite_tank
+entities::monster <|-- entities::monsters::monster_trapper
+entities::monster <|-- entities::monsters::monster_spawner
+entities::monster <|-- entities::monsters::monster_boss
+
+'' world_object
+engine::renderable_entity <|-- world_object::pickup
+world_object::pickup <|-- world_object::weapon_pickup
+world_object::pickup <|-- world_object::armor_pickup
+world_object::pickup <|-- world_object::health_pickup
+world_object::pickup <|-- world_object::ammo_pickup
+
+
+' ==========================================================================
+' DEPENDENCIES
+' ==========================================================================
+
+'' util
+componentized ..> fixed_string
+componentized ..> component_tag
+resource ..> component_tag
+file_resource ..> component_tag
+binary_resource ..> component_tag
+resource_loader ..> resource
+storage_iterator ..> indexed_storage
+storage_const_iterator ..> indexed_storage
+
+'' math
+vec2 ..> vec3
+vec3 ..> vec2
+segment ..> vec2
+ray2 ..> vec2
+ray2 ..> segment
+
+'' audio
+audio::audio_mixer ..> audio::playing_sound
+audio::audio_mixer ..> audio::audio_backend
+audio::audio_mixer ..> audio::audio_format
+audio::alsa::backend ..> audio::audio_format
+
+'' assets
+audio_clip ..> audio::audio_format
+playing_sound ..> audio_clip
+menu_element ..> Ids
+texture ..> Ids
+menu ..> Ids
+menu ..> menu_element
+asset_pack ..> texture
+asset_pack ..> menu
+asset_pack ..> audio_clip
+asset_manager ..> asset_pack
+
+'' rendering
+rendering::software_renderer ..> rendering::visplane
+rendering::software_renderer ..> rendering::vissprite
+rendering::software_renderer ..> rendering::rendering_backend
+rendering::software_renderer ..> assets::asset_manager
+rendering::software_renderer ..> geometry::map_data
+rendering::software_renderer ..> geometry::linedef
+rendering::software_renderer ..> geometry::bsp_node
+rendering::renderer_2d ..> rendering::rendering_backend
+rendering::renderer_2d ..> assets::asset_manager
+rendering::renderer_2d ..> assets::texture
+rendering::vissprite ..> rendering::sprite
+rendering::vissprite ..> assets::texture_id
+rendering::visplane ..> assets::texture_id
+rendering::frame_rendering_data ..> math::vec2
+rendering::sprite ..> math::vec2
+rendering::sprite ..> assets::texture_id
+rendering::drm_kms::backend ..> rendering::drm_kms::device_context
+rendering::drm_kms::backend ..> rendering::drm_kms::connector
+rendering::drm_kms::backend ..> rendering::drm_kms::crtc
+rendering::drm_kms::backend ..> rendering::drm_kms::framebuffer
+rendering::drm_kms::backend ..> rendering::drm_kms::mode
+
+'' input
+input::input_backend ..> input::key
+input::input_backend ..> input::mouse_state
+input::evdev::backend ..> input::mouse_state
+
+'' systems
+systems::health_system ..> combat::status_effect
+systems::health_system ..> engine::actor
+
+'' engine
+engine::actor ..> systems::health_system
+engine::actor ..> combat::status_effect
+engine::actor ..> math::vec2
+engine::projectile ..> math::vec2
+engine::projectile ..> geometry::map_data
+engine::world ..> util::indexed_storage
+engine::world ..> engine::entity
+
+'' combat
+combat::status_effect ..> engine::actor
+combat::weapons::weapon ..> combat::weapons::firing_mode
+combat::weapons::weapon ..> audio::audio_mixer
+combat::weapons::weapon ..> assets::asset_manager
+combat::weapons::hitscan_firing_mode ..> geometry::map_data
+combat::weapons::hitscan_firing_mode ..> engine::world
+combat::weapons::projectile_firing_mode ..> engine::world
+combat::weapons::projectile_firing_mode ..> geometry::map_data
+combat::weapons::firing_mode ..> math::vec2
+
+'' geometry
+map_data ..> util::indexed_storage
+map_data ..> rendering::sprite
+subsector ..> rendering::sprite
+bsp_node ..> math::vec2
+linedef ..> math::segment
+sector ..> assets::texture_id
+sidedef ..> assets::texture_id
+monster_spawn ..> math::vec2
+pickup_spawn ..> math::vec2
+
+'' entities
+entities::player ..> combat::weapons::weapon
+entities::player ..> geometry::map_data
+entities::player ..> engine::world
+entities::monster ..> engine::actor
+entities::monster ..> geometry::map_data
+entities::monster ..> engine::world
+entities::monsters::monster_boss ..> geometry::map_data
+entities::monsters::monster_boss ..> engine::world
+
+'' world_object
+world_object::pickup ..> entities::player
+world_object::pickup ..> geometry::map_data
+world_object::weapon_pickup ..> combat::weapons::weapon
+
+'' game
+game::game ..> util::resource_loader
+game::game ..> assets::asset_manager
+game::game ..> input::input_backend
+game::game ..> rendering::rendering_backend
+game::game ..> audio::audio_backend
+game::game ..> geometry::map_data
+game::game ..> audio::audio_mixer
+game::game ..> rendering::renderer_2d
+game::game ..> rendering::software_renderer
+game::game ..> engine::world
+game::game ..> entities::player
+
+@enduml

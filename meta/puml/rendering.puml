@@ -1,0 +1,301 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam monochrome true
+
+package util {
+    class "componentized<T>" as componentized {
+    }
+}
+
+package math {
+    class vec2 {
+    }
+}
+
+package assets {
+    class texture_id << (D,#FF7700) typedef >>
+    class texture {
+    }
+    class asset_manager {
+    }
+}
+
+package geometry {
+    class linedef {
+    }
+    class bsp_node {
+    }
+    class map_data {
+    }
+    struct "bsp_node::bounding_box" as bounding_box {
+    }
+}
+
+package rendering {
+    
+    '' ========================================================
+    '' frd.h
+    '' ========================================================
+    class frame_rendering_data << (S,#FF7700) struct >> {
+        + cam_pos : math::vec2
+        + cam_height : float
+        + cam_angle : float
+        + sw : unsigned int
+        + sh : unsigned int
+        + half_sw : float
+        + pitch : unsigned int
+        + mmio : std::uint32_t *__restrict
+        + fov_scale : float
+        + inv_fov_scale : float
+        + cos_cam_angle : float
+        + sin_cam_angle : float
+        + euclidian_dist_factor : std::vector<float> const*
+    }
+
+    '' ========================================================
+    '' lighting.h
+    '' ========================================================
+    class lighting {
+        + {static} dl_start : float const = 64.0f
+        + {static} dl_density : float const = 0.25f
+        + {static} calculate(sector_light_level : std::uint8_t const, depth : float const) : int
+        + {static} apply(orig : std::uint32_t const, light : int) : std::uint32_t
+    }
+
+    '' ========================================================
+    '' rendering-mode.h
+    '' ========================================================
+    class rendering_mode {
+        + {abstract} ~rendering_mode()
+        + {abstract} operator()(util::component_tag<"x_res">) : unsigned int const
+        + {abstract} operator()(util::component_tag<"y_res">) : unsigned int const
+        + {abstract} operator()(util::component_tag<"refresh_hz">) : unsigned int const
+        + {abstract} operator()(util::component_tag<"has_vsync">) : bool const
+        -- Friends --
+        friend util::componentized<rendering_mode>
+    }
+
+    '' ========================================================
+    '' rendering-backend.h
+    '' ========================================================
+    abstract class rendering_backend {
+        + {abstract} bad() : bool const
+        + {abstract} operator()(util::component_tag<"modes">) : std::vector<std::unique_ptr<rendering_mode const>>
+        + {abstract} push_mode(mode : std::unique_ptr<rendering_mode const>) : void
+        + {abstract} operator()(util::component_tag<"width">) : unsigned int
+        + {abstract} operator()(util::component_tag<"height">) : unsigned int
+        + {abstract} operator()(util::component_tag<"pitch">) : unsigned int
+        + {abstract} operator()(util::component_tag<"mmio">) : std::uint32_t*
+        + {abstract} wait_for_vsync() : void
+        + {abstract} flush() : void
+        + {abstract} ~rendering_backend()
+    }
+
+    '' ========================================================
+    '' sprite.h
+    '' ========================================================
+    class sprite {
+        # pos : math::vec2
+        # z_pos : float
+        # angle : float
+        # tex_id : assets::texture_id
+        # inherent_scale : float
+        # hit_flash : float
+        + sprite(p : math::vec2 const, z : float const, tex : assets::texture_id const, is : float const)
+        + virtual ~sprite()
+        -- Friends --
+        friend util::componentized<sprite>
+        friend software_renderer
+        friend vissprite
+    }
+
+    '' ========================================================
+    '' vissprite.h
+    '' ========================================================
+    class vissprite {
+        - depth : float
+        - cx1 : int
+        - cx2 : int
+        - proj_x : float
+        - scale : float
+        - z_pos : float
+        - tex_id : assets::texture_id
+        - light_level : std::uint8_t
+        - upper_clip : std::vector<int>
+        - lower_clip : std::vector<int>
+        + vissprite(sprite : sprite const&, z : float const, clamped_x1 : int const, clamped_x2 : int const, px : float const, sc : float const, light : std::uint8_t const, uc : std::vector<int> const&, lc : std::vector<int> const&)
+        + {static} pa_sort(vec : std::vector<vissprite> &) : void
+        + render(tex_manager : assets::asset_manager const&, frd : frame_rendering_data const&) : void const
+    }
+
+    '' ========================================================
+    '' visplane.h
+    '' ========================================================
+    class visplane {
+        - height : float
+        - tex_id : assets::texture_id
+        - light_level : std::uint8_t
+        - min_x : int
+        - max_x : int
+        - top : std::vector<int>
+        - bottom : std::vector<int>
+        + visplane(sw : unsigned int const, h : float const, tid : assets::texture_id const, light : std::uint8_t const)
+        + {static} add_column(pool : std::vector<visplane>&, x : int, y_start : int, y_end : int, sw : unsigned int, flat_height : float, tex_id : assets::texture_id, light_level : std::uint8_t) : void
+        + render(tex_manager : assets::asset_manager const&, frd : frame_rendering_data const&) : void const
+    }
+
+    '' ========================================================
+    '' renderer-2d.h
+    '' ========================================================
+    class renderer_2d {
+        - target : rendering_backend &
+        - tex_manager : assets::asset_manager const&
+        - font_texture : assets::texture const&
+        + renderer_2d(tgt : rendering_backend &, tm : assets::asset_manager const&, font_tex : assets::texture const&)
+        + draw_texture(tex : assets::texture const&, x : int, y : int, w : int, h : int) : void const
+        + draw_text(text : std::string_view, x : int, y : int, char_w : int, char_h : int, color : std::uint32_t const) : void const
+        + draw_rect(x : int, y : int, w : int, h : int, color : std::uint32_t) : void const
+    }
+
+    '' ========================================================
+    '' software-renderer.h
+    '' ========================================================
+    class software_renderer {
+        - target : rendering_backend &
+        - tex_manager : assets::asset_manager const&
+        - current_map : geometry::map_data const&
+        - {static} constexpr near_z : float = 0.1f
+        - upper_clip : std::vector<int>
+        - lower_clip : std::vector<int>
+        - visplanes : std::vector<visplane>
+        - vissprites : std::vector<vissprite>
+        - euclidian_dist_factor : std::vector<float>
+        - render_bsp_node(node_id : util::indexed_storage<geometry::bsp_node>::id_t, frd : frame_rendering_data const&) : void
+        - project_and_draw_linedef(line : geometry::linedef, frd : frame_rendering_data const&) : void
+        - draw_solid_wall_span(proj_x1 : float, proj_x2 : float, z1 : float, z2 : float, u1 : float, u2 : float, line : geometry::linedef const&, frd : frame_rendering_data const&) : void
+        - draw_portal_wall_span(proj_x1 : float, proj_x2 : float, z1 : float, z2 : float, u1 : float, u2 : float, line : geometry::linedef const&, frd : frame_rendering_data const&) : void
+        - render_visplanes(frd : frame_rendering_data const&) : void
+        - add_vissprite(s : sprite *const, light : std::uint8_t, frd : frame_rendering_data const&) : void
+        - render_vissprites(frd : frame_rendering_data const&) : void
+        - is_box_visible(box : geometry::bsp_node::bounding_box const&, frd : frame_rendering_data const&) : bool
+        + software_renderer(tgt : rendering_backend &, tm : assets::asset_manager const&, map : geometry::map_data const&)
+        + render_bsp(cam_pos : math::vec2 const, cam_height : float const, cam_angle : float, fov : float) : void
+    }
+
+    '' ========================================================
+    '' DRM/KMS Sub-Package
+    '' ========================================================
+    package drm_kms {
+        class device_context {
+            - fd : int
+            + device_context(path : std::string const&)
+            + ~device_context()
+            + is_valid() : bool const
+            + ioctl(request : unsigned long, arg : void*) : int const
+            + mmap(addr : void *, len : size_t, prot : int, flags : int, off : off_t) : void * const
+        }
+
+        class crtc {
+            - dev : device_context const&
+            - crtc_id : std::uint32_t
+            + crtc(d : device_context const&, id : uint32_t)
+            + set_config(fb_id : uint32_t, conn_id : uint32_t, m : mode const&) : bool
+            + page_flip(fb_id : uint32_t) : bool const
+        }
+
+        class mode {
+            - kernel_mode : drm_mode_modeinfo
+            + mode(info : drm_mode_modeinfo const&)
+            + ~mode() override
+            + create_crtc_req(crtc_id : std::uint32_t const, fb_id : std::uint32_t const, conn_id : std::uint32_t const *const) : drm_mode_crtc const
+            + operator()(util::component_tag<"x_res">) : unsigned int override
+            + operator()(util::component_tag<"y_res">) : unsigned int override
+            + operator()(util::component_tag<"refresh_hz">) : unsigned int override
+            + operator()(util::component_tag<"has_vsync">) : bool override
+        }
+
+        class framebuffer {
+            - dev : device_context const&
+            - handle : uint32_t
+            - fb_id : uint32_t
+            - mmio_ptr : uint32_t*
+            - size : size_t
+            - pitch : uint32_t
+            + framebuffer(d : device_context const&, width : uint32_t, height : uint32_t, success : bool *const)
+            + ~framebuffer()
+            + copy_from(src : uint32_t const*, pixel_count : size_t) : void const
+            + flip_onto(c : crtc const&) : bool const
+            + apply_config(c : crtc &, connector_id : std::uint32_t const, m : mode const&) : bool const
+            -- Friends --
+            friend connector
+            friend backend
+        }
+
+        class connector {
+            - dev : device_context const&
+            - connector_id : uint32_t
+            - encoder_id : uint32_t
+            + connector(d : device_context const&, id : uint32_t, success : bool* const)
+            + probe_modes() : std::vector<std::unique_ptr<mode const>>
+            + apply_config(c : crtc&, fb : framebuffer const&, m : mode const&) : bool const
+        }
+
+        class backend {
+            # dev : std::unique_ptr<device_context>
+            # active_connector : std::unique_ptr<connector>
+            # active_crtc : std::unique_ptr<crtc>
+            # is_bad : bool
+            # buffers : std::unique_ptr<framebuffer>[2]
+            # front_buffer_index : int
+            # shadow : std::vector<uint32_t>
+            # current_mode : std::unique_ptr<mode const>
+            # original_fb_id : uint32_t = 0
+            # original_connector_id : uint32_t = 0
+            # original_mode : drm_mode_modeinfo = {}
+            # has_original_state : bool = false
+            + backend()
+            + ~backend() override
+            + bad() : bool const override
+            + operator()(util::component_tag<"modes">) : std::vector<std::unique_ptr<rendering_mode const>> override
+            + push_mode(pushed_mode : std::unique_ptr<rendering_mode const>) : void override
+            + operator()(util::component_tag<"width">) : unsigned int override
+            + operator()(util::component_tag<"height">) : unsigned int override
+            + operator()(util::component_tag<"pitch">) : unsigned int override
+            + operator()(util::component_tag<"mmio">) : std::uint32_t * override
+            + wait_for_vsync() : void override
+            + flush() : void override
+        }
+    }
+}
+
+'' Inheritance
+rendering::rendering_mode <|-- rendering::drm_kms::mode
+rendering::rendering_backend <|-- rendering::drm_kms::backend
+util::componentized <|-- rendering::sprite
+util::componentized <|-- rendering::rendering_mode
+
+'' Dependencies
+rendering::software_renderer ..> rendering::visplane
+rendering::software_renderer ..> rendering::vissprite
+rendering::software_renderer ..> rendering::rendering_backend
+rendering::software_renderer ..> assets::asset_manager
+rendering::software_renderer ..> geometry::map_data
+rendering::software_renderer ..> geometry::linedef
+rendering::software_renderer ..> geometry::bsp_node
+rendering::renderer_2d ..> rendering::rendering_backend
+rendering::renderer_2d ..> assets::asset_manager
+rendering::renderer_2d ..> assets::texture
+rendering::vissprite ..> rendering::sprite
+rendering::vissprite ..> assets::texture_id
+rendering::visplane ..> assets::texture_id
+rendering::frame_rendering_data ..> math::vec2
+rendering::sprite ..> math::vec2
+rendering::sprite ..> assets::texture_id
+rendering::drm_kms::backend ..> rendering::drm_kms::device_context
+rendering::drm_kms::backend ..> rendering::drm_kms::connector
+rendering::drm_kms::backend ..> rendering::drm_kms::crtc
+rendering::drm_kms::backend ..> rendering::drm_kms::framebuffer
+rendering::drm_kms::backend ..> rendering::drm_kms::mode
+
+@enduml
