@@ -24,7 +24,7 @@ void pickup::update(float) {
     if (diff.sqr_len() >= pickup_radius * pickup_radius) return;
 
     on_pickup(player_ref);
-    map_ref.subsectors[subsector_id].remove_sprite(this);
+    map_ref("subsectors"_f)[subsector_id].remove_sprite(this);
     consumed = true;
 }
 

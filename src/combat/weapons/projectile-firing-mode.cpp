@@ -32,9 +32,9 @@ namespace combat {
 			auto eid = world_ref.register_entity(std::move(proj));
 			raw->self_id = eid;
 
-			if (map_ref.root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
+			if (map_ref("root_node_id"_f) != util::indexed_storage<geometry::bsp_node>::nullid) {
 				auto sub_id = map_ref.get_subsector_id(spawn_pos);
-				map_ref.subsectors[sub_id].add_sprite(raw);
+				map_ref("subsectors"_f)[sub_id].add_sprite(raw);
 			}
 		}
 
