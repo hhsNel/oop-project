@@ -261,7 +261,7 @@ namespace game {
 		entities::monster_boss* boss_ptr = nullptr;
 
 		for (auto const& spawn : md.monster_spawns) {
-			auto m = entities::make_monster(spawn("type"_f), spawn("pos"_f), spawn("z"_f), player_ptr, &md, &w);
+			auto m = entities::make_monster(spawn, player_ptr, &md, &w);
 			if (m) {
 				auto* raw = &*m;
 				if (auto* boss = dynamic_cast<entities::monster_boss*>(raw))
@@ -275,10 +275,7 @@ namespace game {
 
 		for (auto const& spawn : md.pickup_spawns) {
 			auto sub_id = has_bsp ? md.get_subsector_id(spawn("pos"_f)) : 1;
-			auto pk = world_object::make_pickup(
-				spawn("type"_f), spawn("subtype"_f),
-				spawn("pos"_f), spawn("z"_f),
-				*player_ptr, md, sub_id, w, mix, am);
+			auto pk = world_object::make_pickup(spawn, *player_ptr, md, sub_id, w, mix, am);
 			if (pk) {
 				auto* raw = &*pk;
 				w.register_entity(std::move(pk));
