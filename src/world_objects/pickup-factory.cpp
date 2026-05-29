@@ -17,6 +17,8 @@
 #include "audio/audio-mixer.h"
 #include "assets/asset-manager.h"
 
+#include "geometry/pickup-spawn.h"
+
 namespace world_object {
 
 	// Sprite IDs (in sprite manifest):
@@ -74,8 +76,7 @@ namespace world_object {
 		}
 	}
 
-	std::unique_ptr<pickup> make_pickup(std::uint32_t type, std::uint32_t subtype,
-	                                    math::vec2 pos, float z,
+	std::unique_ptr<pickup> make_pickup(geometry::pickup_spawn const& ps,
 	                                    entities::player& player,
 	                                    geometry::map_data& md,
 	                                    util::indexed_storage<geometry::subsector>::id_t sub_id,
@@ -83,6 +84,10 @@ namespace world_object {
 	                                    audio::audio_mixer& mixer,
 	                                    assets::asset_manager const& am)
 	{
+		auto type = ps.type;
+		auto subtype = ps.subtype;
+		auto pos = ps.pos;
+		auto z = ps.z;
 		switch (type) {
 			case 0: return std::make_unique<health_pickup>(pos, z, health_sprite, 25.0f, player, md, sub_id);
 			case 1: return std::make_unique<armor_pickup>(pos, z, armor_sprite, 25.0f, player, md, sub_id);
