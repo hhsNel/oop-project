@@ -2,8 +2,8 @@
 
 namespace entities {
 
-monster_all_rounder::monster_all_rounder(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
-	: monster(p, z, 0, 1.0f, 80.0f, 20.0f, 80.0f, 100.0f, 250.0f, 10.0f, 1.0f, target, map, world),
+monster_all_rounder::monster_all_rounder(math::vec2 const p, float const z, engine::actor& tgt, geometry::map_data& map, engine::world& wrld)
+	: monster(p, z, 0, 1.0f, 80.0f, 20.0f, 80.0f, 100.0f, 250.0f, 10.0f, 1.0f, tgt, map, wrld),
 	  melee_mode(false), melee_threshold(60.0f) {}
 
 void monster_all_rounder::update(float dt) {

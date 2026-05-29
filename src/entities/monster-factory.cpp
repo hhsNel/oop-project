@@ -14,7 +14,7 @@
 #include "entities/monsters/monster-trapper.h"
 
 namespace entities {
-	std::unique_ptr<monster> make_monster(geometry::monster_spawn const& ms, engine::actor* target, geometry::map_data* map, engine::world* world) {
+	std::unique_ptr<monster> make_monster(geometry::monster_spawn const& ms, engine::actor& target, geometry::map_data& map, engine::world& world) {
 		auto type = ms.type;
 		auto pos = ms.pos;
 		auto z = ms.z;

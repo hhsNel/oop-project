@@ -11,7 +11,7 @@ namespace entities {
 		float spawn_timer;
 
 	public:
-		monster_spawner(math::vec2 const p, float const z, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
+		monster_spawner(math::vec2 const p, float const z, engine::actor& target, geometry::map_data& map, engine::world& world);
 		void update(float dt) override;
 	};
 
