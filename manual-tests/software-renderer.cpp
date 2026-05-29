@@ -130,7 +130,7 @@ int main() {
 
     std::vector<util::indexed_storage<geometry::linedef>::id_t> line_ids;
     for (int i = 0; i < 4; ++i) {
-        line_ids.push_back(room_map.linedefs.add(geometry::linedef(
+        line_ids.push_back(room_map("linedefs"_f).add(geometry::linedef(
             corners[i], 
             corners[(i + 1) % 4], 
             sidedef_id, 

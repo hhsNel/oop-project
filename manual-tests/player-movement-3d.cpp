@@ -71,10 +71,10 @@ static geometry::map_data build_room() {
     auto null_sd = util::indexed_storage<geometry::sidedef>::nullid;
 
     // 4 linedefs – counterclockwise order keeps front side facing inward
-    auto id0 = map.linedefs.add(geometry::linedef({0.0f,   0.0f},   {0.0f,   512.0f}, sd0, null_sd));
-    auto id1 = map.linedefs.add(geometry::linedef({0.0f,   512.0f}, {512.0f, 512.0f}, sd1, null_sd));
-    auto id2 = map.linedefs.add(geometry::linedef({512.0f, 512.0f}, {512.0f, 0.0f},   sd2, null_sd));
-    auto id3 = map.linedefs.add(geometry::linedef({512.0f, 0.0f},   {0.0f,   0.0f},   sd3, null_sd));
+    auto id0 = map("linedefs"_f).add(geometry::linedef({0.0f,   0.0f},   {0.0f,   512.0f}, sd0, null_sd));
+    auto id1 = map("linedefs"_f).add(geometry::linedef({0.0f,   512.0f}, {512.0f, 512.0f}, sd1, null_sd));
+    auto id2 = map("linedefs"_f).add(geometry::linedef({512.0f, 512.0f}, {512.0f, 0.0f},   sd2, null_sd));
+    auto id3 = map("linedefs"_f).add(geometry::linedef({512.0f, 0.0f},   {0.0f,   0.0f},   sd3, null_sd));
 
     // Single subsector (convex room = one BSP leaf)
     auto ss_id = map.subsectors.add(geometry::subsector(
