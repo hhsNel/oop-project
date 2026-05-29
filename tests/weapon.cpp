@@ -257,20 +257,20 @@ int main() {
 
 		// katana_swing — swing once, immediately blocked
 		} else if (cmd == "katana_swing") {
-			inspect<combat::weapons::katana> k(ta.mixer, ta.am);
+			inspect<combat::weapons::katana> k(md, w, ta.mixer, ta.am);
 			k.fire({0.0f, 0.0f}, 0.0f);
 			result(k.can_fire() ? "YES" : "NO");
 
 		// katana_cooldown — swing, advance 0.5s (< 1/1.5≈0.667s), blocked
 		} else if (cmd == "katana_cooldown") {
-			inspect<combat::weapons::katana> k(ta.mixer, ta.am);
+			inspect<combat::weapons::katana> k(md, w, ta.mixer, ta.am);
 			k.fire({0.0f, 0.0f}, 0.0f);
 			k.tick(0.5f);
 			result(k.can_fire() ? "YES" : "NO");
 
 		// katana_cooldown_ready — swing, advance 0.7s (> 0.667s), ready
 		} else if (cmd == "katana_cooldown_ready") {
-			inspect<combat::weapons::katana> k(ta.mixer, ta.am);
+			inspect<combat::weapons::katana> k(md, w, ta.mixer, ta.am);
 			k.fire({0.0f, 0.0f}, 0.0f);
 			k.tick(0.7f);
 			result(k.can_fire() ? "YES" : "NO");
@@ -279,7 +279,7 @@ int main() {
 		} else if (cmd == "katana_swings") {
 			int n;
 			std::cin >> n;
-			inspect<combat::weapons::katana> k(ta.mixer, ta.am);
+			inspect<combat::weapons::katana> k(md, w, ta.mixer, ta.am);
 			for (int i = 0; i < n; ++i) { k.fire({0.0f, 0.0f}, 0.0f); k.tick(1.0f); }
 			result(k.can_fire() ? "YES" : "NO");
 
@@ -311,7 +311,7 @@ int main() {
 				inspect<combat::weapons::shotgun> s(md, w, ta.mixer, ta.am);
 				result(s.damage);
 			} else if (wname == "katana") {
-				inspect<combat::weapons::katana> k(ta.mixer, ta.am);
+				inspect<combat::weapons::katana> k(md, w, ta.mixer, ta.am);
 				result(k.damage);
 			} else {
 				result("UNKNOWN");

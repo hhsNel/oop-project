@@ -3,7 +3,7 @@
 namespace entities {
 
 monster_elite_tank::monster_elite_tank(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
-	: monster(p, z, 6, 1.0f, 400.0f, 150.0f, 50.0f, 50.0f, 200.0f, 15.0f, 1.2f, target, map, world),
+	: monster(p, z, 6, 1.0f, 400.0f, 150.0f, 60.0f, 50.0f, 200.0f, 15.0f, 1.2f, target, map, world),
 	  melee_mode(false), melee_threshold(70.0f),
 	  heavy_timer(0.0f), heavy_cd(6.0f) {}
 
