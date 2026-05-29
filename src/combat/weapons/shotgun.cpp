@@ -8,7 +8,7 @@ namespace combat {
 		shotgun::shotgun(geometry::map_data const& map, engine::world const& world,
 		                 audio::audio_mixer& mix, assets::asset_manager const& am)
 			: weapon(std::make_unique<hitscan_firing_mode>(map, world), 8, 1.0f, 15.0f, 4,
-			         mix, am, 7, 8) {}
+			         mix, am, 7, 8, 2.0f) {}
 
 		void shotgun::fire(math::vec2 pos, float angle) {
 			if (!can_fire()) return;

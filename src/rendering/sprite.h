@@ -12,9 +12,11 @@ namespace rendering {
 	protected:
 
 		[[=util::ref_component_field{}]] math::vec2 pos;
-		float z_pos;
+		[[=util::ref_component_field{}]] float z_pos;
+		[[=util::ref_component_field{}]] float angle;
 		assets::texture_id tex_id;
 		float inherent_scale;
+		float hit_flash = 0.0f;
 
 	public:
 

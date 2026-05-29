@@ -28,9 +28,8 @@ void software_renderer::render_bsp_node(util::indexed_storage<geometry::bsp_node
 			auto const& first_line = current_map("linedefs"_f)[sub.lines[0]];
 			sub_light = current_map("sectors"_f)[current_map("sidedefs"_f)[first_line.front].facing_sector].light_level;
 		}
-		
-		for(auto const& sprite : sub.sprites) {
-			add_vissprite(sprite.get(), sub_light, frd);
+		for(auto const sprite : sub.sprites) {
+			add_vissprite(sprite, sub_light, frd);
 		}
 
 		for (auto const line_id : sub.lines) {

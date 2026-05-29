@@ -4,9 +4,6 @@
 
 namespace combat {
 	namespace weapons {
-		/*
-		Tryb strzelania, mowi co sie stanie po wystrzeleniu broni
-		*/
 		class firing_mode {
 		public:
 			virtual void spawn_bullet(math::vec2 pos, float angle, float damage) = 0;

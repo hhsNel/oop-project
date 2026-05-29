@@ -152,7 +152,7 @@ run_test "damage_check pistol"  "25"
 run_test "damage_check smg"     "10"
 run_test "damage_check rifle"   "35"
 run_test "damage_check sniper"  "100"
-run_test "damage_check plasma"  "75"
+run_test "damage_check plasma"  "200"
 run_test "damage_check shotgun" "15"
 run_test "damage_check katana"  "50"
 

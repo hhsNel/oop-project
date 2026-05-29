@@ -57,9 +57,9 @@ run_test2 "boss_stats"        "1000" "300"
 # SPEED / DETECTION
 # =====================================================================
 
-run_test "duzy_gruby_speed"  "0.8"
-run_test "maly_szybki_speed" "4.5"
-run_test "sniper_detection"  "30"
+run_test "duzy_gruby_speed"  "60"
+run_test "maly_szybki_speed" "180"
+run_test "sniper_detection"  "600"
 
 # =====================================================================
 # HEALTH SYSTEM

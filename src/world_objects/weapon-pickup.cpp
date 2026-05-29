@@ -5,18 +5,16 @@
 
 namespace world_object {
 
-weapon_pickup::weapon_pickup(math::vec2 pos, std::unique_ptr<combat::weapons::weapon> w,
-                             entities::player& p, engine::world& world,
-                             util::indexed_storage<std::unique_ptr<engine::entity>>::id_t id,
-                             float radius)
-    : pickup(pos, p, world, id, radius), provided_weapon(std::move(w)) {}
+weapon_pickup::weapon_pickup(math::vec2 position, float z, assets::texture_id tex,
+                             std::unique_ptr<combat::weapons::weapon> wpn, int weapon_slot,
+                             entities::player& pl, geometry::map_data& md,
+                             util::indexed_storage<geometry::subsector>::id_t sub_id,
+                             float radius, float scale)
+    : pickup(position, z, tex, pl, md, sub_id, radius, scale), provided_weapon(std::move(wpn)), slot(weapon_slot) {}
 
 void weapon_pickup::on_pickup(entities::player& p) {
     if (!provided_weapon) return;
-    auto incoming = std::type_index(typeid(*provided_weapon));
-    for (auto& w : p.weapons)
-        if (w && std::type_index(typeid(*w)) == incoming) return;
-    p.weapons.push_back(std::move(provided_weapon));
+    p.equip(slot, std::move(provided_weapon));
 }
 
 }

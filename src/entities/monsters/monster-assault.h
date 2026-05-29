@@ -14,11 +14,7 @@ namespace entities {
 		float strafe_timer;
 
 	public:
-		monster_assault(math::vec2 const p, float const z)
-			: monster(p, z, 1, 1.0f, 60.0f, 10.0f, 2.0f, 6.0f, 12.0f, 7.0f, 0.2f),
-			  burst_size(3), burst_interval(0.2f),
-			  burst_remaining(0), burst_timer(0.0f), burst_cooldown(0.0f),
-			  strafe_sign(1.0f), strafe_timer(0.0f) {}
+		monster_assault(math::vec2 const p, float const z, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
 		void update(float dt) override;
 	};
 

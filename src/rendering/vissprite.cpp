@@ -14,6 +14,7 @@ rendering::vissprite::vissprite(sprite const& sprite, float const z, int const c
 	z_pos(sprite.z_pos),
 	tex_id(sprite.tex_id),
 	light_level(light),
+	flash_red(sprite.hit_flash > 0.0f),
 	upper_clip(uc),
 	lower_clip(lc) { }
 
@@ -57,7 +58,14 @@ void rendering::vissprite::render(assets::asset_manager const& tex_manager, fram
 
 			std::uint32_t color = tex("pixels"_f)[u * tex("height"_f) + v];
 			if(color != 0xffff00ff) {
-				frd.mmio[x + y * frd.pitch] = lighting::apply(color, sprite_light);
+				std::uint32_t lit = lighting::apply(color, sprite_light);
+				if (flash_red) {
+					std::uint32_t r = std::min(255u, ((lit >> 16) & 0xFF) + 180u);
+					std::uint32_t g = ((lit >> 8) & 0xFF) / 3;
+					std::uint32_t b = (lit & 0xFF) / 3;
+					lit = (lit & 0xFF000000) | (r << 16) | (g << 8) | b;
+				}
+				frd.mmio[x + y * frd.pitch] = lit;
 			}
 		}
 	}

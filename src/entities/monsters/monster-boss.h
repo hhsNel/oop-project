@@ -41,9 +41,11 @@ namespace entities {
 		// spawned minions tracking
 		std::vector<util::indexed_storage<std::unique_ptr<engine::entity>>::id_t> minion_ids;
 
-		// world + map refs for spawning
-		engine::world&      world_ref;
-		geometry::map_data& map_ref;
+		// combat stance
+		bool  wants_melee    = false;
+		float stance_timer   = 10.0f;
+
+		geometry::map_data* boss_map_ref = nullptr;
 
 		float hp_ratio() const;
 		void  update_phase();
@@ -58,10 +60,10 @@ namespace entities {
 		bool  minions_alive() const;
 
 	public:
-		monster_boss(math::vec2 const p, float const z, engine::world& w, geometry::map_data& md);
+		monster_boss(math::vec2 const p, float const z, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
 
-		bool channeling() const { return is_channeling; }
-		float flash_phase() const { return flash_timer; }
+		bool channeling() const;
+		float flash_phase() const;
 
 		void update(float dt) override;
 	};

@@ -13,11 +13,7 @@ namespace entities {
 		float circle_radius;
 
 	public:
-		monster_elite_swift(math::vec2 const p, float const z)
-			: monster(p, z, 5, 1.0f, 60.0f, 0.0f, 7.0f, 2.0f, 20.0f, 12.0f, 0.8f),
-			  charge_speed(15.0f), is_charging(false),
-			  charge_timer(0.0f), charge_cd(0.0f),
-			  circle_angle(0.0f), circle_radius(5.0f) {}
+		monster_elite_swift(math::vec2 const p, float const z, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
 		void update(float dt) override;
 	};
 

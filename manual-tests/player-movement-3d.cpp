@@ -78,7 +78,7 @@ static geometry::map_data build_room() {
 
     // Single subsector (convex room = one BSP leaf)
     auto ss_id = map.subsectors.add(geometry::subsector(
-        {id0, id1, id2, id3}, {}));
+        {id0, id1, id2, id3}));
 
     // Root is directly the leaf (no internal BSP nodes needed)
     // Use is_leaf/get_id convention: set high bit to mark as leaf

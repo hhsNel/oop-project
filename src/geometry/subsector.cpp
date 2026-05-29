@@ -1,6 +1,7 @@
 #include "geometry/subsector.h"
 
 #include <utility>
+#include <algorithm>
 
 namespace geometry {
 	struct bin_subsector {
@@ -8,9 +9,8 @@ namespace geometry {
 		std::uint32_t first_line_id;
 	} __attribute__((packed));
 
-	subsector::subsector(std::vector<util::indexed_storage<linedef>::id_t> l, std::vector<std::unique_ptr<rendering::sprite>> s) :
-		lines(std::move(l)),
-		sprites(std::move(s)) {}
+	subsector::subsector(std::vector<util::indexed_storage<linedef>::id_t> l) :
+		lines(std::move(l)) {}
 
 	std::vector<subsector> subsector::load_from_bin(util::resource const& res) {
 		size_t count = res("size"_f) / sizeof(bin_subsector);
@@ -23,27 +23,21 @@ namespace geometry {
 			std::vector<util::indexed_storage<linedef>::id_t> lines;
 			lines.reserve(data[i].line_count);
 			for (std::uint32_t j = 0; j < data[i].line_count; ++j) {
-				lines.push_back(data[i].first_line_id + j);
+				// binary uses 0-based indices; indexed_storage IDs start at 1
+				lines.push_back(data[i].first_line_id + j + 1);
 			}
-			result.emplace_back(std::move(lines), std::vector<std::unique_ptr<rendering::sprite>>{});
+			result.emplace_back(std::move(lines));
 		}
 		return result;
 	}
 
-	std::unique_ptr<rendering::sprite> subsector::remove_sprite(rendering::sprite* spr) {
-		auto it = std::find_if(sprites.begin(), sprites.end(),
-			[spr](std::unique_ptr<rendering::sprite> const& p) {
-				return p.get() == spr;
-			});
-
-		if (it == sprites.end()) return nullptr;
-
-		auto owned = std::move(*it);
-		sprites.erase(it);
-		return owned;
+	void subsector::remove_sprite(rendering::sprite* spr) {
+		auto it = std::find(sprites.begin(), sprites.end(), spr);
+		if (it != sprites.end())
+			sprites.erase(it);
 	}
 
-	void subsector::add_sprite(std::unique_ptr<rendering::sprite> spr) {
-		sprites.push_back(std::move(spr));
+	void subsector::add_sprite(rendering::sprite* spr) {
+		sprites.push_back(spr);
 	}
 }

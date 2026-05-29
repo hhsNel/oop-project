@@ -29,25 +29,15 @@ namespace geometry {
 		auto old_sub_id = get_subsector_id((*spr)("pos"_f));
 		auto new_sub_id = get_subsector_id(new_pos);
 
-		if (old_sub_id == new_sub_id) {
-			(*spr)("pos"_f) = new_pos;
-			return;
-		}
+		(*spr)("pos"_f) = new_pos;
 
-		auto& old_sub = subsectors[old_sub_id];
-		auto& new_sub = subsectors[new_sub_id];
-
-		auto owned = old_sub.remove_sprite(spr);
-
-		if (owned) {
-			(*owned)("pos"_f) = new_pos;
-			new_sub.add_sprite(std::move(owned));
-		} else {
-			(*spr)("pos"_f) = new_pos;
+		if (old_sub_id != new_sub_id) {
+			subsectors[old_sub_id].remove_sprite(spr);
+			subsectors[new_sub_id].add_sprite(spr);
 		}
 	}
 
-	map_data map_data::load_from_bin(util::resource const& sectors_res, util::resource const& sidedefs_res, util::resource const& linedefs_res, util::resource const& subsectors_res, util::resource const& nodes_res) {
+	map_data map_data::load_from_bin(util::resource const& sectors_res, util::resource const& sidedefs_res, util::resource const& linedefs_res, util::resource const& subsectors_res, util::resource const& nodes_res, util::resource const& monsters_res, util::resource const& pickups_res) {
 		map_data map;
 
 		map.sectors = util::indexed_storage<sector>(sector::load_from_bin(sectors_res));
@@ -58,12 +48,16 @@ namespace geometry {
 		auto loaded_nodes = util::indexed_storage<bsp_node>(bsp_node::load_from_bin(nodes_res));
 
 		if (loaded_nodes.size() != 0) {
-			map.root_node_id = loaded_nodes.size() - 1;
+			// IDs in indexed_storage start at 1; the last node (root) has ID = size()
+			map.root_node_id = loaded_nodes.size();
 		} else {
-			map.root_node_id = 0;
+			map.root_node_id = util::indexed_storage<bsp_node>::nullid;
 		}
 
 		map.nodes = std::move(loaded_nodes);
+
+		map.monster_spawns = monster_spawn::load_from_bin(monsters_res);
+		map.pickup_spawns = pickup_spawn::load_from_bin(pickups_res);
 
 		return map;
 	}

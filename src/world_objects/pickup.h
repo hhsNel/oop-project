@@ -1,29 +1,30 @@
 #pragma once
 
-#include "engine/entity.h"
-#include "engine/world.h"
+#include "engine/renderable-entity.h"
 #include "math/vec2.h"
+#include "util/indexed-storage.h"
+#include "geometry/subsector.h"
 
 namespace entities { class player; }
+namespace geometry { class map_data; }
 
 namespace world_object {
 
-	class pickup : public engine::entity {
-		math::vec2 position;
-		float      pickup_radius;
-
+	class pickup : public engine::renderable_entity {
+		float pickup_radius;
 		entities::player& player_ref;
-		engine::world&    world_ref;
-		util::indexed_storage<std::unique_ptr<engine::entity>>::id_t self_id;
+		geometry::map_data& map_ref;
+		util::indexed_storage<geometry::subsector>::id_t subsector_id;
+		bool consumed = false;
 
 	public:
-		pickup(math::vec2 pos, entities::player& p, engine::world& w,
-		       util::indexed_storage<std::unique_ptr<engine::entity>>::id_t id,
-		       float radius = 20.0f);
+		pickup(math::vec2 pos, float z, assets::texture_id tex,
+		       entities::player& p, geometry::map_data& md,
+		       util::indexed_storage<geometry::subsector>::id_t sub_id,
+		       float radius = 20.0f, float scale = 1.0f);
 
 		void update(float dt) override;
-
-		bool in_range(math::vec2 player_pos) const;
+		bool is_consumed() const;
 
 		virtual void on_pickup(entities::player& p) = 0;
 		virtual ~pickup() = default;
