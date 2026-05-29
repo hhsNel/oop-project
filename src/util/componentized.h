@@ -67,7 +67,7 @@ namespace util {
 
 	/* usage:
 	 * class test : public util::componentized<test> {
-	 *	 [[=util::component_field{}]] int hp;
+	 *	 [[=util::ref_component_field{}]] int hp;
 	 *	 [[=util::component_field{}]] int max_hp;
 	 * 
 	 *	 float secret;

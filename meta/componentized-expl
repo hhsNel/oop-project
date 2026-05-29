@@ -1,0 +1,11 @@
+jesli chodzi o rozwiazanie problemu getterow i setterow, stworzylismy system "componentized".
+istnije klasa util::componentized<T> ktora pozwala nam w bardzo latwy sposob "udostepniac" niektore pola na zwenatrz klasy.
+wyjasnienie jak to dziala (tak jak w pliku src/util/componentized.h):
+
+1. najpierw tworzymy 2 puste structy, component_field oraz ref_component_field. Nie ma znaczenia jaka jest zawartosc tych structow, jedyne co ma znaczenie to ze one istnieja. Z tego powodu zostawiamy je puste.
+2. tworzymy powszechnie uzywany typ strukturalny fixed_string kompatybilny z NTTP. Jakis struct tego typu zawsze bedzie potrzebny przy pracowaniu ze stringami w template metaprogrammingu, nie trzeba go wyjasniac
+3. klasa componentized<T> uzywa CRTP zeby klasy po niej dziedziczace byly well-defined w jej leksykalnym kontekscie.
+4. componentized<T>::get_tagged_member<field,A> uzywa c++26 reflections, zeby przeszukac "nonstatic_data_members_of" T w kontekscie componentized, az nie znajdzie identyfikatora field z annotacja A. Jezeli cos takiego znajdzie, to to zwroci; a w przeciwnym wypadku zwroci pusty std::meta::info
+5. operatory () definiowane sa tylko i wylacznie w czasie constexpr i dla atrubutow z danymi annotacjami, uzywajac requires zeby wyrzucic blad w compile-timie jezeli beda uzyte w zly sposob. Uzywaja requires (takie SFIAE) aby zwrocic auto& dla annotacji ref_component_field oraz auto const& dla dowolnej annotacji jako const metoda poprzez splicing
+6. nastepnie definiowany jest operator ""_f ktory pozwala tworzyc component_tagi dla dowolnego compile-time stringu, co pozwala na bardzo ladny zapis object("field"_f)
+
