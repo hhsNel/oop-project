@@ -27,6 +27,8 @@ namespace geometry {
 		std::vector<monster_spawn> monster_spawns;
 		std::vector<pickup_spawn> pickup_spawns;
 
+		util::indexed_storage<bsp_node>::id_t root_node_id;
+
 	public:
 
 		util::indexed_storage<subsector>::id_t get_subsector_id(math::vec2 const& pt) const;
