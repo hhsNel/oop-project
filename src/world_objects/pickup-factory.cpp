@@ -48,7 +48,7 @@ namespace world_object {
 			case 3: w = std::make_unique<combat::weapons::shotgun>(md, world, mixer, am);      break;
 			case 4: w = std::make_unique<combat::weapons::sniper_rifle>(md, world, mixer, am); break;
 			case 5: w = std::make_unique<combat::weapons::plasma_gun>(md, world, mixer, am);   break;
-			case 6: w = std::make_unique<combat::weapons::katana>(mixer, am);                  break;
+			case 6: w = std::make_unique<combat::weapons::katana>(md, world, mixer, am);        break;
 			default: return nullptr;
 		}
 
