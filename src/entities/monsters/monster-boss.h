@@ -45,7 +45,7 @@ namespace entities {
 		bool  wants_melee    = false;
 		float stance_timer   = 10.0f;
 
-		geometry::map_data* boss_map_ref = nullptr;
+		geometry::map_data& boss_map_ref;
 
 		float hp_ratio() const;
 		void  update_phase();
@@ -60,7 +60,7 @@ namespace entities {
 		bool  minions_alive() const;
 
 	public:
-		monster_boss(math::vec2 const p, float const z, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
+		monster_boss(math::vec2 const p, float const z, engine::actor& target, geometry::map_data& map, engine::world& world);
 
 		bool channeling() const;
 		float flash_phase() const;

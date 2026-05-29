@@ -261,7 +261,7 @@ namespace game {
 		entities::monster_boss* boss_ptr = nullptr;
 
 		for (auto const& spawn : md.monster_spawns) {
-			auto m = entities::make_monster(spawn("type"_f), spawn("pos"_f), spawn("z"_f), player_ptr, &md, &w);
+			auto m = entities::make_monster(spawn("type"_f), spawn("pos"_f), spawn("z"_f), *player_ptr, md, w);
 			if (m) {
 				auto* raw = &*m;
 				if (auto* boss = dynamic_cast<entities::monster_boss*>(raw))

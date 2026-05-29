@@ -9,7 +9,7 @@ namespace entities {
 		float aim_timer;
 
 	public:
-		monster_sniper(math::vec2 const p, float const z, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
+		monster_sniper(math::vec2 const p, float const z, engine::actor& target, geometry::map_data& map, engine::world& world);
 		void update(float dt) override;
 	};
 
