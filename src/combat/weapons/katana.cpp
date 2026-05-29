@@ -1,11 +1,13 @@
 #include "katana.h"
+#include "hitscan-firing-mode.h"
 #include "audio/audio-mixer.h"
 #include "assets/asset-manager.h"
 
 namespace combat {
 	namespace weapons {
-		katana::katana(audio::audio_mixer& mix, assets::asset_manager const& am)
-			: weapon(nullptr, 0, 1.5f, 50.0f, 0, mix, am, 13) {}
+		katana::katana(geometry::map_data const& map, engine::world const& world,
+		               audio::audio_mixer& mix, assets::asset_manager const& am)
+			: weapon(std::make_unique<hitscan_firing_mode>(map, world, 60.0f, 32.0f), 0, 1.5f, 50.0f, 0, mix, am, 13) {}
 
 		bool katana::can_fire() const {
 			return last_shot_time <= 0.0f;
