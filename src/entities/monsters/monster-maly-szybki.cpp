@@ -2,8 +2,8 @@
 
 namespace entities {
 
-monster_Maly_Szybki::monster_Maly_Szybki(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
-	: monster(p, z, 8, 1.0f, 15.0f, 0.0f, 180.0f, 40.0f, 300.0f, 12.0f, 0.5f, target, map, world),
+monster_Maly_Szybki::monster_Maly_Szybki(math::vec2 const p, float const z, engine::actor& tgt, geometry::map_data& map, engine::world& wrld)
+	: monster(p, z, 8, 1.0f, 15.0f, 0.0f, 180.0f, 40.0f, 300.0f, 12.0f, 0.5f, tgt, map, wrld),
 	  is_dashing(false), dash_timer(0.0f), dash_cooldown(0.0f) {}
 
 void monster_Maly_Szybki::update(float dt) {

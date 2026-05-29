@@ -8,8 +8,8 @@
 
 namespace entities {
 
-monster_boss::monster_boss(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
-	: monster(p, z, 3, 1.0f, 1000.0f, 300.0f, 70.0f, 350.0f, 500.0f, 20.0f, 1.0f, target, map, world),
+monster_boss::monster_boss(math::vec2 const p, float const z, engine::actor& tgt, geometry::map_data& map, engine::world& wrld)
+	: monster(p, z, 3, 1.0f, 1000.0f, 300.0f, 120.0f, 350.0f, 500.0f, 20.0f, 1.0f, tgt, map, wrld),
 	  max_hp_val(1000.0f), boss_map_ref(map) {}
 
 bool monster_boss::channeling() const { return is_channeling; }
@@ -29,9 +29,8 @@ void monster_boss::update_phase() {
 }
 
 bool monster_boss::minions_alive() const {
-	if (!world_ref) return false;
 	for (auto id : minion_ids) {
-		auto* e = world_ref->entity_from_id(id);
+		auto* e = world_ref.entity_from_id(id);
 		if (e) {
 			auto* a = dynamic_cast<engine::actor*>(e);
 			if (a && !a->is_dead()) return true;
@@ -41,8 +40,6 @@ bool monster_boss::minions_alive() const {
 }
 
 void monster_boss::ranged_attack_slow() {
-	if (!target_ptr || !world_ref || !boss_map_ref) return;
-
 	math::vec2 dir = dir_to_target();
 	float base_angle = std::atan2(dir("y"_f), dir("x"_f));
 
@@ -58,24 +55,23 @@ void monster_boss::ranged_attack_slow() {
 			engine::faction::enemy);
 
 		auto* raw = &*proj;
-		raw->world_ref = world_ref;
-		raw->map_ref = boss_map_ref;
+		raw->world_ref = &world_ref;
+		raw->map_ref = &boss_map_ref;
 		raw->on_hit_effect = []() { return std::make_unique<combat::slowed>(3.0f, 30); };
 
-		auto eid = world_ref->register_entity(std::move(proj));
+		auto eid = world_ref.register_entity(std::move(proj));
 		raw->self_id = eid;
 
-		if (boss_map_ref->root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
-			auto sub_id = boss_map_ref->get_subsector_id(spawn_pos);
-			boss_map_ref->subsectors[sub_id].add_sprite(raw);
+		if (boss_map_ref.root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
+			auto sub_id = boss_map_ref.get_subsector_id(spawn_pos);
+			boss_map_ref.subsectors[sub_id].add_sprite(raw);
 		}
 	}
 }
 
 void monster_boss::melee_attack_burn() {
-	if (!target_ptr) return;
 	melee_attack(attack_damage);
-	target_ptr->add_effect(std::make_unique<combat::burning>(3.0f, 5));
+	target.add_effect(std::make_unique<combat::burning>(3.0f, 5));
 }
 
 void monster_boss::start_charge() {
@@ -88,8 +84,7 @@ void monster_boss::start_charge() {
 void monster_boss::update_charge(float dt) {
 	math::vec2 new_pos = pos + charge_dir * (movement_speed * charge_speed_mult * dt);
 	apply_wall_collision(new_pos);
-	if (boss_map_ref) boss_map_ref->move_to(this, new_pos);
-	else pos = new_pos;
+	boss_map_ref.move_to(this, new_pos);
 	charge_timer -= dt;
 
 	float dist = dist_to_target();
@@ -107,7 +102,6 @@ void monster_boss::update_charge(float dt) {
 }
 
 void monster_boss::start_channel() {
-	if (!world_ref) return;
 	is_channeling = true;
 	channel_timer = 0.0f;
 	flash_timer = 0.0f;
@@ -120,16 +114,14 @@ void monster_boss::start_channel() {
 			std::sin(angle_offset) * 40.0f
 		};
 
-		auto minion = std::make_unique<monster_basic>(spawn_pos, z_pos, target_ptr);
+		auto minion = std::make_unique<monster_basic>(spawn_pos, z_pos, target, boss_map_ref, world_ref);
 
 		auto* raw = &*minion;
-		auto id = world_ref->register_entity(std::move(minion));
+		auto id = world_ref.register_entity(std::move(minion));
 		minion_ids.push_back(id);
 
-		if (boss_map_ref) {
-			auto sub_id = boss_map_ref->get_subsector_id(spawn_pos);
-			boss_map_ref->subsectors[sub_id].add_sprite(raw);
-		}
+		auto sub_id = boss_map_ref.get_subsector_id(spawn_pos);
+		boss_map_ref.subsectors[sub_id].add_sprite(raw);
 	}
 }
 
