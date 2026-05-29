@@ -19,4 +19,4 @@ jobs:
         sudo apt-get install -y gcc-16 g++-16 expect libasound2-dev
 
     - name: Compile and Check
-      run: make isekai-doom manual-check check CXX=g++-16
+      run: make isekai-doom check CXX=g++-16

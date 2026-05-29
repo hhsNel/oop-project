@@ -72,7 +72,7 @@ namespace entities {
 			// Wall collision
 			for (int iter = 0; iter < 4; ++iter) {
 				bool pushed = false;
-				for (auto const& e : map_ref->linedefs) {
+				for (auto const& e : (*map_ref)("linedefs"_f)) {
 					geometry::linedef const& ld = e.value;
 					if (ld.is_portal()) continue;
 

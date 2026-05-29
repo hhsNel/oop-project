@@ -65,9 +65,9 @@ void monster_boss::ranged_attack_slow() {
 		auto eid = world_ref->register_entity(std::move(proj));
 		raw->self_id = eid;
 
-		if (boss_map_ref->root_node_id != util::indexed_storage<geometry::bsp_node>::nullid) {
+		if ((*boss_map_ref)("root_node_id"_f) != util::indexed_storage<geometry::bsp_node>::nullid) {
 			auto sub_id = boss_map_ref->get_subsector_id(spawn_pos);
-			boss_map_ref->subsectors[sub_id].add_sprite(raw);
+			(*boss_map_ref)("subsectors"_f)[sub_id].add_sprite(raw);
 		}
 	}
 }
@@ -128,7 +128,7 @@ void monster_boss::start_channel() {
 
 		if (boss_map_ref) {
 			auto sub_id = boss_map_ref->get_subsector_id(spawn_pos);
-			boss_map_ref->subsectors[sub_id].add_sprite(raw);
+			(*boss_map_ref)("subsectors"_f)[sub_id].add_sprite(raw);
 		}
 	}
 }

@@ -151,7 +151,7 @@ int main() {
     auto sd_portal_back_id = map.sidedefs.add(geometry::sidedef(s2_id, 1, -1, 1));
 
 	auto add_line = [&](float x1, float y1, float x2, float y2, auto f, auto b) {
-		return map.linedefs.add(geometry::linedef({x1, y1}, {x2, y2}, f, b));
+		return map("linedefs"_f).add(geometry::linedef({x1, y1}, {x2, y2}, f, b));
 	};
 
 	/* LINEDEFS */
