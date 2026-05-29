@@ -14,7 +14,7 @@
 #include "entities/monsters/monster-trapper.h"
 
 namespace entities {
-	std::unique_ptr<monster> make_monster(std::uint32_t type, math::vec2 pos, float z, engine::actor* target, geometry::map_data* map, engine::world* world) {
+	std::unique_ptr<monster> make_monster(std::uint32_t type, math::vec2 pos, float z, engine::actor& target, geometry::map_data& map, engine::world& world) {
 		switch (type) {
 			case 0:  return std::make_unique<monster_all_rounder>(pos, z, target, map, world);
 			case 1:  return std::make_unique<monster_assault>(pos, z, target, map, world);
