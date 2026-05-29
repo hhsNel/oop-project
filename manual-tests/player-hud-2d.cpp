@@ -190,7 +190,7 @@ int main() {
     add_weapon(std::make_unique<combat::weapons::shotgun>(md, w, mix, tex_mgr),       "Shotgun", 3.0f);
     add_weapon(std::make_unique<combat::weapons::sniper_rifle>(md, w, mix, tex_mgr),  "Sniper",  3.5f);
     add_weapon(std::make_unique<combat::weapons::plasma_gun>(md, w, mix, tex_mgr),    "Plasma",  2.0f);
-    add_weapon(std::make_unique<combat::weapons::katana>(mix, tex_mgr),                "Katana",  0.0f, true);
+    add_weapon(std::make_unique<combat::weapons::katana>(md, w, mix, tex_mgr),          "Katana",  0.0f, true);
 
     pool[0].in_loadout = true;  // start with Pistol equipped
 
