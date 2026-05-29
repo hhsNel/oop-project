@@ -20,7 +20,7 @@ namespace geometry {
 
 		static std::vector<monster_spawn> load_from_bin(util::resource const& res);
 
-		friend std::unique_ptr<entities::monster> entities::make_monster(geometry::monster_spawn const& ms, engine::actor* target, geometry::map_data* map, engine::world* world);
+		friend std::unique_ptr<entities::monster> entities::make_monster(geometry::monster_spawn const& ms, engine::actor& target, geometry::map_data& map, engine::world& world);
 	};
 }
 

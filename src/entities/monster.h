@@ -9,9 +9,9 @@ namespace geometry { class map_data; }
 namespace entities {
 	class monster : public engine::actor {
 	protected:
-		engine::actor* target_ptr = nullptr;
-		geometry::map_data* map_ref = nullptr;
-		engine::world* world_ref = nullptr;
+		engine::actor& target;
+		geometry::map_data& map_ref;
+		engine::world& world_ref;
 		float attack_cooldown;
 		float attack_range;
 		float detection_radius;
@@ -31,7 +31,7 @@ namespace entities {
 
 	public:
 
-		monster(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float atk_range, float det_radius, float atk_dmg, float atk_cd, engine::actor* target = nullptr, geometry::map_data* map = nullptr, engine::world* world = nullptr);
+		monster(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float atk_range, float det_radius, float atk_dmg, float atk_cd, engine::actor& target, geometry::map_data& map, engine::world& world);
 
 		void update(float dt) override;
 	};

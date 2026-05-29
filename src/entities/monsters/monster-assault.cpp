@@ -2,8 +2,8 @@
 
 namespace entities {
 
-monster_assault::monster_assault(math::vec2 const p, float const z, engine::actor* target, geometry::map_data* map, engine::world* world)
-	: monster(p, z, 1, 1.0f, 60.0f, 10.0f, 80.0f, 150.0f, 300.0f, 7.0f, 0.2f, target, map, world),
+monster_assault::monster_assault(math::vec2 const p, float const z, engine::actor& tgt, geometry::map_data& map, engine::world& wrld)
+	: monster(p, z, 1, 1.0f, 60.0f, 10.0f, 110.0f, 150.0f, 300.0f, 7.0f, 0.2f, tgt, map, wrld),
 	  burst_size(3), burst_interval(0.2f),
 	  burst_remaining(0), burst_timer(0.0f), burst_cooldown(0.0f),
 	  strafe_sign(1.0f), strafe_timer(0.0f) {}
