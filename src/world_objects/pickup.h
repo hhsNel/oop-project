@@ -2,6 +2,8 @@
 
 #include "engine/renderable-entity.h"
 #include "math/vec2.h"
+#include "util/indexed-storage.h"
+#include "geometry/subsector.h"
 
 namespace entities { class player; }
 namespace geometry { class map_data; }

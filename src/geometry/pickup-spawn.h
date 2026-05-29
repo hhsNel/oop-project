@@ -2,19 +2,19 @@
 
 #include <vector>
 #include <cstdint>
+#include <memory>
 #include "math/vec2.h"
 #include "util/resource.h"
 #include "util/componentized.h"
-
-#include "world_objects/pickup-factory.h"
+#include "world_objects/pickup.h"
+#include "assets/asset-manager.h"
 
 namespace entities { class player; }
 namespace audio { class audio_mixer; }
 namespace engine { class world; }
 namespace geometry { class pickup_spawn; }
 namespace world_object {
-    class pickup;
-    std::unique_ptr<pickup> make_pickup(const geometry::pickup_spawn& ps, entities::player& player, geometry::map_data& md, util::indexed_storage<geometry::subsector>::id_t sub_id, engine::world& world, audio::audio_mixer& mixer, const assets::asset_manager& am);
+    std::unique_ptr<world_object::pickup> make_pickup(geometry::pickup_spawn const& ps, entities::player& player, geometry::map_data& md, util::indexed_storage<geometry::subsector>::id_t sub_id, engine::world& world, audio::audio_mixer& mixer, const assets::asset_manager& am);
 }
 
 namespace geometry {

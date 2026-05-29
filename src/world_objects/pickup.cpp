@@ -1,6 +1,7 @@
 #include "pickup.h"
 #include "entities/player.h"
 #include "rendering/sprite.h"
+#include "geometry/map-data.h"
 
 namespace world_object {
 
