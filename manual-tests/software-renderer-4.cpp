@@ -148,7 +148,7 @@ int main() {
     auto sd_pillar_id = map.sidedefs.add(geometry::sidedef(s1_id, -1, 2, -1));
 
 	auto add_line = [&](float x1, float y1, float x2, float y2, auto f, auto b) {
-		return map.linedefs.add(geometry::linedef({x1, y1}, {x2, y2}, f, b));
+		return map("linedefs"_f).add(geometry::linedef({x1, y1}, {x2, y2}, f, b));
 	};
 
     auto ld_w_s = add_line(0.0f, 0.0f, 0.0f, 448.0f, sd_r1_solid_id, null_sd);

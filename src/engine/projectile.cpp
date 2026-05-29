@@ -19,12 +19,12 @@ void projectile::update(float dt) {
 	if (lifetime <= 0.0f) return;
 
 	bool has_bsp = map_ref &&
-		map_ref->root_node_id != util::indexed_storage<geometry::bsp_node>::nullid;
+		(*map_ref)("root_node_id"_f) != util::indexed_storage<geometry::bsp_node>::nullid;
 
 	auto remove_and_delete = [&]() {
 		if (has_bsp) {
 			auto sub_id = map_ref->get_subsector_id(pos);
-			map_ref->subsectors[sub_id].remove_sprite(this);
+			(*map_ref)("subsectors"_f)[sub_id].remove_sprite(this);
 		}
 		lifetime = 0.0f;
 		if (world_ref && self_id != 0)
@@ -44,7 +44,7 @@ void projectile::update(float dt) {
 		math::ray2 ray{pos, direction};
 		float move_dist = speed * dt;
 
-		for (auto const& e : map_ref->linedefs) {
+		for (auto const& e : (*map_ref)("linedefs"_f)) {
 			geometry::linedef const& ld = e.value;
 			if (ld.is_portal()) continue;
 			math::vec2 hit;

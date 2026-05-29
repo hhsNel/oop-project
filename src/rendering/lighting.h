@@ -4,9 +4,10 @@
 
 namespace rendering {
 	class lighting {
-	public:
 		static constexpr float dl_start   = 64.0f;
 		static constexpr float dl_density = 0.25f;
+
+	public:
 
 		__attribute__((always_inline)) static inline int calculate(std::uint8_t const sector_light_level, float const depth) {
 			if(depth > dl_start) {
