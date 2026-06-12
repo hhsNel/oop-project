@@ -4,12 +4,16 @@
 
 namespace rendering {
 	class lighting {
+		/* dynamic lighting minimum distance */
 		static constexpr float dl_start   = 64.0f;
+		/* dynamic lighting units per length */
 		static constexpr float dl_density = 0.25f;
 
 	public:
 
-		__attribute__((always_inline)) static inline int calculate(std::uint8_t const sector_light_level, float const depth) {
+		/* calculate light level from sector light and z */
+		__attribute__((always_inline)) static inline int
+			calculate(std::uint8_t const sector_light_level, float const depth) {
 			if(depth > dl_start) {
 				int corrected_light = sector_light_level - (depth - dl_start) * dl_density;
 				if(corrected_light < 0) corrected_light = 0;
@@ -19,7 +23,9 @@ namespace rendering {
 			}
 		}
 
-		__attribute__((always_inline)) static inline std::uint32_t apply(std::uint32_t const orig, int light) {
+		/* apply lighting to color using SWAR */
+		__attribute__((always_inline)) static inline std::uint32_t
+			apply(std::uint32_t const orig, int light) {
 			std::uint32_t swar_rb = orig & 0x00ff00ff;
 			std::uint32_t swar_g  = orig & 0x0000ff00;
 

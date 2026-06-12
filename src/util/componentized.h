@@ -8,23 +8,30 @@
 #include <vector>
 
 namespace util {
+	/* c++26 meta annotation */
 	struct component_field {};
+	/* c++26 meta annotation */
 	struct ref_component_field {};
 
+	/* char array for any string size */
 	template<std::size_t N>
 	struct fixed_string {
 		char data[N];
+		/* constructor */
 		consteval fixed_string(char const (&s)[N]) {
 			for (std::size_t i = 0; i < N; ++i) data[i] = s[i];
 		}
+		/* convert to std::string_view explicitly */
 		consteval std::string_view view() const { return {data, N - 1}; }
 	};
 
+	/* template metaprogramming argument struct */
 	template<fixed_string field>
 	struct component_tag {};
 
 	template <typename T>
 	class componentized {
+		/* get a std::meta::info of a field with annotation, or {} if not found */
 		template <fixed_string field, typename A>
 		consteval static std::meta::info get_tagged_member() {
 			auto ctx = std::meta::access_context::current();
@@ -44,6 +51,7 @@ namespace util {
 		}
 
 	public:
+		/* auto& operator() for ref_component_field only */
 		template<fixed_string field>
 		requires (get_tagged_member<field, ref_component_field const>() != std::meta::info{})
 		auto& operator()(component_tag<field>) {
@@ -51,6 +59,7 @@ namespace util {
 			return static_cast<T *>(this)->[:target:];
 		}
 
+		/* auto const& operator() for ref_component_field or component_field */
 		template<fixed_string field>
 		requires
 			( (get_tagged_member<field, component_field const>()	 != std::meta::info{}) ||
@@ -88,6 +97,7 @@ namespace util {
 	 */ 
 }
 
+/* operator""_f for the "hp"_f notation */
 /* must be global */
 template<util::fixed_string field>
 consteval util::component_tag<field> operator""_f() {

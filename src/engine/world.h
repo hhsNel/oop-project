@@ -8,28 +8,41 @@
 namespace engine {
 	class world {
 	private:
+		/* all entities */
 		util::indexed_storage<std::unique_ptr<entity>> entities;
-		std::vector<util::indexed_storage<std::unique_ptr<entity>>::id_t> deleted_entities;
+		/* entities to be removed at the end of a tick */
+		std::vector<util::indexed_storage<std::unique_ptr<entity>>::id_t>
+			deleted_entities;
 
 	public:
 		
+		/* constructor */
 		world();
 
 		world(const world&) = delete;
 		world& operator=(const world&) = delete;
 
+		/* tick all entities */
 		void update(float const dt);
 
-		entity& operator[](util::indexed_storage<std::unique_ptr<entity>>::id_t const id);
-		entity const& operator[](util::indexed_storage<std::unique_ptr<entity>>::id_t const id) const;
+		/* get an entity */
+		entity& operator[](
+			util::indexed_storage<std::unique_ptr<entity>>::id_t const id);
+		/* get an entity */
+		entity const& operator[](
+			util::indexed_storage<std::unique_ptr<entity>>::id_t const id) const;
 
-		util::indexed_storage<std::unique_ptr<entity>> const& get_entities() const;
+		/* add an entity */
+		util::indexed_storage<std::unique_ptr<entity>>::id_t
+			register_entity(std::unique_ptr<entity> e);
 
-		util::indexed_storage<std::unique_ptr<entity>>::id_t register_entity(std::unique_ptr<entity> e);
+		/* delete an entity */
+		void delete_entity(
+			util::indexed_storage<std::unique_ptr<entity>>::id_t const id);
 
-		void delete_entity(util::indexed_storage<std::unique_ptr<entity>>::id_t const id);
-
-		entity* entity_from_id(util::indexed_storage<std::unique_ptr<entity>>::id_t const id) const;
+		/* entity ptr (can be NULL) */
+		entity* entity_from_id(
+			util::indexed_storage<std::unique_ptr<entity>>::id_t const id) const;
 	};
 }
 
