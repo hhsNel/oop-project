@@ -16,7 +16,7 @@ build/headers/%.md: ../../src/%.h
 	mkdir -p $(@D)
 	echo -e "# $$(basename $<)\n\`\`\`cpp\n" > $@
 	cat $< >> $@
-	echo -e '```\n' >> $@
+	echo -e '\n```\n' >> $@
 
 build/pdf/headers.pdf: $(HEADER_PDFS)
 	pdfunite $^ $@

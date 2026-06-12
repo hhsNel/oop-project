@@ -31,6 +31,8 @@ namespace engine {
 		/* get an entity */
 		entity const& operator[](
 			util::indexed_storage<std::unique_ptr<entity>>::id_t const id) const;
+		/* all entities */
+		util::indexed_storage<std::unique_ptr<entity>> const& get_entities() const;
 
 		/* add an entity */
 		util::indexed_storage<std::unique_ptr<entity>>::id_t
