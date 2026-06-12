@@ -27,6 +27,8 @@ namespace util {
 		/* cache mutex for writing */
 		mutable std::shared_mutex cache_mutex;
 
+		/* try to load from cache */
+		void* lookup_binary(std::string_view resource_name);
 		/* load a resource file */
 		std::unique_ptr<resource> load_file(std::string_view resource_name) const;
 		/* lookup baked resource via dlsym */
