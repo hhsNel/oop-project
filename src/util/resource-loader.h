@@ -20,40 +20,53 @@
 
 namespace util {
 	class resource_loader {
+		/* resource name to pointer cache */
 		std::unordered_map<std::string, void*> symbol_cache;
+		/* resource name to resource cache */
 		std::unordered_map<std::string, std::unique_ptr<resource>> resource_cache;
+		/* cache mutex for writing */
 		mutable std::shared_mutex cache_mutex;
 
-		void* lookup_binary(std::string_view resource_name);
+		/* load a resource file */
 		std::unique_ptr<resource> load_file(std::string_view resource_name) const;
+		/* lookup baked resource via dlsym */
 		resource* lookup_resource_runtime(std::string_view resource_name);
 
+		/* turn resource name into symbol name */
 		constexpr std::string make_symbol_name(std::string_view resource_name) const;
 
 #if __has_include(<meta>)
+		/* count members of the res namespace */
 		static consteval std::size_t count_res_members();
 
+		/* templated array to hold res namespace members */
 		template <std::size_t N>
 		struct info_array {
 			std::meta::info data[N > 0 ? N : 1];
 		};
 
+		/* lookup all members of the res namespace */
 		template <std::size_t N>
 		static consteval info_array<N> get_res_members_array();
 
+		/* create resource from reflection */
 		constexpr resource const* get_by_symbol_reflection(std::string_view symbol_name) const;
 #endif
 
 	public:
+		/* constructor */
 		resource_loader()  = default;
+		/* destructor */
 		~resource_loader() = default;
 
 		resource_loader(resource_loader const&)			= delete;
 		resource_loader& operator=(resource_loader const&) = delete;
 
+		/* get resource by name */
 		constexpr resource* lookup_resource(std::string_view resource_name);
 	};
 
+	/* constexpr function definitions */
 	constexpr std::string resource_loader::make_symbol_name(std::string_view resource_name) const {
 		std::string sym = "_binary_res_";
 		sym.reserve(sym.size() + resource_name.size());

@@ -19,14 +19,19 @@ namespace rendering {
 
 namespace assets {
 	class menu {
+		/* constructor */
 		menu(std::vector<menu_element> els, texture_id const b);
 
+		/* menu elements */
 		std::vector<menu_element> elements;
+		/* menu background */
 		texture_id const bg;
 
 	public:
+		/* load from binaries */
 		static menu load_from_bin(util::resource_loader &resld, util::resource const &res);
 
+		/* conditionally replace format strings with values within elements */
 		/* usage: */
 		/* menu.set_formatter_for("{name}", [&](std::string_view tmpl) { */
 		/*	 std::string s(tmpl); */
@@ -34,10 +39,14 @@ namespace assets {
 		/*		 s.replace(p, 7, player_name); */
 		/*	 return s; */
 		/* }); */
-		void selective_formatter(std::string_view key_filter, std::function<std::string(std::string_view)> fn);
+		void selective_formatter(std::string_view key_filter,
+				std::function<std::string(std::string_view)> fn);
 
+		/* add a formatter to all elements */
 		void formatter_all(std::function<std::string(std::string_view)> fn);
 
-		int display(rendering::renderer_2d const &r2d, rendering::rendering_backend &rb, input::input_backend &in, std::vector<texture> const& ui_tx) const;
+		/* display a menu */
+		int display(rendering::renderer_2d const &r2d, rendering::rendering_backend &rb,
+				input::input_backend &in, std::vector<texture> const& ui_tx) const;
 	};
 }

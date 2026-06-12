@@ -15,20 +15,31 @@ namespace geometry {
 	class sidedef;
 
 	class linedef : public util::componentized<linedef> {
+		/* line segment */
 		[[=util::component_field{}]] math::segment seg;
 		
+		/* front sidedef */
 		util::indexed_storage<sidedef>::id_t front;
+		/* back sidedef */
 		util::indexed_storage<sidedef>::id_t back;
 
 	public:
 
-		linedef(math::vec2 const p0, math::vec2 const p1, util::indexed_storage<sidedef>::id_t const f, util::indexed_storage<sidedef>::id_t const b);
+		/* constructor */
+		linedef(math::vec2 const p0, math::vec2 const p1,
+			util::indexed_storage<sidedef>::id_t const f,
+			util::indexed_storage<sidedef>::id_t const b);
 
+		/* load subsectors from a binary */
 		static std::vector<linedef> load_from_bin(util::resource const& res);
 
+		/* is it a wall */
 		__attribute__((always_inline)) constexpr inline bool is_wall() const;
+		/* is it a portal */
 		__attribute__((always_inline)) constexpr inline bool is_portal() const;
+		/* line directrion */
 		__attribute__((always_inline)) constexpr inline math::vec2 dir() const;
+		/* line length */
 		__attribute__((always_inline)) constexpr inline float len() const;
 
 		friend util::componentized<linedef>;
