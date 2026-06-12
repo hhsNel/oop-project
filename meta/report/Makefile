@@ -3,7 +3,7 @@ HEADER_PDFS := $(patsubst ../../src/%.h,build/pdf/%.pdf,$(HEADERS))
 
 all: report.pdf
 
-report.pdf: title.pdf build/pdf/123.pdf build/pdf/headers.pdf build/pdf/5.pdf build/pdf/678.pdf
+report.pdf: title.pdf build/pdf/123.pdf uml.pdf build/pdf/headers.pdf build/pdf/4.pdf build/pdf/5.pdf build/pdf/678.pdf
 	pdfunite $^ report.pdf
 
 build/pdf/%.pdf: %.md | build
@@ -25,6 +25,7 @@ build:
 	mkdir -p build/pdf
 
 .PHONY: all clean
+.SECONDARY:
 
 clean:
 	rm -rf build
