@@ -7,10 +7,10 @@ report.pdf: title.pdf build/pdf/123.pdf build/pdf/headers.pdf build/pdf/5.pdf bu
 	pdfunite $^ report.pdf
 
 build/pdf/%.pdf: %.md | build
-	pandoc --from=gfm --to=pdf $< -o $@ -V geometry:margin=1in -V papersize:A4
+	pandoc --from=gfm --to=pdf $< -o $@ -V geometry:margin=1in -V papersize:A4 -V pagestyle=empty
 build/pdf/%.pdf: build/headers/%.md | build
 	mkdir -p $(@D)
-	pandoc --from=gfm --to=pdf $< -o $@ -V geometry:margin=1in -V papersize:A4
+	pandoc --from=gfm --to=pdf $< -o $@ -V geometry:margin=1in -V papersize:A4 -V pagestyle=empty
 
 build/headers/%.md: ../../src/%.h
 	mkdir -p $(@D)
