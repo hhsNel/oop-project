@@ -1,0 +1,31 @@
+HEADERS := $(shell find ../../src -name '*.h')
+HEADER_PDFS := $(patsubst ../../src/%.h,build/pdf/%.pdf,$(HEADERS))
+
+all: report.pdf
+
+report.pdf: title.pdf build/pdf/123.pdf build/pdf/headers.pdf build/pdf/5.pdf build/pdf/678.pdf
+	pdfunite $^ report.pdf
+
+build/pdf/%.pdf: %.md | build
+	pandoc --from=gfm --to=pdf $< -o $@ -V geometry:margin=1in -V papersize:A4
+build/pdf/%.pdf: build/headers/%.md | build
+	mkdir -p $(@D)
+	pandoc --from=gfm --to=pdf $< -o $@ -V geometry:margin=1in -V papersize:A4
+
+build/headers/%.md: ../../src/%.h
+	mkdir -p $(@D)
+	echo -e "# $$(basename $<)\n\`\`\`cpp\n" > $@
+	cat $< >> $@
+	echo -e '```\n' >> $@
+
+build/pdf/headers.pdf: $(HEADER_PDFS)
+	pdfunite $^ $@
+
+build:
+	mkdir -p build/pdf
+
+.PHONY: all clean
+
+clean:
+	rm -rf build
+
