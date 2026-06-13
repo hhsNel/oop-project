@@ -14,7 +14,7 @@ build/pdf/%.pdf: build/headers/%.md | build
 
 build/headers/%.md: ../../src/%.h
 	mkdir -p $(@D)
-	echo -e "# $$(basename $<)\n\`\`\`cpp\n" > $@
+	echo -e "# $$(echo $< | sed 's|../../src/||g')\n\`\`\`cpp\n" > $@
 	cat $< >> $@
 	echo -e '\n```\n' >> $@
 
