@@ -13,6 +13,9 @@ namespace geometry {
 }
 
 namespace entities {
-	std::unique_ptr<monster> make_monster(geometry::monster_spawn const& ms, engine::actor& target, geometry::map_data& map, engine::world& world);
+	/* build a monster instance from a spawn descriptor */
+	std::unique_ptr<monster> make_monster(
+		geometry::monster_spawn const& ms, engine::actor& target,
+		geometry::map_data& map, engine::world& world);
 }
 

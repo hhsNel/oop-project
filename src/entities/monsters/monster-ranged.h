@@ -5,9 +5,14 @@
 namespace entities {
 
 	class monster_ranged : public monster {
+		/* distance the monster tries to keep from its target */
 		float preferred_dist;
 	public:
-		monster_ranged(math::vec2 const p, float const z, engine::actor& target, geometry::map_data& map, engine::world& world);
+		/* constructor */
+		monster_ranged(math::vec2 const p, float const z,
+			engine::actor& target, geometry::map_data& map,
+			engine::world& world);
+		/* entity tick */
 		void update(float dt) override;
 	};
 

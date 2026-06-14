@@ -8,6 +8,7 @@ namespace combat {
 	namespace weapons {
 		class smg : public weapon {
 		public:
+			/* constructor */
 			explicit smg(geometry::map_data const& map,
 			             engine::world const& world,
 			             audio::audio_mixer& mix,

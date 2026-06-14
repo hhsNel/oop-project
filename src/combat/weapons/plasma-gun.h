@@ -8,6 +8,7 @@ namespace combat {
 	namespace weapons {
 		class plasma_gun : public weapon {
 		public:
+			/* constructor */
 			explicit plasma_gun(geometry::map_data& map,
 			                    engine::world& world,
 			                    audio::audio_mixer& mix,
