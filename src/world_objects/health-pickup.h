@@ -5,6 +5,7 @@
 namespace world_object {
 
 	class health_pickup : public pickup {
+		/* amount of health restored on pickup */
 		float heal_amount;
 	public:
 		/* constructor */

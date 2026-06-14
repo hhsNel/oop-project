@@ -7,6 +7,7 @@ namespace world_object {
 
 	template<typename WeaponT>
 	class ammo_pickup : public pickup {
+		/* amount of ammo granted on pickup */
 		int amount;
 	public:
 		/* constructor */

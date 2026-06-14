@@ -9,14 +9,23 @@ namespace geometry { class map_data; }
 namespace entities {
 	class monster : public engine::actor {
 	protected:
+		/* actor this monster is hunting */
 		engine::actor& target;
+		/* map used for movement and collision */
 		geometry::map_data& map_ref;
+		/* world the monster lives in */
 		engine::world& world_ref;
+		/* time remaining until the next attack */
 		float attack_cooldown;
+		/* range within which the monster can attack */
 		float attack_range;
+		/* range within which the monster notices its target */
 		float detection_radius;
+		/* damage dealt per attack */
 		float attack_damage;
+		/* cooldown between attacks */
 		float attack_cd_max;
+		/* radius used for wall collision */
 		float collision_radius = 16.0f;
 
 		/* whether the monster currently has a live target */
@@ -41,7 +50,12 @@ namespace entities {
 	public:
 
 		/* constructor */
-		monster(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float atk_range, float det_radius, float atk_dmg, float atk_cd, engine::actor& target, geometry::map_data& map, engine::world& world);
+		monster(math::vec2 const p, float const z,
+			assets::texture_id const tex, float const is, float hp,
+			float shield, float move_speed, float atk_range,
+			float det_radius, float atk_dmg, float atk_cd,
+			engine::actor& target, geometry::map_data& map,
+			engine::world& world);
 
 		/* entity tick */
 		void update(float dt) override;

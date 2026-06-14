@@ -19,16 +19,26 @@ namespace engine {
 		friend class entities::monster;
 		friend class entities::monster_boss;
 	protected:
+		/* unit direction of travel */
 		math::vec2 direction;
+		/* travel speed */
 		float speed;
+		/* damage dealt on hit */
 		float damage;
+		/* seconds left before the projectile despawns */
 		float lifetime;
+		/* radius used for hit detection */
 		float hit_radius;
+		/* faction that fired the projectile */
 		faction team;
+		/* makes the status effect applied on hit, may be null */
 		std::function<std::unique_ptr<combat::status_effect>()> on_hit_effect;
 
+		/* world the projectile lives in */
 		world* world_ref = nullptr;
+		/* map used for wall collision */
 		geometry::map_data* map_ref = nullptr;
+		/* this projectile's id in the world's entity storage */
 		util::indexed_storage<std::unique_ptr<entity>>::id_t self_id = 0;
 
 	public:
