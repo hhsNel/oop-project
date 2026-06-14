@@ -31,19 +31,30 @@ namespace entities {
 
 	public:
 
+		/* constructor */
 		player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens, geometry::map_data* map = nullptr, engine::world* world = nullptr);
 
+		/* place a weapon into the given inventory slot */
 		void equip(int slot, std::unique_ptr<combat::weapons::weapon> wpn);
 
+		/* entity tick */
 		void update(float dt) override;
+		/* move the player along a direction */
 		void move(math::vec2 direction);
+		/* rotate the player's facing by a yaw amount */
 		void rotate(float yaw);
+		/* fire the currently held weapon */
 		void shoot();
+		/* reload the currently held weapon */
 		void reload();
+		/* select the weapon in the given slot */
 		void switch_weapons(int index);
+		/* begin sprinting */
 		void start_sprint();
+		/* stop sprinting */
 		void stop_sprint();
 
+		/* add ammo to the first held weapon of the given type */
 		template<typename WeaponT>
 		bool resupply(int amount) {
 			for (auto& w : weapons) {

@@ -32,10 +32,12 @@ namespace engine {
 		util::indexed_storage<std::unique_ptr<entity>>::id_t self_id = 0;
 
 	public:
+		/* constructor */
 		projectile(math::vec2 pos, float z, assets::texture_id tex, float scale,
 		           math::vec2 dir, float spd, float dmg, float life,
 		           faction f, float radius = 8.0f);
 
+		/* entity tick, moves the projectile and resolves hits */
 		void update(float dt) override;
 	};
 

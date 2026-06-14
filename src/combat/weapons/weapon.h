@@ -31,17 +31,25 @@ namespace combat
 			[[=util::component_field{}]] float reload_timer;
 			[[=util::component_field{}]] bool reloading;
 
+			/* refill the magazine at the end of a reload */
 			void finish_reload();
 		public:
+			/* whether the weapon can currently fire */
 			virtual bool can_fire() const;
+			/* advance cooldown and reload timers */
 			void tick(float dt);
+			/* add spare magazines to the reserve */
 			void resupply(int amount);
 
+			/* fire the weapon from a position at an angle */
 			virtual void fire(math::vec2 pos, float angle);
+			/* begin reloading from the reserve */
 			virtual void reload();
+			/* virtual destructor */
 			virtual ~weapon() = default;
 
 		protected:
+			/* constructor */
 			weapon(std::unique_ptr<firing_mode> firing, int max, float rate, float dmg,
 			       int reserve,
 			       audio::audio_mixer& mix,

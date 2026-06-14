@@ -19,20 +19,31 @@ namespace entities {
 		float attack_cd_max;
 		float collision_radius = 16.0f;
 
+		/* whether the monster currently has a live target */
 		bool has_target() const;
+		/* distance from the monster to its target */
 		float dist_to_target() const;
+		/* unit direction from the monster to its target */
 		math::vec2 dir_to_target() const;
+		/* clamp a candidate position so it does not pass through walls */
 		void apply_wall_collision(math::vec2& new_pos) const;
+		/* step toward the target this frame */
 		void move_toward_target(float speed, float dt);
+		/* step away from the target this frame */
 		void move_away_from_target(float speed, float dt);
+		/* circle around the target this frame */
 		void strafe(float speed, float dt);
+		/* deal melee damage to the target */
 		void melee_attack(float damage);
+		/* fire a projectile at the target */
 		void ranged_attack(float damage, assets::texture_id tex, float speed);
 
 	public:
 
+		/* constructor */
 		monster(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float atk_range, float det_radius, float atk_dmg, float atk_cd, engine::actor& target, geometry::map_data& map, engine::world& world);
 
+		/* entity tick */
 		void update(float dt) override;
 	};
 }

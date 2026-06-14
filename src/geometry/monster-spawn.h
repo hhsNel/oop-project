@@ -16,8 +16,10 @@ namespace geometry {
 		friend class util::componentized<monster_spawn>;
 
 	public:
+		/* constructor */
 		monster_spawn(std::uint32_t t, math::vec2 p, float height);
 
+		/* parse a list of monster spawns from a binary resource */
 		static std::vector<monster_spawn> load_from_bin(util::resource const& res);
 
 		friend std::unique_ptr<entities::monster> entities::make_monster(geometry::monster_spawn const& ms, engine::actor& target, geometry::map_data& map, engine::world& world);
