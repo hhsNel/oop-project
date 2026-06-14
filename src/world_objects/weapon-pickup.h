@@ -8,7 +8,9 @@ namespace combat { namespace weapons { class weapon; } }
 namespace world_object {
 
 	class weapon_pickup : public pickup {
+		/* weapon handed to the player on pickup */
 		std::unique_ptr<combat::weapons::weapon> provided_weapon;
+		/* inventory slot the weapon is placed into */
 		int slot;
 	public:
 		/* constructor */

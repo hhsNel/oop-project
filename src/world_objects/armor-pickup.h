@@ -5,6 +5,7 @@
 namespace world_object {
 
 	class armor_pickup : public pickup {
+		/* amount of armor granted on pickup */
 		float armor_amount;
 	public:
 		/* constructor */

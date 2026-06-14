@@ -18,13 +18,22 @@ namespace entities {
 		using engine::actor::operator();
 
 	protected:
-		[[=util::component_field{}]] std::vector<std::unique_ptr<combat::weapons::weapon>> weapons;
+		/* held weapons, one per inventory slot */
+		[[=util::component_field{}]]
+		std::vector<std::unique_ptr<combat::weapons::weapon>> weapons;
+		/* mouse look sensitivity */
 		float sensitivity;
+		/* index of the currently selected weapon */
 		[[=util::component_field{}]] int current_weapon_index;
+		/* map used for movement collision */
 		geometry::map_data* map_ref = nullptr;
+		/* world the player acts in */
 		engine::world* world_ref = nullptr;
+		/* radius used for wall collision */
 		float collision_radius = 16.0f;
+		/* normal movement speed */
 		float walk_speed;
+		/* movement speed while sprinting */
 		float sprint_speed;
 
 		friend class util::componentized<player>;
@@ -32,7 +41,11 @@ namespace entities {
 	public:
 
 		/* constructor */
-		player(math::vec2 const p, float const z, assets::texture_id const tex, float const is, float hp, float shield, float move_speed, float sens, geometry::map_data* map = nullptr, engine::world* world = nullptr);
+		player(math::vec2 const p, float const z,
+			assets::texture_id const tex, float const is, float hp,
+			float shield, float move_speed, float sens,
+			geometry::map_data* map = nullptr,
+			engine::world* world = nullptr);
 
 		/* place a weapon into the given inventory slot */
 		void equip(int slot, std::unique_ptr<combat::weapons::weapon> wpn);

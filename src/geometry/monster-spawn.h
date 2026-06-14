@@ -9,8 +9,11 @@
 
 namespace geometry {
 	class monster_spawn : public util::componentized<monster_spawn> {
+		/* monster type id */
 		std::uint32_t type;
+		/* world position to spawn at */
 		[[=util::component_field{}]] math::vec2 pos;
+		/* spawn height */
 		float z;
 
 		friend class util::componentized<monster_spawn>;
@@ -22,7 +25,10 @@ namespace geometry {
 		/* parse a list of monster spawns from a binary resource */
 		static std::vector<monster_spawn> load_from_bin(util::resource const& res);
 
-		friend std::unique_ptr<entities::monster> entities::make_monster(geometry::monster_spawn const& ms, engine::actor& target, geometry::map_data& map, engine::world& world);
+		/* lets the factory read this spawn's private fields */
+		friend std::unique_ptr<entities::monster> entities::make_monster(
+			geometry::monster_spawn const& ms, engine::actor& target,
+			geometry::map_data& map, engine::world& world);
 	};
 }
 

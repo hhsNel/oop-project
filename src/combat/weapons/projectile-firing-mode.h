@@ -11,12 +11,19 @@ namespace combat {
 	namespace weapons {
 
 		class projectile_firing_mode : public firing_mode {
+			/* world the projectiles are spawned into */
 			engine::world& world_ref;
+			/* map passed to each spawned projectile */
 			geometry::map_data& map_ref;
+			/* faction the spawned projectiles belong to */
 			engine::faction team;
+			/* texture used for the spawned projectile */
 			assets::texture_id projectile_tex;
+			/* projectile travel speed */
 			float projectile_speed;
+			/* seconds before the projectile despawns */
 			float projectile_lifetime;
+			/* projectile render scale */
 			float projectile_scale;
 
 		public:

@@ -11,10 +11,15 @@ namespace geometry { class map_data; }
 namespace world_object {
 
 	class pickup : public engine::renderable_entity {
+		/* distance within which the player collects it */
 		float pickup_radius;
+		/* player that can collect this pickup */
 		entities::player& player_ref;
+		/* map the pickup lives in */
 		geometry::map_data& map_ref;
+		/* subsector the pickup is located in */
 		util::indexed_storage<geometry::subsector>::id_t subsector_id;
+		/* whether the pickup has already been collected */
 		bool consumed = false;
 
 	public:

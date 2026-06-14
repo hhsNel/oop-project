@@ -8,9 +8,13 @@ namespace combat
 {
 	class status_effect {
 	protected:
+		/* remaining time before the effect expires */
 		float duration;
+		/* strength of the effect */
 		unsigned int intensity;
+		/* time between effect ticks */
 		float tick_interval;
+		/* time accumulated toward the next tick */
 		float tick_timer;
 	public:
 		/* constructor */
