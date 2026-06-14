@@ -15,11 +15,13 @@ namespace combat {
             float               hit_radius;
 
         public:
+            /* constructor */
             hitscan_firing_mode(geometry::map_data const& map,
                             engine::world const& world,
                             float range  = 8192.0f,
                             float radius = 32.0f);
 
+            /* trace an instant ray and damage the first actor hit */
             void spawn_bullet(math::vec2 pos, float angle, float damage) override;
         };
     }

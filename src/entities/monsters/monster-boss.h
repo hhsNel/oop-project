@@ -47,24 +47,39 @@ namespace entities {
 
 		geometry::map_data& boss_map_ref;
 
+		/* current health as a fraction of max health */
 		float hp_ratio() const;
+		/* advance to the next phase when health thresholds are crossed */
 		void  update_phase();
+		/* phase 1 behaviour */
 		void  phase1_ai(float dt, float dist);
+		/* phase 2 behaviour */
 		void  phase2_ai(float dt, float dist);
+		/* phase 3 behaviour */
 		void  phase3_ai(float dt, float dist);
+		/* fire a ranged volley that slows the target */
 		void  ranged_attack_slow();
+		/* melee strike that applies burning */
 		void  melee_attack_burn();
+		/* begin a charge dash toward the target */
 		void  start_charge();
+		/* advance an in-progress charge */
 		void  update_charge(float dt);
+		/* begin the phase 3 channel */
 		void  start_channel();
+		/* whether any spawned minions are still alive */
 		bool  minions_alive() const;
 
 	public:
+		/* constructor */
 		monster_boss(math::vec2 const p, float const z, engine::actor& target, geometry::map_data& map, engine::world& world);
 
+		/* whether the boss is currently channeling */
 		bool channeling() const;
+		/* current flash animation phase, for rendering */
 		float flash_phase() const;
 
+		/* entity tick */
 		void update(float dt) override;
 	};
 

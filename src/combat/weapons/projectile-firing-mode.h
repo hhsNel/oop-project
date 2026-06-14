@@ -20,11 +20,13 @@ namespace combat {
 			float projectile_scale;
 
 		public:
+			/* constructor */
 			projectile_firing_mode(engine::world& w, geometry::map_data& md,
 			                       engine::faction f,
 			                       assets::texture_id tex, float spd,
 			                       float lifetime = 5.0f, float scale = 0.5f);
 
+			/* spawn a travelling projectile into the world */
 			void spawn_bullet(math::vec2 pos, float angle, float damage) override;
 		};
 

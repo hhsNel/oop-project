@@ -8,6 +8,7 @@ namespace combat {
 	namespace weapons {
 		class sniper_rifle : public weapon {
 		public:
+			/* constructor */
 			explicit sniper_rifle(geometry::map_data const& map,
 			                      engine::world const& world,
 			                      audio::audio_mixer& mix,

@@ -11,10 +11,12 @@ namespace combat {
 			static constexpr int   pellet_count = 8;
 			static constexpr float spread       = 0.2618f;
 
+			/* constructor */
 			explicit shotgun(geometry::map_data const& map,
 			                 engine::world const& world,
 			                 audio::audio_mixer& mix,
 			                 assets::asset_manager const& am);
+			/* fire a spread of pellets in one shot */
 			void fire(math::vec2 pos, float angle) override;
 		};
 	}

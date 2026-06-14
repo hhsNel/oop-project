@@ -9,6 +9,7 @@ namespace world_object {
 	class ammo_pickup : public pickup {
 		int amount;
 	public:
+		/* constructor */
 		ammo_pickup(math::vec2 position, float z, assets::texture_id tex,
 		            int amt, entities::player& pl,
 		            geometry::map_data& md,
@@ -16,6 +17,7 @@ namespace world_object {
 		            float radius = 20.0f)
 			: pickup(position, z, tex, pl, md, sub_id, radius), amount(amt) {}
 
+		/* resupply ammo for the matching weapon type */
 		void on_pickup(entities::player& p) override {
 			p.resupply<WeaponT>(amount);
 		}

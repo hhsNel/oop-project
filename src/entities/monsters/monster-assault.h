@@ -14,7 +14,9 @@ namespace entities {
 		float strafe_timer;
 
 	public:
+		/* constructor */
 		monster_assault(math::vec2 const p, float const z, engine::actor& target, geometry::map_data& map, engine::world& world);
+		/* entity tick */
 		void update(float dt) override;
 	};
 
